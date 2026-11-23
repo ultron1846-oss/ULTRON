@@ -23,4 +23,5 @@
 - **Changes:** repository status and component assessment, architecture and research records, Subspace finding, maintenance and limitation docs, Node test workflow, and main-only Pages deployment workflow.
 - **Research:** official GitHub Pages documentation only; no claims about model architecture or external compute.
 - **Local verification:** `node --test` — 6 passed, 0 failed, including checks of deployment branch restrictions and action permissions.
-- **External verification:** no GitHub Actions runs yet; Pages setting and public site not verified.
+- **Pull request:** [#2 — Document architecture and prepare GitHub Pages delivery](https://github.com/ultron1846-oss/ULTRON/pull/2), open and stacked on PR #1.
+- **External verification:** first GitHub Actions test run succeeded; Pages setting and public site not verified.

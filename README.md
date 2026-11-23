@@ -5,11 +5,11 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 ## Repository status
 
 - Default branch: `main`.
-- Current milestone branch: `feat/math-website-foundation`.
-- Open pull request: [#1 — Build ULTRON mathematics website foundation](https://github.com/ultron1846-oss/ULTRON/pull/1).
+- Current milestone branch: `milestone-2-assessment-pages`, stacked on `feat/math-website-foundation`.
+- Open pull requests: [#1 — Build ULTRON mathematics website foundation](https://github.com/ultron1846-oss/ULTRON/pull/1) and [#2 — Document architecture and prepare GitHub Pages delivery](https://github.com/ultron1846-oss/ULTRON/pull/2).
 - Assessment/deployment milestone branch: `milestone-2-assessment-pages` (stacked on PR #1).
 - Latest local test run including assessment/deployment checks: `node --test` — 6 passed, 0 failed.
-- GitHub Actions workflow checks: no run yet. Pages is not merged, enabled, or publicly verified.
+- Latest GitHub Actions run for PR #2: run 1 succeeded. Pages is not merged, enabled, or publicly verified.
 
 The repository's initial `main` snapshot contained only a placeholder README. The feature branch in PR #1 adds the first application, arithmetic parser, limited linear equation solver, and tests. GitHub currently reports no workflow runs for the repository.
 
