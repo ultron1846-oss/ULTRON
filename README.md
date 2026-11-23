@@ -38,7 +38,7 @@ This is a static site with no build step. In Netlify, connect the repository, se
 - Domain cards marked planned do not implement those subjects.
 - Learning has one arithmetic practice item; progress is stored only in the current browser.
 - The resource control expresses future workload preference and cannot control physical memory.
-- The hosted Google Fonts import is optional presentation polish; the page falls back to system fonts when unavailable.
+- The interface uses system fonts and has no external runtime dependencies.
 - No login, backend, model, training, or live Netlify site exists.
 
 ## Exact next steps
