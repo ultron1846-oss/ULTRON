@@ -1,4 +1,4 @@
-const tokenPattern = /\s*(?:(\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|([()+\-*/^]))/gy;
+const tokenPattern = /\s*(?:(\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|([()+\-*/^×÷]))/gy;
 
 export function tokenize(source) {
   if (typeof source !== 'string' || source.trim() === '') throw new Error('Enter a mathematical expression.');
@@ -46,10 +46,10 @@ export function evaluateExpression(source) {
   }
   function product() {
     let value = unary();
-    while (peek() === '*' || peek() === '/') {
+    while (peek() === '*' || peek() === '/' || peek() === '×' || peek() === '÷') {
       const op = take(); const right = unary();
-      if (op === '/' && right === 0) throw new Error('Division by zero is undefined.');
-      value = op === '*' ? value * right : value / right;
+      if ((op === '/' || op === '÷') && right === 0) throw new Error('Division by zero is undefined.');
+      value = op === '*' || op === '×' ? value * right : value / right;
     }
     return value;
   }
