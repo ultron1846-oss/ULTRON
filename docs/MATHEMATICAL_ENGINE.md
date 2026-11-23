@@ -2,7 +2,7 @@
 
 ## Implemented on the open foundation branch
 
-`math-engine.js` exports `tokenize`, `evaluateExpression`, and `solveLinearEquation`. The expression parser accepts decimal numbers, parentheses, unary signs, `+`, `-`, `*`, `/`, and `^`. It rejects unrecognized characters, malformed expressions, division by zero, oversized input, and non-finite results. It does not execute JavaScript and does not use `eval()` or `new Function()`.
+`math-engine.js` exports `tokenize`, `evaluateExpression`, and `solveLinearEquation`. The expression parser accepts decimal numbers, parentheses, unary signs, `+`, `-`, `*`, `/`, `×`, `÷`, and `^`. It rejects unrecognized characters, malformed expressions, division by zero, oversized input, and non-finite results. It does not execute JavaScript and does not use `eval()` or `new Function()`.
 
 The equation solver handles a narrow one-variable linear format with numeric coefficients, for example `2x + 3 = 11`. This is not symbolic algebra. The grammar, floating-point tolerance policy, exponent domain behavior, and broader malformed-input cases still need specification.
 

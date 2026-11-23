@@ -6,9 +6,10 @@ test('parses standard arithmetic and precedence', () => {
   assert.equal(evaluateExpression('(12 + 8) / 4 ^ 2'), 1.25);
   assert.equal(evaluateExpression('-2^2'), -4);
   assert.equal(evaluateExpression('2 * (3 + 4)'), 14);
+  assert.equal(evaluateExpression('18 × 7 ÷ 3'), 42);
 });
 test('rejects unsafe, malformed and invalid expressions', () => {
-  for (const value of ['', '1 / 0', '2 + process.exit()', '2 $ 3', '(4 + 1', '1e999']) assert.throws(() => evaluateExpression(value));
+  for (const value of ['', '1 / 0', '18 ÷ 0', '2 + process.exit()', '2 $ 3', '(4 + 1', '1e999']) assert.throws(() => evaluateExpression(value));
   assert.throws(() => tokenize('1'.repeat(241)), /too long/);
 });
 test('solves single-variable linear equations', () => {
