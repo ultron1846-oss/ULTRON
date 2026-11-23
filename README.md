@@ -8,7 +8,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 - Open pull requests: none. Milestone PRs [#1](https://github.com/ultron1846-oss/ULTRON/pull/1) and [#2](https://github.com/ultron1846-oss/ULTRON/pull/2) are merged.
 - Latest local test result: `node --test` — 6 passed, 0 failed.
 - Latest main-branch test workflow: passed.
-- Pages deployment: failed before artifact upload because GitHub Pages is not enabled and configured to use GitHub Actions. The public site has not been verified.
+- Public site: verified at the target URL after GitHub's Pages build/deployment workflow succeeded. The separate custom Pages action workflow failed on its first run at `Configure Pages`, so that deployment path still needs validation.
 
 The initial repository contained only a placeholder README. PR #1 added the first application and math foundation. PR #2 added the repository assessment, documentation, and delivery workflows.
 
@@ -42,7 +42,7 @@ With Node.js 18 or later, run `node --test` (or `npm test` where npm is installe
 
 Target URL: `https://ultron1846-oss.github.io/ULTRON/`.
 
-The static workflow stages the required site files and has no build step. It deploys only from `main`. The first deployment attempt stopped at `Configure Pages` with a “Get Pages site failed” error because Pages is not enabled/configured. In repository **Settings → Pages**, set the publishing source to **GitHub Actions**. Then manually run **Deploy static site to GitHub Pages** from the Actions tab. Open the public URL and verify the page, styles, module imports, and navigation before calling deployment complete.
+The custom static workflow stages the required site files and has no build step. It deploys only from `main`. Its first run stopped at `Configure Pages` with a “Get Pages site failed” error. A GitHub-generated Pages build/deployment run later succeeded, and the public dashboard loaded at the target URL. Confirm the repository **Settings → Pages** source before relying on the custom workflow; validate that workflow separately after the setting is confirmed.
 
 ## Known limitations
 
@@ -52,7 +52,7 @@ The static workflow stages the required site files and has no build step. It dep
 - The resource control records workload preference and cannot allocate or measure physical memory.
 - There is no model, generated training data, durable model checkpoint, backend, or authentication system.
 - The repository contains no Subspace code or reference; its intended meaning is unresolved.
-- README status is maintained at milestones; public deployment remains unverified.
+- The custom Actions deployment path has not yet passed; the public site itself is live and browser-verified.
 
 ## Five-PR development plan
 
@@ -66,7 +66,7 @@ Later milestones should be implemented, tested, and documented before their PRs 
 
 ## Next steps
 
-1. Configure GitHub Pages to use GitHub Actions, then manually run the deployment workflow and verify the public site.
+1. Confirm the GitHub Pages publishing source, then validate the custom deployment workflow without creating repeated runs.
 2. Begin PR #3 by specifying the supported mathematical grammar and verification invariants before adding operations.
 3. Add browser checks on desktop, mobile, and iPad Safari when an available test environment supports them.
 4. Keep actual model training disabled unless the user separately authorizes it.
