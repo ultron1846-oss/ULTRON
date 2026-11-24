@@ -63,3 +63,18 @@ The model now skips explicit token min/max checks on accelerator inputs and reli
 ## Trusted mathematical knowledge gate
 
 The prototype has no formal proof kernel or verifiable proof-receipt type. Consequently, FormulaCandidate.can_enter_trusted_knowledge() now fails closed for every candidate. A caller-supplied FORMALLY_VERIFIED enum value or free-form evidence string is metadata, not a checked proof. Re-enable trusted admission only when a proof backend can return a structured receipt that ULTRON validates independently.
+
+
+## Causal sequence architecture — 2026-11-24
+
+The prototype now includes pre-normalized multi-head causal self-attention and learned absolute position embeddings.
+
+- Each block applies causal self-attention before sparse expert routing, predictive refinement and memory recall.
+- The boolean attention mask blocks keys at positions strictly later than the current query position. The mask is created on the input device and shared across blocks for that forward pass.
+- Learned position embeddings make token order explicit. The configurable max_sequence_length bounds the position table; longer inputs fail with a clear error.
+- num_attention_heads is configurable and the configuration rejects hidden sizes that are not divisible by the head count.
+- Regression tests check both directions of the causal contract: changing an earlier token can affect later logits, while changing future tokens cannot affect earlier logits.
+- This is a small reference implementation using PyTorch MultiheadAttention, not a measured high-performance attention kernel. No flash-attention, KV cache, streaming decode, rotary embeddings, relative positions or long-context scaling is claimed.
+- The model remains untrained and still lacks a tokenizer, original deterministic mathematical corpus generator, curriculum, full symbolic algebra, formal proof kernel and demonstrated mathematical capability. Causal attention is a necessary language-modeling prerequisite, not evidence of university-level math ability.
+
+Validation remains the CPU Python regression suite and forward/backward smoke check. These checks do not execute an optimizer step or start training.
