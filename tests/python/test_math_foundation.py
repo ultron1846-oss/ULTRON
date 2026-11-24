@@ -9,7 +9,7 @@ from ultron_core import NeuroSparseConfig, NeuroSparseModel
 from ultron_core.math_ir import Expr, ExprKind
 from ultron_core.verification import evaluate
 from ultron_core.data_generation import (
-    GENERATOR_VERSION, generate_examples, validate_example_text, write_dataset,
+    GENERATOR_VERSION, generate_examples, validate_example_text, verify_dataset, write_dataset,
 )
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary
 
@@ -144,11 +144,11 @@ class DeterministicDataGenerationTests(unittest.TestCase):
             manifest2 = write_dataset(path2, examples, seed=101, topics=("arithmetic", "rational_arithmetic", "linear_equations"))
             self.assertEqual(path.read_bytes(), path2.read_bytes())
             self.assertEqual(manifest, manifest2)
-
-
-if __name__ == "__main__":
-    unittest.main()
-
+            self.assertEqual(verify_dataset(path), manifest)
+            with path.open("ab") as stream:
+                stream.write(b"tamper\\n")
+            with self.assertRaisesRegex(ValueError, "SHA-256"):
+                verify_dataset(path)
 
 
 class ModelIntegrationTests(unittest.TestCase):
@@ -258,3 +258,7 @@ class ModelIntegrationTests(unittest.TestCase):
         self.assertEqual(evaluate(division, {}), 3)
         with self.assertRaises(ZeroDivisionError):
             evaluate(Expr(ExprKind.DIV, args=(six, Expr(ExprKind.INTEGER, value=0))), {})
+
+
+if __name__ == "__main__":
+    unittest.main()
