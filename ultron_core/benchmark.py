@@ -43,12 +43,6 @@ def bootstrap_median_ci(
 
 def parameter_accounting(model: NeuroSparseModel) -> dict[str, int | float]:
     total = sum(parameter.numel() for parameter in model.parameters())
-    expert = sum(
-        parameter.numel()
-        for module in model.modules()
-        if module.__class__.__name__ == "SparseExpert"
-        for parameter in module.parameters(recurse=False)
-    )
     # SparseExpert owns a Sequential child; include its descendants explicitly.
     expert = sum(
         parameter.numel()
