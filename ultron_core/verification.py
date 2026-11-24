@@ -54,6 +54,7 @@ def probe_candidate(
     candidate: FormulaCandidate,
     variable_names: Sequence[str] = ("x", "y"),
     sample_values: Sequence[int | str | Fraction] = (-3, -2, -1, 0, 1, 2, 3),
+    max_samples: int = 100_000,
 ) -> ProbeResult:
     if not isinstance(candidate, FormulaCandidate):
         raise TypeError("candidate must be a FormulaCandidate")
@@ -65,6 +66,8 @@ def probe_candidate(
         raise ValueError("variable_names must contain valid identifiers")
     if len(set(variable_names)) != len(variable_names):
         raise ValueError("variable_names must be unique")
+    if isinstance(max_samples, bool) or not isinstance(max_samples, int) or max_samples <= 0:
+        raise ValueError("max_samples must be a positive integer")
     if not sample_values:
         raise ValueError("sample_values must not be empty")
     if any(
@@ -87,6 +90,11 @@ def probe_candidate(
     missing = _symbols(equation) - set(variable_names)
     if missing:
         raise ValueError("variable_names omits symbols: " + ", ".join(sorted(missing)))
+    total_samples = len(exact_samples) ** len(variable_names)
+    if total_samples > max_samples:
+        raise ValueError(
+            f"finite probe requires {total_samples} samples, exceeding max_samples={max_samples}"
+        )
     checked = 0
     for values in product(exact_samples, repeat=len(variable_names)):
         env = {name: value for name, value in zip(variable_names, values)}
