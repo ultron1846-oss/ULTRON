@@ -191,3 +191,18 @@ A bounded unary-call grammar recognizes `sin`, `cos`, `tan`, `asin`, `acos`, `at
 The exact evaluator can evaluate comparisons only when both operands are exact scalar rational expressions. Comparisons nested inside comparisons are rejected. Finite-domain candidate probing remains equality-only and therefore does not treat inequalities as proof candidates. The symbolic simplifier preserves comparison and function-call nodes without rewriting them.
 
 Tests cover ASCII and Unicode comparisons, chained-comparison rejection, function-name allowlisting, nested function-call parsing, and explicit evaluator rejection. This stage does not add trigonometric simplification, numerical function evaluation, domain inference, equation solving, or formal proof.
+
+
+## Exact sparse-polynomial foundation — 2026-11-24
+
+ultron_core/polynomial.py adds bounded exact sparse-polynomial algebra over Fraction coefficients. It converts the existing Expr IR and does not introduce a second parser or expression tree.
+
+- A monomial is a lexicographically sorted tuple of (symbol, positive integer exponent) pairs. A polynomial is an immutable sorted tuple of unique monomials with non-zero exact rational coefficients.
+- Addition collects like terms and removes zero coefficients. Multiplication merges monomial exponents and collects cancellations. Non-negative integer powers use exponentiation by squaring.
+- Constant rational division is supported only when the denominator reduces to a non-zero constant polynomial. Variable-polynomial denominators, zero denominators, negative/fractional/non-literal powers, function calls, comparisons and assumption-bearing expressions are rejected.
+- Exact evaluation accepts integer/Fraction environments only. to_expr() exports deterministic structural IR; polynomial equality is exact canonical representation equality.
+- PolynomialLimits bounds total degree, term count and individual exponent. Defaults are degree 64, 4,096 terms and exponent 64. Operations check budgets while constructing intermediate products and raise PolynomialError rather than silently truncating.
+
+This is a polynomial ring over rational coefficients and finitely many named variables. It is not a rational-function engine, algebraic-number system, general CAS, equation solver or proof kernel. Non-constant denominators are rejected so denominator-domain restrictions are not silently discarded. Canonical equality applies only after both expressions are soundly converted into this supported polynomial domain.
+
+The parser's stale inline comment about function-call syntax was corrected: supported calls are represented as typed CALL nodes, but the exact evaluator still refuses to evaluate them. No training, optimizer step, corpus generation, external API, pretrained weights, cloud job, remote execution, website, Supabase or authentication change was performed.
