@@ -559,3 +559,21 @@ The defining polynomial is **not asserted to be minimal or irreducible**. The ty
 
 
 A further regression covers an exact rational root encountered during the inward endpoint-adjustment search itself. The isolator now emits that root as a degenerate rational interval instead of passing a root endpoint into the Sturm counter.
+
+## Exact algebraic affine transforms — 2026-11-24
+
+The exact real-algebraic-number representation now supports rational affine transformations \(\beta=a\alpha+b\), where \(a\ne0\) and \(a,b\in\mathbb{Q}\). It constructs the transformed defining polynomial \(q(y)=a^n p((y-b)/a)\) using exact rational polynomial arithmetic, maps the isolating interval exactly, and reverses interval endpoints for negative multipliers. Rational inputs remain exact rational values.
+
+- API: `RealAlgebraicNumber.affine_transform(multiplier, offset=0)`.
+- Inputs reject booleans, floating-point values and zero multipliers.
+- The operation enforces the existing polynomial resource limits.
+- The resulting polynomial is not claimed to be minimal or irreducible.
+- This does not implement arithmetic between two unrelated algebraic numbers, resultants, multivariate algebraic numbers or a proof kernel.
+- Regression tests cover positive, negative and fractional transforms, rational inputs, invalid arguments, exact root counts and resource limits. See [affine transform notes](docs/ALGEBRAIC_AFFINE_TRANSFORMS.md).
+
+No training, optimizer step, external data, remote execution, website, Supabase or authentication changes were made.
+
+### Next mathematical-core step
+
+Implement arithmetic between two real algebraic numbers only after choosing and validating a resultant-based construction with a certified isolating interval for the intended result. Do not approximate roots or infer the correct resultant root from floating-point values.
+

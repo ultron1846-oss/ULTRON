@@ -238,3 +238,56 @@ class RealAlgebraicNumber:
         raise PolynomialError(
             f"algebraic comparison exceeded max_refinements={max_refinements}"
         )
+
+    def affine_transform(
+        self,
+        multiplier: int | Fraction,
+        offset: int | Fraction = 0,
+    ) -> "RealAlgebraicNumber":
+        """Return multiplier*self + offset exactly over Q.
+
+        The defining polynomial is transformed by
+        q(y) = multiplier**degree * p((y - offset) / multiplier).
+        The selected root interval is mapped with endpoint order preserved.
+        The result need not have a minimal defining polynomial.
+        """
+        for name, value in (("multiplier", multiplier), ("offset", offset)):
+            if isinstance(value, bool) or not isinstance(value, (int, Fraction)):
+                raise TypeError(f"{name} must be an integer or Fraction")
+        multiplier, offset = Fraction(multiplier), Fraction(offset)
+        if multiplier == 0:
+            raise ValueError("multiplier must be non-zero")
+
+        if self.is_rational:
+            return RealAlgebraicNumber.from_rational(
+                multiplier * self.lower + offset,
+                variable=self.variable,
+                limits=self.limits,
+            )
+
+        coefficients = {}
+        degree = 0
+        for monomial, coefficient in self.polynomial.terms:
+            power = monomial[0][1] if monomial else 0
+            coefficients[power] = coefficient
+            degree = max(degree, power)
+
+        x = Polynomial.variable(self.variable)
+        shifted = x.add(Polynomial.constant(-offset), limits=self.limits)
+        transformed = Polynomial.zero()
+        for power in range(degree, -1, -1):
+            transformed = transformed.multiply(shifted, limits=self.limits)
+            coefficient = coefficients.get(power, Fraction(0))
+            transformed = transformed.add(
+                Polynomial.constant(
+                    coefficient * multiplier ** (degree - power)
+                ),
+                limits=self.limits,
+            )
+
+        first = multiplier * self.lower + offset
+        second = multiplier * self.upper + offset
+        lower, upper = min(first, second), max(first, second)
+        return RealAlgebraicNumber(
+            transformed, self.variable, lower, upper, self.limits
+        )
