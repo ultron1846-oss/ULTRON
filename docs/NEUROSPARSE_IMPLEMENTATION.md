@@ -115,6 +115,7 @@ The initial foundation is implemented in `ultron_core/math_tokenizer.py` and `ul
 - `2x`, `2*x`, and `2 × x` remain distinct. Unary minus and subtraction are not parsed or conflated.
 - Unknown characters, invalid token IDs, duplicate vocabulary entries, reordered reserved tokens and unsupported vocabulary versions fail explicitly.
 - This is not a parser, complete LaTeX tokenizer, semantic analyzer or mathematical evaluator.
+- The existing expression IR now supports strict recursive dictionary serialization, canonical structural JSON and SHA-256 structural hashes. The hash is structural, not an algebraic-equivalence hash.
 
 ### Initial generator contract
 - Version 0.1.0 supports integer arithmetic, exact rational arithmetic and one-variable linear equations only.
