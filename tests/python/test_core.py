@@ -62,6 +62,42 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(int(memory.valid.sum()), 0)
         self.assertEqual(int(memory.cursor), 0)
 
+    def test_read_only_memory_skips_key_and_value_projections(self):
+        memory = FastWeightMemory(hidden_size=8, slots=4)
+        memory.train()
+        x = torch.randn(2, 3, 8)
+        calls = {"key": 0, "value": 0, "query": 0}
+        handles = [
+            memory.key.register_forward_hook(lambda *_: calls.__setitem__("key", calls["key"] + 1)),
+            memory.value.register_forward_hook(lambda *_: calls.__setitem__("value", calls["value"] + 1)),
+            memory.query.register_forward_hook(lambda *_: calls.__setitem__("query", calls["query"] + 1)),
+        ]
+        try:
+            output = memory(x, write=False)
+        finally:
+            for handle in handles:
+                handle.remove()
+        self.assertEqual(tuple(output.shape), tuple(x.shape))
+        self.assertTrue(torch.isfinite(output).all())
+        self.assertEqual(calls, {"key": 0, "value": 0, "query": 1})
+
+    def test_read_only_recall_after_write_skips_write_projections(self):
+        memory = FastWeightMemory(hidden_size=8, slots=4)
+        memory.train()
+        x = torch.randn(1, 3, 8)
+        memory(x, write=True)
+        memory.eval()
+        calls = {"key": 0, "value": 0}
+        key_handle = memory.key.register_forward_hook(lambda *_: calls.__setitem__("key", calls["key"] + 1))
+        value_handle = memory.value.register_forward_hook(lambda *_: calls.__setitem__("value", calls["value"] + 1))
+        try:
+            output = memory(x, write=True)
+        finally:
+            key_handle.remove()
+            value_handle.remove()
+        self.assertTrue(torch.isfinite(output).all())
+        self.assertEqual(calls, {"key": 0, "value": 0})
+
     def test_candidates_are_not_trusted_by_default(self):
         candidates = polynomial_identity_candidates()
         self.assertGreaterEqual(len(candidates), 3)
