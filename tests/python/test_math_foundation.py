@@ -546,7 +546,7 @@ class ExactPolynomialTests(unittest.TestCase):
 
     def test_direct_construction_cannot_bypass_hard_resource_ceilings(self):
         from ultron_core.polynomial import Polynomial, PolynomialError
-        with self.assertRaisesRegex(PolynomialError, "max_exponent"):
+        with self.assertRaisesRegex(PolynomialError, "total degree"):
             Polynomial((((("x", 257),), Fraction(1)),))
 
 
