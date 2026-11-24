@@ -61,6 +61,8 @@ class MathVocabulary:
             raise ValueError("vocabulary tokens must be unique")
         if tokens[:len(SPECIAL_TOKENS)] != SPECIAL_TOKENS:
             raise ValueError("reserved special tokens must occupy the first vocabulary IDs")
+        if tokens != CANONICAL_TOKENS:
+            raise ValueError("vocabulary tokens do not match the canonical version-1 order")
         self.version = version
         self.tokens = tokens
         self._ids = {token: index for index, token in enumerate(tokens)}
