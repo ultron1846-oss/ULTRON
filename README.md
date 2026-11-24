@@ -33,7 +33,7 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 
 ## Safety boundaries
 - No external AI APIs or pretrained model weights.
-- No login or registration required.
+- Public browsing requires no account. The optional owner sign-in uses the existing Supabase email/password account; public registration is not exposed.
 - No provider job submission or background execution from the public frontend.
 - **Actual model training remains disabled** until separate explicit user authorization.
 - The RAM slider is a browser-local workload preference only; it does not control physical RAM, GPU VRAM or Colab runtime allocation.
@@ -63,6 +63,10 @@ The connected Supabase project `ultron-memory` was inspected directly. It was `A
 - The frontend uses the Supabase publishable key in the `apikey` header. No service-role key, secret key, GitHub token, or owner credential is included in the repository.
 - No database schema, RLS policy, user record, or secret was changed. The Edge Function code was updated; training remains disabled and no training job was started.
 - Security advisors also reported three RLS-enabled retired device/pairing tables with no policies, disabled leaked-password protection, and several unindexed foreign keys. These are separate database-hardening items; the public status endpoint does not expose those tables.
+
+## Owner authentication — 2026-11-24
+
+The frontend includes optional Supabase email/password sign-in for the existing owner account. No sign-up or account-creation flow is present. Public pages remain accessible while signed out. The browser stores only the Supabase access/refresh session, never the password; expiring access tokens are refreshed and sign-out clears the local session. Authentication alone does not grant owner privileges: the page calls the `training-control` `health` action with the bearer token, and the Edge Function verifies the authenticated user ID against the server-side `ULTRON_OWNER_USER_ID` secret. Non-owner users are rejected. The publishable key is the only key included in browser code. No Auth provider settings, user records, secrets, RLS policies or database data were changed. The owner sign-in page does not start training or remote jobs.
 
 ## Supabase frontend integration audit — 2026-11-24
 
@@ -104,3 +108,13 @@ The backend owner (Codex) should:
 
 ## Project rule
 A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.
+
+
+## Next-chat handoff — owner authentication
+
+- Optional owner email/password sign-in is implemented; public pages remain anonymous-accessible and there is no sign-up UI.
+- Verify the existing owner account can sign in from GitHub Pages and that a different Supabase account is rejected by server-side owner verification.
+- Confirm Supabase Auth email/password provider is already enabled and the existing owner user is active; do not create another account or change Auth settings without explicit approval.
+- Keep service-role keys and `ULTRON_OWNER_USER_ID` secret server-side.
+- Do not launch the CPU diagnostic workflow, training, Colab, or any remote job.
+- Update this README at the next meaningful milestone.
