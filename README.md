@@ -7,7 +7,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages
-- **Supabase backend:** audited view of the existing Supabase project and deployed Edge Function contracts. It intentionally does not call owner-only services from the public site.
+- **Supabase backend:** live read-only status check plus an audit of the existing project and Edge Function contracts. It never calls owner-only services from the public site.
 - **Overview:** honest system status, model/training state, mathematical capability summary and local practice count.
 - **How ULTRON learns:** explains the intended verified learning lifecycle and distinguishes learning exercises from neural-model training.
 - **Math Agent:** browser interface to the existing deterministic arithmetic parser and limited linear-equation solver.
@@ -20,7 +20,7 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 - `index.html`: public application shell and navigation.
 - `styles.css`: black/crimson control-room visual system and responsive layouts.
 - `app.js`: frontend rendering, navigation, local preferences, Math Agent UI, provider directory and Supabase audit page.
-- `supabase-integration.js`: safe, non-secret snapshot of the inspected Supabase service contract; no network calls or credentials.
+- `supabase-integration.js`: public status client and non-secret audit metadata. It uses only the publishable API key and the read-only `public_status` action.
 - `math-engine.js`: deterministic arithmetic parser and limited one-variable linear equation solver. No `eval()` or `new Function()`.
 - `tests/`: Node.js built-in regression tests.
 - `.github/workflows/`: test and GitHub Pages workflows.
