@@ -298,6 +298,30 @@ class CoreTests(unittest.TestCase):
             for name, value in target.state_dict().items():
                 self.assertTrue(torch.equal(value, before[name]), name)
 
+    def test_checkpoint_rejects_bad_tensor_layout_before_mutating_model(self):
+        config = self.config()
+        source = NeuroSparseModel(config)
+        target = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            save_checkpoint(path, source, config, step=3)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            last_key = next(reversed(payload["model"]))
+            payload["model"][last_key] = payload["model"][last_key].to_sparse()
+            torch.save(payload, path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            path.with_suffix(path.suffix + ".sha256").write_text(
+                digest + "  " + path.name + "\\n", encoding="utf-8"
+            )
+            before = {
+                name: value.detach().clone()
+                for name, value in target.state_dict().items()
+            }
+            with self.assertRaisesRegex(ValueError, "has layout"):
+                load_checkpoint(path, target)
+            for name, value in target.state_dict().items():
+                self.assertTrue(torch.equal(value, before[name]), name)
+
     def test_checkpoint_round_trip_and_tamper_detection(self):
         config = self.config()
         model = NeuroSparseModel(config)
