@@ -118,3 +118,25 @@ A polished interface must not imply functionality that has not been implemented.
 - Keep service-role keys and `ULTRON_OWNER_USER_ID` secret server-side.
 - Do not launch the CPU diagnostic workflow, training, Colab, or any remote job.
 - Update this README at the next meaningful milestone.
+
+
+## Frontend completion hardening — 2026-11-24
+
+This release pass closes several frontend reliability gaps while preserving the no-training/no-server-connection boundary:
+
+- The GitHub Pages artifact now explicitly includes `owner-auth.js`, which is imported by the application entry module. This prevents the deployed site from omitting a required runtime module.
+- Navigation exposes the active page to assistive technology. The mobile menu closes with Escape, after navigation, and when the user taps outside it. The contrast preference persists in the current browser.
+- The Memory Vault separates recent experiences from incorrect attempts, provides an explicit confirmed clear-all action, and reports storage failures honestly. Export URL cleanup is delayed so mobile browsers have time to start the download.
+- IndexedDB request helpers resolve only after the transaction commits. The local practice interface no longer hides a failed memory write behind a success message.
+- Tablet/mobile styles account for safe areas and reduced-motion preferences.
+
+Automated release checks cover the Pages runtime asset list, frontend module syntax, mobile navigation hooks, persisted contrast preference, and Memory Vault controls. These checks do not substitute for a live iPad Safari interaction test; that still requires a user-side browser test after deployment. Owner sign-in remains email/password for the existing owner account, with no public sign-up. No Supabase policies, secrets, Auth settings, provider connections, remote jobs or training behavior are changed.
+
+## Next-chat handoff — frontend release
+
+- Verify the deployed Pages build loads the owner sign-in page and all public pages. The Pages artifact must include `owner-auth.js` as well as the other imported modules.
+- On iPad, test opening/closing navigation, switching pages, contrast preference persistence, practice answer checking, Memory Vault history/mistake lists, backup export/import and clear-all confirmation.
+- If local memory is important, export a backup before testing clear-all; clear-all permanently deletes all four local IndexedDB stores in the current browser profile.
+- Keep Google Colab disconnected. Do not create notebooks, connect runtimes, submit jobs, or start model training. Server connection is deferred until the AI model is ready.
+- Do not change Supabase RLS, secrets, Auth provider settings or owner records as part of frontend verification.
+- Update this README at the next meaningful milestone.

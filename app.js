@@ -1,7 +1,7 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261124-4';
-import { saveExperience, saveMistake, getMemorySummary, listExperiences, exportMemory, importMemory } from './memory-store.js?v=20261124-3';
+import { saveExperience, saveMistake, getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory } from './memory-store.js?v=20261124-5';
 
 const pageNames = { overview:'Overview', learning:'Learn & practice', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
 const topics = [
@@ -26,6 +26,7 @@ const content=document.querySelector('#page-content');
 const nav=document.querySelector('#navigation');
 const safeGet=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
 const safeSet=(key,value)=>{try{localStorage.setItem(key,value);return true;}catch{return false;}};
+const applyContrastPreference=()=>{const enabled=safeGet('ultron-soft-contrast','0')==='1';document.body.classList.toggle('soft-contrast',enabled);document.querySelector('#theme-toggle')?.setAttribute('aria-pressed',String(enabled));};
 const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const card=(body,cls='')=>`<article class="panel ${cls}">${body}</article>`;
 const heading=(eyebrow,title,subtitle,action='')=>`<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div>${action}</div>`;
@@ -35,7 +36,7 @@ function navigate(page){
   const markup=render(key);
   content.innerHTML=markup;
   document.querySelector('#page-crumb').textContent=pageNames[key];
-  nav.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===key));
+  nav.querySelectorAll('[data-page]').forEach(b=>{const active=b.dataset.page===key;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   bind(key);
   try{history.replaceState(null,'',`#${key}`);}catch(error){console.warn('ULTRON could not update the address hash:',error);}
   document.querySelector('#sidebar').classList.remove('open');
@@ -125,7 +126,8 @@ function renderMemory(){
  return `${heading('LOCAL-FIRST STORAGE / DEVICE MEMORY','Memory vault','Practice history is stored in this browser using IndexedDB. It is not uploaded to Supabase and does not sync between devices automatically.')}
  <div class="status-grid" id="memory-summary"><article class="panel status-card"><div class="mini-label">EXPERIENCES</div><strong class="status-value" id="memory-experiences">—</strong><p>Saved practice attempts</p></article><article class="panel status-card"><div class="mini-label">MISTAKES</div><strong class="status-value" id="memory-mistakes">—</strong><p>Incorrect attempts for review</p></article><article class="panel status-card"><div class="mini-label">KNOWLEDGE</div><strong class="status-value" id="memory-knowledge">—</strong><p>Reserved for future verified concepts</p></article><article class="panel status-card"><div class="mini-label">CHECKPOINTS</div><strong class="status-value" id="memory-checkpoints">—</strong><p>Reserved for future local checkpoints</p></article></div>
  ${card('<div class="eyebrow">DEVICE HISTORY</div><h2>Recent experiences</h2><p class="muted">History stays on this device and browser profile. Browser storage limits still apply; export backups periodically if you want to move the history to another device.</p><div id="memory-history" class="empty-state"><span>⌁</span><b>Loading local memory</b></div>')}
- ${card('<div class="eyebrow">PORTABILITY</div><h2>Backup and restore</h2><p class="muted">Export creates a JSON backup you can save and later import on another device. The backup may contain your entered practice content, so store it somewhere private.</p><div class="agent-actions"><button class="primary-button" id="memory-export" type="button">Export memory backup</button><label class="outline-button file-button" for="memory-import-file">Import backup</label><input id="memory-import-file" type="file" accept="application/json,.json" hidden></div><p id="memory-feedback" class="muted small" role="status"></p>')}
+ ${card('<div class="eyebrow">MISTAKE REVIEW</div><h2>Recent mistakes</h2><p class="muted">Incorrect practice attempts are kept separately so they can be reviewed. These records remain on this browser.</p><div id="memory-mistake-history" class="empty-state"><span>⌁</span><b>Loading mistakes</b></div>')}
+ ${card('<div class="eyebrow">PORTABILITY &amp; CONTROL</div><h2>Backup and restore</h2><p class="muted">Export creates a JSON backup you can save and later import on another device. The backup may contain your entered practice content, so store it somewhere private. Import merges records by ID; it does not erase existing records.</p><div class="agent-actions"><button class="primary-button" id="memory-export" type="button">Export memory backup</button><label class="outline-button file-button" for="memory-import-file">Import backup</label><input id="memory-import-file" type="file" accept="application/json,.json" hidden><button class="outline-button" id="memory-clear" type="button">Clear all local memory</button></div><p id="memory-feedback" class="muted small" role="status"></p>')}
  ${card('<div class="eyebrow">PRIVACY BOUNDARY</div><h2>Local memory vs. Supabase</h2><p class="muted">The current Supabase memory tables are owner-protected. The public website does not read or write those private tables; the owner sign-in is limited to server-verified owner operations. The vault uses IndexedDB locally instead; no public RLS policy has been weakened.</p><span class="status-pill">NO LOGIN · NO CLOUD SYNC</span>')}`;
 }
 
@@ -195,9 +197,10 @@ function bindLearning(){
   if(completed)return;const item=exercises[index];const value=input.value.trim();let numeric;
   try{if(!value)throw new Error('Enter an answer first.');numeric=evaluateExpression(value);}catch(error){feedback.textContent=error.message||'Enter a valid mathematical expression.';feedback.className='practice-feedback error';return;}
   const correct=Math.abs(numeric-item.answer)<1e-9;
-  try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){feedback.textContent=`Practice result recorded in this session, but local memory could not save it: ${error.message}`;feedback.className='practice-feedback error';}
-  if(correct){completed=true;const count=(Number(safeGet('ultron-practice-count','0'))||0)+1;safeSet('ultron-practice-count',String(count));total.textContent='CORRECT: '+count;feedback.textContent='Correct. '+item.steps;feedback.className='practice-feedback success';input.disabled=true;document.querySelector('#practice-check').disabled=true;}
-  else{feedback.textContent='Not quite. Try again, or reveal a hint. Incorrect attempts are kept in local memory when available.';feedback.className='practice-feedback error';}
+  let memoryError='';
+  try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){memoryError=error.message||'Storage unavailable';}
+  if(correct){completed=true;const count=(Number(safeGet('ultron-practice-count','0'))||0)+1;const countSaved=safeSet('ultron-practice-count',String(count));total.textContent='CORRECT: '+count;feedback.textContent='Correct. '+item.steps+(memoryError?' Local memory was not saved: '+memoryError:!countSaved?' The browser could not save the practice counter.':'');feedback.className='practice-feedback success';input.disabled=true;document.querySelector('#practice-check').disabled=true;}
+  else{feedback.textContent='Not quite. Try again, or reveal a hint.'+(memoryError?' This attempt could not be saved locally: '+memoryError:' Incorrect attempts are kept in local memory when available.');feedback.className='practice-feedback error';}
  });
  document.querySelector('#practice-hint').addEventListener('click',()=>{hint.textContent=exercises[index].hint;hint.hidden=false;});
  document.querySelector('#practice-next').addEventListener('click',()=>{index=(index+1)%exercises.length;safeSet('ultron-practice-index',String(index));showExercise();});
@@ -255,10 +258,15 @@ function bind(page){
  if(page==='settings'){
   const slider=document.querySelector('#memory-slider');
   slider.addEventListener('input',()=>{document.querySelector('#memory-value').textContent=slider.value+' GB';safeSet('ultron-memory-level',slider.value);});
-  document.querySelector('#clear-local').addEventListener('click',()=>{try{['ultron-memory-level','ultron-practice-count'].forEach(k=>localStorage.removeItem(k));document.querySelector('#memory-value').textContent='6 GB';slider.value='6';document.querySelector('#settings-result').textContent='Local preferences and practice count cleared.';}catch{document.querySelector('#settings-result').textContent='Browser storage is unavailable.';}});
+  document.querySelector('#clear-local').addEventListener('click',()=>{try{['ultron-memory-level','ultron-practice-count','ultron-practice-index'].forEach(k=>localStorage.removeItem(k));document.querySelector('#memory-value').textContent='6 GB';slider.value='6';document.querySelector('#settings-result').textContent='Local preferences and practice count cleared.';}catch{document.querySelector('#settings-result').textContent='Browser storage is unavailable.';}});
  }
 }
 nav.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)navigate(b.dataset.page);});
-document.querySelector('#mobile-menu').addEventListener('click',()=>{const open=document.querySelector('#sidebar').classList.toggle('open');document.querySelector('#mobile-menu').setAttribute('aria-expanded',String(open));});
-document.querySelector('#theme-toggle').addEventListener('click',()=>document.body.classList.toggle('soft-contrast'));
+const mobileMenu=document.querySelector('#mobile-menu');
+const sidebar=document.querySelector('#sidebar');
+mobileMenu.addEventListener('click',()=>{const open=sidebar.classList.toggle('open');mobileMenu.setAttribute('aria-expanded',String(open));});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){sidebar.classList.remove('open');mobileMenu.setAttribute('aria-expanded','false');}});
+document.addEventListener('pointerdown',event=>{if(!sidebar.contains(event.target)&&!mobileMenu.contains(event.target)){sidebar.classList.remove('open');mobileMenu.setAttribute('aria-expanded','false');}});
+document.querySelector('#theme-toggle').addEventListener('click',()=>{const enabled=!document.body.classList.contains('soft-contrast');document.body.classList.toggle('soft-contrast',enabled);safeSet('ultron-soft-contrast',enabled?'1':'0');document.querySelector('#theme-toggle').setAttribute('aria-pressed',String(enabled));});
+applyContrastPreference();
 navigate(location.hash.slice(1)||'overview');

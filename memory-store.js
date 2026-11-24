@@ -25,12 +25,30 @@ function openDatabase() {
 
 function transactionRequest(storeName, mode, action) {
   return openDatabase().then(db => new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, mode);
-    const request = action(tx.objectStore(storeName));
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error || new Error('Local memory request failed.'));
-    tx.onabort = () => reject(tx.error || new Error('Local memory transaction was aborted.'));
-    tx.oncomplete = () => db.close();
+    let result;
+    let settled = false;
+    const fail = error => {
+      if (settled) return;
+      settled = true;
+      db.close();
+      reject(error instanceof Error ? error : new Error('Local memory transaction failed.'));
+    };
+    try {
+      const tx = db.transaction(storeName, mode);
+      const request = action(tx.objectStore(storeName));
+      request.onsuccess = () => { result = request.result; };
+      request.onerror = () => fail(request.error || new Error('Local memory request failed.'));
+      tx.oncomplete = () => {
+        if (settled) return;
+        settled = true;
+        db.close();
+        resolve(result);
+      };
+      tx.onerror = () => fail(tx.error || new Error('Local memory transaction failed.'));
+      tx.onabort = () => fail(tx.error || new Error('Local memory transaction was aborted.'));
+    } catch (error) {
+      fail(error);
+    }
   }));
 }
 
@@ -76,9 +94,31 @@ export async function getMemorySummary() {
   return Object.fromEntries(STORE_NAMES.map((name, index) => [name, counts[index]]));
 }
 
+export async function listRecords(storeName, limit = 100) {
+  if (!STORE_NAMES.includes(storeName)) throw new TypeError('Unknown ULTRON memory store.');
+  const records = await transactionRequest(storeName, 'readonly', store => store.getAll());
+  return records
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .slice(0, Math.max(1, Math.min(500, Number(limit) || 100)));
+}
+
 export async function listExperiences(limit = 100) {
-  const records = await transactionRequest('experiences', 'readonly', store => store.getAll());
-  return records.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, Math.max(1, Math.min(500, Number(limit) || 100)));
+  return listRecords('experiences', limit);
+}
+
+export async function clearMemory() {
+  const db = await openDatabase();
+  try {
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAMES, 'readwrite');
+      for (const name of STORE_NAMES) tx.objectStore(name).clear();
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error || new Error('Could not clear local memory.'));
+      tx.onabort = () => reject(tx.error || new Error('Local memory clear was aborted.'));
+    });
+  } finally {
+    db.close();
+  }
 }
 
 export async function exportMemory() {
