@@ -331,7 +331,7 @@ class MathParser:
     Grammar: exact decimal/integer literals, identifiers, parentheses, unary
     signs, +, -, *, /, ×, ·, ÷, right-associative integer/general powers, and
     one top-level equality. Adjacent factors imply multiplication (2x, 2(x+1)).
-    Contiguous letters form one identifier (velocity), never an implicit product.
+    Contiguous letters/digits form one identifier (velocity2), never an implicit product.
     """
 
     def __init__(
@@ -339,7 +339,7 @@ class MathParser:
         tokenizer: MathTokenizer | None = None,
         *,
         max_source_chars: int = 100_000,
-        max_tokens: int = 1_024,
+        max_tokens: int = 512,
         max_nesting: int = 128,
     ):
         for name, value in (
