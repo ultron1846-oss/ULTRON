@@ -415,7 +415,7 @@ The new Python regression module covers token round trips, stable vocabulary ser
 
 ## Mathematical parser and conservative symbolic foundation — 2026-11-24
 
-The next AI-core stage adds a bounded recursive-descent parser that converts supported tokenizer output into the existing `Expr` IR. It does not introduce a competing expression representation.
+This AI-core stage adds a bounded recursive-descent parser that converts supported tokenizer output into the existing `Expr` IR. It does not introduce a competing expression representation.
 
 ### Implemented grammar
 - Exact integer and finite decimal literals; decimals are converted directly to exact rational IR atoms using `Fraction`, never binary floating point.
@@ -432,6 +432,11 @@ The next AI-core stage adds a bounded recursive-descent parser that converts sup
 - Does not distribute, factor, reorder symbolic terms, infer domains, cancel common factors, or reduce a zero product if another factor may be undefined.
 - Constant folding uses an exponent magnitude cap of 64. Division-by-zero and over-budget expressions remain explicit.
 - Finite sample comparisons in tests are regression evidence, not a formal proof of equivalence.
+
+### Validation status
+- GitHub Actions on implementation commit `e5fe00a6cc1afc2f3a9345f9469ba951009d6b53`: 104 Python regression tests passed; CPU forward/backward smoke passed; Node.js tests passed.
+- The CPU smoke is architecture validation only. It performs no optimizer step or training run.
+- Local execution was not claimed; CI is the execution evidence for this milestone.
 
 ### Explicit unsupported scope
 The parser does not yet support function calls (including `sin(x)`), general LaTeX fractions, inequalities, set membership, matrices, calculus operators, summations, limits, complex numbers, assumptions/domains, or proof syntax. Such input is rejected rather than silently assigned a guessed meaning. The evaluator remains exact scalar arithmetic only; it does not solve equations or provide general symbolic semantics. The model remains untrained.
