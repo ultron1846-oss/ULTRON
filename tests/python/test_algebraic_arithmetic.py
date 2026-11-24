@@ -3,7 +3,7 @@ from fractions import Fraction
 
 from ultron_core.algebraic import RealAlgebraicNumber
 from ultron_core.math_parser import parse_math
-from ultron_core.polynomial import Polynomial, PolynomialError, PolynomialLimits
+from ultron_core.polynomial import Polynomial, PolynomialError
 
 
 class ExactAlgebraicArithmeticTests(unittest.TestCase):
@@ -66,7 +66,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         product = one_half.multiply(self.sqrt2)
         self.assertEqual(
             product.polynomial,
-            Polynomial.from_expr(parse_math("2*z^2 - 1")),
+            Polynomial.from_expr(parse_math("z^2 - 1/2")),
         )
 
     def test_subtracting_same_value_returns_exact_zero(self):
@@ -89,10 +89,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
 
     def test_refinement_budget_fails_closed(self):
         with self.assertRaises(PolynomialError):
-            self.sqrt2.add(self.sqrt3, max_refinements=0,
-                           limits=PolynomialLimits(max_total_degree=2,
-                                                   max_terms=32,
-                                                   max_exponent=2))
+            self.sqrt3.subtract(self.sqrt2, max_refinements=0)
 
 
 if __name__ == "__main__":
