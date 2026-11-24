@@ -575,7 +575,7 @@ No training, optimizer step, external data, remote execution, website, Supabase 
 
 ### Next mathematical-core step
 
-Implement arithmetic between two real algebraic numbers only after choosing and validating a resultant-based construction with a certified isolating interval for the intended result. Do not approximate roots or infer the correct resultant root from floating-point values.
+That next step is implemented in the exact algebraic arithmetic milestone below. The resultant engine keeps the operand variable label so results can be chained, intersects both operands' resource budgets, and uses only certified rational intervals.
 
 
 
