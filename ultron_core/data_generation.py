@@ -37,6 +37,30 @@ class MathExample:
     validation_status: str
     provenance: str
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.example_id, str) or not re.fullmatch(r"[0-9a-f]{64}", self.example_id):
+            raise ValueError("example_id must be a lowercase SHA-256 hex digest")
+        if self.generator_version != GENERATOR_VERSION:
+            raise ValueError("unsupported generator version")
+        if self.topic not in SUPPORTED_TOPICS:
+            raise ValueError("unsupported example topic")
+        if isinstance(self.difficulty, bool) or not isinstance(self.difficulty, int) or self.difficulty <= 0:
+            raise ValueError("difficulty must be a positive integer")
+        if not all(isinstance(value, str) for value in (self.input_text, self.target_text, self.exact_answer, self.provenance)):
+            raise TypeError("example text, answer and provenance fields must be strings")
+        if isinstance(self.seed, bool) or not isinstance(self.seed, int):
+            raise TypeError("example seed must be an integer")
+        if isinstance(self.index, bool) or not isinstance(self.index, int) or self.index < 0:
+            raise ValueError("example index must be a non-negative integer")
+        if not isinstance(self.generation_parameters, tuple) or any(
+            not isinstance(item, tuple) or len(item) != 2 or not isinstance(item[0], str)
+            or not isinstance(item[1], (int, str)) or isinstance(item[1], bool)
+            for item in self.generation_parameters
+        ):
+            raise TypeError("generation_parameters must be an immutable tuple of string/value pairs")
+        if self.validation_status not in ("semantically_checked", "rejected"):
+            raise ValueError("unsupported validation status")
+
     def to_dict(self) -> dict:
         value = asdict(self)
         value["generation_parameters"] = dict(self.generation_parameters)
@@ -158,6 +182,20 @@ def write_dataset(path: str | Path, examples: Iterable[MathExample],
     examples = tuple(examples)
     if not examples or any(not isinstance(item, MathExample) for item in examples):
         raise ValueError("dataset must contain at least one MathExample")
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise TypeError("dataset seed must be an integer")
+    topics = tuple(topics)
+    if not topics or any(topic not in SUPPORTED_TOPICS for topic in topics):
+        raise ValueError("dataset topics must be a non-empty supported-topic sequence")
+    if len({item.example_id for item in examples}) != len(examples):
+        raise ValueError("dataset contains duplicate example IDs")
+    for item in examples:
+        if item.seed != seed or item.topic not in topics:
+            raise ValueError("example seed/topic does not match dataset manifest configuration")
+        if item.validation_status != "semantically_checked" or not validate_example_text(
+            item.input_text, item.target_text, item.topic
+        ) or item.exact_answer != item.target_text:
+            raise ValueError("dataset contains an example that failed exact semantic validation")
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     rows = "".join(json.dumps(item.to_dict(), sort_keys=True, ensure_ascii=False,
@@ -186,4 +224,55 @@ def write_dataset(path: str | Path, examples: Iterable[MathExample],
         finally:
             if os.path.exists(temporary_name):
                 os.unlink(temporary_name)
+    return manifest
+
+
+def verify_dataset(path: str | Path) -> dict:
+    """Verify the on-disk manifest, JSONL digest, row count and exact answers."""
+    target = Path(path)
+    manifest_path = target.with_suffix(target.suffix + ".manifest.json")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        content = target.read_bytes()
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("dataset or manifest is missing or malformed") from exc
+    required = {"schema_version", "generator_version", "seed", "topics",
+                "example_count", "topic_counts", "sha256"}
+    if not isinstance(manifest, dict) or set(manifest) != required:
+        raise ValueError("dataset manifest schema is invalid")
+    if manifest["schema_version"] != 1 or manifest["generator_version"] != GENERATOR_VERSION:
+        raise ValueError("unsupported dataset manifest version")
+    digest = hashlib.sha256(content).hexdigest()
+    if digest != manifest["sha256"]:
+        raise ValueError("dataset SHA-256 mismatch")
+    try:
+        rows = [json.loads(line) for line in content.decode("utf-8").splitlines() if line]
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("dataset JSONL is malformed") from exc
+    if len(rows) != manifest["example_count"]:
+        raise ValueError("dataset example count does not match manifest")
+    counts = Counter()
+    identifiers = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("dataset row must be an object")
+        required_row = {"example_id", "generator_version", "topic", "difficulty",
+                        "input_text", "target_text", "exact_answer", "seed", "index",
+                        "generation_parameters", "validation_status", "provenance"}
+        if set(row) != required_row:
+            raise ValueError("dataset row schema is invalid")
+        if row["generator_version"] != GENERATOR_VERSION or row["seed"] != manifest["seed"]:
+            raise ValueError("dataset row provenance does not match manifest")
+        if row["topic"] not in manifest["topics"]:
+            raise ValueError("dataset row topic is not declared in manifest")
+        if row["example_id"] in identifiers:
+            raise ValueError("dataset contains duplicate example IDs")
+        identifiers.add(row["example_id"])
+        if row["validation_status"] != "semantically_checked" or row["target_text"] != row["exact_answer"]:
+            raise ValueError("dataset row has an invalid validation status or answer")
+        if not validate_example_text(row["input_text"], row["exact_answer"], row["topic"]):
+            raise ValueError("dataset row failed exact semantic validation")
+        counts[row["topic"]] += 1
+    if dict(sorted(counts.items())) != manifest["topic_counts"]:
+        raise ValueError("dataset topic counts do not match manifest")
     return manifest
