@@ -17,6 +17,8 @@ from .polynomial import (
 
 
 def _infer_variable(polynomial: Polynomial, variable: str | None) -> str:
+    if not isinstance(polynomial, Polynomial):
+        raise TypeError("polynomial must be a Polynomial")
     if variable is not None:
         if not isinstance(variable, str) or not variable.isidentifier():
             raise ValueError("variable must be a valid identifier")
@@ -98,7 +100,7 @@ class RealAlgebraicNumber:
         limits: PolynomialLimits = DEFAULT_LIMITS,
     ) -> "RealAlgebraicNumber":
         selected = _infer_variable(polynomial, variable)
-        return cls(polynomial, selected, Fraction(lower), Fraction(upper), limits)
+        return cls(polynomial, selected, lower, upper, limits)
 
     @classmethod
     def from_rational(
@@ -171,7 +173,7 @@ class RealAlgebraicNumber:
         common = self.polynomial.gcd_univariate(
             other.polynomial, variable=self.variable, limits=self.limits
         )
-        if common.degree_univariate(variable=self.variable) == 0:
+        if not any(monomial for monomial, _ in common.terms):
             return False
         return common.real_root_count_univariate(
             overlap_lower, overlap_upper, variable=self.variable, limits=self.limits
@@ -194,7 +196,7 @@ class RealAlgebraicNumber:
             return 0
 
         left, right = self, other
-        for _ in range(max_refinements + 1):
+        for step in range(max_refinements + 1):
             if left.is_rational:
                 if left.lower <= right.lower:
                     return -1
@@ -209,8 +211,8 @@ class RealAlgebraicNumber:
                 return -1
             if right.upper <= left.lower:
                 return 1
-            if left.is_rational and right.is_rational:
-                return (left.lower > right.lower) - (left.lower < right.lower)
+            if step == max_refinements:
+                break
             if left.is_rational:
                 right = right.refine()
             elif right.is_rational:
