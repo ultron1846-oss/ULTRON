@@ -26,6 +26,8 @@ class PolynomialLimits:
             raise ValueError("max_terms must be a positive integer")
 
 DEFAULT_LIMITS = PolynomialLimits()
+# Absolute ceilings also apply to direct Polynomial(...) construction.
+HARD_LIMITS = PolynomialLimits(max_total_degree=256, max_terms=16384, max_exponent=256)
 ZERO_MONOMIAL: Monomial = ()
 
 def _validate_monomial(monomial):
@@ -86,6 +88,7 @@ class Polynomial:
             if previous is not None and monomial <= previous:
                 raise ValueError("polynomial terms must be unique and canonically ordered")
             previous = monomial
+        _check_budget(dict(self.terms), HARD_LIMITS)
 
     @classmethod
     def zero(cls):
