@@ -33,8 +33,10 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         result = self.sqrt3.subtract(self.sqrt2)
         expected = Polynomial.from_expr(parse_math("x^4 - 10*x^2 + 1"))
         self.assertEqual(result.polynomial, expected)
-        self.assertGreater(result.lower, 0)
-        self.assertLess(result.upper, 1)
+        zero = RealAlgebraicNumber.from_rational(0)
+        one = RealAlgebraicNumber.from_rational(1)
+        self.assertGreater(result.compare_to(zero), 0)
+        self.assertLess(result.compare_to(one), 0)
         self.assertEqual(
             result.polynomial.real_root_count_univariate(
                 result.lower, result.upper, variable="x"
@@ -65,8 +67,10 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         quotient = self.sqrt2 / self.sqrt3
         quotient_expected = Polynomial.from_expr(parse_math("9*x^4 - 12*x^2 + 4"))
         self.assertEqual(quotient.polynomial, quotient_expected)
-        self.assertGreater(quotient.lower, 0)
-        self.assertLess(quotient.upper, 1)
+        zero = RealAlgebraicNumber.from_rational(0)
+        one = RealAlgebraicNumber.from_rational(1)
+        self.assertGreater(quotient.compare_to(zero), 0)
+        self.assertLess(quotient.compare_to(one), 0)
 
     def test_rational_operands_remain_exact(self):
         one_half = RealAlgebraicNumber.from_rational(Fraction(1, 2))
