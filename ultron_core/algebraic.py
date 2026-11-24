@@ -53,7 +53,7 @@ class RealAlgebraicNumber:
     variable: str
     lower: Fraction
     upper: Fraction
-    limits: PolynomialLimits = DEFAULT_LIMITS
+    limits: PolynomialLimits | None = None
 
     def __post_init__(self):
         if not isinstance(self.polynomial, Polynomial):
@@ -97,7 +97,7 @@ class RealAlgebraicNumber:
         upper: int | Fraction,
         *,
         variable: str | None = None,
-        limits: PolynomialLimits = DEFAULT_LIMITS,
+        limits: PolynomialLimits | None = None,
     ) -> "RealAlgebraicNumber":
         selected = _infer_variable(polynomial, variable)
         return cls(polynomial, selected, lower, upper, limits)
@@ -108,7 +108,7 @@ class RealAlgebraicNumber:
         value: int | Fraction,
         *,
         variable: str = "x",
-        limits: PolynomialLimits = DEFAULT_LIMITS,
+        limits: PolynomialLimits | None = None,
     ) -> "RealAlgebraicNumber":
         if isinstance(value, bool) or not isinstance(value, (int, Fraction)):
             raise TypeError("value must be an integer or Fraction")
@@ -294,31 +294,31 @@ class RealAlgebraicNumber:
 
 
     def add(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
-            limits: PolynomialLimits = DEFAULT_LIMITS) -> "RealAlgebraicNumber":
+            limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
         """Return the exact algebraic sum, or fail if certification exceeds its budget."""
         from .algebraic_arithmetic import add
         return add(self, other, max_refinements=max_refinements, limits=limits)
 
     def subtract(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
-                 limits: PolynomialLimits = DEFAULT_LIMITS) -> "RealAlgebraicNumber":
+                 limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
         """Return the exact algebraic difference."""
         from .algebraic_arithmetic import subtract
         return subtract(self, other, max_refinements=max_refinements, limits=limits)
 
     def multiply(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
-                 limits: PolynomialLimits = DEFAULT_LIMITS) -> "RealAlgebraicNumber":
+                 limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
         """Return the exact algebraic product."""
         from .algebraic_arithmetic import multiply
         return multiply(self, other, max_refinements=max_refinements, limits=limits)
 
     def divide(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
-               limits: PolynomialLimits = DEFAULT_LIMITS) -> "RealAlgebraicNumber":
+               limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
         """Return the exact algebraic quotient; reject a zero divisor."""
         from .algebraic_arithmetic import divide
         return divide(self, other, max_refinements=max_refinements, limits=limits)
 
     def reciprocal(self, *, max_refinements: int = 4096,
-                   limits: PolynomialLimits = DEFAULT_LIMITS) -> "RealAlgebraicNumber":
+                   limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
         """Return the exact multiplicative inverse; reject zero."""
         from .algebraic_arithmetic import reciprocal
         return reciprocal(self, max_refinements=max_refinements, limits=limits)
