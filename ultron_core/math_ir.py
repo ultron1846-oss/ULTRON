@@ -48,6 +48,9 @@ class Expr:
         elif self.kind == ExprKind.SYMBOL:
             if not isinstance(self.value, str) or not self.value.isidentifier():
                 raise ValueError("symbol expression value must be a valid identifier")
+        elif self.kind == ExprKind.CALL:
+            if not isinstance(self.value, str) or self.value not in SUPPORTED_FUNCTIONS:
+                raise ValueError("unsupported mathematical function")
         elif self.value is not None:
             raise ValueError("operator expression cannot have value")
 
