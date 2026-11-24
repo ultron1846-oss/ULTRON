@@ -10,7 +10,7 @@ from fractions import Fraction
 from typing import Mapping
 
 from .math_ir import Expr, ExprKind
-from .polynomial import DEFAULT_LIMITS, Polynomial, PolynomialLimits
+from .polynomial import DEFAULT_LIMITS, HARD_LIMITS, Polynomial, PolynomialLimits
 
 MAX_DOMAIN_CONSTRAINTS = 256
 
@@ -26,7 +26,7 @@ class RationalDomainError(ZeroDivisionError):
 def _normalize_nonzero(polynomial: Polynomial) -> Polynomial:
     if not polynomial.terms:
         raise RationalExpressionError("a domain non-zero constraint cannot be the zero polynomial")
-    return polynomial.scale(1 / polynomial.terms[-1][1])
+    return polynomial.scale(1 / polynomial.terms[-1][1], limits=HARD_LIMITS)
 
 
 def _merge_constraints(*groups: tuple[Polynomial, ...]) -> tuple[Polynomial, ...]:
@@ -60,8 +60,8 @@ class RationalFunction:
         if not self.denominator.terms:
             raise RationalExpressionError("rational denominator cannot be the zero polynomial")
         scale = 1 / self.denominator.terms[-1][1]
-        numerator = self.numerator.scale(scale)
-        denominator = self.denominator.scale(scale)
+        numerator = self.numerator.scale(scale, limits=HARD_LIMITS)
+        denominator = self.denominator.scale(scale, limits=HARD_LIMITS)
         constraints = _merge_constraints(self.nonzero_constraints, (denominator,))
         object.__setattr__(self, "numerator", numerator)
         object.__setattr__(self, "denominator", denominator)
