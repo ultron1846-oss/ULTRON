@@ -155,8 +155,8 @@ function bindLearning(){
   const item=exercises[index];completed=false;question.textContent=item.question+' = ?';number.textContent=`EXERCISE ${index+1} OF ${exercises.length}`;input.value='';input.disabled=false;hint.hidden=true;hint.textContent='';feedback.textContent='Work it out, then check your answer.';feedback.className='practice-feedback';document.querySelector('#practice-check').disabled=false;
  };
  document.querySelector('#practice-check').addEventListener('click',async()=>{
-  if(completed)return;const item=exercises[index];const value=input.value.trim();const numeric=Number(value);
-  if(!value||!Number.isFinite(numeric)){feedback.textContent='Enter a valid number before checking.';feedback.className='practice-feedback error';return;}
+  if(completed)return;const item=exercises[index];const value=input.value.trim();let numeric;
+  try{if(!value)throw new Error('Enter an answer first.');numeric=evaluateExpression(value);}catch(error){feedback.textContent=error.message||'Enter a valid mathematical expression.';feedback.className='practice-feedback error';return;}
   const correct=Math.abs(numeric-item.answer)<1e-9;
   try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){feedback.textContent=`Practice result recorded in this session, but local memory could not save it: ${error.message}`;feedback.className='practice-feedback error';}
   if(correct){completed=true;const count=(Number(safeGet('ultron-practice-count','0'))||0)+1;safeSet('ultron-practice-count',String(count));total.textContent='CORRECT: '+count;feedback.textContent='Correct. '+item.steps;feedback.className='practice-feedback success';input.disabled=true;document.querySelector('#practice-check').disabled=true;}
