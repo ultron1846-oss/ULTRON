@@ -222,3 +222,16 @@ The parser's stale inline comment about function-call syntax was corrected: supp
 Important semantics: (x/x) is represented with the condition (x\ne0), and ((x^2-1)/(x-1)) retains (x\ne1); neither is simplified by cancelling factors. (1/(1/x)) also retains the inner condition (x\ne0). This design preserves partial-function domains under nested operations.
 
 Limitations: no polynomial GCD, cancellation, multivariate division, equation solving, calculus, algebraic-number semantics, or proof kernel. It is not a general CAS. No training or optimizer step is performed by these operations.
+
+
+## Exact univariate polynomial division and GCD — 2026-11-24
+
+The Polynomial API now provides bounded univariate Euclidean division over exact Fraction coefficients.
+
+- divide_univariate(divisor) returns (quotient, remainder), satisfying the reconstruction identity (A=QB+R), and the strict degree bound on a nonzero remainder.
+- exact_divide_univariate raises PolynomialError unless the remainder is zero.
+- gcd_univariate implements the Euclidean algorithm and normalizes the result to monic form over the rational field.
+- Only one variable is allowed across both operands. Multivariate monomials, mixed variables, zero divisors, mismatched requested variables and budget violations fail explicitly.
+- The implementation uses exact Fraction coefficient division; it does not use floating point.
+
+RationalFunction factor cancellation is intentionally not included in this change. The next stage can use the univariate GCD to reduce numerator/denominator while retaining every original non-zero domain constraint. Multivariate GCD and multivariate polynomial division remain unsupported.
