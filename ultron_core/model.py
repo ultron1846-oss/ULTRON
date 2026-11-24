@@ -49,7 +49,12 @@ class NeuroSparseModel(nn.Module):
         if input_ids.ndim!=2: raise ValueError("input_ids must be [batch,sequence]")
         if input_ids.shape[0] == 0 or input_ids.shape[1] == 0: raise ValueError("batch and sequence dimensions must be non-empty")
         if input_ids.dtype not in (torch.int32,torch.int64): raise TypeError("input_ids must be integer")
-        if input_ids.numel() and (input_ids.min()<0 or input_ids.max()>=self.config.vocab_size):
+        # CPU range checks are cheap; on CUDA, avoid synchronizing the device
+        # twice per forward just to inspect scalar min/max values. Embedding
+        # performs the device-side index validation for accelerator inputs.
+        if input_ids.device.type == "cpu" and input_ids.numel() and (
+            input_ids.min() < 0 or input_ids.max() >= self.config.vocab_size
+        ):
             raise ValueError("token id outside vocabulary")
         x=self.embedding(input_ids.long()); balances=[]; errors=[]; steps=[]
         for block in self.blocks:
