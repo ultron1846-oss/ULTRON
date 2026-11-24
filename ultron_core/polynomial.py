@@ -541,5 +541,107 @@ class Polynomial:
             raise PolynomialError("Sturm variation count violated monotonicity")
         return count
 
+    def isolate_real_roots_univariate(
+        self,
+        lower: int | Fraction,
+        upper: int | Fraction,
+        *,
+        max_width: int | Fraction = Fraction(1, 1000),
+        max_depth: int = 64,
+        max_intervals: int = 4096,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> tuple[tuple[Fraction, Fraction], ...]:
+        """Return disjoint rational isolating intervals for distinct real roots.
+
+        Each returned pair (a, b) contains exactly one distinct root in its
+        open interval. A pair (r, r) denotes an exactly detected rational root.
+        Non-degenerate interval endpoints are guaranteed not to be roots.
+        The algorithm uses square-free reduction and exact Sturm counts only;
+        it performs no floating-point approximation.
+        """
+        for name, endpoint in (("lower", lower), ("upper", upper)):
+            if isinstance(endpoint, bool) or not isinstance(endpoint, (int, Fraction)):
+                raise TypeError(f"{name} endpoint must be an integer or Fraction")
+        if isinstance(max_width, bool) or not isinstance(max_width, (int, Fraction)):
+            raise TypeError("max_width must be an integer or Fraction")
+        lower, upper, max_width = Fraction(lower), Fraction(upper), Fraction(max_width)
+        if lower >= upper:
+            raise ValueError("lower endpoint must be strictly less than upper endpoint")
+        if max_width <= 0:
+            raise ValueError("max_width must be strictly positive")
+        if isinstance(max_depth, bool) or not isinstance(max_depth, int) or max_depth < 0:
+            raise ValueError("max_depth must be a non-negative integer")
+        if isinstance(max_intervals, bool) or not isinstance(max_intervals, int) or max_intervals < 1:
+            raise ValueError("max_intervals must be a positive integer")
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+        if not self.terms:
+            raise PolynomialError("the zero polynomial has no finite root isolation")
+        _check_budget(dict(self.terms), limits)
+        selected = _resolve_univariate_symbol((self,), variable)
+        if selected is None:
+            return ()
+
+        lower_env, upper_env = {selected: lower}, {selected: upper}
+        if self.evaluate(lower_env) == 0 or self.evaluate(upper_env) == 0:
+            raise PolynomialError("isolation interval endpoints must not be roots")
+
+        derivative = self.derivative_univariate(variable=selected, limits=limits)
+        repeated_factor = self.gcd_univariate(
+            derivative, variable=selected, limits=limits
+        )
+        square_free = self.exact_divide_univariate(
+            repeated_factor, variable=selected, limits=limits
+        )
+        if not square_free.terms:
+            raise PolynomialError("square-free polynomial unexpectedly vanished")
+
+        queue = [(square_free, lower, upper, 0)]
+        isolated = []
+        processed = 0
+        while queue:
+            current, left, right, depth = queue.pop()
+            processed += 1
+            if processed > max_intervals:
+                raise PolynomialError(
+                    f"root isolation exceeded max_intervals={max_intervals}"
+                )
+            count = current.real_root_count_univariate(
+                left, right, variable=selected, limits=limits
+            )
+            if count == 0:
+                continue
+            if count == 1 and right - left <= max_width:
+                isolated.append((left, right))
+                continue
+            if depth >= max_depth:
+                raise PolynomialError(
+                    f"root isolation exceeded max_depth={max_depth}"
+                )
+
+            midpoint = (left + right) / 2
+            midpoint_value = current.evaluate({selected: midpoint})
+            if midpoint_value == 0:
+                # square_free has no repeated factors, so one exact linear
+                # division removes this root and makes midpoint a valid
+                # non-root endpoint for both remaining subintervals.
+                linear_factor = Polynomial.variable(selected).add(
+                    Polynomial.constant(-midpoint), limits=limits
+                )
+                reduced = current.exact_divide_univariate(
+                    linear_factor, variable=selected, limits=limits
+                )
+                isolated.append((midpoint, midpoint))
+                if reduced.terms:
+                    queue.append((reduced, left, midpoint, depth + 1))
+                    queue.append((reduced, midpoint, right, depth + 1))
+                continue
+
+            queue.append((current, midpoint, right, depth + 1))
+            queue.append((current, left, midpoint, depth + 1))
+
+        return tuple(sorted(isolated))
+
     def canonical_key(self):
         return self.terms
