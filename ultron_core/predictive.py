@@ -5,6 +5,12 @@ from torch.nn import functional as F
 class PredictiveRefiner(nn.Module):
     def __init__(self,hidden_size:int,max_refinements:int,halt_threshold:float):
         super().__init__()
+        if isinstance(hidden_size, bool) or not isinstance(hidden_size, int) or hidden_size <= 0:
+            raise ValueError("hidden_size must be a positive integer")
+        if isinstance(max_refinements, bool) or not isinstance(max_refinements, int) or max_refinements <= 0:
+            raise ValueError("max_refinements must be a positive integer")
+        if isinstance(halt_threshold, bool) or not isinstance(halt_threshold, (int, float)) or not torch.isfinite(torch.tensor(halt_threshold)).item() or not 0.0 <= halt_threshold <= 1.0:
+            raise ValueError("halt_threshold must be finite and in [0, 1]")
         self.max_refinements=max_refinements; self.halt_threshold=halt_threshold
         self.predictor=nn.Sequential(nn.Linear(hidden_size,hidden_size),nn.GELU(),nn.Linear(hidden_size,hidden_size))
         self.refine=nn.GRUCell(hidden_size,hidden_size)
