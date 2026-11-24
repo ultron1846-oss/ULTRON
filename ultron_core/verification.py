@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from fractions import Fraction
 from itertools import product
+from typing import Sequence
 from .math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
 
 
@@ -49,34 +50,63 @@ def evaluate(expr: Expr, env: dict[str, Fraction]) -> Fraction:
     raise ValueError(f'unsupported expression {expr.kind.value}')
 
 
-def probe_candidate(candidate: FormulaCandidate, variable_names=('x', 'y'),
-                    sample_values=(-3, -2, -1, 0, 1, 2, 3)) -> ProbeResult:
+def probe_candidate(
+    candidate: FormulaCandidate,
+    variable_names: Sequence[str] = ("x", "y"),
+    sample_values: Sequence[int | str | Fraction] = (-3, -2, -1, 0, 1, 2, 3),
+) -> ProbeResult:
+    if not isinstance(candidate, FormulaCandidate):
+        raise TypeError("candidate must be a FormulaCandidate")
+    if not isinstance(variable_names, (tuple, list)):
+        raise TypeError("variable_names must be a tuple or list of identifiers")
+    if not isinstance(sample_values, (tuple, list)):
+        raise TypeError("sample_values must be a tuple or list of exact rationals")
+    if any(not isinstance(name, str) or not name.isidentifier() for name in variable_names):
+        raise ValueError("variable_names must contain valid identifiers")
+    if len(set(variable_names)) != len(variable_names):
+        raise ValueError("variable_names must be unique")
+    if not sample_values:
+        raise ValueError("sample_values must not be empty")
+    if any(
+        isinstance(value, bool) or not isinstance(value, (int, str, Fraction))
+        for value in sample_values
+    ):
+        raise TypeError("sample_values must contain exact integers, rational strings, or Fractions")
+    try:
+        exact_samples = tuple(Fraction(value) for value in sample_values)
+    except (ValueError, ZeroDivisionError, TypeError) as exc:
+        raise ValueError("sample_values must contain valid finite rationals") from exc
+    if len(set(exact_samples)) != len(exact_samples):
+        raise ValueError("sample_values must be unique after rational normalization")
+
     equation = candidate.expression
     if equation.kind != ExprKind.EQUAL:
-        raise ValueError('candidate expression must be an equality')
+        raise ValueError("candidate expression must be an equality")
     if candidate.domain or candidate.assumptions or _has_assumptions(equation):
-        raise ValueError('finite probing does not interpret candidate domains or assumptions')
-    if not sample_values:
-        raise ValueError('sample_values must not be empty')
-    if len(set(variable_names)) != len(variable_names):
-        raise ValueError('variable_names must be unique')
-    if any(not isinstance(name, str) or not name.isidentifier() for name in variable_names):
-        raise ValueError('variable_names must contain valid identifiers')
+        raise ValueError("finite probing does not interpret candidate domains or assumptions")
     missing = _symbols(equation) - set(variable_names)
     if missing:
-        raise ValueError('variable_names omits symbols: ' + ', '.join(sorted(missing)))
+        raise ValueError("variable_names omits symbols: " + ", ".join(sorted(missing)))
     checked = 0
-    for values in product(sample_values, repeat=len(variable_names)):
-        env = {name: Fraction(value) for name, value in zip(variable_names, values)}
+    for values in product(exact_samples, repeat=len(variable_names)):
+        env = {name: value for name, value in zip(variable_names, values)}
         try:
             lhs, rhs = (evaluate(arg, env) for arg in equation.args)
         except (ZeroDivisionError, ValueError):
             continue
         checked += 1
         if lhs != rhs:
-            return ProbeResult(VerificationStatus.REJECTED, checked, env,
-                               'A finite-domain counterexample was found; candidate is rejected.')
+            return ProbeResult(
+                VerificationStatus.REJECTED,
+                checked,
+                env,
+                "A finite-domain counterexample was found; candidate is rejected.",
+            )
     if checked == 0:
-        raise ValueError('no valid sample points were evaluated')
-    return ProbeResult(VerificationStatus.EXPERIMENTALLY_SUPPORTED, checked, None,
-                       'No counterexample in the tested finite domain. This is not a proof.')
+        raise ValueError("no valid sample points were evaluated")
+    return ProbeResult(
+        VerificationStatus.EXPERIMENTALLY_SUPPORTED,
+        checked,
+        None,
+        "No counterexample in the tested finite domain. This is not a proof.",
+    )
