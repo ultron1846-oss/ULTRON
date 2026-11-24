@@ -302,5 +302,42 @@ class CoreTests(unittest.TestCase):
             causal_language_model_loss(logits, ids, balance_weight=-1)
 
 
+    def test_causal_attention_allows_past_context_to_change_later_logits(self):
+        torch.manual_seed(41)
+        model = NeuroSparseModel(self.config()).eval()
+        first = torch.tensor([[1, 7, 9, 11, 13]])
+        changed_context = torch.tensor([[2, 7, 9, 11, 13]])
+        with torch.inference_mode():
+            first_logits = model(first)["logits"]
+            changed_logits = model(changed_context)["logits"]
+        self.assertFalse(torch.allclose(first_logits[:, 3, :], changed_logits[:, 3, :]))
+
+    def test_causal_attention_prevents_future_tokens_changing_past_logits(self):
+        torch.manual_seed(43)
+        model = NeuroSparseModel(self.config()).eval()
+        first = torch.tensor([[1, 7, 9, 11, 13]])
+        changed_future = torch.tensor([[1, 7, 9, 21, 23]])
+        with torch.inference_mode():
+            first_logits = model(first)["logits"]
+            changed_logits = model(changed_future)["logits"]
+        self.assertTrue(torch.allclose(
+            first_logits[:, :3, :], changed_logits[:, :3, :], atol=1e-6, rtol=1e-6
+        ))
+
+    def test_model_rejects_sequence_longer_than_position_table(self):
+        config = NeuroSparseConfig(
+            vocab_size=64, hidden_size=32, num_layers=1, num_experts=4,
+            top_k=2, max_refinements=2, fast_memory_slots=8,
+            max_sequence_length=4,
+        )
+        model = NeuroSparseModel(config)
+        with self.assertRaisesRegex(ValueError, "max_sequence_length"):
+            model(torch.ones((1, 5), dtype=torch.long))
+
+    def test_config_requires_attention_head_divisibility(self):
+        with self.assertRaisesRegex(ValueError, "divisible"):
+            NeuroSparseConfig(hidden_size=30, num_attention_heads=4)
+
+
 if __name__ == '__main__':
     unittest.main()
