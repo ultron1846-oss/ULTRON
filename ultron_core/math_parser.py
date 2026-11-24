@@ -28,7 +28,15 @@ _LATEX_SYMBOLS = {
 }
 
 _SUPERSCRIPT_DIGITS = dict(zip("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
-_SUPERSCRIPT_SIGNS = {"⁺": "+", "⁻": "-"}\n\n_COMPARISON_OPERATORS = {\n    "=": (ExprKind.EQUAL, 1), "≠": (ExprKind.NOT_EQUAL, 1),\n    "<": (ExprKind.LESS_THAN, 1), "≤": (ExprKind.LESS_EQUAL, 1),\n    ">": (ExprKind.GREATER_THAN, 1), "≥": (ExprKind.GREATER_EQUAL, 1),\n    "!=": (ExprKind.NOT_EQUAL, 2), "<=": (ExprKind.LESS_EQUAL, 2),\n    ">=": (ExprKind.GREATER_EQUAL, 2),\n}
+_SUPERSCRIPT_SIGNS = {"⁺": "+", "⁻": "-"}
+
+_COMPARISON_OPERATORS = {
+    "=": (ExprKind.EQUAL, 1), "≠": (ExprKind.NOT_EQUAL, 1),
+    "<": (ExprKind.LESS_THAN, 1), "≤": (ExprKind.LESS_EQUAL, 1),
+    ">": (ExprKind.GREATER_THAN, 1), "≥": (ExprKind.GREATER_EQUAL, 1),
+    "!=": (ExprKind.NOT_EQUAL, 2), "<=": (ExprKind.LESS_EQUAL, 2),
+    ">=": (ExprKind.GREATER_EQUAL, 2),
+}
 
 
 class _RecursiveParser:
