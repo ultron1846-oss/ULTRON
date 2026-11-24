@@ -14,7 +14,7 @@ class BenchmarkStatisticsTests(unittest.TestCase):
 
     def test_percentile_interpolates_and_validates(self):
         self.assertEqual(percentile([1.0, 2.0, 3.0, 4.0], 0.5), 2.5)
-        self.assertEqual(percentile([1.0, 2.0, 3.0, 4.0], 0.95), 3.85)
+        self.assertAlmostEqual(percentile([1.0, 2.0, 3.0, 4.0], 0.95), 3.85, places=12)
         with self.assertRaisesRegex(ValueError, "q must"):
             percentile([1.0, 2.0], 1.1)
         with self.assertRaisesRegex(ValueError, "at least one"):
