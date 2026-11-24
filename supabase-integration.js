@@ -22,7 +22,7 @@ export const supabaseBackendAudit = Object.freeze({
       name: 'training-control',
       state: 'protected',
       label: 'PUBLIC STATUS · OWNER ACTIONS',
-      detail: 'The public_status action returns generic service-state flags only. Health, status, start and stop actions require a verified owner session inside the function.'
+      detail: 'The public_status action returns generic service-state flags only. Health, status, start and stop actions remain owner-session gated and require a verified owner session inside the function.'
     }
   ],
   blockers: [
