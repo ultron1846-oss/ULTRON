@@ -110,7 +110,9 @@ class _RecursiveParser:
 
         pair = token.value
         next_token = self.tokens[self.position + 1] if self.position + 1 < len(self.tokens) else None
-        if (pair in ("!", "<", ">") and next_token is not None\n                and next_token.value == "="\n                and next_token.offset == token.offset + len(token.value)):
+        if (pair in ("!", "<", ">") and next_token is not None
+                and next_token.value == "="
+                and next_token.offset == token.offset + len(token.value)):
             pair += "="
         spec = _COMPARISON_OPERATORS.get(pair)
         if spec is None:
