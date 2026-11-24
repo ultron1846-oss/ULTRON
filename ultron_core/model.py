@@ -53,6 +53,12 @@ class NeuroSparseBlock(nn.Module):
             key_padding_mask=key_padding_mask,
             need_weights=False,
         )
+        # Left-padded query rows can have no causally visible valid key. PyTorch
+        # may return NaNs for those padded queries; they are never model targets.
+        if key_padding_mask is not None:
+            attention_output = attention_output.masked_fill(
+                key_padding_mask.unsqueeze(-1), 0.0
+            )
         x = x + self.dropout(attention_output)
 
         residual = x
