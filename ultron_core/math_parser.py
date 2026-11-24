@@ -28,9 +28,20 @@ _LATEX_SYMBOLS = {
 
 
 class _RecursiveParser:
-    def __init__(self, tokens: tuple[MathToken, ...]):
+    def __init__(self, tokens: tuple[MathToken, ...], max_nesting: int):
         self.tokens = tuple(token for token in tokens if token.kind != "whitespace")
         self.position = 0
+        self.max_nesting = max_nesting
+        self.nesting = 0
+
+    def _enter(self, offset: int) -> None:
+        self.nesting += 1
+        if self.nesting > self.max_nesting:
+            self.nesting -= 1
+            raise MathParseError("maximum parser nesting exceeded", offset)
+
+    def _leave(self) -> None:
+        self.nesting -= 1
         self.end_offset = (
             tokens[-1].offset + len(tokens[-1].value) if tokens else 0
         )
@@ -137,15 +148,24 @@ class _RecursiveParser:
         operator = self._accept("+", "-")
         if operator is None:
             return self._parse_power()
-        operand = self._parse_unary()
+        self._enter(operator.offset)
+        try:
+            operand = self._parse_unary()
+        finally:
+            self._leave()
         if operator.value == "+":
             return operand
         return Expr(ExprKind.NEG, args=(operand,))
 
     def _parse_power(self) -> Expr:
         base = self._parse_primary()
-        if self._accept("^") is not None:
-            exponent = self._parse_unary()
+        operator = self._accept("^")
+        if operator is not None:
+            self._enter(operator.offset)
+            try:
+                exponent = self._parse_unary()
+            finally:
+                self._leave()
             return Expr(ExprKind.POW, args=(base, exponent))
         return base
 
@@ -212,10 +232,15 @@ class _RecursiveParser:
             return self._parse_number()
         if self._is_identifier(token) or token.value in _LATEX_SYMBOLS:
             return self._parse_identifier()
-        if self._accept("(") is not None:
-            expression = self._parse_sum()
-            self._expect(")")
-            return expression
+        opening = self._accept("(")
+        if opening is not None:
+            self._enter(opening.offset)
+            try:
+                expression = self._parse_sum()
+                self._expect(")")
+                return expression
+            finally:
+                self._leave()
         raise MathParseError(
             f"unsupported token {token.value!r}; this grammar accepts scalar arithmetic and equality",
             token.offset,
@@ -231,12 +256,35 @@ class MathParser:
     Contiguous letters form one identifier (velocity), never an implicit product.
     """
 
-    def __init__(self, tokenizer: MathTokenizer | None = None):
+    def __init__(
+        self,
+        tokenizer: MathTokenizer | None = None,
+        *,
+        max_source_chars: int = 100_000,
+        max_tokens: int = 1_024,
+        max_nesting: int = 128,
+    ):
+        for name, value in (
+            ("max_source_chars", max_source_chars),
+            ("max_tokens", max_tokens),
+            ("max_nesting", max_nesting),
+        ):
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
         self.tokenizer = tokenizer or MathTokenizer()
+        self.max_source_chars = max_source_chars
+        self.max_tokens = max_tokens
+        self.max_nesting = max_nesting
 
     def parse(self, source: str) -> Expr:
+        if not isinstance(source, str):
+            raise TypeError("mathematical input must be a string")
+        if len(source) > self.max_source_chars:
+            raise MathParseError("maximum source length exceeded", self.max_source_chars)
         tokens = self.tokenizer.tokenize(source)
-        return _RecursiveParser(tokens).parse()
+        if len(tokens) > self.max_tokens:
+            raise MathParseError("maximum token count exceeded", tokens[self.max_tokens].offset)
+        return _RecursiveParser(tokens, self.max_nesting).parse()
 
 
 def parse_math(source: str, tokenizer: MathTokenizer | None = None) -> Expr:
