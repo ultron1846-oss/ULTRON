@@ -4,6 +4,17 @@ from ultron_core.benchmark import bootstrap_median_ci, percentile
 
 
 class BenchmarkStatisticsTests(unittest.TestCase):
+    def test_benchmark_runtime_restores_rng_and_thread_count(self):
+        import torch
+        from ultron_core.benchmark import _preserve_benchmark_runtime
+        state_before = torch.random.get_rng_state().clone()
+        threads_before = torch.get_num_threads()
+        with _preserve_benchmark_runtime(123, 1, torch.device("cpu")):
+            _ = torch.rand(4)
+            self.assertEqual(torch.get_num_threads(), 1)
+        self.assertTrue(torch.equal(torch.random.get_rng_state(), state_before))
+        self.assertEqual(torch.get_num_threads(), threads_before)
+
     def test_bootstrap_interval_is_deterministic(self):
         values = [1.0, 2.0, 2.0, 3.0, 4.0]
         first = bootstrap_median_ci(values, seed=17, resamples=500)
