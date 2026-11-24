@@ -973,6 +973,19 @@ class ExactRealRootIsolationTests(unittest.TestCase):
                 )
         self.assertLess(intervals[0][1], intervals[1][0])
 
+    def test_endpoint_adjustment_detects_exact_rational_root_candidate(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(
+            parse_math("(x - 1)*(2*x - 3)")
+        )
+        intervals = polynomial.isolate_real_roots_univariate(
+            0, 2, max_width=2
+        )
+        self.assertEqual(
+            intervals,
+            ((Fraction(1), Fraction(1)), (Fraction(3, 2), Fraction(3, 2))),
+        )
+
     def test_constant_has_no_roots(self):
         from ultron_core.polynomial import Polynomial
         self.assertEqual(
