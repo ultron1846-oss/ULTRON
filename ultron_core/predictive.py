@@ -10,7 +10,13 @@ class PredictiveRefiner(nn.Module):
         self.refine=nn.GRUCell(hidden_size,hidden_size)
 
     def forward(self,state:torch.Tensor):
+        if state.ndim != 3:
+            raise ValueError("state must have shape [batch, sequence, hidden_size]")
         batch,seq,hidden=state.shape
+        if batch == 0 or seq == 0:
+            raise ValueError("batch and sequence dimensions must be non-empty")
+        if hidden != self.predictor[0].in_features:
+            raise ValueError("state hidden dimension does not match refiner")
         z=state.reshape(batch*seq,hidden); steps=torch.zeros(z.shape[0],device=z.device,dtype=torch.long)
         error=z.new_zeros(z.shape[0])
         for _ in range(self.max_refinements):
