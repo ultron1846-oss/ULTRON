@@ -767,10 +767,12 @@ class ExactUnivariatePolynomialDivisionTests(unittest.TestCase):
 
 class DomainSafeRationalReductionTests(unittest.TestCase):
     def test_x_over_x_reduces_to_one_but_keeps_x_nonzero(self):
+        from ultron_core.polynomial import Polynomial
         from ultron_core.rational import RationalDomainError, RationalFunction
         original = RationalFunction.from_expr(parse_math("x/x"))
         reduced = original.cancel_common_univariate_factors()
-        self.assertEqual(reduced.numerator, reduced.denominator)
+        self.assertEqual(reduced.numerator, Polynomial.one())
+        self.assertEqual(reduced.denominator, Polynomial.one())
         self.assertEqual(reduced.evaluate({"x": 7}), Fraction(1))
         with self.assertRaises(RationalDomainError):
             reduced.evaluate({"x": 0})
