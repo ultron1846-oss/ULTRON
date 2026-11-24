@@ -69,6 +69,12 @@ class CoreTests(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "integer dtype"):
             load_balance_loss(torch.zeros(2, 4), torch.tensor([[0.0], [1.0]]))
 
+    def test_refiner_and_memory_reject_invalid_constructor_dimensions(self):
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            PredictiveRefiner(hidden_size=0, max_refinements=1, halt_threshold=0.1)
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            FastWeightMemory(hidden_size=8, slots=0)
+
     def test_predictive_refiner_rejects_invalid_shapes(self):
         refiner = PredictiveRefiner(hidden_size=8, max_refinements=1, halt_threshold=0.1)
         with self.assertRaisesRegex(ValueError, "shape"):
