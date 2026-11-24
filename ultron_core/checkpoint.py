@@ -12,6 +12,31 @@ def _digest(path:Path)->str:
         for chunk in iter(lambda:stream.read(1024*1024),b""): h.update(chunk)
     return h.hexdigest()
 
+def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
+    """Validate every tensor before load_state_dict can mutate the target model."""
+    expected_state = model.state_dict()
+    if model_state.keys() != expected_state.keys():
+        missing = sorted(set(expected_state) - set(model_state))
+        unexpected = sorted(set(model_state) - set(expected_state))
+        raise ValueError(
+            f"checkpoint model state keys do not match (missing={missing}, unexpected={unexpected})"
+        )
+    for name, expected in expected_state.items():
+        actual = model_state[name]
+        if not isinstance(expected, torch.Tensor) or not isinstance(actual, torch.Tensor):
+            raise ValueError(f"checkpoint model state entry {name!r} must be a tensor")
+        if actual.shape != expected.shape:
+            raise ValueError(
+                f"checkpoint model state tensor {name!r} has shape {tuple(actual.shape)}; "
+                f"expected {tuple(expected.shape)}"
+            )
+        if actual.dtype != expected.dtype:
+            raise ValueError(
+                f"checkpoint model state tensor {name!r} has dtype {actual.dtype}; "
+                f"expected {expected.dtype}"
+            )
+
+
 def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig, optimizer=None, step: int = 0):
     if not isinstance(config, NeuroSparseConfig):
         raise TypeError("config must be a NeuroSparseConfig")
@@ -86,6 +111,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     model_config = getattr(model, "config", None)
     if model_config is not None and model_config.to_dict() != saved_config:
         raise ValueError("checkpoint config does not match target model config")
+    _validate_model_state(model, model_state)
     optimizer_state = payload.get("optimizer")
     if optimizer is not None and optimizer_state is None:
         raise ValueError("checkpoint does not contain optimizer state")
