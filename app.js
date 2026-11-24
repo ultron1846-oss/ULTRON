@@ -152,13 +152,13 @@ function bindLearning(){
  const number=document.querySelector('#practice-number');
  const total=document.querySelector('#practice-total');
  const showExercise=()=>{
-  const item=exercises[index];completed=false;question.textContent=item.question+' = ?';number.textContent=`EXERCISE ${index+1} OF ${exercises.length}`;input.value='';input.disabled=false;hint.hidden=true;hint.textContent='';feedback.textContent='Work it out, then check your answer.';feedback.className='practice-feedback';document.querySelector('#practice-check').disabled=false;input.focus({preventScroll:true});
+  const item=exercises[index];completed=false;question.textContent=item.question+' = ?';number.textContent=`EXERCISE ${index+1} OF ${exercises.length}`;input.value='';input.disabled=false;hint.hidden=true;hint.textContent='';feedback.textContent='Work it out, then check your answer.';feedback.className='practice-feedback';document.querySelector('#practice-check').disabled=false;
  };
  document.querySelector('#practice-check').addEventListener('click',async()=>{
   if(completed)return;const item=exercises[index];const value=input.value.trim();const numeric=Number(value);
   if(!value||!Number.isFinite(numeric)){feedback.textContent='Enter a valid number before checking.';feedback.className='practice-feedback error';return;}
   const correct=Math.abs(numeric-item.answer)<1e-9;
-  try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){feedback.textContent=`Local memory could not save this attempt: ${error.message}`;feedback.className='practice-feedback error';}
+  try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){feedback.textContent=`Practice result recorded in this session, but local memory could not save it: ${error.message}`;feedback.className='practice-feedback error';}
   if(correct){completed=true;const count=(Number(safeGet('ultron-practice-count','0'))||0)+1;safeSet('ultron-practice-count',String(count));total.textContent='CORRECT: '+count;feedback.textContent='Correct. '+item.steps;feedback.className='practice-feedback success';input.disabled=true;document.querySelector('#practice-check').disabled=true;}
   else{feedback.textContent='Not quite. Try again, or reveal a hint. Incorrect attempts are kept in local memory when available.';feedback.className='practice-feedback error';}
  });
@@ -179,7 +179,7 @@ async function loadMemoryPage(){
  });
  document.querySelector('#memory-import-file').addEventListener('change',async event=>{
   const file=event.target.files?.[0];if(!file)return;
-  try{if(file.size>20*1024*1024)throw new Error('Backup file exceeds the 20 MB import limit.');const payload=JSON.parse(await file.text());const result=await importMemory(payload);feedback.textContent=`Imported ${result.imported} records. Refreshing memory view…`;await loadMemoryPage();}catch(error){feedback.textContent='Import failed: '+error.message;}finally{event.target.value='';}
+  try{if(file.size>20*1024*1024)throw new Error('Backup file exceeds the 20 MB import limit.');const payload=JSON.parse(await file.text());const result=await importMemory(payload);feedback.textContent=`Imported ${result.imported} records. Refreshing memory view…`;navigate('memory');}catch(error){feedback.textContent='Import failed: '+error.message;}finally{event.target.value='';}
  });
 }
 async function loadServers(){
