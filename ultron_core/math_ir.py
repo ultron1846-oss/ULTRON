@@ -58,6 +58,18 @@ class FormulaCandidate:
     evidence: tuple[str,...]=()
     candidate_id: str=""
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.expression, Expr):
+            raise TypeError("expression must be an Expr")
+        for name in ("domain", "assumptions", "provenance", "evidence"):
+            value = getattr(self, name)
+            if not isinstance(value, tuple) or any(not isinstance(item, str) for item in value):
+                raise TypeError(f"{name} must be a tuple of strings")
+        if not isinstance(self.status, VerificationStatus):
+            raise TypeError("status must be a VerificationStatus")
+        if not isinstance(self.candidate_id, str):
+            raise TypeError("candidate_id must be a string")
+
     def can_enter_trusted_knowledge(self) -> bool:
         """Fail closed until a real proof-kernel receipt can be validated.
 
