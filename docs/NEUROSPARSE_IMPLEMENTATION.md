@@ -278,3 +278,16 @@ The implementation has explicit depth and processed-interval budgets and uses Fr
 ### Root-isolation endpoint regression hardening
 
 A review found a boundary case when a rational root is detected exactly at a split point and a nearby distinct root remains in the adjacent interval. The reduced square-free polynomial no longer vanishes at that split point, but the original polynomial still does. Before returning a non-degenerate interval, the isolator now moves any such endpoint inward using exact rational candidates and Sturm counts, without crossing the remaining root. If the configured depth budget cannot establish a non-root endpoint, isolation fails closed. A regression test covers two closely spaced rational roots with a deliberately wide requested interval.
+
+
+## Exact real algebraic number representation — 2026-11-24
+
+ULTRON now exposes `RealAlgebraicNumber`, a bounded exact representation of one real root of a univariate rational-coefficient polynomial.
+
+- A non-degenerate rational interval must have non-root endpoints and contain exactly one distinct real root, verified with the exact Sturm counter.
+- Exact rational roots can be represented as degenerate intervals `(r, r)`.
+- `refine()` bisects with rational arithmetic and detects an exact rational midpoint.
+- `same_value_as()` decides equality using exact rational evaluation or the polynomial GCD over the overlap of isolating intervals.
+- `compare_to()` orders distinct represented roots by exact interval refinement, with a caller-controlled refinement budget.
+
+The defining polynomial is **not asserted to be minimal or irreducible**. The type currently supports representation, equality and ordering only—not algebraic addition/multiplication, minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.
