@@ -286,3 +286,12 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 4. Keep the symbolic evaluator's supported operations explicit; finite probes remain counterexample searches, never proofs.
 5. No model training, optimizer steps, external datasets, cloud jobs, Colab sessions or remote execution are authorized by this review.
 6. Keep website, Supabase, authentication and GitHub Pages unchanged. Update this README at every meaningful milestone.
+
+
+## Checkpoint integrity review — 2026-11-24
+
+- Checkpoint save now rejects fractional/negative/bool step values and mismatched model/config metadata instead of silently truncating or writing misleading metadata.
+- Checkpoint load validates checksum-manifest syntax, payload mapping structure, non-negative step metadata, target-model configuration compatibility and optimizer-state presence before applying state.
+- The checksum manifest is now written to a temporary file, flushed and fsynced, then atomically replaced. The checkpoint and manifest are still two separate files, so a process interruption between their replacements can leave a detectable mismatch; keep periodic independent backups.
+- The SHA-256 sidecar detects accidental corruption only. It is not a digital signature and does not make untrusted checkpoints safe.
+- Regression tests cover invalid steps and configuration mismatch.
