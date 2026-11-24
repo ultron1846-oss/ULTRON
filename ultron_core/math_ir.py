@@ -4,7 +4,7 @@ from enum import Enum
 from fractions import Fraction
 
 class ExprKind(str, Enum):
-    INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; MUL="mul"; POW="pow"; NEG="neg"; EQUAL="equal"
+    INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; SUB="sub"; MUL="mul"; DIV="div"; POW="pow"; NEG="neg"; EQUAL="equal"
 
 @dataclass(frozen=True)
 class Expr:
@@ -22,7 +22,7 @@ class Expr:
             raise TypeError("assumptions must be a tuple of strings")
         arity = {
             ExprKind.INTEGER: 0, ExprKind.RATIONAL: 0, ExprKind.SYMBOL: 0,
-            ExprKind.ADD: None, ExprKind.MUL: None, ExprKind.POW: 2,
+            ExprKind.ADD: None, ExprKind.SUB: 2, ExprKind.MUL: None, ExprKind.DIV: 2, ExprKind.POW: 2,
             ExprKind.NEG: 1, ExprKind.EQUAL: 2,
         }[self.kind]
         if arity is not None and len(self.args) != arity:
