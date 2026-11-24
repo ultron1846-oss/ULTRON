@@ -330,6 +330,11 @@ class MathParserTests(unittest.TestCase):
     def test_supported_latex_greek_symbol_alias(self):
         self.assertEqual(parse_math(r"\alpha + 1").args[0].value, "α")
 
+    def test_unicode_superscript_powers_are_parsed_as_exponents(self):
+        self.assertEqual(evaluate(parse_math("x²"), {"x": Fraction(3)}), 9)
+        self.assertEqual(evaluate(parse_math("x⁻²"), {"x": Fraction(2)}), Fraction(1, 4))
+        self.assertEqual(evaluate(parse_math("x²³"), {"x": Fraction(2)}), 2 ** 23)
+
     def test_parser_rejects_empty_and_trailing_input(self):
         for source in ("", "   ", "1 2", "x = y = z", "1.", "(x + 1"):
             with self.subTest(source=source):
