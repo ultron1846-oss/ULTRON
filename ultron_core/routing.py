@@ -12,6 +12,8 @@ class SparseRouter(nn.Module):
         self.proj = nn.Linear(hidden_size, num_experts, bias=False)
 
     def forward(self, x: torch.Tensor):
+        if x.ndim < 2 or x.shape[-1] != self.proj.in_features:
+            raise ValueError("router input must have shape [..., hidden_size]")
         logits = self.proj(x)
         probs = F.softmax(logits.float(), dim=-1).to(logits.dtype)
         weights, indices = torch.topk(probs, self.top_k, dim=-1)
@@ -23,11 +25,20 @@ def load_balance_loss(logits: torch.Tensor, indices: torch.Tensor) -> torch.Tens
     """Switch-style balance penalty; assignment frequency sums to one."""
     if logits.ndim != 2 or indices.ndim != 2 or logits.shape[0] != indices.shape[0]:
         raise ValueError("expected logits [tokens, experts] and indices [tokens, top_k]")
+    experts = logits.shape[-1]
+    if experts <= 0 or indices.shape[1] <= 0 or indices.shape[1] > experts:
+        raise ValueError("expert and top-k dimensions must be valid and non-empty")
+    if indices.dtype not in (torch.int8, torch.int16, torch.int32, torch.int64, torch.uint8):
+        raise TypeError("expert indices must have an integer dtype")
+    if indices.device != logits.device:
+        raise ValueError("logits and expert indices must be on the same device")
     if logits.shape[0] == 0:
         return logits.new_zeros(())
-    experts = logits.shape[-1]
     if indices.numel() and (indices.min() < 0 or indices.max() >= experts):
         raise ValueError("expert index out of range")
+    ordered = indices.sort(dim=-1).values
+    if indices.shape[1] > 1 and bool((ordered[:, 1:] == ordered[:, :-1]).any()):
+        raise ValueError("each token must select distinct experts")
     importance = F.softmax(logits.float(), dim=-1).mean(dim=0)
     counts = F.one_hot(indices, num_classes=experts).float().sum(dim=1)
     frequency = counts.sum(dim=0) / (indices.shape[0] * indices.shape[1])
