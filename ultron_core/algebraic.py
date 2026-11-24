@@ -291,3 +291,54 @@ class RealAlgebraicNumber:
         return RealAlgebraicNumber(
             transformed, self.variable, lower, upper, self.limits
         )
+
+
+    def add(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
+            limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
+        """Return the exact algebraic sum, or fail if certification exceeds its budget."""
+        from .algebraic_arithmetic import add
+        return add(self, other, max_refinements=max_refinements, limits=limits)
+
+    def subtract(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
+                 limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
+        """Return the exact algebraic difference."""
+        from .algebraic_arithmetic import subtract
+        return subtract(self, other, max_refinements=max_refinements, limits=limits)
+
+    def multiply(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
+                 limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
+        """Return the exact algebraic product."""
+        from .algebraic_arithmetic import multiply
+        return multiply(self, other, max_refinements=max_refinements, limits=limits)
+
+    def divide(self, other: "RealAlgebraicNumber", *, max_refinements: int = 4096,
+               limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
+        """Return the exact algebraic quotient; reject a zero divisor."""
+        from .algebraic_arithmetic import divide
+        return divide(self, other, max_refinements=max_refinements, limits=limits)
+
+    def reciprocal(self, *, max_refinements: int = 4096,
+                   limits: PolynomialLimits | None = None) -> "RealAlgebraicNumber":
+        """Return the exact multiplicative inverse; reject zero."""
+        from .algebraic_arithmetic import reciprocal
+        return reciprocal(self, max_refinements=max_refinements, limits=limits)
+
+    def __add__(self, other):
+        if not isinstance(other, RealAlgebraicNumber):
+            return NotImplemented
+        return self.add(other)
+
+    def __sub__(self, other):
+        if not isinstance(other, RealAlgebraicNumber):
+            return NotImplemented
+        return self.subtract(other)
+
+    def __mul__(self, other):
+        if not isinstance(other, RealAlgebraicNumber):
+            return NotImplemented
+        return self.multiply(other)
+
+    def __truediv__(self, other):
+        if not isinstance(other, RealAlgebraicNumber):
+            return NotImplemented
+        return self.divide(other)

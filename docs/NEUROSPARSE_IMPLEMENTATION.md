@@ -290,7 +290,26 @@ ULTRON now exposes `RealAlgebraicNumber`, a bounded exact representation of one 
 - `same_value_as()` decides equality using exact rational evaluation or the polynomial GCD over the overlap of isolating intervals.
 - `compare_to()` orders distinct represented roots by exact interval refinement, with a caller-controlled refinement budget.
 
-The defining polynomial is **not asserted to be minimal or irreducible**. The type currently supports representation, equality and ordering only—not algebraic addition/multiplication, minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.
+The defining polynomial is **not asserted to be minimal or irreducible**. The representation supports exact affine transforms and bounded arithmetic via resultants. It does not provide minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.
 
 
 A further regression covers an exact rational root encountered during the inward endpoint-adjustment search itself. The isolator now emits that root as a degenerate rational interval instead of passing a root endpoint into the Sturm counter.
+
+
+## Exact algebraic arithmetic via resultants — 2026-11-24
+
+The algebraic-number layer now exposes exact addition, subtraction, multiplication, division and reciprocal operations. For addition and subtraction it forms a Sylvester resultant from P(x) and Q(z-x). For multiplication it uses P(x) and x^n Q(z/x). Division first constructs the reciprocal algebraic value using x^n Q(1/x), after certifying that the selected denominator root is nonzero, and then invokes multiplication.
+
+The resultant may retain repeated factors and extraneous factors; the implementation does not assert minimality or irreducibility. It computes a rational interval enclosure of the intended result and uses the exact Sturm counter to require exactly one distinct real root in that interval. If the interval is too broad or has a root endpoint, operand intervals are refined with exact rational bisection. If certification cannot complete within the configured budget, the operation fails closed.
+
+The Sylvester determinant uses a subset dynamic program with O(n 2^n) state transitions and is capped at matrix dimension 10. Sparse polynomial degree, exponent and term limits remain active. All coefficient and interval arithmetic is over Q; no floating-point approximation is used.
+
+Public API:
+- RealAlgebraicNumber.add(other, max_refinements=4096, limits=...)
+- RealAlgebraicNumber.subtract(...)
+- RealAlgebraicNumber.multiply(...)
+- RealAlgebraicNumber.divide(...)
+- RealAlgebraicNumber.reciprocal(...)
+- Operators +, -, *, / accept another RealAlgebraicNumber.
+
+The implementation intentionally does not claim a minimal polynomial, irreducibility, general multivariate algebraic-number support, a complete computer algebra system, or a formally verified proof kernel. Regression tests include conjugate multiplicities, positive-root selection, reciprocal and quotient cases, rational operands, cancellation, zero division and resource exhaustion.

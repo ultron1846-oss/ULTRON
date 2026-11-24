@@ -555,7 +555,7 @@ ULTRON now exposes `RealAlgebraicNumber`, a bounded exact representation of one 
 - `same_value_as()` decides equality using exact rational evaluation or the polynomial GCD over the overlap of isolating intervals.
 - `compare_to()` orders distinct represented roots by exact interval refinement, with a caller-controlled refinement budget.
 
-The defining polynomial is **not asserted to be minimal or irreducible**. The type currently supports representation, equality and ordering only—not algebraic addition/multiplication, minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.
+The defining polynomial is **not asserted to be minimal or irreducible**. The representation supports exact affine transforms and, as documented below, bounded arithmetic via resultants. It does not provide minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.
 
 
 A further regression covers an exact rational root encountered during the inward endpoint-adjustment search itself. The isolator now emits that root as a degenerate rational interval instead of passing a root endpoint into the Sturm counter.
@@ -575,5 +575,24 @@ No training, optimizer step, external data, remote execution, website, Supabase 
 
 ### Next mathematical-core step
 
-Implement arithmetic between two real algebraic numbers only after choosing and validating a resultant-based construction with a certified isolating interval for the intended result. Do not approximate roots or infer the correct resultant root from floating-point values.
+That next step is implemented in the exact algebraic arithmetic milestone below. The resultant engine keeps the operand variable label so results can be chained, intersects both operands' resource budgets, and uses only certified rational intervals.
 
+
+
+## Exact arithmetic between real algebraic numbers — 2026-11-24
+
+ULTRON now provides bounded exact addition, subtraction, multiplication, division and reciprocal operations for represented real algebraic numbers.
+
+- `RealAlgebraicNumber.add`, `.subtract`, `.multiply`, `.divide` and `.reciprocal` are the explicit APIs; `+`, `-`, `*` and `/` are also supported between two algebraic-number instances.
+- Addition/subtraction and multiplication construct exact resultants over rational polynomial coefficients.
+- Division first certifies that the selected divisor is non-zero, constructs its exact reciprocal polynomial and then uses the product resultant.
+- Rational interval arithmetic bounds the intended result. The implementation refines operand intervals until the resultant has exactly one distinct real root in the candidate interval, with non-root endpoints.
+- Resultant multiplicities and extraneous factors are retained. The output polynomial is **not claimed to be minimal or irreducible**.
+- The subset-dynamic-programming determinant is capped at a Sylvester matrix dimension of 10. Existing polynomial term/degree/exponent budgets also apply. A computation that cannot be certified within its refinement budget fails explicitly.
+- No floating-point approximation is used. The engine does not implement general multivariate algebraic numbers or a formal proof kernel.
+
+Regression coverage includes sums and differences of square roots, products with repeated conjugate roots, reciprocals, quotients, rational operands, exact cancellation, division by zero and resource limits. Run:
+
+`python -m unittest tests.python.test_algebraic_arithmetic -v`
+
+No model training, optimizer step, external dataset, remote execution, website, Supabase or authentication changes were made.
