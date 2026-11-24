@@ -166,13 +166,6 @@ class _RecursiveParser:
                     following.offset,
                 )
 
-            # f(x) is deliberately not interpreted as f multiplied by x:
-            # function-call semantics do not yet exist in the current IR.
-            if result.kind == ExprKind.SYMBOL and following.value == "(":
-                raise MathParseError(
-                    "function-call syntax is not supported; function IR is not implemented",
-                    following.offset,
-                )
             right = self._parse_unary()
             result = Expr(ExprKind.MUL, args=(result, right))
 
