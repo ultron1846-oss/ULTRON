@@ -549,6 +549,134 @@ class ExactPolynomialTests(unittest.TestCase):
         with self.assertRaisesRegex(PolynomialError, "total degree"):
             Polynomial((((("x", 257),), Fraction(1)),))
 
+class ExactRationalExpressionTests(unittest.TestCase):
+    def test_x_over_x_preserves_the_original_excluded_point(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        value = RationalFunction.from_expr(parse_math("x/x"))
+        self.assertEqual(value.evaluate({"x": 3}), Fraction(1))
+        with self.assertRaises(RationalDomainError):
+            value.evaluate({"x": 0})
+        self.assertEqual(len(value.nonzero_constraints), 1)
+
+    def test_cancelled_factor_domain_is_preserved_without_cancellation(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        value = RationalFunction.from_expr(parse_math("(x^2 - 1)/(x - 1)"))
+        self.assertEqual(value.evaluate({"x": 2}), Fraction(3))
+        with self.assertRaises(RationalDomainError):
+            value.evaluate({"x": 1})
+
+    def test_nested_reciprocal_preserves_inner_domain(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        value = RationalFunction.from_expr(parse_math("1/(1/x)"))
+        self.assertEqual(value.evaluate({"x": 4}), Fraction(4))
+        with self.assertRaises(RationalDomainError):
+            value.evaluate({"x": 0})
+
+    def test_addition_and_multiplication_union_domain_constraints(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        left = RationalFunction.from_expr(parse_math("1/x"))
+        right = RationalFunction.from_expr(parse_math("1/(x - 1)"))
+        added = left.add(right)
+        multiplied = left.multiply(right)
+        self.assertEqual(added.evaluate({"x": 2}), Fraction(3, 2))
+        self.assertEqual(multiplied.evaluate({"x": 2}), Fraction(1, 2))
+        for value in (added, multiplied):
+            with self.subTest(value=value):
+                with self.assertRaises(RationalDomainError):
+                    value.evaluate({"x": 0})
+                with self.assertRaises(RationalDomainError):
+                    value.evaluate({"x": 1})
+
+    def test_division_requires_divisor_to_be_nonzero(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        value = RationalFunction.from_expr(parse_math("1/(x - 2)"))
+        reciprocal = RationalFunction.one().divide(value)
+        self.assertEqual(reciprocal.evaluate({"x": 3}), Fraction(1))
+        with self.assertRaises(RationalDomainError):
+            reciprocal.evaluate({"x": 2})
+        with self.assertRaisesRegex(ValueError, "zero rational function"):
+            RationalFunction.one().divide(RationalFunction.zero())
+
+    def test_negative_and_zero_powers_preserve_domain(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        reciprocal = RationalFunction.from_expr(parse_math("x^-2"))
+        self.assertEqual(reciprocal.evaluate({"x": 2}), Fraction(1, 4))
+        with self.assertRaises(RationalDomainError):
+            reciprocal.evaluate({"x": 0})
+        zero_power = RationalFunction.from_expr(parse_math("x^0"))
+        self.assertEqual(zero_power.evaluate({"x": 9}), Fraction(1))
+        with self.assertRaises(RationalDomainError):
+            zero_power.evaluate({"x": 0})
+
+    def test_denominator_scalar_normalization_is_deterministic(self):
+        from ultron_core.rational import RationalFunction
+        first = RationalFunction.from_expr(parse_math("2/x"))
+        second = RationalFunction.from_expr(parse_math("4/(2*x)"))
+        self.assertTrue(first.same_representation(second))
+        self.assertEqual(first.evaluate({"x": 5}), Fraction(2, 5))
+
+    def test_rejects_undefined_zero_powers_and_zero_denominators(self):
+        from ultron_core.rational import RationalExpressionError, RationalFunction
+        for source in ("1/0", "0^0", "0^-1"):
+            with self.subTest(source=source):
+                with self.assertRaises(RationalExpressionError):
+                    RationalFunction.from_expr(parse_math(source))
+
+    def test_rejects_non_integer_powers_calls_comparisons_and_assumptions(self):
+        from ultron_core.rational import RationalExpressionError, RationalFunction
+        for source in ("x^(1/2)", "sin(x)", "x < 2"):
+            with self.subTest(source=source):
+                with self.assertRaises(RationalExpressionError):
+                    RationalFunction.from_expr(parse_math(source))
+        assumed = Expr(ExprKind.SYMBOL, value="x", assumptions=("x > 0",))
+        with self.assertRaisesRegex(RationalExpressionError, "assumptions"):
+            RationalFunction.from_expr(assumed)
+
+    def test_polynomial_budgets_bound_rational_intermediates(self):
+        from ultron_core.polynomial import PolynomialLimits
+        from ultron_core.rational import RationalExpressionError, RationalFunction
+        with self.assertRaises((RationalExpressionError, ValueError)):
+            RationalFunction.from_expr(
+                parse_math("1/(x^3 - 1)"),
+                limits=PolynomialLimits(max_total_degree=2),
+            )
+
+    def test_nonzero_constant_denominators_do_not_create_fake_restrictions(self):
+        from ultron_core.rational import RationalFunction
+        value = RationalFunction.from_expr(parse_math("x/2"))
+        self.assertEqual(value.nonzero_constraints, ())
+        self.assertEqual(value.evaluate({"x": 6}), Fraction(3))
+
+    def test_rational_results_match_independent_exact_evaluator_on_sample_points(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        samples = (
+            "x/2 + 1/3",
+            "(x + 1)/(x - 2)",
+            "1/(1/x)",
+            "x^-2",
+            "(x^2 + 1)/(x + 1)",
+        )
+        for source in samples:
+            expression = parse_math(source)
+            rational = RationalFunction.from_expr(expression)
+            for point in range(-3, 4):
+                environment = {"x": Fraction(point)}
+                with self.subTest(source=source, point=point):
+                    try:
+                        expected = evaluate(expression, environment)
+                    except ZeroDivisionError:
+                        with self.assertRaises(RationalDomainError):
+                            rational.evaluate(environment)
+                    else:
+                        self.assertEqual(rational.evaluate(environment), expected)
+
+    def test_custom_limits_above_defaults_survive_rational_normalization(self):
+        from ultron_core.polynomial import PolynomialLimits
+        from ultron_core.rational import RationalFunction
+        limits = PolynomialLimits(max_total_degree=128, max_terms=4096, max_exponent=128)
+        value = RationalFunction.from_expr(parse_math("x^65"), limits=limits)
+        self.assertEqual(value.evaluate({"x": 2}), Fraction(2**65))
+
 
 if __name__ == "__main__":
     unittest.main()
