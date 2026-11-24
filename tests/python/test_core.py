@@ -230,6 +230,15 @@ class CoreTests(unittest.TestCase):
                 save_checkpoint(path, model, NeuroSparseConfig(vocab_size=65, hidden_size=32,
                     num_layers=1, num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8))
 
+    def test_checkpoint_format_version_tracks_causal_architecture(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            save_checkpoint(path, model, config, step=0)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            self.assertEqual(payload["format_version"], 2)
+
     def test_checkpoint_round_trip_and_tamper_detection(self):
         config = self.config()
         model = NeuroSparseModel(config)
