@@ -24,7 +24,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig, opt
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        "format_version": 1,
+        "format_version": 2,
         "config": config.to_dict(),
         "model": model.state_dict(),
         "step": step,
@@ -74,7 +74,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     payload = torch.load(target, map_location=map_location, weights_only=True)
     if not isinstance(payload, dict):
         raise ValueError("checkpoint payload must be a mapping")
-    if payload.get("format_version") != 1:
+    if payload.get("format_version") != 2:
         raise ValueError("unsupported checkpoint format")
     saved_config = payload.get("config")
     model_state = payload.get("model")
