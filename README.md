@@ -9,7 +9,7 @@ A follow-up startup/navigation hardening change keeps a complete static overview
 The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages
-- **Supabase backend:** live read-only status check plus an audit of the existing project and Edge Function contracts. It never calls owner-only services from the public site.
+- **Supabase backend:** refreshable, bounded-time read-only status check with visible last-checked time, plus an audit of deployed Edge Function contracts and backend security findings. It never calls owner-only services from the public site.
 - **Overview:** honest system status, model/training state, mathematical capability summary and local practice count.
 - **How ULTRON learns:** explains the intended verified learning lifecycle and distinguishes learning exercises from neural-model training.
 - **Math Agent:** browser interface to the existing deterministic arithmetic parser and limited linear-equation solver.
@@ -64,6 +64,14 @@ The connected Supabase project `ultron-memory` was inspected directly. It was `A
 - No database schema, RLS policy, user record, or secret was changed. The Edge Function code was updated; training remains disabled and no training job was started.
 - Security advisors also reported three RLS-enabled retired device/pairing tables with no policies, disabled leaked-password protection, and several unindexed foreign keys. These are separate database-hardening items; the public status endpoint does not expose those tables.
 
+## Supabase frontend integration audit — 2026-11-24
+
+The live project was re-inspected while aligning the backend page with the rebuilt frontend. The project is `ACTIVE_HEALTHY` in `ap-south-1`. The public page calls only `training-control` with the `public_status` action, the publishable key in the `apikey` header, no owner bearer token, and a 10-second request timeout. The response is validated to require an online control plane, training disabled, remote execution disabled, and an informational-only provider directory. The page exposes a manual refresh and last-checked timestamp.
+
+The deployed `training-control` function is version 8 with platform JWT verification disabled so the no-login public status request can reach its handler. The handler returns only generic status for `public_status`; its other actions continue to validate a signed-in owner session and configured owner ID. The deployed `device-control` function is still listed as active/version 4, but its handler is fail-closed and returns HTTP 410 for every request. It is retired, not physically removed.
+
+All nine inspected public tables had RLS enabled. The security advisor reported three RLS-enabled retired device/pairing tables with no policies, and warned that leaked-password protection is disabled. Those findings are documented for backend hardening; this frontend PR does not alter database schema, policies, Auth settings, Edge Functions, secrets, or records. The public website does not access any of those tables.
+
 ## Backend handoff / remaining work
 
 The backend owner (Codex) should:
@@ -91,7 +99,7 @@ The backend owner (Codex) should:
 1. Run `node --test` and inspect all GitHub Actions checks on the frontend completion PR.
 2. Confirm GitHub Pages deployment and verify that every runtime asset is staged.
 3. Test navigation, topic selection, exercise checking, memory export/import and slider behavior on iPad Safari.
-4. Confirm the live Supabase `public_status` request from the deployed Pages origin.
+4. Confirm the live Supabase `public_status` request from the deployed Pages origin and use the backend page's refresh/last-checked indicator.
 5. Keep actual model training and remote execution disabled until separately authorized.
 
 ## Project rule
