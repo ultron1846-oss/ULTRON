@@ -18,7 +18,7 @@
 
 The active expert ratio is top_k / num_experts. The default is 2/8 = 25%, not the proposed <=2% research target. It excludes shared embedding, router, refinement, memory and output weights; it is not the full-model active parameter fraction. No speed, energy or quality advantage is claimed.
 
-The current code is not a fixed 3–5M, 40M or 100M parameter model. There is no tokenizer, attention/position mechanism, deterministic training-data generator, curriculum engine, full symbolic algebra, formal proof kernel, literature novelty search, Lean/Coq/Isabelle adapter, or autonomous theorem discovery. The formula templates are seed examples only.
+The current code is not a fixed 3–5M, 40M or 100M parameter model. There is no tokenizer, deterministic training-data generator, curriculum engine, full symbolic algebra, formal proof kernel, literature novelty search, Lean/Coq/Isabelle adapter, or autonomous theorem discovery. Causal self-attention and learned positional embeddings are now implemented in the architecture follow-up described below. The formula templates are seed examples only.
 
 ## Checks
 
