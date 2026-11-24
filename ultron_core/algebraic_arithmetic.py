@@ -41,7 +41,10 @@ def _poly_from_z(coefficients: dict[int, Fraction], variable: str,
         if coefficient:
             monomial = () if power == 0 else ((variable, power),)
             terms.append((monomial, Fraction(coefficient)))
-    return Polynomial(tuple(sorted(terms)),)
+    polynomial = Polynomial(tuple(sorted(terms)))
+    # Re-enter through a bounded operation so caller-supplied limits apply
+    # even when the reversed polynomial is built directly from sparse terms.
+    return polynomial.add(Polynomial.zero(), limits=limits)
 
 
 def _z_monomial(power: int, variable: str,
