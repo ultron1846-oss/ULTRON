@@ -273,3 +273,8 @@ Algorithm:
 5. Stop only when a non-degenerate interval contains exactly one root and its width is at most max_width.
 
 The implementation has explicit depth and processed-interval budgets and uses Fraction arithmetic only. It rejects multivariate inputs, the zero polynomial, inexact float bounds, root endpoints and exhausted budgets. It returns isolating intervals, not decimal root approximations or algebraic-number objects. It is not a formal proof-kernel receipt.
+
+
+### Root-isolation endpoint regression hardening
+
+A review found a boundary case when a rational root is detected exactly at a split point and a nearby distinct root remains in the adjacent interval. The reduced square-free polynomial no longer vanishes at that split point, but the original polynomial still does. Before returning a non-degenerate interval, the isolator now moves any such endpoint inward using exact rational candidates and Sturm counts, without crossing the remaining root. If the configured depth budget cannot establish a non-root endpoint, isolation fails closed. A regression test covers two closely spaced rational roots with a deliberately wide requested interval.
