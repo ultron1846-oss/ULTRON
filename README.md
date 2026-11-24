@@ -11,6 +11,8 @@ The frontend is being redesigned around the supplied ULTRON control-room referen
 - **Overview:** honest system status, model/training state, mathematical capability summary and local practice count.
 - **How ULTRON learns:** explains the intended verified learning lifecycle and distinguishes learning exercises from neural-model training.
 - **Math Agent:** browser interface to the existing deterministic arithmetic parser and limited linear-equation solver.
+- **Learn & practice:** topic roadmap, four fixed foundation exercises, answer checking, hints and local practice counts.
+- **Memory vault:** IndexedDB stores experiences and mistakes locally, with JSON export/import for device-to-device transfer. This is not cloud sync.
 - **Servers:** reads optional `servers.json`, handles missing/malformed directory data and never starts remote jobs.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
 
@@ -21,6 +23,8 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 - `styles.css`: black/crimson control-room visual system and responsive layouts.
 - `app.js`: frontend rendering, navigation, local preferences, Math Agent UI, provider directory and Supabase audit page.
 - `supabase-integration.js`: public status client and non-secret audit metadata. It uses only the publishable API key and the read-only `public_status` action.
+- `memory-store.js`: local IndexedDB memory database (`ULTRON_MEMORY`, version 1) with `experiences`, `knowledge`, `mistakes` and `checkpoints` stores.
+- `servers.json`: informational provider directory; Google Colab is selected as the planned notebook environment, not connected.
 - `math-engine.js`: deterministic arithmetic parser and limited one-variable linear equation solver. No `eval()` or `new Function()`.
 - `tests/`: Node.js built-in regression tests.
 - `.github/workflows/`: test and GitHub Pages workflows.
@@ -30,7 +34,8 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 - No login or registration required.
 - No provider job submission or background execution from the public frontend.
 - **Actual model training remains disabled** until separate explicit user authorization.
-- The RAM slider is a browser-local preference only; it does not control physical RAM or GPU VRAM.
+- The RAM slider is a browser-local workload preference only; it does not control physical RAM, GPU VRAM or Colab runtime allocation.
+- The Memory Vault is device/browser-local. JSON backup export/import is the supported manual transfer path; no cloud memory sync is currently implemented.
 - Provider availability and free-tier terms are not guaranteed; verify directly with providers.
 
 ## Development and tests
@@ -43,7 +48,7 @@ node --test
 Automated tests do not replace live browser testing. iPad Safari testing must only be reported after it has actually been performed.
 
 ## GitHub Pages
-Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow must stage every runtime asset required by the frontend, including `math-engine.js` and (when added by backend work) `servers.json`. A successful Actions deployment is not by itself proof of every page interaction.
+Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow must stage every runtime asset required by the frontend, including `math-engine.js`, `supabase-integration.js`, `memory-store.js` and `servers.json`. A successful Actions deployment is not by itself proof of every page interaction.
 
 ## Supabase integration audit
 
@@ -68,15 +73,24 @@ The backend owner (Codex) should:
 6. Keep the Supabase public_status response read-only and separate from owner-only training controls; do not expose database rows or credentials.
 7. Update this README at meaningful milestones so the next development session can resume accurately.
 
-## Delivery plan
+## Delivery history
 
-The screenshot-inspired frontend redesign is delivered as one consolidated pull request: [PR #3](https://github.com/ultron1846-oss/ULTRON/pull/3). Do not split this frontend milestone into additional pull requests. Codex owns backend services and backend tests; this frontend branch must not duplicate backend implementation. Keep actual training disabled.
+- [PR #3](https://github.com/ultron1846-oss/ULTRON/pull/3): screenshot-inspired crimson control-room redesign and safe Supabase public status integration.
+- The follow-up frontend completion milestone adds topic exploration, functional local practice, IndexedDB memory with backup/restore, and the informational Google Colab directory.
 
-## Next frontend steps
-1. Run the full Node test suite and inspect the PR checks.
-2. Verify the deployed Pages URL and asset paths after merge.
-3. Test touch navigation, forms, scrolling and layout on iPad Safari and mobile browsers.
-4. Connect additional backend capabilities only after their interfaces and tests exist.
+## Current frontend boundaries
+
+- Google Colab is the selected future notebook environment. The website only links to the official Colab site; it does not authenticate, create notebooks, launch runtimes, submit jobs or start training.
+- The Memory Vault uses browser IndexedDB because the existing Supabase memory tables are owner-authenticated. The no-login public website must not weaken RLS or expose those rows. Cross-device transfer currently requires a user-managed JSON backup.
+- The memory database follows the requested store names, but browser quota and private-browsing behavior vary. “Unlimited history” cannot be guaranteed by browser storage.
+- The Settings memory slider is a saved preference only. A future Colab notebook must independently translate approved settings into batch size and runtime-safe limits.
+
+## Next verification steps
+1. Run `node --test` and inspect all GitHub Actions checks on the frontend completion PR.
+2. Confirm GitHub Pages deployment and verify that every runtime asset is staged.
+3. Test navigation, topic selection, exercise checking, memory export/import and slider behavior on iPad Safari.
+4. Confirm the live Supabase `public_status` request from the deployed Pages origin.
+5. Keep actual model training and remote execution disabled until separately authorized.
 
 ## Project rule
 A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.
