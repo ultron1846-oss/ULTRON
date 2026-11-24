@@ -19,7 +19,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
 
     def test_sum_uses_resultant_and_selects_positive_root(self):
         result = self.sqrt2.add(self.sqrt3)
-        expected = Polynomial.from_expr(parse_math("z^4 - 10*z^2 + 1"))
+        expected = Polynomial.from_expr(parse_math("x^4 - 10*x^2 + 1"))
         self.assertEqual(result.polynomial, expected)
         self.assertEqual((result.lower, result.upper), (Fraction(2), Fraction(4)))
         self.assertEqual(
@@ -31,7 +31,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
 
     def test_difference_selects_correct_resultant_root(self):
         result = self.sqrt3.subtract(self.sqrt2)
-        expected = Polynomial.from_expr(parse_math("z^4 - 10*z^2 + 1"))
+        expected = Polynomial.from_expr(parse_math("x^4 - 10*x^2 + 1"))
         self.assertEqual(result.polynomial, expected)
         self.assertGreater(result.lower, 0)
         self.assertLess(result.upper, 1)
@@ -44,16 +44,16 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
 
     def test_product_is_exact(self):
         result = self.sqrt2 * self.sqrt3
-        expected = Polynomial.from_expr(parse_math("z^4 - 12*z^2 + 36"))
+        expected = Polynomial.from_expr(parse_math("x^4 - 12*x^2 + 36"))
         self.assertEqual(result.polynomial, expected)
         self.assertEqual((result.lower, result.upper), (Fraction(1), Fraction(4)))
 
     def test_reciprocal_and_quotient_are_exact(self):
         inverse = self.sqrt3.reciprocal()
-        inverse_expected = Polynomial.from_expr(parse_math("1 - 3*z^2"))
+        inverse_expected = Polynomial.from_expr(parse_math("1 - 3*x^2"))
         self.assertEqual(inverse.polynomial, inverse_expected)
         quotient = self.sqrt2 / self.sqrt3
-        quotient_expected = Polynomial.from_expr(parse_math("9*z^4 - 12*z^2 + 4"))
+        quotient_expected = Polynomial.from_expr(parse_math("9*x^4 - 12*x^2 + 4"))
         self.assertEqual(quotient.polynomial, quotient_expected)
         self.assertGreater(quotient.lower, 0)
         self.assertLess(quotient.upper, 1)
@@ -66,7 +66,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         product = one_half.multiply(self.sqrt2)
         self.assertEqual(
             product.polynomial,
-            Polynomial.from_expr(parse_math("z^2 - 1/2")),
+            Polynomial.from_expr(parse_math("x^2 - 1/2")),
         )
 
     def test_subtracting_same_value_returns_exact_zero(self):
