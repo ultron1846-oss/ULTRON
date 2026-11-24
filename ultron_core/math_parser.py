@@ -8,7 +8,7 @@ from __future__ import annotations
 from fractions import Fraction
 import re
 
-from .math_ir import Expr, ExprKind
+from .math_ir import Expr, ExprKind, SUPPORTED_FUNCTIONS
 from .math_tokenizer import MathToken, MathTokenizer
 
 
@@ -29,6 +29,14 @@ _LATEX_SYMBOLS = {
 
 _SUPERSCRIPT_DIGITS = dict(zip("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
 _SUPERSCRIPT_SIGNS = {"⁺": "+", "⁻": "-"}
+
+_COMPARISON_OPERATORS = {
+    "=": (ExprKind.EQUAL, 1), "≠": (ExprKind.NOT_EQUAL, 1),
+    "<": (ExprKind.LESS_THAN, 1), "≤": (ExprKind.LESS_EQUAL, 1),
+    ">": (ExprKind.GREATER_THAN, 1), "≥": (ExprKind.GREATER_EQUAL, 1),
+    "!=": (ExprKind.NOT_EQUAL, 2), "<=": (ExprKind.LESS_EQUAL, 2),
+    ">=": (ExprKind.GREATER_EQUAL, 2),
+}
 
 
 class _RecursiveParser:
@@ -86,7 +94,7 @@ class _RecursiveParser:
     def parse(self) -> Expr:
         if not self.tokens:
             raise MathParseError("expression is empty", 0)
-        expression = self._parse_equality()
+        expression = self._parse_comparison()
         remaining = self._peek()
         if remaining is not None:
             raise MathParseError(
@@ -94,15 +102,28 @@ class _RecursiveParser:
             )
         return expression
 
-    def _parse_equality(self) -> Expr:
+    def _parse_comparison(self) -> Expr:
         left = self._parse_sum()
-        operator = self._accept("=")
-        if operator is None:
+        token = self._peek()
+        if token is None:
             return left
+
+        pair = token.value
+        next_token = self.tokens[self.position + 1] if self.position + 1 < len(self.tokens) else None
+        if (pair in ("!", "<", ">") and next_token is not None
+                and next_token.value == "="
+                and next_token.offset == token.offset + len(token.value)):
+            pair += "="
+        spec = _COMPARISON_OPERATORS.get(pair)
+        if spec is None:
+            return left
+        kind, width = spec
+        self.position += width
         right = self._parse_sum()
-        if self._peek() is not None and self._peek().value == "=":
-            raise MathParseError("chained equality is not supported", self._peek().offset)
-        return Expr(ExprKind.EQUAL, args=(left, right))
+        trailing = self._peek()
+        if trailing is not None and trailing.value in ("=", "≠", "<", ">", "≤", "≥", "!"):
+            raise MathParseError("chained comparisons are not supported", trailing.offset)
+        return Expr(kind, args=(left, right))
 
     def _parse_sum(self) -> Expr:
         result = self._parse_product()
@@ -309,7 +330,23 @@ class _RecursiveParser:
         if self._is_digit(token) or token.value == ".":
             return self._parse_number()
         if self._is_identifier(token) or token.value in _LATEX_SYMBOLS:
-            return self._parse_identifier()
+            symbol = self._parse_identifier()
+            following = self._peek()
+            if following is not None and following.value == "(":
+                if symbol.kind != ExprKind.SYMBOL or symbol.value not in {
+                    "sin", "cos", "tan", "asin", "acos", "atan",
+                    "exp", "ln", "log", "sqrt", "abs",
+                }:
+                    raise MathParseError("unknown or unsupported function name", following.offset)
+                self.position += 1
+                self._enter(following.offset)
+                try:
+                    argument = self._parse_sum()
+                    self._expect(")")
+                finally:
+                    self._leave()
+                return Expr(ExprKind.CALL, value=symbol.value, args=(argument,))
+            return symbol
         opening = self._accept("(")
         if opening is not None:
             self._enter(opening.offset)
@@ -320,7 +357,7 @@ class _RecursiveParser:
             finally:
                 self._leave()
         raise MathParseError(
-            f"unsupported token {token.value!r}; this grammar accepts scalar arithmetic and equality",
+            f"unsupported token {token.value!r}; this grammar accepts scalar arithmetic and one comparison",
             token.offset,
         )
 

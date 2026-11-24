@@ -448,3 +448,14 @@ The parser does not yet support function calls (including `sin(x)`), general LaT
 4. Keep formal proof status fail-closed until a proof kernel and verifiable receipt exist.
 5. No training, optimizer steps, external datasets/APIs, pretrained weights, cloud jobs, or website/frontend changes without separate authorization.
 6. Update this README and implementation notes at the next milestone.
+
+
+## Typed comparison and function-call IR — 2026-11-24
+
+The expression IR and parser now represent one top-level comparison using distinct node kinds for equality, inequality, and ordered comparisons. ASCII `!=`, `<=`, `>=` and Unicode `≠`, `≤`, `≥` map to explicit typed nodes. Chained comparisons are rejected rather than assigned an implicit associativity.
+
+A bounded unary-call grammar recognizes `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `exp`, `ln`, `log`, `sqrt`, and `abs`. Calls are stored as `CALL` nodes with a validated function name and one argument. This is syntax and IR support only: the exact rational evaluator deliberately rejects all function calls because transcendental values and their domains/branches need a separate semantic design. No numerical approximation or domain assumption is silently introduced.
+
+The exact evaluator can evaluate comparisons only when both operands are exact scalar rational expressions. Comparisons nested inside comparisons are rejected. Finite-domain candidate probing remains equality-only and therefore does not treat inequalities as proof candidates. The symbolic simplifier preserves comparison and function-call nodes without rewriting them.
+
+Tests cover ASCII and Unicode comparisons, chained-comparison rejection, function-name allowlisting, nested function-call parsing, and explicit evaluator rejection. This stage does not add trigonometric simplification, numerical function evaluation, domain inference, equation solving, or formal proof.

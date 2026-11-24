@@ -5,8 +5,11 @@ from fractions import Fraction
 import hashlib
 import json
 
+SUPPORTED_FUNCTIONS = frozenset({"sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "sqrt", "abs"})
+
+
 class ExprKind(str, Enum):
-    INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; SUB="sub"; MUL="mul"; DIV="div"; POW="pow"; NEG="neg"; EQUAL="equal"
+    INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; SUB="sub"; MUL="mul"; DIV="div"; POW="pow"; NEG="neg"; CALL="call"; EQUAL="equal"; NOT_EQUAL="not_equal"; LESS_THAN="less_than"; LESS_EQUAL="less_equal"; GREATER_THAN="greater_than"; GREATER_EQUAL="greater_equal"
 
 @dataclass(frozen=True)
 class Expr:
@@ -25,7 +28,8 @@ class Expr:
         arity = {
             ExprKind.INTEGER: 0, ExprKind.RATIONAL: 0, ExprKind.SYMBOL: 0,
             ExprKind.ADD: None, ExprKind.SUB: 2, ExprKind.MUL: None, ExprKind.DIV: 2, ExprKind.POW: 2,
-            ExprKind.NEG: 1, ExprKind.EQUAL: 2,
+            ExprKind.NEG: 1, ExprKind.CALL: 1, ExprKind.EQUAL: 2, ExprKind.NOT_EQUAL: 2,
+            ExprKind.LESS_THAN: 2, ExprKind.LESS_EQUAL: 2, ExprKind.GREATER_THAN: 2, ExprKind.GREATER_EQUAL: 2,
         }[self.kind]
         if arity is not None and len(self.args) != arity:
             raise ValueError(f"{self.kind.value} requires {arity} args")
@@ -44,6 +48,9 @@ class Expr:
         elif self.kind == ExprKind.SYMBOL:
             if not isinstance(self.value, str) or not self.value.isidentifier():
                 raise ValueError("symbol expression value must be a valid identifier")
+        elif self.kind == ExprKind.CALL:
+            if not isinstance(self.value, str) or self.value not in SUPPORTED_FUNCTIONS:
+                raise ValueError("unsupported mathematical function")
         elif self.value is not None:
             raise ValueError("operator expression cannot have value")
 
