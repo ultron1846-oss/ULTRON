@@ -259,3 +259,17 @@ Polynomial now exposes:
 The root-count operation requires integer/Fraction endpoints in strictly increasing order and rejects intervals whose endpoints are roots. Sign variations omit zero-valued sequence members at an endpoint, as in Sturm's theorem. Repeated roots are counted once. A nonzero constant has zero roots; the zero polynomial is rejected because its zero set is not finite.
 
 This does not numerically approximate roots or return isolating intervals. Multivariate root counting, algebraic-number objects, minimal-polynomial arithmetic and formal proof receipts are not implemented. The algorithm's correctness is covered by regression examples, but the implementation is not independently machine-checked by a proof kernel.
+
+
+## Exact real-root isolation — 2026-11-24
+
+Polynomial.isolate_real_roots_univariate(lower, upper, max_width=Fraction(1, 1000), max_depth=64, max_intervals=4096) returns a sorted tuple of disjoint rational intervals isolating every distinct real root in the requested open interval.
+
+Algorithm:
+1. Validate exact rational bounds and require non-root endpoints.
+2. Compute the exact derivative and polynomial GCD to obtain a square-free polynomial, so repeated roots are isolated once.
+3. Count roots with the exact Sturm sequence.
+4. Bisect using rational midpoints. If a midpoint is an exact root, emit the degenerate interval (r, r), divide out (x-r), and continue on the remaining left/right intervals.
+5. Stop only when a non-degenerate interval contains exactly one root and its width is at most max_width.
+
+The implementation has explicit depth and processed-interval budgets and uses Fraction arithmetic only. It rejects multivariate inputs, the zero polynomial, inexact float bounds, root endpoints and exhausted budgets. It returns isolating intervals, not decimal root approximations or algebraic-number objects. It is not a formal proof-kernel receipt.
