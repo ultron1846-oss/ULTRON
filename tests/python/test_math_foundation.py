@@ -249,6 +249,33 @@ class ModelIntegrationTests(unittest.TestCase):
         for block in model.blocks:
             self.assertEqual(int(block.memory.valid.sum()), len(tokenizer.encode("x+1")))
 
+    def test_math_ir_round_trip_and_structural_hash_are_deterministic(self):
+        expression = Expr(
+            ExprKind.ADD,
+            args=(
+                Expr(ExprKind.RATIONAL, value="1/3"),
+                Expr(ExprKind.DIV, args=(
+                    Expr(ExprKind.INTEGER, value=2),
+                    Expr(ExprKind.INTEGER, value=5),
+                )),
+            ),
+            assumptions=("x is real",),
+        )
+        encoded = expression.canonical_json()
+        restored = Expr.from_dict(expression.to_dict())
+        self.assertEqual(restored, expression)
+        self.assertEqual(restored.canonical_json(), encoded)
+        self.assertEqual(restored.structural_hash(), expression.structural_hash())
+        self.assertEqual(len(expression.structural_hash()), 64)
+
+    def test_math_ir_rejects_malformed_serialized_structure(self):
+        with self.assertRaisesRegex(ValueError, "must contain"):
+            Expr.from_dict({"kind": "integer", "value": 1})
+        with self.assertRaisesRegex(ValueError, "unsupported expression kind"):
+            Expr.from_dict({"kind": "unknown", "value": None, "args": [], "assumptions": []})
+        with self.assertRaises(TypeError):
+            Expr.from_dict({"kind": "integer", "value": 1, "args": (), "assumptions": []})
+
     def test_exact_subtraction_and_division_in_math_ir(self):
         two = Expr(ExprKind.INTEGER, value=2)
         six = Expr(ExprKind.INTEGER, value=6)
