@@ -73,7 +73,7 @@ function renderServers(){
 
 function renderBackend(){
  const audit=supabaseBackendAudit;
- const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='retired'?'planned':'available'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
+ const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='active'?'available':'planned'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
  const blockers=audit.blockers.map(item=>`<div class="warning-banner">${esc(item)}</div>`).join('');
  return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Existing backend inspected against this public website. This is a configuration audit, not live telemetry.')}
  <div class="status-grid">
