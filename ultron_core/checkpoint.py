@@ -16,8 +16,8 @@ def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
     """Validate every tensor before load_state_dict can mutate the target model."""
     expected_state = model.state_dict()
     if model_state.keys() != expected_state.keys():
-        missing = sorted(set(expected_state) - set(model_state))
-        unexpected = sorted(set(model_state) - set(expected_state))
+        missing = sorted(map(str, set(expected_state) - set(model_state)))
+        unexpected = sorted(map(str, set(model_state) - set(expected_state)))
         raise ValueError(
             f"checkpoint model state keys do not match (missing={missing}, unexpected={unexpected})"
         )
@@ -29,6 +29,11 @@ def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
             raise ValueError(
                 f"checkpoint model state tensor {name!r} has shape {tuple(actual.shape)}; "
                 f"expected {tuple(expected.shape)}"
+            )
+        if actual.layout != expected.layout:
+            raise ValueError(
+                f"checkpoint model state tensor {name!r} has layout {actual.layout}; "
+                f"expected {expected.layout}"
             )
         if actual.dtype != expected.dtype:
             raise ValueError(
