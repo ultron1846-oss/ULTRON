@@ -235,3 +235,15 @@ The Polynomial API now provides bounded univariate Euclidean division over exact
 - The implementation uses exact Fraction coefficient division; it does not use floating point.
 
 RationalFunction factor cancellation is intentionally not included in this change. The next stage can use the univariate GCD to reduce numerator/denominator while retaining every original non-zero domain constraint. Multivariate GCD and multivariate polynomial division remain unsupported.
+
+
+## Domain-safe univariate rational reduction — 2026-11-24
+
+RationalFunction.cancel_common_univariate_factors() now uses Polynomial.gcd_univariate() and exact_divide_univariate() to cancel a common univariate factor from numerator and denominator.
+
+The returned RationalFunction retains every original non-zero domain constraint, including factors that disappeared from the reduced denominator. Examples:
+- (x/x) reduces to (1), but the stored (x\ne0) condition still rejects (x=0).
+- ((x^2-1)/(x-1)) reduces to (x+1), but the stored (x\ne1) condition still rejects (x=1).
+- ((x(x-1))/(x(x+1))) reduces to ((x-1)/(x+1)), while retaining both original excluded points (x=0) and (x=-1).
+
+The operation rejects multivariate numerator/denominator terms. It is idempotent for the tested canonical representations. It does not establish arbitrary symbolic equivalence, prove identities, or add multivariate factorization.
