@@ -765,6 +765,60 @@ class ExactUnivariatePolynomialDivisionTests(unittest.TestCase):
                 divisor, limits=PolynomialLimits(max_total_degree=2)
             )
 
+class DomainSafeRationalReductionTests(unittest.TestCase):
+    def test_x_over_x_reduces_to_one_but_keeps_x_nonzero(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        original = RationalFunction.from_expr(parse_math("x/x"))
+        reduced = original.cancel_common_univariate_factors()
+        self.assertEqual(reduced.numerator, reduced.denominator)
+        self.assertEqual(reduced.evaluate({"x": 7}), Fraction(1))
+        with self.assertRaises(RationalDomainError):
+            reduced.evaluate({"x": 0})
+
+    def test_common_factor_cancellation_preserves_original_denominator_domain(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        original = RationalFunction.from_expr(parse_math("(x^2 - 1)/(x - 1)"))
+        reduced = original.cancel_common_univariate_factors()
+        self.assertEqual(reduced.numerator, Polynomial.from_expr(parse_math("x + 1")))
+        self.assertEqual(reduced.denominator, Polynomial.one())
+        self.assertEqual(reduced.evaluate({"x": 2}), Fraction(3))
+        with self.assertRaises(RationalDomainError):
+            reduced.evaluate({"x": 1})
+
+    def test_cancellation_retains_every_original_excluded_factor(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        original = RationalFunction.from_expr(parse_math("(x*(x - 1))/(x*(x + 1))"))
+        reduced = original.cancel_common_univariate_factors()
+        self.assertEqual(reduced.evaluate({"x": 2}), Fraction(1, 3))
+        for excluded in (0, -1):
+            with self.subTest(excluded=excluded):
+                with self.assertRaises(RationalDomainError):
+                    reduced.evaluate({"x": excluded})
+
+    def test_zero_numerator_reduces_but_keeps_denominator_domain(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        original = RationalFunction.from_expr(parse_math("0/(x - 1)"))
+        reduced = original.cancel_common_univariate_factors()
+        self.assertEqual(reduced.numerator, Polynomial.zero())
+        self.assertEqual(reduced.denominator, Polynomial.one())
+        self.assertEqual(reduced.evaluate({"x": 3}), Fraction(0))
+        with self.assertRaises(RationalDomainError):
+            reduced.evaluate({"x": 1})
+
+    def test_reduction_rejects_multivariate_inputs(self):
+        from ultron_core.polynomial import PolynomialError
+        from ultron_core.rational import RationalFunction
+        value = RationalFunction.from_expr(parse_math("(x*y + x)/(x + 1)"))
+        with self.assertRaisesRegex(PolynomialError, "multivariate"):
+            value.cancel_common_univariate_factors()
+
+    def test_reduction_is_idempotent_and_preserves_representation(self):
+        from ultron_core.rational import RationalFunction
+        value = RationalFunction.from_expr(parse_math("(x^2 + 1)/(x + 1)"))
+        once = value.cancel_common_univariate_factors()
+        twice = once.cancel_common_univariate_factors()
+        self.assertTrue(once.same_representation(twice))
+
 
 if __name__ == "__main__":
     unittest.main()
