@@ -1,6 +1,7 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js';
+import { supabaseBackendAudit } from './supabase-integration.js';
 
-const pageNames = { overview:'Overview', learning:'How ULTRON learns', agent:'Math Agent', servers:'Servers', settings:'Settings' };
+const pageNames = { overview:'Overview', learning:'How ULTRON learns', agent:'Math Agent', servers:'Servers', backend:'Supabase backend', settings:'Settings' };
 const topics = [
   {name:'Arithmetic',symbol:'＋',level:'AVAILABLE',desc:'Numbers, operations, fractions and ratios.',intro:'Arithmetic studies number systems and the operations used to calculate with them.',formula:'a + b · a − b · a × b · a ÷ b',example:'18 × 7 = 126',prereq:'Whole numbers'},
   {name:'Algebra',symbol:'x',level:'PLANNED',desc:'Expressions, equations and relationships.',intro:'Algebra represents unknown values with symbols and studies relationships between quantities.',formula:'ax + b = c',example:'2x + 3 = 11 → x = 4',prereq:'Arithmetic'},
@@ -69,13 +70,30 @@ function renderServers(){
  ${card('<div class="eyebrow">ORDERED ROTATION</div><h2>Provider directory</h2><p class="muted">The directory is loaded from servers.json. Availability and free-tier terms can change; verify current provider terms directly before use.</p><div id="server-list" class="empty-state"><span>⌁</span><b>Checking directory</b><p>Provider information has not been verified yet.</p></div>')}
  ${card('<div class="eyebrow">EXECUTION SAFETY</div><h2>Informational only</h2><p class="muted">The public website does not authenticate with providers, submit jobs, allocate hosted memory or run training. No provider should be used until its terms and integration are independently verified.</p><span class="status-pill">REMOTE EXECUTION DISABLED</span>')}`;
 }
+
+function renderBackend(){
+ const audit=supabaseBackendAudit;
+ const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='retired'?'planned':'available'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
+ const blockers=audit.blockers.map(item=>`<div class="warning-banner">${esc(item)}</div>`).join('');
+ return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Existing backend inspected against this public website. This is a configuration audit, not live telemetry.')}
+ <div class="status-grid">
+ ${card('<div class="mini-label">SUPABASE PROJECT</div><strong class="status-value">ACTIVE</strong><p>Project was healthy when inspected. No database changes were made.</p>','status-card')}
+ ${card('<div class="mini-label">PUBLIC ACCESS</div><strong class="status-value">RESTRICTED</strong><p>Memory and training records are owner-scoped with row-level security.</p>','status-card')}
+ ${card('<div class="mini-label">DEVICE CONTROL</div><strong class="status-value">RETIRED</strong><p>The deployed endpoint returns HTTP 410.</p>','status-card')}
+ ${card('<div class="mini-label">TRAINING CONTROL</div><strong class="status-value">OWNER ONLY</strong><p>Requires a valid signed-in owner session. No public controls are exposed.</p>','status-card')}
+ </div>
+ ${card('<div class="eyebrow">DEPLOYED EDGE FUNCTIONS</div><h2>Existing service contracts</h2>'+rows)}
+ ${card('<div class="eyebrow">INTEGRATION BLOCKERS</div><h2>What must be aligned before connection</h2>'+blockers)}
+ ${card('<div class="eyebrow">PUBLIC WEBSITE SAFETY</div><h2>No login. No training actions.</h2><p class="muted">This website intentionally has no sign-in or account-specific history. The current database records are tied to an authenticated owner and cannot safely be read by the public dashboard. The frontend does not call owner-only functions, read protected tables, store credentials, dispatch workflows or start training.</p><p class="muted small">Next backend step: Codex should provide a narrowly scoped, unauthenticated health-only endpoint for this Pages origin, and align the server-side GitHub repository/origin configuration. It must not expose training controls or private run data.</p><span class="status-pill">TRAINING REMAINS DISABLED</span>')}`;
+}
+
 function renderSettings(){
  const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
  return `${heading('DEVICE MEMORY SETTINGS','Settings','Local interface preferences. No account is required.')}
  ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Training RAM preference</h2><p class="muted">Choose a preferred memory budget for future approved remote workloads. This preference is saved in this browser only; it does not allocate device RAM or change hosted-runner memory.</p><div class="memory-box"><div class="memory-heading"><b>Preferred training memory</b><strong id="memory-value">'+level+' GB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Preferred memory budget"><div class="slider-labels"><span>2 GB · Light</span><span>10 GB · High</span></div></div><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
  ${card('<div class="eyebrow">LOCAL DATA</div><h2>Browser storage</h2><p class="muted">Practice count and preferences are stored locally on this device when browser storage is available.</p><button class="outline-button" id="clear-local">Clear local preferences and practice count</button><p id="settings-result" class="muted" role="status"></p>')}`;
 }
-function render(page){return ({overview:renderOverview,learning:renderLearning,agent:renderAgent,servers:renderServers,settings:renderSettings})[page]();}
+function render(page){return ({overview:renderOverview,learning:renderLearning,agent:renderAgent,servers:renderServers,backend:renderBackend,settings:renderSettings})[page]();}
 function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}document.querySelector('#chat-log').append(node);}
 function answerAgent(){
  const input=document.querySelector('#agent-input');const raw=input.value.trim();if(!raw)return;
