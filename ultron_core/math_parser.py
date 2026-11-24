@@ -166,12 +166,6 @@ class _RecursiveParser:
                     following.offset,
                 )
 
-            # Function calls are parsed in _parse_primary and emitted as typed CALL nodes.
-            if result.kind == ExprKind.SYMBOL and following.value == "(":
-                raise MathParseError(
-                    "function-call syntax is not supported; function IR is not implemented",
-                    following.offset,
-                )
             right = self._parse_unary()
             result = Expr(ExprKind.MUL, args=(result, right))
 
