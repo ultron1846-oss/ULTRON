@@ -952,6 +952,27 @@ class ExactRealRootIsolationTests(unittest.TestCase):
             2,
         )
 
+    def test_non_degenerate_intervals_never_use_removed_roots_as_endpoints(self):
+        from ultron_core.polynomial import Polynomial
+        # The first root is exactly the initial midpoint. The second root is
+        # very close to it, so a wide requested interval exposes endpoint bugs.
+        polynomial = Polynomial.from_expr(
+            parse_math("(x - 1)*(10000*x - 10001)")
+        )
+        intervals = polynomial.isolate_real_roots_univariate(
+            0, 2, max_width=2
+        )
+        self.assertEqual(len(intervals), 2)
+        self.assertIn((Fraction(1), Fraction(1)), intervals)
+        for left, right in intervals:
+            if left != right:
+                self.assertNotEqual(polynomial.evaluate({"x": left}), 0)
+                self.assertNotEqual(polynomial.evaluate({"x": right}), 0)
+                self.assertEqual(
+                    polynomial.real_root_count_univariate(left, right), 1
+                )
+        self.assertLess(intervals[0][1], intervals[1][0])
+
     def test_constant_has_no_roots(self):
         from ultron_core.polynomial import Polynomial
         self.assertEqual(

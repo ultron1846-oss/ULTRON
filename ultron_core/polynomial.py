@@ -613,6 +613,39 @@ class Polynomial:
             if count == 0:
                 continue
             if count == 1 and right - left <= max_width:
+                # A rational root removed from the square-free polynomial may
+                # still sit at an endpoint of a neighboring interval. Move
+                # such endpoints inward without crossing the remaining root.
+                # This preserves the public invariant against the ORIGINAL
+                # polynomial, not merely the reduced polynomial.
+                if self.evaluate({selected: left}) == 0:
+                    shifted = False
+                    for attempt in range(max_depth):
+                        candidate = left + (right - left) / (2 ** (attempt + 1))
+                        if current.real_root_count_univariate(
+                            candidate, right, variable=selected, limits=limits
+                        ) == count:
+                            left = candidate
+                            shifted = True
+                            break
+                    if not shifted:
+                        raise PolynomialError(
+                            "could not move isolating interval away from a root endpoint within max_depth"
+                        )
+                if self.evaluate({selected: right}) == 0:
+                    shifted = False
+                    for attempt in range(max_depth):
+                        candidate = right - (right - left) / (2 ** (attempt + 1))
+                        if current.real_root_count_univariate(
+                            left, candidate, variable=selected, limits=limits
+                        ) == count:
+                            right = candidate
+                            shifted = True
+                            break
+                    if not shifted:
+                        raise PolynomialError(
+                            "could not move isolating interval away from a root endpoint within max_depth"
+                        )
                 isolated.append((left, right))
                 continue
             if depth >= max_depth:
