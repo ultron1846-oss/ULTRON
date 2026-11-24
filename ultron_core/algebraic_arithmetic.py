@@ -125,7 +125,7 @@ def _resultant_matrix(left: RealAlgebraicNumber,
 
 def _determinant(matrix: list[list[Polynomial]],
                  limits: PolynomialLimits) -> Polynomial:
-    """Fraction-free in concept, exact polynomial DP determinant.
+    """Exact polynomial DP determinant.
 
     The subset dynamic program is O(n*2^n) states/transitions, avoiding the
     factorial permutation expansion. All coefficients remain exact Q-polynomials.
@@ -281,6 +281,8 @@ def reciprocal(value: RealAlgebraicNumber, *,
         raise TypeError("value must be a RealAlgebraicNumber")
     if isinstance(max_refinements, bool) or not isinstance(max_refinements, int) or max_refinements < 0:
         raise ValueError("max_refinements must be a non-negative integer")
+    if not isinstance(limits, PolynomialLimits):
+        raise TypeError("limits must be PolynomialLimits")
     current = value
     if current.is_rational:
         if current.lower == 0:
