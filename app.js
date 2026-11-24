@@ -1,7 +1,8 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js';
+import { saveExperience, saveMistake, getMemorySummary, listExperiences, exportMemory, importMemory } from './memory-store.js';
 
-const pageNames = { overview:'Overview', learning:'How ULTRON learns', agent:'Math Agent', servers:'Servers', backend:'Supabase backend', settings:'Settings' };
+const pageNames = { overview:'Overview', learning:'Learn & practice', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings' };
 const topics = [
   {name:'Arithmetic',symbol:'＋',level:'AVAILABLE',desc:'Numbers, operations, fractions and ratios.',intro:'Arithmetic studies number systems and the operations used to calculate with them.',formula:'a + b · a − b · a × b · a ÷ b',example:'18 × 7 = 126',prereq:'Whole numbers'},
   {name:'Algebra',symbol:'x',level:'PLANNED',desc:'Expressions, equations and relationships.',intro:'Algebra represents unknown values with symbols and studies relationships between quantities.',formula:'ax + b = c',example:'2x + 3 = 11 → x = 4',prereq:'Arithmetic'},
@@ -54,10 +55,13 @@ function renderOverview(){
  </div>`;
 }
 function renderLearning(){
- return `${heading('LEARNING OPERATIONS / CORE PROCESS','Learning system','ULTRON improves through verified examples, deliberate practice and evaluation—not by assuming that lower training loss means mathematical ability.')}
- ${card('<div class="eyebrow">THE IMPROVEMENT CYCLE</div><h2 class="cycle-title">Learn → test → diagnose → improve</h2><p class="muted">A learning process must be measured against correct answers and held-out problems. Actual model training remains disabled.</p><div class="cycle-grid">'+[['01','Generate','Create original math problems.'],['02','Verify','Check answers independently.'],['03','Learn','Study verified examples and concepts.'],['04','Evaluate','Test understanding on new problems.'],['05','Improve','Target weaknesses using evidence.']].map(([n,t,d])=>`<div class="cycle-step"><b>${n}</b><strong>${t}</strong><p>${d}</p></div>`).join('')+'</div>')}
- <div class="grid two-col lower-grid">${card('<div class="eyebrow">DATA QUALITY</div><h2>Verified learning material</h2><p class="muted">Examples should be checked before they become trusted learning material. Incorrect or ambiguous examples must be rejected or reviewed.</p><ul class="feature-list"><li>Original problem statements</li><li>Independent answer checks</li><li>Topic and difficulty labels</li><li>Held-out evaluation examples</li></ul>')}${card('<div class="eyebrow">MEASURED ABILITY</div><h2>Evidence of learning</h2><p class="muted">A learner's progress should come from completed work, repeated performance and mistake patterns—not invented percentages.</p><ul class="feature-list"><li>Exercise accuracy from recorded answers</li><li>Concept-specific review</li><li>Clear distinction between practice and model training</li><li>Transparent limitations</li></ul>')}</div>
- ${card('<div class="eyebrow">TRAINING SAFETY</div><h2>Training is disabled</h2><p class="muted">This page explains the intended learning lifecycle. It does not launch data generation, optimizers, background workers or cloud jobs.</p><span class="status-pill">DISABLED — AWAITING EXPLICIT AUTHORIZATION</span>')}`;
+ const topicCards=topics.map((topic,index)=>`<button class="topic-card" type="button" data-topic-index="${index}" aria-pressed="${index===0?'true':'false'}"><span class="topic-symbol">${esc(topic.symbol)}</span><span><b>${esc(topic.name)}</b><small>${esc(topic.desc)}</small></span><span class="tag ${topic.level==='AVAILABLE'?'available':'planned'}">${esc(topic.level)}</span></button>`).join('');
+ const exerciseIndex=Math.min(exercises.length-1,Math.max(0,Number(safeGet('ultron-practice-index','0'))%exercises.length));
+ const exercise=exercises[exerciseIndex];
+ return `${heading('LEARNING OPERATIONS / CORE PROCESS','Learn & practice','Explore the mathematics roadmap, work through verified foundation exercises and review your practice history.')}
+ ${card('<div class="eyebrow">TOPIC LIBRARY</div><h2>Mathematics roadmap</h2><p class="muted">Select a topic to inspect its scope, prerequisite and a representative example. A planned topic is a learning outline, not a claim that the solver already supports it.</p><div class="topic-grid" id="topic-grid">'+topicCards+'</div><div class="topic-detail" id="topic-detail" aria-live="polite"><div class="eyebrow">AVAILABLE FOUNDATION</div><h3>Arithmetic</h3><p>Arithmetic studies number systems and the operations used to calculate with them.</p><p><b>Example:</b> 18 × 7 = 126</p><p class="muted">Prerequisite: Whole numbers</p></div>')}
+ ${card('<div class="eyebrow">FOUNDATION PRACTICE / LOCAL</div><h2>Practice an exercise</h2><p class="muted">These fixed, original exercises are checked locally by the deterministic arithmetic engine. Correct answers increase your local practice count; they do not train the neural model.</p><div class="practice-box"><div class="practice-meta"><span id="practice-number">EXERCISE ${exerciseIndex+1} OF ${exercises.length}</span><span id="practice-total">CORRECT: ${Number(safeGet('ultron-practice-count','0'))||0}</span></div><h3 id="practice-question">${esc(exercise.question)} = ?</h3><label class="field-label" for="practice-answer">Your answer</label><input id="practice-answer" class="text-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Enter your answer" maxlength="40"><div class="agent-actions"><button class="primary-button" id="practice-check" type="button">Check answer</button><button class="outline-button" id="practice-hint" type="button">Show hint</button><button class="outline-button" id="practice-next" type="button">Next exercise</button></div><p id="practice-feedback" class="practice-feedback" role="status" aria-live="polite">Work it out, then check your answer.</p><p id="practice-hint-text" class="muted small" hidden></p></div>')}
+ <div class="grid two-col lower-grid">${card('<div class="eyebrow">DATA QUALITY</div><h2>Verified learning material</h2><p class="muted">Practice material is checked before it is treated as trusted knowledge. Incorrect attempts can be stored locally as mistakes for later review.</p><ul class="feature-list"><li>Original problem statements</li><li>Deterministic answer checks</li><li>Topic and prerequisite labels</li><li>Local practice history</li></ul>')}${card('<div class="eyebrow">MODEL SAFETY</div><h2>Practice is not training</h2><p class="muted">Completing exercises changes only local practice history. It does not generate a dataset, update neural weights, call a cloud notebook or launch a training process.</p><span class="status-pill">MODEL TRAINING DISABLED</span>')}</div>`;
 }
 function renderAgent(){
  return `${heading('MATHEMATICAL WORKSPACE / STAGE 1','Math Agent','ULTRON independently solves supported foundation questions, shows working and checks the answer through the deterministic math engine.','<span class="status-pill">LOCAL · DETERMINISTIC</span>')}
@@ -93,7 +97,15 @@ function renderSettings(){
  ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Training RAM preference</h2><p class="muted">Choose a preferred memory budget for future approved remote workloads. This preference is saved in this browser only; it does not allocate device RAM or change hosted-runner memory.</p><div class="memory-box"><div class="memory-heading"><b>Preferred training memory</b><strong id="memory-value">'+level+' GB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Preferred memory budget"><div class="slider-labels"><span>2 GB · Light</span><span>10 GB · High</span></div></div><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
  ${card('<div class="eyebrow">LOCAL DATA</div><h2>Browser storage</h2><p class="muted">Practice count and preferences are stored locally on this device when browser storage is available.</p><button class="outline-button" id="clear-local">Clear local preferences and practice count</button><p id="settings-result" class="muted" role="status"></p>')}`;
 }
-function render(page){return ({overview:renderOverview,learning:renderLearning,agent:renderAgent,servers:renderServers,backend:renderBackend,settings:renderSettings})[page]();}
+function renderMemory(){
+ return `${heading('LOCAL-FIRST STORAGE / DEVICE MEMORY','Memory vault','Practice history is stored in this browser using IndexedDB. It is not uploaded to Supabase and does not sync between devices automatically.')}
+ <div class="status-grid" id="memory-summary"><article class="panel status-card"><div class="mini-label">EXPERIENCES</div><strong class="status-value" id="memory-experiences">—</strong><p>Saved practice attempts</p></article><article class="panel status-card"><div class="mini-label">MISTAKES</div><strong class="status-value" id="memory-mistakes">—</strong><p>Incorrect attempts for review</p></article><article class="panel status-card"><div class="mini-label">KNOWLEDGE</div><strong class="status-value" id="memory-knowledge">—</strong><p>Reserved for future verified concepts</p></article><article class="panel status-card"><div class="mini-label">CHECKPOINTS</div><strong class="status-value" id="memory-checkpoints">—</strong><p>Reserved for future local checkpoints</p></article></div>
+ ${card('<div class="eyebrow">DEVICE HISTORY</div><h2>Recent experiences</h2><p class="muted">History stays on this device and browser profile. Browser storage limits still apply; export backups periodically if you want to move the history to another device.</p><div id="memory-history" class="empty-state"><span>⌁</span><b>Loading local memory</b></div>')}
+ ${card('<div class="eyebrow">PORTABILITY</div><h2>Backup and restore</h2><p class="muted">Export creates a JSON backup you can save and later import on another device. The backup may contain your entered practice content, so store it somewhere private.</p><div class="agent-actions"><button class="primary-button" id="memory-export" type="button">Export memory backup</button><label class="outline-button file-button" for="memory-import-file">Import backup</label><input id="memory-import-file" type="file" accept="application/json,.json" hidden></div><p id="memory-feedback" class="muted small" role="status"></p>')}
+ ${card('<div class="eyebrow">PRIVACY BOUNDARY</div><h2>Local memory vs. Supabase</h2><p class="muted">The current Supabase memory tables are owner-protected. Because this website has no login, it does not read or write those private tables. The vault uses IndexedDB locally instead; no public RLS policy has been weakened.</p><span class="status-pill">NO LOGIN · NO CLOUD SYNC</span>')}`;
+}
+
+function render(page){return ({overview:renderOverview,learning:renderLearning,agent:renderAgent,memory:renderMemory,servers:renderServers,backend:renderBackend,settings:renderSettings})[page]();}
 function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}document.querySelector('#chat-log').append(node);}
 function answerAgent(){
  const input=document.querySelector('#agent-input');const raw=input.value.trim();if(!raw)return;
@@ -124,6 +136,52 @@ async function loadSupabaseStatus(){
   detail.textContent='The public status endpoint could not be reached. Private owner services remain protected; training is disabled.';
  }
 }
+function bindLearning(){
+ const detail=document.querySelector('#topic-detail');
+ content.querySelectorAll('[data-topic-index]').forEach(button=>button.addEventListener('click',()=>{
+  const index=Number(button.dataset.topicIndex);const topic=topics[index];if(!topic)return;
+  content.querySelectorAll('[data-topic-index]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+  detail.innerHTML=`<div class="eyebrow">${esc(topic.level==='AVAILABLE'?'AVAILABLE FOUNDATION':'ROADMAP TOPIC')}</div><h3>${esc(topic.symbol)} ${esc(topic.name)}</h3><p>${esc(topic.intro)}</p><p><b>Core idea:</b> ${esc(topic.formula)}</p><p><b>Example:</b> ${esc(topic.example)}</p><p class="muted">Prerequisite: ${esc(topic.prereq)}</p>`;
+ }));
+ let index=Math.min(exercises.length-1,Math.max(0,Number(safeGet('ultron-practice-index','0'))%exercises.length));
+ let completed=false;
+ const question=document.querySelector('#practice-question');
+ const input=document.querySelector('#practice-answer');
+ const feedback=document.querySelector('#practice-feedback');
+ const hint=document.querySelector('#practice-hint-text');
+ const number=document.querySelector('#practice-number');
+ const total=document.querySelector('#practice-total');
+ const showExercise=()=>{
+  const item=exercises[index];completed=false;question.textContent=item.question+' = ?';number.textContent=`EXERCISE ${index+1} OF ${exercises.length}`;input.value='';input.disabled=false;hint.hidden=true;hint.textContent='';feedback.textContent='Work it out, then check your answer.';feedback.className='practice-feedback';document.querySelector('#practice-check').disabled=false;input.focus({preventScroll:true});
+ };
+ document.querySelector('#practice-check').addEventListener('click',async()=>{
+  if(completed)return;const item=exercises[index];const value=input.value.trim();const numeric=Number(value);
+  if(!value||!Number.isFinite(numeric)){feedback.textContent='Enter a valid number before checking.';feedback.className='practice-feedback error';return;}
+  const correct=Math.abs(numeric-item.answer)<1e-9;
+  try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){feedback.textContent=`Local memory could not save this attempt: ${error.message}`;feedback.className='practice-feedback error';}
+  if(correct){completed=true;const count=(Number(safeGet('ultron-practice-count','0'))||0)+1;safeSet('ultron-practice-count',String(count));total.textContent='CORRECT: '+count;feedback.textContent='Correct. '+item.steps;feedback.className='practice-feedback success';input.disabled=true;document.querySelector('#practice-check').disabled=true;}
+  else{feedback.textContent='Not quite. Try again, or reveal a hint. Incorrect attempts are kept in local memory when available.';feedback.className='practice-feedback error';}
+ });
+ document.querySelector('#practice-hint').addEventListener('click',()=>{hint.textContent=exercises[index].hint;hint.hidden=false;});
+ document.querySelector('#practice-next').addEventListener('click',()=>{index=(index+1)%exercises.length;safeSet('ultron-practice-index',String(index));showExercise();});
+ showExercise();
+}
+async function loadMemoryPage(){
+ const feedback=document.querySelector('#memory-feedback');const history=document.querySelector('#memory-history');
+ try{
+  const summary=await getMemorySummary();
+  for(const [key,id] of Object.entries({experiences:'memory-experiences',mistakes:'memory-mistakes',knowledge:'memory-knowledge',checkpoints:'memory-checkpoints'}))document.querySelector('#'+id).textContent=summary[key]??0;
+  const records=await listExperiences(50);
+  history.innerHTML=records.length?records.map(record=>`<div class="memory-record"><div><b>${esc(record.prompt)}</b><p>${esc(record.answer||'No answer recorded')} · ${esc(record.topic||'Uncategorized')}</p><small>${esc(new Date(record.createdAt).toLocaleString())}</small></div><span class="tag ${record.correct?'available':'planned'}">${record.correct?'CORRECT':'REVIEW'}</span></div>`).join(''):'<div class="empty-state"><span>—</span><b>No experiences saved yet</b><p>Complete a practice exercise to create your first local memory.</p></div>';
+ }catch(error){history.innerHTML=`<div class="empty-state"><span>!</span><b>Local memory unavailable</b><p>${esc(error.message)}</p></div>`;feedback.textContent='This browser may not support IndexedDB or may be in a restricted private-browsing context.';}
+ document.querySelector('#memory-export').addEventListener('click',async()=>{
+  try{const backup=await exportMemory();const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='ultron-memory-backup.json';link.click();URL.revokeObjectURL(url);feedback.textContent='Memory backup prepared. Check your browser downloads.';}catch(error){feedback.textContent='Could not export memory: '+error.message;}
+ });
+ document.querySelector('#memory-import-file').addEventListener('change',async event=>{
+  const file=event.target.files?.[0];if(!file)return;
+  try{if(file.size>20*1024*1024)throw new Error('Backup file exceeds the 20 MB import limit.');const payload=JSON.parse(await file.text());const result=await importMemory(payload);feedback.textContent=`Imported ${result.imported} records. Refreshing memory view…`;await loadMemoryPage();}catch(error){feedback.textContent='Import failed: '+error.message;}finally{event.target.value='';}
+ });
+}
 async function loadServers(){
  const alert=document.querySelector('#server-alert');const list=document.querySelector('#server-list');if(!alert||!list)return;
  alert.textContent='Loading provider directory…';list.innerHTML='<div class="empty-state"><span>⌁</span><b>Checking directory</b></div>';
@@ -137,6 +195,8 @@ async function loadServers(){
  }catch(error){alert.textContent=`Provider directory unavailable: ${error.message}. Provider terms metadata unavailable; verify current terms directly before using a provider.`;list.innerHTML='<div class="empty-state"><span>!</span><b>Provider directory unavailable</b><p>Check the deployed servers.json path and refresh. No provider is assumed available.</p></div>';}
 }
 function bind(page){
+ if(page==='learning')bindLearning();
+ if(page==='memory')loadMemoryPage();
  content.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.page)));
  if(page==='agent'){
   document.querySelector('#agent-send').addEventListener('click',answerAgent);
