@@ -31,10 +31,40 @@
     </aside>
     <main class="main-area">
       <div class="breadcrumb">ULTRON <span>/</span> <b id="page-crumb">Overview</b></div>
-      <section id="page-content" class="content" tabindex="-1" aria-live="polite"></section>
+      <section id="page-content" class="content" tabindex="-1" aria-live="polite">
+        <div class="page-heading"><div><div class="eyebrow">STARTUP / FALLBACK VIEW</div><h1>ULTRON overview</h1><p>Loading the interactive mathematics workspace…</p></div></div>
+        <article class="hero-panel"><div><div class="eyebrow">SYSTEM STATUS</div><h2>ULTRON frontend is starting</h2><p>This starter view remains visible if the application module cannot load. The public site does not run model training.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></article>
+        <div class="status-grid">
+          <article class="panel status-card"><div class="mini-label">NEURAL MODEL</div><strong class="status-value">UNTRAINED</strong><p>No neural weights have been trained.</p></article>
+          <article class="panel status-card"><div class="mini-label">MATH AGENT</div><strong class="status-value">AVAILABLE</strong><p>Deterministic foundation solver.</p></article>
+          <article class="panel status-card"><div class="mini-label">MEMORY</div><strong class="status-value">LOCAL</strong><p>Browser IndexedDB vault.</p></article>
+          <article class="panel status-card"><div class="mini-label">TRAINING</div><strong class="status-value">DISABLED</strong><p>No training run is authorized.</p></article>
+        </div>
+        <article class="panel"><div class="eyebrow">QUICK ACCESS</div><h2>Open a workspace</h2><p class="muted">The interactive navigation will become available when the application finishes loading.</p></article>
+      </section>
       <footer><span>ULTRON TRAINING CONTROL</span><span>PUBLIC MATHEMATICS WORKSPACE</span></footer>
     </main>
   </div>
-  <script type="module" src="app.js"></script>
+  <script>
+    window.addEventListener('error', function (event) {
+      var target = document.getElementById('page-content');
+      if (!target) return;
+      var panel = document.createElement('div');
+      panel.className = 'warning-banner runtime-error';
+      panel.setAttribute('role', 'alert');
+      panel.textContent = 'ULTRON could not start the interactive interface: ' + (event.message || 'A frontend resource failed to load.') + ' · Refresh the page and report this message if it continues.';
+      target.prepend(panel);
+    });
+    window.addEventListener('unhandledrejection', function (event) {
+      var target = document.getElementById('page-content');
+      if (!target) return;
+      var panel = document.createElement('div');
+      panel.className = 'warning-banner runtime-error';
+      panel.setAttribute('role', 'alert');
+      panel.textContent = 'ULTRON encountered an application error: ' + String(event.reason && event.reason.message || event.reason || 'Unknown error');
+      target.prepend(panel);
+    });
+  </script>
+  <script type="module" src="app.js?v=20261124-2"></script>
 </body>
 </html>
