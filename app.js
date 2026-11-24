@@ -1,7 +1,7 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261124-4';
-import { saveExperience, saveMistake, getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory } from './memory-store.js?v=20261124-5';
+import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory } from './memory-store.js?v=20261124-5';
 
 const pageNames = { overview:'Overview', learning:'Learn & practice', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
 const topics = [
@@ -15,12 +15,6 @@ const topics = [
   {name:'Statistics',symbol:'σ',level:'PLANNED',desc:'Data, variation and inference.',intro:'Statistics describes data and supports conclusions while accounting for variation.',formula:'Mean = sum of values / number of values',example:'The mean of 2, 4 and 6 is 4.',prereq:'Arithmetic'},
   {name:'Number theory',symbol:'ℤ',level:'PLANNED',desc:'Integers, divisibility and primes.',intro:'Number theory investigates the properties and relationships of integers.',formula:'a = bq + r',example:'17 = 5 × 3 + 2.',prereq:'Arithmetic'},
   {name:'Logic & proofs',symbol:'∴',level:'PLANNED',desc:'Statements, arguments and proof methods.',intro:'Mathematical logic studies formal statements, valid inference and proof.',formula:'P and (P → Q) imply Q',example:'A proof must justify each inference from assumptions or established results.',prereq:'Foundational reasoning'}
-];
-const exercises = [
-  {question:'18 × 7',answer:126,hint:'Split 7 into 5 + 2.',steps:'18 × 7 = 18 × (5 + 2) = 90 + 36 = 126.'},
-  {question:'144 ÷ 12',answer:12,hint:'12 × 12 = 144.',steps:'144 ÷ 12 = 12 because 12 × 12 = 144.'},
-  {question:'(15 + 9) ÷ 3',answer:8,hint:'Evaluate the parentheses first.',steps:'15 + 9 = 24, then 24 ÷ 3 = 8.'},
-  {question:'3² + 4',answer:13,hint:'Square 3 before adding 4.',steps:'3² = 9, then 9 + 4 = 13.'}
 ];
 const content=document.querySelector('#page-content');
 const nav=document.querySelector('#navigation');
@@ -50,16 +44,15 @@ function navigate(page){
  }
 }
 function renderOverview(){
- const count=Number(safeGet('ultron-practice-count','0'))||0;
  const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
  return `${heading('CONTROL ROOM / PROJECT STATUS','ULTRON overview','A live map of what works today, what is being built next, and what remains safely disabled.','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
- <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, local practice and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
+ <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, a mathematics topic roadmap and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
  <div class="status-grid">
- ${[['MATH ENGINE','AVAILABLE','Arithmetic parser and limited linear equation solver.'],['LEARNING','READY','Topic roadmap and foundation exercises.'],['MEMORY VAULT','LOCAL','IndexedDB storage with manual JSON backup.'],['MODEL TRAINING','DISABLED','No model weights or training runs are active.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
+ ${[['MATH ENGINE','AVAILABLE','Arithmetic parser and limited linear equation solver.'],['TOPIC LIBRARY','READY','Mathematics roadmap with topic descriptions and examples.'],['MEMORY VAULT','LOCAL','IndexedDB storage with manual JSON backup.'],['MODEL TRAINING','DISABLED','No model weights or training runs are active.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
  </div>
  <div class="grid two-col">
  ${card('<div class="eyebrow">QUICK ACCESS / 01</div><h2>Math Agent</h2><p class="muted">Solve supported arithmetic expressions and simple linear equations using ULTRON’s local deterministic engine.</p><button class="outline-button" data-page="agent">Open Math Agent →</button>')}
- ${card(`<div class="eyebrow">QUICK ACCESS / 02</div><h2>Learning activity</h2><div class="big-number">${count}</div><p class="muted">Correct practice answers recorded in this browser.</p><button class="outline-button" data-page="learning">Continue practice →</button>`)}
+ ${card('<div class="eyebrow">QUICK ACCESS / 02</div><h2>Mathematics topics</h2><p class="muted">Browse the roadmap, prerequisites and representative examples across the mathematics curriculum.</p><button class="outline-button" data-page="learning">Explore topics →</button>')}
  </div>
  <div class="grid two-col lower-grid">
  ${card('<div class="eyebrow">PROJECT ROADMAP / NEXT</div><h2>What is being built</h2><div class="capability-list"><div><b>1. Finish frontend verification</b><span class="tag available">CURRENT</span></div><div><b>2. Verify iPad navigation and storage</b><span class="tag planned">NEXT</span></div><div><b>3. Prepare Colab notebook integration</b><span class="tag planned">PLANNED</span></div><div><b>4. Validate checkpoints and resume flow</b><span class="tag planned">PLANNED</span></div></div>')}
@@ -72,21 +65,11 @@ function renderOverview(){
 }
 function renderLearning(){
  const topicCards=topics.map((topic,index)=>`<button class="topic-card" type="button" data-topic-index="${index}" aria-pressed="${index===0?'true':'false'}"><span class="topic-symbol">${esc(topic.symbol)}</span><span><b>${esc(topic.name)}</b><small>${esc(topic.desc)}</small></span><span class="tag ${topic.level==='AVAILABLE'?'available':'planned'}">${esc(topic.level)}</span></button>`).join('');
- const exerciseIndex=Math.min(exercises.length-1,Math.max(0,Number(safeGet('ultron-practice-index','0'))%exercises.length));
- const exercise=exercises[exerciseIndex];
- const practiceCard=card(
-  '<div class="eyebrow">FOUNDATION PRACTICE / LOCAL</div><h2>Practice an exercise</h2><p class="muted">These fixed, original exercises are checked locally by the deterministic arithmetic engine. Correct answers increase your local practice count; they do not train the neural model.</p><div class="practice-box"><div class="practice-meta"><span id="practice-number">EXERCISE '
-  +(exerciseIndex+1)+' OF '+exercises.length
-  +'</span><span id="practice-total">CORRECT: '+(Number(safeGet('ultron-practice-count','0'))||0)
-  +'</span></div><h3 id="practice-question">'+esc(exercise.question)
-  +' = ?</h3><label class="field-label" for="practice-answer">Your answer</label><input id="practice-answer" class="text-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Enter your answer" maxlength="40"><div class="agent-actions"><button class="primary-button" id="practice-check" type="button">Check answer</button><button class="outline-button" id="practice-hint" type="button">Show hint</button><button class="outline-button" id="practice-next" type="button">Next exercise</button></div><p id="practice-feedback" class="practice-feedback" role="status" aria-live="polite">Work it out, then check your answer.</p><p id="practice-hint-text" class="muted small" hidden></p></div>'
- );
- return heading('LEARNING OPERATIONS / CORE PROCESS','Learn & practice','Explore the mathematics roadmap, work through verified foundation exercises and review your practice history.')
+ return heading('LEARNING OPERATIONS / MATHEMATICS ROADMAP','Learn & practice','Explore mathematics topics, prerequisites and representative examples. The current page is a curriculum roadmap, not an exercise or training interface.')
   +card('<div class="eyebrow">TOPIC LIBRARY</div><h2>Mathematics roadmap</h2><p class="muted">Select a topic to inspect its scope, prerequisite and a representative example. A planned topic is a learning outline, not a claim that the solver already supports it.</p><div class="topic-grid" id="topic-grid">'+topicCards+'</div><div class="topic-detail" id="topic-detail" aria-live="polite"><div class="eyebrow">AVAILABLE FOUNDATION</div><h3>Arithmetic</h3><p>Arithmetic studies number systems and the operations used to calculate with them.</p><p><b>Example:</b> 18 × 7 = 126</p><p class="muted">Prerequisite: Whole numbers</p></div>')
-  +practiceCard
   +'<div class="grid two-col lower-grid">'
-  +card('<div class="eyebrow">DATA QUALITY</div><h2>Verified learning material</h2><p class="muted">Practice material is checked before it is treated as trusted knowledge. Incorrect attempts can be stored locally as mistakes for later review.</p><ul class="feature-list"><li>Original problem statements</li><li>Deterministic answer checks</li><li>Topic and prerequisite labels</li><li>Local practice history</li></ul>')
-  +card('<div class="eyebrow">MODEL SAFETY</div><h2>Practice is not training</h2><p class="muted">Completing exercises changes only local practice history. It does not generate a dataset, update neural weights, call a cloud notebook or launch a training process.</p><span class="status-pill">MODEL TRAINING DISABLED</span>')
+  +card('<div class="eyebrow">CURRICULUM QUALITY</div><h2>Topic scope and prerequisites</h2><p class="muted">Each topic identifies its current implementation status, core idea, representative example and prerequisite. Planned topics are roadmap entries, not claims of completed solver capability.</p><ul class="feature-list"><li>Clear topic descriptions</li><li>Prerequisite relationships</li><li>Representative mathematical examples</li><li>Explicit available vs. planned status</li></ul>')
+  +card('<div class="eyebrow">MODEL SAFETY</div><h2>Model training remains disabled</h2><p class="muted">Browsing the mathematics roadmap does not generate datasets, update neural weights, connect a cloud notebook or launch a training process.</p><span class="status-pill">MODEL TRAINING DISABLED</span>')
   +'</div>';
 }
 function renderAgent(){
@@ -182,29 +165,6 @@ function bindLearning(){
   content.querySelectorAll('[data-topic-index]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
   detail.innerHTML=`<div class="eyebrow">${esc(topic.level==='AVAILABLE'?'AVAILABLE FOUNDATION':'ROADMAP TOPIC')}</div><h3>${esc(topic.symbol)} ${esc(topic.name)}</h3><p>${esc(topic.intro)}</p><p><b>Core idea:</b> ${esc(topic.formula)}</p><p><b>Example:</b> ${esc(topic.example)}</p><p class="muted">Prerequisite: ${esc(topic.prereq)}</p>`;
  }));
- let index=Math.min(exercises.length-1,Math.max(0,Number(safeGet('ultron-practice-index','0'))%exercises.length));
- let completed=false;
- const question=document.querySelector('#practice-question');
- const input=document.querySelector('#practice-answer');
- const feedback=document.querySelector('#practice-feedback');
- const hint=document.querySelector('#practice-hint-text');
- const number=document.querySelector('#practice-number');
- const total=document.querySelector('#practice-total');
- const showExercise=()=>{
-  const item=exercises[index];completed=false;question.textContent=item.question+' = ?';number.textContent=`EXERCISE ${index+1} OF ${exercises.length}`;input.value='';input.disabled=false;hint.hidden=true;hint.textContent='';feedback.textContent='Work it out, then check your answer.';feedback.className='practice-feedback';document.querySelector('#practice-check').disabled=false;
- };
- document.querySelector('#practice-check').addEventListener('click',async()=>{
-  if(completed)return;const item=exercises[index];const value=input.value.trim();let numeric;
-  try{if(!value)throw new Error('Enter an answer first.');numeric=evaluateExpression(value);}catch(error){feedback.textContent=error.message||'Enter a valid mathematical expression.';feedback.className='practice-feedback error';return;}
-  const correct=Math.abs(numeric-item.answer)<1e-9;
-  let memoryError='';
-  try{await saveExperience({prompt:item.question,answer:value,correct,topic:'Arithmetic',explanation:item.steps});if(!correct)await saveMistake({prompt:item.question,answer:value,correct:false,topic:'Arithmetic',explanation:item.steps});}catch(error){memoryError=error.message||'Storage unavailable';}
-  if(correct){completed=true;const count=(Number(safeGet('ultron-practice-count','0'))||0)+1;const countSaved=safeSet('ultron-practice-count',String(count));total.textContent='CORRECT: '+count;feedback.textContent='Correct. '+item.steps+(memoryError?' Local memory was not saved: '+memoryError:!countSaved?' The browser could not save the practice counter.':'');feedback.className='practice-feedback success';input.disabled=true;document.querySelector('#practice-check').disabled=true;}
-  else{feedback.textContent='Not quite. Try again, or reveal a hint.'+(memoryError?' This attempt could not be saved locally: '+memoryError:' Incorrect attempts are kept in local memory when available.');feedback.className='practice-feedback error';}
- });
- document.querySelector('#practice-hint').addEventListener('click',()=>{hint.textContent=exercises[index].hint;hint.hidden=false;});
- document.querySelector('#practice-next').addEventListener('click',()=>{index=(index+1)%exercises.length;safeSet('ultron-practice-index',String(index));showExercise();});
- showExercise();
 }
 async function loadMemoryPage(){
  const feedback=document.querySelector('#memory-feedback');const history=document.querySelector('#memory-history');const mistakeHistory=document.querySelector('#memory-mistake-history');

@@ -50,3 +50,23 @@ test('frontend release keeps remote execution and model training disabled', asyn
   assert.ok(directory.providers.every(provider => provider.execution_enabled === false));
   assert.doesNotMatch(app, /colab\.googleapis\.com|googleapis\.com\/compute/);
 });
+
+test('Learn & practice page contains the topic roadmap but no fixed exercise interface', async () => {
+  const app = await read('app.js');
+  const start = app.indexOf('function renderLearning(){');
+  const end = app.indexOf('function renderAgent(){', start);
+  assert.ok(start >= 0 && end > start, 'learning renderer exists');
+  const learning = app.slice(start, end);
+  for (const removed of ['Practice an exercise', 'EXERCISE 2 OF 4', 'practice-question', 'practice-answer', 'practice-check', 'practice-hint', 'practice-next', 'Check answer', 'Show hint', 'Next exercise']) {
+    assert.ok(!learning.includes(removed), `removed practice UI text/control: ${removed}`);
+  }
+  assert.match(learning, /Mathematics roadmap/);
+  assert.match(learning, /data-topic-index/);
+});
+test('practice exercise handlers and fixtures are removed without deleting existing memory records', async () => {
+  const app = await read('app.js');
+  assert.doesNotMatch(app, /const exercises = \[/);
+  assert.doesNotMatch(app, /document\.querySelector\('#practice-(?:check|hint|next)'\)/);
+  assert.match(app, /listExperiences\(50\)/);
+  assert.match(app, /listRecords\('mistakes',30\)/);
+});
