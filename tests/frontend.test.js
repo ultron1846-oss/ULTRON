@@ -50,7 +50,7 @@ test('Supabase backend page documents the audited contract without exposing owne
 
 test('Pages deployment stages every runtime module and data file', async () => {
   const workflow = await readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
-  assert.match(workflow, /cp .*supabase-integration\.js .*_site\//);
+  assert.match(workflow, /cp index\\.html styles\\.css app\\.js math-engine\\.js supabase-integration\\.js memory-store\\.js servers\\.json command-center\\.html _site\\//)
 });
 
 
