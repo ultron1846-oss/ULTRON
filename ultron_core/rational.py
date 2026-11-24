@@ -228,6 +228,30 @@ class RationalFunction:
             raise RationalDomainError("rational denominator evaluates to zero")
         return self.numerator.evaluate(environment) / denominator_value
 
+    def cancel_common_univariate_factors(self, *, limits=DEFAULT_LIMITS):
+        """Cancel the exact univariate polynomial GCD without widening the domain.
+
+        The original non-zero constraints are retained even when their factors
+        disappear from the reduced denominator. Multivariate inputs are
+        rejected; this method does not infer a multivariate GCD.
+        """
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+        common = self.numerator.gcd_univariate(
+            self.denominator, limits=limits
+        )
+        reduced_numerator = self.numerator.exact_divide_univariate(
+            common, limits=limits
+        )
+        reduced_denominator = self.denominator.exact_divide_univariate(
+            common, limits=limits
+        )
+        return RationalFunction(
+            reduced_numerator,
+            reduced_denominator,
+            self.nonzero_constraints,
+        )
+
     def canonical_key(self):
         """Structural key includes the complete preserved domain restriction set."""
         return (
