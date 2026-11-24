@@ -379,6 +379,18 @@ class MathParserTests(unittest.TestCase):
                 self.assertEqual(expression.kind, kind)
                 self.assertIs(evaluate(expression, {}), expected)
 
+    def test_comparison_results_cannot_be_used_as_scalar_operands(self):
+        comparison = Expr(
+            ExprKind.LESS_THAN,
+            args=(Expr(ExprKind.INTEGER, value=1), Expr(ExprKind.INTEGER, value=2)),
+        )
+        arithmetic = Expr(
+            ExprKind.ADD,
+            args=(comparison, Expr(ExprKind.INTEGER, value=3)),
+        )
+        with self.assertRaisesRegex(ValueError, "cannot be used as scalar operands"):
+            evaluate(arithmetic, {})
+
     def test_chained_comparisons_are_rejected(self):
         for source in ("1 < 2 < 3", "1 <= 2 = 2", "1 != 2 > 0", "1 < = 2"):
             with self.subTest(source=source):
