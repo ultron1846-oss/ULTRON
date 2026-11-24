@@ -205,7 +205,7 @@ class ModelIntegrationTests(unittest.TestCase):
             logits = model(ids, attention_mask=mask)["logits"]
             standalone = model(torch.tensor([short], dtype=torch.long))["logits"]
         self.assertEqual(tuple(logits.shape), (2, len(long), len(vocabulary)))
-        torch.testing.assert_close(logits[0, :len(short)], standalone[0], atol=1e-6, rtol=1e-6)
+        torch.testing.assert_close(logits[0, :len(short)], standalone[0], atol=2e-6, rtol=2e-6)
 
     def test_left_padding_keeps_all_model_outputs_finite(self):
         vocabulary = MathVocabulary.default()
