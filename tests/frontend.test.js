@@ -104,7 +104,7 @@ test('overview contains real project status and actionable navigation instead of
   assert.match(overview, /Foundation workspace online/);
   assert.match(overview, /Math Agent/);
   assert.match(overview, /Google Colab/);
-  assert.match(overview, /Project roadmap/);
+  assert.match(overview, /What is being built/);
   assert.doesNotMatch(overview, /No telemetry|Learning curve|Neural model evaluation/);
   assert.match(app, /nav\.addEventListener\('click'/);
   assert.match(app, /function navigate\(page\)/);
