@@ -458,3 +458,89 @@ class ConservativeSimplificationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class ExactPolynomialTests(unittest.TestCase):
+    def test_canonical_addition_and_like_term_collection(self):
+        from ultron_core.polynomial import Polynomial
+        first = Polynomial.from_expr(parse_math("2*x + 3*x - 4"))
+        second = Polynomial.from_expr(parse_math("5*x - 4"))
+        self.assertEqual(first, second)
+        self.assertEqual(first.evaluate({"x": 2}), 6)
+        self.assertEqual(first.canonical_key(), second.canonical_key())
+
+    def test_exact_fraction_coefficients_and_multivariate_order(self):
+        from ultron_core.polynomial import Polynomial
+        first = Polynomial.from_expr(parse_math("1/2*x*y + 1/3*y*x + 2/5"))
+        second = Polynomial.from_expr(parse_math("5/6*x*y + 2/5"))
+        self.assertEqual(first, second)
+        self.assertEqual(first.evaluate({"x": 3, "y": 6}), Fraction(77, 5))
+        self.assertEqual(first.terms[0][0], ())
+        self.assertEqual(first.terms[1][0], (("x", 1), ("y", 1)))
+
+    def test_exact_expansion_and_canonical_equivalence(self):
+        from ultron_core.polynomial import Polynomial
+        expanded = Polynomial.from_expr(parse_math("(x + y)^2"))
+        explicit = Polynomial.from_expr(parse_math("x^2 + 2*x*y + y^2"))
+        self.assertEqual(expanded, explicit)
+        self.assertEqual(expanded.evaluate({"x": 2, "y": 3}), 25)
+        self.assertEqual(expanded.to_expr(), explicit.to_expr())
+
+    def test_zero_polynomial_and_zero_power(self):
+        from ultron_core.polynomial import Polynomial
+        self.assertEqual(Polynomial.from_expr(parse_math("x - x")), Polynomial.zero())
+        self.assertEqual(Polynomial.from_expr(parse_math("x^0")), Polynomial.one())
+        self.assertEqual(Polynomial.from_expr(parse_math("0 * (x + 1)")), Polynomial.zero())
+
+    def test_constant_denominator_is_exact_but_variable_denominator_is_rejected(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        self.assertEqual(Polynomial.from_expr(parse_math("x / 2")).evaluate({"x": 3}), Fraction(3, 2))
+        with self.assertRaisesRegex(PolynomialError, "variable polynomial"):
+            Polynomial.from_expr(parse_math("1 / x"))
+        with self.assertRaisesRegex(PolynomialError, "division by zero"):
+            Polynomial.from_expr(parse_math("x / 0"))
+
+    def test_rejects_negative_fractional_and_nonliteral_powers(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        for source in ("x^-1", "x^(1/2)", "x^y"):
+            with self.subTest(source=source):
+                with self.assertRaises(PolynomialError):
+                    Polynomial.from_expr(parse_math(source))
+
+    def test_rejects_calls_comparisons_and_assumptions(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        for source in ("sin(x)", "x < 2"):
+            with self.subTest(source=source):
+                with self.assertRaises(PolynomialError):
+                    Polynomial.from_expr(parse_math(source))
+        assumed = Expr(ExprKind.SYMBOL, value="x", assumptions=("x > 0",))
+        with self.assertRaisesRegex(PolynomialError, "assumptions"):
+            Polynomial.from_expr(assumed)
+
+    def test_polynomial_limits_bound_degree_terms_and_power(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError, PolynomialLimits
+        with self.assertRaisesRegex(PolynomialError, "total degree"):
+            Polynomial.from_expr(parse_math("x^3"), limits=PolynomialLimits(max_total_degree=2))
+        with self.assertRaisesRegex(PolynomialError, "term count"):
+            Polynomial.from_expr(parse_math("x + y + z"), limits=PolynomialLimits(max_terms=2))
+        with self.assertRaisesRegex(PolynomialError, "max_exponent"):
+            Polynomial.from_expr(parse_math("x^3"), limits=PolynomialLimits(max_exponent=2))
+
+    def test_constructor_and_environment_validation(self):
+        from ultron_core.polynomial import Polynomial
+        with self.assertRaises(TypeError):
+            Polynomial.constant(True)
+        with self.assertRaises(ValueError):
+            Polynomial.variable("not a symbol!")
+        with self.assertRaises(TypeError):
+            Polynomial.variable("x").evaluate({"x": True})
+        with self.assertRaisesRegex(ValueError, "missing variable"):
+            Polynomial.variable("x").evaluate({})
+
+    def test_sparse_multiplication_collects_cancellation(self):
+        from ultron_core.polynomial import Polynomial
+        first = Polynomial.from_expr(parse_math("(x + 1)*(x - 1)"))
+        second = Polynomial.from_expr(parse_math("x^2 - 1"))
+        self.assertEqual(first, second)
+        self.assertEqual(first.evaluate({"x": Fraction(-5, 2)}), Fraction(21, 4))
