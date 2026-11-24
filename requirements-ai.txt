@@ -1,0 +1,2 @@
+# Select a PyTorch wheel appropriate for the target CPU/CUDA environment.
+torch>=2.2,<3.0
