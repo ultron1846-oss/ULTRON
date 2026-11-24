@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-test('control-room shell exposes its five primary destinations', async () => {
+test('control-room shell exposes its six primary destinations', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  for (const page of ['overview','learning','agent','servers','settings']) assert.match(html, new RegExp(`data-page="${page}"`));
+  for (const page of ['overview','learning','agent','servers','backend','settings']) assert.match(html, new RegExp(`data-page="${page}"`));
   assert.match(html, /viewport-fit=cover/);
   assert.match(html, /mobile-menu/);
 });
