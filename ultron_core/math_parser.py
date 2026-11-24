@@ -33,6 +33,7 @@ class _RecursiveParser:
         self.position = 0
         self.max_nesting = max_nesting
         self.nesting = 0
+        self.end_offset = tokens[-1].offset + len(tokens[-1].value) if tokens else 0
 
     def _enter(self, offset: int) -> None:
         self.nesting += 1
@@ -42,9 +43,6 @@ class _RecursiveParser:
 
     def _leave(self) -> None:
         self.nesting -= 1
-        self.end_offset = (
-            tokens[-1].offset + len(tokens[-1].value) if tokens else 0
-        )
 
     def _peek(self) -> MathToken | None:
         return self.tokens[self.position] if self.position < len(self.tokens) else None
@@ -211,14 +209,57 @@ class _RecursiveParser:
 
     def _parse_identifier(self) -> Expr:
         first = self._take()
-        if first.value in _LATEX_SYMBOLS:
-            return Expr(ExprKind.SYMBOL, value=_LATEX_SYMBOLS[first.value])
-        pieces = [first.value]
+        pieces = [_LATEX_SYMBOLS.get(first.value, first.value)]
         previous_end = first.offset + len(first.value)
-        while self._is_identifier(self._peek()) and self._peek().offset == previous_end:
-            token = self._take()
-            pieces.append(token.value)
-            previous_end = token.offset + len(token.value)
+
+        # A contiguous alphanumeric name is one symbol (for example velocity2).
+        if first.value not in _LATEX_SYMBOLS:
+            while (
+                (self._is_identifier(self._peek()) or self._is_digit(self._peek()))
+                and self._peek().offset == previous_end
+            ):
+                token = self._take()
+                pieces.append(token.value)
+                previous_end = token.offset + len(token.value)
+
+        # Support one simple subscript: x_1, x_i and x_{12}.
+        underscore = self._peek()
+        if underscore is not None and underscore.value == "_" and underscore.offset == previous_end:
+            self.position += 1
+            pieces.append("_")
+            previous_end = underscore.offset + 1
+            braced = self._peek()
+            if braced is not None and braced.value == "{" and braced.offset == previous_end:
+                self.position += 1
+                previous_end += 1
+                subscript = []
+                while self._peek() is not None and self._peek().value != "}":
+                    token = self._peek()
+                    if token.offset != previous_end or not (
+                        self._is_identifier(token) or self._is_digit(token)
+                    ):
+                        raise MathParseError("subscript must contain contiguous letters or digits", token.offset)
+                    token = self._take()
+                    subscript.append(token.value)
+                    previous_end = token.offset + len(token.value)
+                closing = self._peek()
+                if closing is None or closing.value != "}" or closing.offset != previous_end or not subscript:
+                    offset = closing.offset if closing is not None else self.end_offset
+                    raise MathParseError("invalid braced subscript", offset)
+                self.position += 1
+                pieces.extend(subscript)
+            else:
+                subscript = []
+                while self._peek() is not None and self._peek().offset == previous_end and (
+                    self._is_identifier(self._peek()) or self._is_digit(self._peek())
+                ):
+                    token = self._take()
+                    subscript.append(token.value)
+                    previous_end = token.offset + len(token.value)
+                if not subscript:
+                    raise MathParseError("subscript marker must be followed by letters or digits", underscore.offset)
+                pieces.extend(subscript)
+
         name = "".join(pieces)
         if not name.isidentifier():
             raise MathParseError("invalid identifier", first.offset)
