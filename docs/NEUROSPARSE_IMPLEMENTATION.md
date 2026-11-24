@@ -201,7 +201,7 @@ ultron_core/polynomial.py adds bounded exact sparse-polynomial algebra over Frac
 - Addition collects like terms and removes zero coefficients. Multiplication merges monomial exponents and collects cancellations. Non-negative integer powers use exponentiation by squaring.
 - Constant rational division is supported only when the denominator reduces to a non-zero constant polynomial. Variable-polynomial denominators, zero denominators, negative/fractional/non-literal powers, function calls, comparisons and assumption-bearing expressions are rejected.
 - Exact evaluation accepts integer/Fraction environments only. to_expr() exports deterministic structural IR; polynomial equality is exact canonical representation equality.
-- PolynomialLimits bounds total degree, term count and individual exponent. Defaults are degree 64, 4,096 terms and exponent 64. Operations check budgets while constructing intermediate products and raise PolynomialError rather than silently truncating.
+- PolynomialLimits bounds total degree, term count and individual exponent. Defaults are degree 64, 4,096 terms and exponent 64. Absolute hard ceilings (including direct object construction) are degree 256, 16,384 terms and exponent 256. Operations check budgets while constructing intermediate products and raise PolynomialError rather than silently truncating.
 
 This is a polynomial ring over rational coefficients and finitely many named variables. It is not a rational-function engine, algebraic-number system, general CAS, equation solver or proof kernel. Non-constant denominators are rejected so denominator-domain restrictions are not silently discarded. Canonical equality applies only after both expressions are soundly converted into this supported polynomial domain.
 
