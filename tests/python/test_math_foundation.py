@@ -776,6 +776,7 @@ class DomainSafeRationalReductionTests(unittest.TestCase):
             reduced.evaluate({"x": 0})
 
     def test_common_factor_cancellation_preserves_original_denominator_domain(self):
+        from ultron_core.polynomial import Polynomial
         from ultron_core.rational import RationalDomainError, RationalFunction
         original = RationalFunction.from_expr(parse_math("(x^2 - 1)/(x - 1)"))
         reduced = original.cancel_common_univariate_factors()
@@ -796,6 +797,7 @@ class DomainSafeRationalReductionTests(unittest.TestCase):
                     reduced.evaluate({"x": excluded})
 
     def test_zero_numerator_reduces_but_keeps_denominator_domain(self):
+        from ultron_core.polynomial import Polynomial
         from ultron_core.rational import RationalDomainError, RationalFunction
         original = RationalFunction.from_expr(parse_math("0/(x - 1)"))
         reduced = original.cancel_common_univariate_factors()
