@@ -25,9 +25,14 @@ class CoreTests(unittest.TestCase):
             NeuroSparseConfig(top_k=9)
 
     def test_config_rejects_non_integer_dimensions(self):
-        for field in ("vocab_size", "hidden_size", "num_layers", "num_experts", "top_k", "pad_token_id"):
+        for field in ("vocab_size", "hidden_size", "num_layers", "num_experts", "top_k", "pad_token_id", "num_attention_heads", "max_sequence_length"):
             with self.subTest(field=field), self.assertRaises((TypeError, ValueError)):
                 NeuroSparseConfig(**{field: 2.5})
+
+    def test_config_rejects_non_positive_sequence_settings(self):
+        for field in ("num_attention_heads", "max_sequence_length"):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                NeuroSparseConfig(**{field: 0})
 
     def test_config_rejects_non_finite_float_settings(self):
         for field in ("halt_threshold", "dropout"):
