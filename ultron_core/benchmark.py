@@ -5,6 +5,7 @@ This measures the current implementation; it does not train or update weights.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import json
 import math
 import platform
@@ -80,7 +81,7 @@ def parameter_accounting(model: NeuroSparseModel) -> dict[str, int | float]:
     }
 
 
-def run_benchmark(
+def _run_benchmark_impl(
     *, device: str = "cpu", batch: int = 2, sequence: int = 16,
     warmup: int = 10, iterations: int = 50, seed: int = 1729,
     num_threads: int | None = None,
@@ -96,15 +97,6 @@ def run_benchmark(
         raise RuntimeError("CUDA requested but unavailable")
     if target.type not in ("cpu", "cuda"):
         raise ValueError("device must be cpu or cuda")
-    if num_threads is not None:
-        if num_threads <= 0:
-            raise ValueError("num_threads must be positive")
-        if target.type == "cpu":
-            torch.set_num_threads(num_threads)
-
-    torch.manual_seed(seed)
-    if target.type == "cuda":
-        torch.cuda.manual_seed_all(seed)
     config = NeuroSparseConfig()
     model = NeuroSparseModel(config).to(target).eval()
     generator = torch.Generator(device="cpu").manual_seed(seed)
@@ -175,6 +167,38 @@ def run_benchmark(
             "No baseline comparison, ablation, energy measurement or mathematical capability claim is produced.",
         ],
     }
+
+
+@contextmanager
+def _preserve_benchmark_runtime(seed: int, num_threads: int | None, target: torch.device):
+    """Isolate benchmark RNG/thread settings from the calling application."""
+    cpu_rng_state = torch.random.get_rng_state()
+    previous_threads = torch.get_num_threads()
+    try:
+        local_generator = torch.Generator(device="cpu").manual_seed(seed)
+        torch.random.set_rng_state(local_generator.get_state())
+        if num_threads is not None and num_threads <= 0:
+            raise ValueError("num_threads must be positive")
+        if num_threads is not None and target.type == "cpu":
+            torch.set_num_threads(num_threads)
+        yield
+    finally:
+        torch.random.set_rng_state(cpu_rng_state)
+        if torch.get_num_threads() != previous_threads:
+            torch.set_num_threads(previous_threads)
+
+
+def run_benchmark(
+    *, device: str = "cpu", batch: int = 2, sequence: int = 16,
+    warmup: int = 10, iterations: int = 50, seed: int = 1729,
+    num_threads: int | None = None,
+) -> dict:
+    target = torch.device(device)
+    with _preserve_benchmark_runtime(seed, num_threads, target):
+        return _run_benchmark_impl(
+            device=device, batch=batch, sequence=sequence, warmup=warmup,
+            iterations=iterations, seed=seed, num_threads=None,
+        )
 
 
 def main() -> None:
