@@ -198,3 +198,24 @@ GitHub Actions now runs the Python regression suite and a CPU forward/backward s
 4. Keep the website, Supabase, authentication, Pages deployment, and provider integrations unchanged.
 5. Do not start actual model training, cloud execution, or remote jobs without separate explicit authorization.
 6. Continue only when the user says: `Continue to Section D`.
+
+
+## Section D — benchmark and ablation protocol (2026-11-24)
+
+Section D adds an inference-only benchmark harness and a controlled-experiment protocol. See [Section D benchmark protocol](docs/SECTION_D_BENCHMARK_PROTOCOL.md).
+
+- Run `python -m ultron_core.benchmark --device cpu --batch 2 --sequence 16 --warmup 10 --iterations 50` for a repeatable CPU inference timing report. CUDA is optional and requires a compatible CUDA-enabled PyTorch installation.
+- The JSON report includes raw latency samples, median/mean/standard deviation, a seeded bootstrap 95% interval for the median, throughput, parameter accounting, environment metadata and CUDA peak allocated memory when applicable.
+- The benchmark is synthetic-input inference only. It does not train, perform optimizer steps, use external datasets or call external AI APIs.
+- The default expert selection remains 2/8 = 25%. The reported active-parameter estimate is structural accounting, not measured FLOPs, hardware activity, latency or energy.
+- Section D specifies a future ablation matrix, mathematical evaluation suite, paired statistical design, multiple-comparison correction and acceptance gates. The current Section C model does not yet expose the switches needed to execute those ablations.
+- No performance improvement, quality result, energy reduction or mathematical capability is claimed from this harness.
+
+### Next-chat handoff — after Section D
+
+1. Review PR for the inference benchmark, its statistics tests, and the protocol document; inspect CI before merging.
+2. Do not describe synthetic-token timing as a math capability benchmark. Do not report structural parameter estimates as measured FLOPs or energy.
+3. Next engineering prerequisite is tested feature switches and a dense all-expert reference path, followed by per-token routing/refinement/memory instrumentation and the approved deterministic math-task generator.
+4. Keep website, Supabase, authentication, GitHub Pages and provider integrations unchanged.
+5. Do not start model training, connect Colab, launch remote jobs or use cloud compute without separate explicit authorization.
+6. Update this README and retain a precise next-chat handoff at every meaningful milestone.
