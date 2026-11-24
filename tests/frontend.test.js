@@ -40,7 +40,8 @@ test('Supabase backend page documents the audited contract without exposing owne
   assert.match(app, /renderBackend/);
   assert.match(backend, /device-control/);
   assert.match(backend, /training-control/);
-  assert.match(backend, /owner JWT/);
+  assert.match(backend, /owner-session gated/);
+  assert.match(backend, /public_status/);
   assert.match(backend, /ultron1846-oss\/ULTRON/);
   assert.doesNotMatch(backend, /service_role|sb_secret_|ULTRON_GITHUB_TOKEN/);
   assert.doesNotMatch(app, /functions\.invoke|fetch\([^)]*training-control|fetch\([^)]*device-control/);
