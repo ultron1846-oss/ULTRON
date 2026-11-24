@@ -75,7 +75,7 @@ function renderBackend(){
  const audit=supabaseBackendAudit;
  const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='active'?'available':'planned'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
  const blockers=audit.blockers.map(item=>`<div class="warning-banner">${esc(item)}</div>`).join('');
- return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Existing backend inspected against this public website. This is a configuration audit, not live telemetry.')}
+ return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Live read-only service status; private records and owner-only controls remain protected.')}
  <div class="status-grid">
  ${card('<div class="mini-label">SUPABASE PROJECT</div><strong class="status-value">ACTIVE</strong><p>Project was healthy when inspected. No database changes were made.</p>','status-card')}
  ${card('<div class="mini-label">PUBLIC STATUS API</div><strong class="status-value" id="supabase-status">CHECKING</strong><p id="supabase-status-detail">Read-only service status. No owner data is exposed.</p>','status-card')}
@@ -84,7 +84,7 @@ function renderBackend(){
  </div>
  ${card('<div class="eyebrow">DEPLOYED EDGE FUNCTIONS</div><h2>Existing service contracts</h2>'+rows)}
  ${card('<div class="eyebrow">INTEGRATION BLOCKERS</div><h2>What must be aligned before connection</h2>'+blockers)}
- ${card('<div class="eyebrow">PUBLIC WEBSITE SAFETY</div><h2>No login. No training actions.</h2><p class="muted">This website intentionally has no sign-in or account-specific history. The current database records are tied to an authenticated owner and cannot safely be read by the public dashboard. The frontend does not call owner-only functions, read protected tables, store credentials, dispatch workflows or start training.</p><p class="muted small">Next backend step: Codex should provide a narrowly scoped, unauthenticated health-only endpoint for this Pages origin, and align the server-side GitHub repository/origin configuration. It must not expose training controls or private run data.</p><span class="status-pill">TRAINING REMAINS DISABLED</span>')}`;
+ ${card('<div class="eyebrow">PUBLIC WEBSITE SAFETY</div><h2>No login. No training actions.</h2><p class="muted">This website intentionally has no sign-in or account-specific history. The current database records are tied to an authenticated owner and cannot safely be read by the public dashboard. The frontend does not call owner-only functions, read protected tables, store credentials, dispatch workflows or start training.</p><p class="muted small">The public page calls only the read-only public_status action. Owner-only health, status, start and stop actions remain inaccessible from this account-free website.</p><span class="status-pill">TRAINING REMAINS DISABLED</span>')}`;
 }
 
 function renderSettings(){
