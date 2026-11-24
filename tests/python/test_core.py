@@ -211,6 +211,16 @@ class CoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unique after rational normalization"):
             probe_candidate(candidate, sample_values=(1, "1/1"))
 
+    def test_finite_probe_bounds_exact_exponent_growth(self):
+        x = Expr(ExprKind.SYMBOL, value="x")
+        huge = Expr(ExprKind.INTEGER, value=2048)
+        power = Expr(ExprKind.POW, args=(x, huge))
+        candidate = FormulaCandidate(Expr(ExprKind.EQUAL, args=(power, power)))
+        with self.assertRaisesRegex(ValueError, "exceeds max_abs_exponent"):
+            probe_candidate(candidate, variable_names=("x",), sample_values=(2,))
+        with self.assertRaisesRegex(ValueError, "non-negative integer"):
+            probe_candidate(candidate, max_abs_exponent=-1)
+
     def test_finite_probe_enforces_evaluation_budget(self):
         candidate = polynomial_identity_candidates()[0]
         with self.assertRaisesRegex(ValueError, "exceeding max_samples"):
