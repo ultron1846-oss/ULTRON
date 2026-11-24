@@ -543,3 +543,16 @@ The univariate polynomial engine now provides `isolate_real_roots_univariate(low
 - Uses only integer/Fraction arithmetic; no floating-point root approximations.
 
 The input interval must have non-root endpoints. The zero polynomial, multivariate polynomials, invalid bounds and exhausted budgets are rejected. This is bounded root isolation for univariate rational-coefficient polynomials; it is not a general equation solver, algebraic-number system, or formal proof kernel.
+
+
+## Exact real algebraic number representation — 2026-11-24
+
+ULTRON now exposes `RealAlgebraicNumber`, a bounded exact representation of one real root of a univariate rational-coefficient polynomial.
+
+- A non-degenerate rational interval must have non-root endpoints and contain exactly one distinct real root, verified with the exact Sturm counter.
+- Exact rational roots can be represented as degenerate intervals `(r, r)`.
+- `refine()` bisects with rational arithmetic and detects an exact rational midpoint.
+- `same_value_as()` decides equality using exact rational evaluation or the polynomial GCD over the overlap of isolating intervals.
+- `compare_to()` orders distinct represented roots by exact interval refinement, with a caller-controlled refinement budget.
+
+The defining polynomial is **not asserted to be minimal or irreducible**. The type currently supports representation, equality and ordering only—not algebraic addition/multiplication, minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.

@@ -1021,5 +1021,133 @@ class ExactRealRootIsolationTests(unittest.TestCase):
             polynomial.isolate_real_roots_univariate(-2, 2, variable="y")
 
 
+class RealAlgebraicNumberTests(unittest.TestCase):
+    def test_construct_and_refine_irrational_root_exactly(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        value = RealAlgebraicNumber.from_isolating_interval(polynomial, 1, 2)
+        self.assertFalse(value.is_rational)
+        refined = value.refine()
+        self.assertEqual(refined.lower, Fraction(1))
+        self.assertEqual(refined.upper, Fraction(3, 2))
+        self.assertEqual(
+            polynomial.real_root_count_univariate(
+                refined.lower, refined.upper
+            ),
+            1,
+        )
+
+    def test_refinement_detects_exact_rational_midpoint(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 1"))
+        value = RealAlgebraicNumber.from_isolating_interval(
+            polynomial, 0, 2
+        )
+        exact = value.refine()
+        self.assertTrue(exact.is_rational)
+        self.assertEqual(exact.rational_value, Fraction(1))
+
+    def test_rational_representation_and_exact_equality(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        rational = RealAlgebraicNumber.from_rational(Fraction(3, 2))
+        same = RealAlgebraicNumber.from_rational(Fraction(6, 4))
+        self.assertTrue(rational.same_value_as(same))
+        self.assertEqual(rational.compare_to(same), 0)
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 9/4"))
+        represented = RealAlgebraicNumber.from_isolating_interval(
+            polynomial, 1, 2
+        )
+        self.assertTrue(rational.same_value_as(represented))
+        self.assertEqual(rational.compare_to(represented), 0)
+
+    def test_equivalent_defining_polynomials_identify_same_root(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        first = Polynomial.from_expr(parse_math("x^2 - 2"))
+        second = Polynomial.from_expr(parse_math("2*x^2 - 4"))
+        a = RealAlgebraicNumber.from_isolating_interval(first, 1, 2)
+        b = RealAlgebraicNumber.from_isolating_interval(second, 1, 2)
+        self.assertTrue(a.same_value_as(b))
+        self.assertEqual(a.compare_to(b), 0)
+        nonminimal = Polynomial.from_expr(parse_math("(x^2 - 2)^2"))
+        c = RealAlgebraicNumber.from_isolating_interval(nonminimal, 1, 2)
+        self.assertTrue(a.same_value_as(c))
+        self.assertEqual(a.compare_to(c), 0)
+        negative = RealAlgebraicNumber.from_isolating_interval(first, -2, -1)
+        self.assertFalse(a.same_value_as(negative))
+        self.assertEqual(negative.compare_to(a), -1)
+
+    def test_exact_comparison_of_distinct_irrational_roots(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        sqrt2 = RealAlgebraicNumber.from_isolating_interval(
+            Polynomial.from_expr(parse_math("x^2 - 2")), 1, 2
+        )
+        sqrt3 = RealAlgebraicNumber.from_isolating_interval(
+            Polynomial.from_expr(parse_math("x^2 - 3")), 1, 2
+        )
+        self.assertFalse(sqrt2.same_value_as(sqrt3))
+        self.assertEqual(sqrt2.compare_to(sqrt3), -1)
+        self.assertEqual(sqrt3.compare_to(sqrt2), 1)
+
+    def test_compare_irrational_root_with_exact_rational(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        sqrt2 = RealAlgebraicNumber.from_isolating_interval(
+            Polynomial.from_expr(parse_math("x^2 - 2")), 1, 2
+        )
+        seven_fifths = RealAlgebraicNumber.from_rational(Fraction(7, 5))
+        three_halves = RealAlgebraicNumber.from_rational(Fraction(3, 2))
+        self.assertEqual(sqrt2.compare_to(seven_fifths), 1)
+        self.assertEqual(sqrt2.compare_to(three_halves), -1)
+
+    def test_repeated_defining_polynomial_is_supported(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("(x^2 - 2)^2"))
+        value = RealAlgebraicNumber.from_isolating_interval(
+            polynomial, 1, 2
+        )
+        self.assertEqual(value.polynomial.real_root_count_univariate(1, 2), 1)
+
+    def test_rejects_zero_roots_multiple_roots_and_root_endpoints(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        no_roots = Polynomial.from_expr(parse_math("x^2 + 1"))
+        two_roots = Polynomial.from_expr(parse_math("x^2 - 1"))
+        with self.assertRaisesRegex(PolynomialError, "found 0"):
+            RealAlgebraicNumber.from_isolating_interval(no_roots, 0, 2)
+        with self.assertRaisesRegex(PolynomialError, "found 2"):
+            RealAlgebraicNumber.from_isolating_interval(two_roots, -2, 2)
+        with self.assertRaisesRegex(PolynomialError, "endpoints"):
+            RealAlgebraicNumber.from_isolating_interval(two_roots, -1, 2)
+
+    def test_rejects_invalid_types_and_variable_mismatch(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        with self.assertRaises(TypeError):
+            RealAlgebraicNumber.from_isolating_interval(polynomial, True, 2)
+        value = RealAlgebraicNumber.from_isolating_interval(polynomial, 1, 2)
+        other = RealAlgebraicNumber.from_rational(1, variable="y")
+        with self.assertRaisesRegex(ValueError, "same variable"):
+            value.compare_to(other)
+
+    def test_comparison_refinement_budget_is_enforced(self):
+        from ultron_core.algebraic import RealAlgebraicNumber
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        sqrt2 = RealAlgebraicNumber.from_isolating_interval(
+            Polynomial.from_expr(parse_math("x^2 - 2")), 1, 2
+        )
+        sqrt3 = RealAlgebraicNumber.from_isolating_interval(
+            Polynomial.from_expr(parse_math("x^2 - 3")), 1, 2
+        )
+        with self.assertRaisesRegex(PolynomialError, "max_refinements"):
+            sqrt2.compare_to(sqrt3, max_refinements=0)
+
+
 if __name__ == "__main__":
     unittest.main()
