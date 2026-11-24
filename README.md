@@ -556,3 +556,6 @@ ULTRON now exposes `RealAlgebraicNumber`, a bounded exact representation of one 
 - `compare_to()` orders distinct represented roots by exact interval refinement, with a caller-controlled refinement budget.
 
 The defining polynomial is **not asserted to be minimal or irreducible**. The type currently supports representation, equality and ordering only—not algebraic addition/multiplication, minimal-polynomial computation, multivariate algebraic numbers, or formal proof receipts. Comparisons currently require both values to use the same variable name. No floating-point arithmetic is used.
+
+
+A further regression covers an exact rational root encountered during the inward endpoint-adjustment search itself. The isolator now emits that root as a degenerate rational interval instead of passing a root endpoint into the Sturm counter.
