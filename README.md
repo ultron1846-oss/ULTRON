@@ -397,7 +397,11 @@ The initial generator supports only integer arithmetic, exact rational arithmeti
 The model consumes the tokenizer's integer IDs when configured with `vocab_size=len(MathVocabulary.default())`; no tokenizer is automatically attached to model construction. The attention mask is explicit and must be passed for padded batches. Right-padding is the intended common layout, but left-padding is guarded against all-masked query NaNs. No training, optimizer step, checkpoint creation, cloud execution or remote job was performed.
 
 ### Validation status
-The new Python regression module covers token round trips, stable vocabulary serialization, lexical errors, exact rational checking, deterministic seeds/IDs, JSONL/manifest reproducibility, tokenizer-to-model input compatibility, variable-length batches, padding isolation and memory-write masking. The existing Python and Node suites are still required in CI. The repository was inspected through GitHub's repository interface; this environment could not clone GitHub for local execution, so local test execution has not been claimed.
+The new Python regression module covers token round trips, stable vocabulary serialization, lexical errors, exact rational checking, deterministic seeds/IDs, JSONL/manifest reproducibility, tokenizer-to-model input compatibility, variable-length batches, padding isolation, memory-write masking and structural IR serialization. GitHub Actions for PR #18 passed all 88 Python regression tests, the CPU forward/backward smoke check, and the Node.js test suite. The smoke check did not perform an optimizer step or training run. The repository was inspected through GitHub's repository interface; this environment could not clone GitHub for local execution, so local test execution has not been claimed.
+
+### Merged delivery
+- [PR #18](https://github.com/ultron1846-oss/ULTRON/pull/18) merged successfully. Main commit: `38a4b30c28f90998ac5f092fe340df512963fdfc`.
+- PR checks: 88 Python tests passed; CPU forward/backward smoke passed; Node tests passed. No training, optimizer step, external dataset/API, cloud job or remote execution was used.
 
 ### Next engineering handoff
 1. Review this branch and require the Python AI Core Tests, CPU forward/backward smoke and Node Tests to pass in GitHub Actions.

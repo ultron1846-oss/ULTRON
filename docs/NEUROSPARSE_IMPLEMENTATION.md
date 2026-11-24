@@ -130,3 +130,12 @@ The initial foundation is implemented in `ultron_core/math_tokenizer.py` and `ul
 
 ### Remaining limitations
 No parser-to-IR conversion, semantic handling of calculus/linear algebra/discrete/proof notation, curriculum scheduler, proof kernel, large generated corpus, or training has been implemented. Lexically recognizing a symbol does not imply its mathematical semantics are implemented. The model remains untrained.
+
+
+
+### CI verification — PR #18
+- GitHub Actions Python regression suite: 88 tests passed.
+- CPU forward/backward smoke: passed on CPU with batch 2 and sequence length 8; workflow output explicitly reports no optimizer step or training run.
+- Node.js test workflow: passed.
+- Local execution was not claimed because the working environment could not resolve github.com for a repository clone.
+- Merged as PR #18 at main commit `38a4b30c28f90998ac5f092fe340df512963fdfc`.
