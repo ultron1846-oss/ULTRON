@@ -153,7 +153,7 @@ Supported grammar:
 - Parenthesized expressions, unary signs, `+`, `-`, `*`, `/`, `×`, `·`, `÷`, `^`, Unicode superscript integer powers, implicit multiplication between adjacent factors, and one top-level equality.
 - Precedence is conventional: exponentiation binds more tightly than unary minus and is right-associative. Contiguous letters are one identifier, so `velocity` is not silently rewritten as `v*e*l*o*c*i*t*y`.
 - Supported lower-case Greek LaTeX aliases map to Unicode symbol names. Unsupported TeX commands fail explicitly.
-- Parser defaults are capped at 100,000 source characters, 1,024 lexer tokens and 128 recursive nesting levels. These are defensive limits, not a throughput benchmark.
+- Parser defaults are capped at 100,000 source characters, 512 lexer tokens and 128 recursive nesting levels. These are defensive limits, not a throughput benchmark.
 
 The parser deliberately rejects function-call syntax, inequalities, set membership, general LaTeX fractions, matrices, calculus, summation/limit notation and proof syntax. A token recognized by the lexer is not necessarily accepted by the parser.
 
