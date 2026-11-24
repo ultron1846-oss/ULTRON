@@ -345,6 +345,16 @@ class MathParserTests(unittest.TestCase):
         with self.assertRaisesRegex(MathParseError, "offset 1"):
             parse_math("x🙂")
 
+    def test_parser_enforces_source_token_and_nesting_budgets(self):
+        with self.assertRaisesRegex(MathParseError, "source length"):
+            MathParser(max_source_chars=3).parse("1234")
+        with self.assertRaisesRegex(MathParseError, "token count"):
+            MathParser(max_tokens=2).parse("1 + 2")
+        with self.assertRaisesRegex(MathParseError, "nesting"):
+            MathParser(max_nesting=2).parse("(((x)))")
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            MathParser(max_tokens=0)
+
 
 class ConservativeSimplificationTests(unittest.TestCase):
     def test_exact_constant_folding_and_identity_rewrites(self):
