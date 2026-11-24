@@ -517,3 +517,16 @@ This is a univariate exact-algebra operation only. It does not yet cancel factor
 RationalFunction now exposes `cancel_common_univariate_factors()`. It computes the exact univariate polynomial GCD of numerator and denominator, divides both exactly, and returns the reduced pair.
 
 Crucially, the method carries forward the complete original non-zero constraint set. Thus `x/x` can reduce structurally to (1/1) while still rejecting (x=0); ((x^2-1)/(x-1)) can reduce to (x+1) while still rejecting (x=1). It rejects multivariate numerator/denominator inputs instead of guessing a multivariate GCD. Reduction is structural simplification, not proof of arbitrary expression equivalence.
+
+
+## Exact real-root counting with Sturm sequences — 2026-11-24
+
+The univariate polynomial engine now supports exact differentiation, Sturm-sequence construction and distinct-real-root counts over rational intervals.
+
+- `derivative_univariate` differentiates with exact integer/Fraction coefficients.
+- `sturm_sequence_univariate` builds the signed Euclidean remainder sequence using the exact univariate division implementation.
+- `real_root_count_univariate(a, b)` returns the number of distinct real roots in the open interval ((a,b)), using exact sign-variation counts. Endpoints must be exact integers/Fractions and must not themselves be roots.
+- Repeated roots are counted once. The zero polynomial is rejected because it does not have a finite root count; nonzero constants return zero.
+- Multivariate inputs and work exceeding configured polynomial limits are rejected.
+
+This computes root counts, not decimal approximations or isolating intervals. It does not yet solve for algebraic root representations, construct minimal polynomials, or provide a formally verified proof receipt. The implementation is an exact algorithm based on Sturm's theorem, not a formal proof-kernel implementation.
