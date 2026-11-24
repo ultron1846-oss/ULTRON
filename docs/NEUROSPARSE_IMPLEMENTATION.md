@@ -95,3 +95,5 @@ The causal-attention and positional-embedding parameters change the model state 
 
 
 - FormulaCandidate now validates its expression type, enum status, identifier, and immutable tuple-of-string metadata fields at construction. This prevents malformed candidate objects from entering evaluator code through annotation-only assumptions.
+
+- Checkpoint preflight also rejects tensor-layout mismatches and safely formats unexpected non-string state keys in validation errors.
