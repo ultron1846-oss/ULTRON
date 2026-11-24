@@ -315,6 +315,9 @@ class MathParserTests(unittest.TestCase):
 
     def test_contiguous_identifiers_and_spaced_products_are_distinct(self):
         self.assertEqual(parse_math("velocity").value, "velocity")
+        self.assertEqual(parse_math("velocity2").value, "velocity2")
+        self.assertEqual(parse_math("x_1").value, "x_1")
+        self.assertEqual(parse_math("x_{12}").value, "x_12")
         spaced = parse_math("v e")
         self.assertEqual(spaced.kind, ExprKind.MUL)
         self.assertNotEqual(parse_math("ve"), spaced)
@@ -341,7 +344,7 @@ class MathParserTests(unittest.TestCase):
 
     def test_parser_errors_include_source_offsets(self):
         with self.assertRaisesRegex(MathParseError, "offset 1"):
-            parse_math("x_1")
+            parse_math("x_")
         with self.assertRaisesRegex(MathParseError, "offset 1"):
             parse_math("x🙂")
 
