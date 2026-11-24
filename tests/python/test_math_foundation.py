@@ -456,8 +456,6 @@ class ConservativeSimplificationTests(unittest.TestCase):
             simplify("x + 1")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 
@@ -544,3 +542,7 @@ class ExactPolynomialTests(unittest.TestCase):
         second = Polynomial.from_expr(parse_math("x^2 - 1"))
         self.assertEqual(first, second)
         self.assertEqual(first.evaluate({"x": Fraction(-5, 2)}), Fraction(21, 4))
+
+
+if __name__ == "__main__":
+    unittest.main()
