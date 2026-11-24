@@ -18,6 +18,12 @@ test('memory import rejects an unknown or malformed backup format', async () => 
   await assert.rejects(importMemory({ format: 'ultron-local-memory', version: 1, stores: { experiences: {} } }), /must be an array/i);
 });
 
-test('valid experience write reports unavailable IndexedDB instead of pretending to save', async () => {
-  await assert.rejects(saveExperience({ prompt: '2 + 2', answer: '4', correct: true }), /IndexedDB is unavailable/i);
+test('experience write reports unavailable IndexedDB instead of pretending to save', async () => {
+  const original = globalThis.indexedDB;
+  try {
+    globalThis.indexedDB = undefined;
+    await assert.rejects(saveExperience({ prompt: '2 + 2', answer: '4', correct: true }), /IndexedDB is unavailable/i);
+  } finally {
+    globalThis.indexedDB = original;
+  }
 });
