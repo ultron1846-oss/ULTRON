@@ -5,7 +5,10 @@ from fractions import Fraction
 import hashlib
 import json
 
-SUPPORTED_FUNCTIONS = frozenset({"sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "sqrt", "abs"})\n\n\nclass ExprKind(str, Enum):
+SUPPORTED_FUNCTIONS = frozenset({"sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "sqrt", "abs"})
+
+
+class ExprKind(str, Enum):
     INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; SUB="sub"; MUL="mul"; DIV="div"; POW="pow"; NEG="neg"; CALL="call"; EQUAL="equal"; NOT_EQUAL="not_equal"; LESS_THAN="less_than"; LESS_EQUAL="less_equal"; GREATER_THAN="greater_than"; GREATER_EQUAL="greater_equal"
 
 @dataclass(frozen=True)
