@@ -347,6 +347,44 @@ class MathParserTests(unittest.TestCase):
                 with self.assertRaises(MathParseError):
                     parse_math(source)
 
+    def test_typed_function_calls_are_parsed_but_not_falsely_evaluated(self):
+        expression = parse_math("sin(x) + sqrt(4)")
+        call = expression.args[0]
+        self.assertEqual(call.kind, ExprKind.CALL)
+        self.assertEqual(call.value, "sin")
+        self.assertEqual(call.args[0], Expr(ExprKind.SYMBOL, value="x"))
+        with self.assertRaisesRegex(ValueError, "does not implement function sin"):
+            evaluate(call, {"x": Fraction(1)})
+
+    def test_function_call_nesting_and_unknown_names(self):
+        self.assertEqual(parse_math("log(abs(x))").kind, ExprKind.CALL)
+        with self.assertRaisesRegex(MathParseError, "unknown or unsupported"):
+            parse_math("mystery(x)")
+
+    def test_typed_comparisons_parse_and_evaluate_exactly(self):
+        cases = (
+            ("1 < 2", ExprKind.LESS_THAN, True),
+            ("2 <= 2", ExprKind.LESS_EQUAL, True),
+            ("3 > 2", ExprKind.GREATER_THAN, True),
+            ("3 >= 4", ExprKind.GREATER_EQUAL, False),
+            ("1 != 2", ExprKind.NOT_EQUAL, True),
+            ("1 ≠ 1", ExprKind.NOT_EQUAL, False),
+            ("1 ≤ 2", ExprKind.LESS_EQUAL, True),
+            ("2 ≥ 2", ExprKind.GREATER_EQUAL, True),
+            ("2 = 2", ExprKind.EQUAL, True),
+        )
+        for source, kind, expected in cases:
+            with self.subTest(source=source):
+                expression = parse_math(source)
+                self.assertEqual(expression.kind, kind)
+                self.assertIs(evaluate(expression, {}), expected)
+
+    def test_chained_comparisons_are_rejected(self):
+        for source in ("1 < 2 < 3", "1 <= 2 = 2", "1 != 2 > 0"):
+            with self.subTest(source=source):
+                with self.assertRaisesRegex(MathParseError, "chained comparisons"):
+                    parse_math(source)
+
     def test_parser_errors_include_source_offsets(self):
         with self.assertRaisesRegex(MathParseError, "offset 1"):
             parse_math("x_")

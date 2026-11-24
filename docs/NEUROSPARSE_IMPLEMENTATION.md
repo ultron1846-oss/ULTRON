@@ -180,3 +180,14 @@ No training, optimizer step, corpus generation, external AI API, pretrained weig
 - Node.js test workflow: passed.
 - Verification was executed against implementation commit `e5fe00a6cc1afc2f3a9345f9469ba951009d6b53`; a subsequent README/notes-only update is included in the current PR and must pass its own required checks before merge.
 - No local execution, training, dataset generation, external API, pretrained weights or remote execution is claimed.
+
+
+## Typed comparison and function-call IR — 2026-11-24
+
+The expression IR and parser now represent one top-level comparison using distinct node kinds for equality, inequality, and ordered comparisons. ASCII `!=`, `<=`, `>=` and Unicode `≠`, `≤`, `≥` map to explicit typed nodes. Chained comparisons are rejected rather than assigned an implicit associativity.
+
+A bounded unary-call grammar recognizes `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `exp`, `ln`, `log`, `sqrt`, and `abs`. Calls are stored as `CALL` nodes with a validated function name and one argument. This is syntax and IR support only: the exact rational evaluator deliberately rejects all function calls because transcendental values and their domains/branches need a separate semantic design. No numerical approximation or domain assumption is silently introduced.
+
+The exact evaluator can evaluate comparisons only when both operands are exact scalar rational expressions. Comparisons nested inside comparisons are rejected. Finite-domain candidate probing remains equality-only and therefore does not treat inequalities as proof candidates. The symbolic simplifier preserves comparison and function-call nodes without rewriting them.
+
+Tests cover ASCII and Unicode comparisons, chained-comparison rejection, function-name allowlisting, nested function-call parsing, and explicit evaluator rejection. This stage does not add trigonometric simplification, numerical function evaluation, domain inference, equation solving, or formal proof.

@@ -42,6 +42,26 @@ def evaluate(
             raise ValueError(f'missing variable {expr.value}')
         return env[str(expr.value)]
     values = [evaluate(arg, env, max_abs_exponent=max_abs_exponent) for arg in expr.args]
+    if expr.kind in {
+        ExprKind.EQUAL, ExprKind.NOT_EQUAL, ExprKind.LESS_THAN,
+        ExprKind.LESS_EQUAL, ExprKind.GREATER_THAN, ExprKind.GREATER_EQUAL,
+    }:
+        if any(isinstance(value, bool) for value in values):
+            raise ValueError("nested comparison values are not supported")
+        left, right = values
+        if expr.kind == ExprKind.EQUAL:
+            return left == right
+        if expr.kind == ExprKind.NOT_EQUAL:
+            return left != right
+        if expr.kind == ExprKind.LESS_THAN:
+            return left < right
+        if expr.kind == ExprKind.LESS_EQUAL:
+            return left <= right
+        if expr.kind == ExprKind.GREATER_THAN:
+            return left > right
+        return left >= right
+    if expr.kind == ExprKind.CALL:
+        raise ValueError(f"exact evaluator does not implement function {expr.value}")
     if expr.kind == ExprKind.ADD:
         return sum(values, Fraction(0))
     if expr.kind == ExprKind.SUB:
