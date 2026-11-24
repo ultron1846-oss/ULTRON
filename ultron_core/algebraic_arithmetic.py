@@ -12,7 +12,6 @@ from math import comb
 
 from .algebraic import RealAlgebraicNumber
 from .polynomial import (
-    DEFAULT_LIMITS,
     Polynomial,
     PolynomialError,
     PolynomialLimits,
@@ -176,7 +175,7 @@ def resultant_polynomial(left: RealAlgebraicNumber,
                          *,
                          variable: str | None = None,
                          limits: PolynomialLimits | None = None) -> Polynomial:
-    """Return a resultant polynomial for sum or product of two algebraic values.
+    """Return a resultant polynomial for sum, difference or product of algebraic values.
 
     The output may contain extraneous factors and is not guaranteed minimal.
     """
@@ -241,7 +240,12 @@ def _combine(left: RealAlgebraicNumber, right: RealAlgebraicNumber,
         raise ValueError("max_refinements must be a non-negative integer")
     limits = _effective_limits(left, right, limits)
 
-    if operation == "subtract" and left.same_value_as(right):
+    if (
+        operation == "subtract"
+        and limits == left.limits
+        and limits == right.limits
+        and left.same_value_as(right)
+    ):
         return RealAlgebraicNumber.from_rational(0, variable=left.variable, limits=limits)
     if left.is_rational and right.is_rational:
         a, b = left.lower, right.lower
