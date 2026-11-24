@@ -140,3 +140,13 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 - Keep Google Colab disconnected. Do not create notebooks, connect runtimes, submit jobs, or start model training. Server connection is deferred until the AI model is ready.
 - Do not change Supabase RLS, secrets, Auth provider settings or owner records as part of frontend verification.
 - Update this README at the next meaningful milestone.
+
+
+## Learning page simplification — 2026-11-24
+
+- Removed the fixed local arithmetic exercise card (question, answer field, answer checking, hint and next-exercise controls) from Learn & Practice.
+- Reframed that page as the mathematics topic roadmap: topic descriptions, prerequisites, representative examples and available/planned status remain.
+- Updated the Overview quick-access card to lead to Mathematics Topics instead of the removed practice exercise.
+- Removed the now-unused exercise fixtures, event handlers and practice-only imports from the browser entry module.
+- Existing IndexedDB experience/mistake history and backup tools remain intact; this UI change does not delete browser data. Existing local practice counters are left untouched rather than destructively clearing user preferences.
+- No backend, Supabase, owner authentication, Colab connection, remote execution or model-training behavior changed.
