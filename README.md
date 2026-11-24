@@ -234,7 +234,7 @@ A focused review of the merged Section C/D Python core identified and corrected 
 
 ### Remaining architectural blockers (not silently represented as fixed)
 
-- The current model has no causal self-attention, positional encoding, or other explicit sequence-mixing mechanism. With default `write_memory=False`, each token position is processed independently by the feed-forward/router/refinement stack. It is therefore not yet a context-aware autoregressive language model.
+- Causal self-attention and learned positional embeddings are now implemented in the Python core. Remaining sequence-model gaps include padding key masks, tokenizer semantics, efficient decoding/KV caching, and long-context evaluation.
 - The model still has no tokenizer, original deterministic training-data generator, curriculum, tested ablation controls, dense-expert reference path, or formal proof kernel.
 - Memory writes are opt-in and sequential; ordinary forward calls do not update the memory. A future training controller must define safe, deterministic memory lifecycle semantics before relying on it.
 - The finite-domain evaluator supports only its explicitly implemented rational arithmetic operations. It does not interpret domains/assumptions, and it cannot establish a theorem or mathematical novelty.
@@ -242,7 +242,7 @@ A focused review of the merged Section C/D Python core identified and corrected 
 ### Next code-review handoff
 
 1. Review the correctness-hardening pull request and require Python CI plus existing Node CI to pass before merge.
-2. Add causal sequence modelling and position information as a separately designed architecture stage; test that changing earlier context can affect later-token logits while future tokens cannot affect earlier-token logits.
+2. Continue architecture work with an explicit tokenizer/math-aware token contract, padding/key-mask semantics, and deterministic original mathematical data generation; keep causal past/future regression tests.
 3. Add property-based tests for symbolic expression evaluation, domain edge cases, checkpoint recovery, memory isolation and router load balancing.
 4. Do not call this prototype an LLM or claim university-level math capability until causal sequence modelling, training, and independent mathematical evaluation have actually been implemented and validated.
 5. No model training, optimizer steps, cloud jobs, Colab sessions, or remote execution are authorized by this review.
@@ -282,7 +282,7 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 
 1. Review the open core-hardening PR and require both Python AI Core Tests and Node Tests to pass.
 2. Re-run the CPU inference benchmark before/after on the same hardware if measuring performance; this change makes the harness less intrusive but does not itself claim a speedup.
-3. Next architectural milestone is causal sequence mixing and positional information, with explicit tests for context influence and future-token isolation.
+3. Causal sequence mixing and learned positional information are now implemented on the architecture branch; review PR #16 and retain the context-influence and future-token-isolation tests.
 4. Keep the symbolic evaluator's supported operations explicit; finite probes remain counterexample searches, never proofs.
 5. No model training, optimizer steps, external datasets, cloud jobs, Colab sessions or remote execution are authorized by this review.
 6. Keep website, Supabase, authentication and GitHub Pages unchanged. Update this README at every meaningful milestone.
