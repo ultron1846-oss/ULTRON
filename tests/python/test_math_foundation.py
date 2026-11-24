@@ -203,8 +203,23 @@ class ModelIntegrationTests(unittest.TestCase):
         mask = ids.ne(pad)
         with torch.inference_mode():
             logits = model(ids, attention_mask=mask)["logits"]
+            standalone = model(torch.tensor([short], dtype=torch.long))["logits"]
         self.assertEqual(tuple(logits.shape), (2, len(long), len(vocabulary)))
-        torch.testing.assert_close(logits[0, :len(short)], logits[0, :len(short)])
+        torch.testing.assert_close(logits[0, :len(short)], standalone[0], atol=1e-6, rtol=1e-6)
+
+    def test_left_padding_keeps_all_model_outputs_finite(self):
+        vocabulary = MathVocabulary.default()
+        tokenizer = MathTokenizer(vocabulary)
+        config = NeuroSparseConfig(
+            vocab_size=len(vocabulary), hidden_size=32, num_layers=2,
+            num_experts=4, top_k=2, fast_memory_slots=8,
+        )
+        model = NeuroSparseModel(config).eval()
+        ids = torch.tensor([[0, 0] + tokenizer.encode("x+1")])
+        mask = torch.tensor([[False, False, True, True, True]])
+        with torch.inference_mode():
+            logits = model(ids, attention_mask=mask)["logits"]
+        self.assertTrue(torch.isfinite(logits).all())
 
     def test_attention_mask_validation(self):
         vocabulary = MathVocabulary.default()
