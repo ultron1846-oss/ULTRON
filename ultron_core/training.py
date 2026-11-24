@@ -32,7 +32,7 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
                 raise ValueError(f"{name} must be a scalar tensor")
             if not auxiliary.is_floating_point() or auxiliary.device != logits.device:
                 raise ValueError(f"{name} must be a floating-point scalar on the logits device")
-    targets = input_ids[:, 1:].reshape(-1)
+    targets = input_ids[:, 1:].reshape(-1).long()
     flat_logits = logits[:, :-1].reshape(-1, logits.shape[-1])
     if ignore_index is not None:
         if not bool((targets != ignore_index).any()):
