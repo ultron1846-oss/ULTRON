@@ -514,6 +514,7 @@ class Polynomial:
             raise ValueError("lower endpoint must be strictly less than upper endpoint")
         if not self.terms:
             raise PolynomialError("the zero polynomial has no finite root count")
+        _check_budget(dict(self.terms), limits)
 
         selected = _resolve_univariate_symbol((self,), variable)
         environment_lower = {} if selected is None else {selected: lower}
