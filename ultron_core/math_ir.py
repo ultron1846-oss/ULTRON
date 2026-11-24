@@ -58,5 +58,10 @@ class FormulaCandidate:
     evidence: tuple[str,...]=()
     candidate_id: str=""
 
-    def can_enter_trusted_knowledge(self)->bool:
-        return self.status == VerificationStatus.FORMALLY_VERIFIED
+    def can_enter_trusted_knowledge(self) -> bool:
+        """Fail closed until a real proof-kernel receipt can be validated.
+
+        The status enum is ordinary candidate metadata and can be constructed
+        by callers; it is not evidence that a theorem was formally checked.
+        """
+        return False
