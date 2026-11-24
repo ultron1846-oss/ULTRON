@@ -101,3 +101,31 @@ The causal-attention and positional-embedding parameters change the model state 
 - Finite-domain probing enforces a configurable max_samples cap (default 100,000) before evaluating the Cartesian product, preventing accidental unbounded probe workloads.
 
 - Exact exponent evaluation has a configurable absolute-exponent bound (default 1,024); exceeding it raises an explicit evaluation-limit error instead of silently skipping the sample or attempting unbounded integer growth.
+
+
+
+## Mathematical tokenization, deterministic examples and padding — 2026-11-24
+
+The initial foundation is implemented in `ultron_core/math_tokenizer.py` and `ultron_core/data_generation.py`.
+
+### Tokenizer contract
+- Version 1 is a fixed, deterministic lexical vocabulary. PAD/BOS/EOS occupy IDs 0/1/2. The remaining token list is source-defined and serialized in order.
+- The lexer uses longest-match for explicitly listed multi-character operators and otherwise consumes supported Unicode/ASCII symbols. It preserves whitespace and source spelling; it does not normalize mathematical expressions.
+- Numeric literals are digit/operator sequences rather than vocabulary entries per distinct number. Exact spelling such as `1/3` is retained; this is a lexical encoding, not an exact-number semantic object.
+- `2x`, `2*x`, and `2 × x` remain distinct. Unary minus and subtraction are not parsed or conflated.
+- Unknown characters, invalid token IDs, duplicate vocabulary entries, reordered reserved tokens and unsupported vocabulary versions fail explicitly.
+- This is not a parser, complete LaTeX tokenizer, semantic analyzer or mathematical evaluator.
+
+### Initial generator contract
+- Version 0.1.0 supports integer arithmetic, exact rational arithmetic and one-variable linear equations only.
+- Each output is reproducible from generator version, seed, topic configuration and index. Example IDs hash canonical generation inputs.
+- Exact answers use `fractions.Fraction`; the validator reparses emitted text with a separate regular-expression path and recomputes the answer exactly.
+- Status `semantically_checked` means only that this limited validator agrees with the target. It is not formal verification.
+- JSONL rows are canonicalized, and a deterministic manifest records schema/generator version, seed, topics, topic counts, count and SHA-256. A hash detects accidental modification, not authenticity.
+- No large corpus is generated as part of tests.
+
+### Padding contract
+`NeuroSparseModel.forward(..., attention_mask=...)` accepts a boolean `[batch, sequence]` mask where True denotes a real token. The inverse is passed as PyTorch's key-padding mask alongside the causal mask. Every batch row must contain at least one real token. Masked query attention outputs are zeroed to handle left-padding rows with no causally visible valid key. The same valid-token mask prevents padded positions from being written into episodic memory. Callers must supply the mask for padded batches; omitting it means every input position is treated as valid.
+
+### Remaining limitations
+No parser-to-IR conversion, semantic handling of calculus/linear algebra/discrete/proof notation, curriculum scheduler, proof kernel, large generated corpus, or training has been implemented. Lexically recognizing a symbol does not imply its mathematical semantics are implemented. The model remains untrained.
