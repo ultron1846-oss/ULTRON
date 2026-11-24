@@ -15,6 +15,13 @@ class BenchmarkStatisticsTests(unittest.TestCase):
         self.assertTrue(torch.equal(torch.random.get_rng_state(), state_before))
         self.assertEqual(torch.get_num_threads(), threads_before)
 
+    def test_benchmark_rejects_non_positive_thread_count(self):
+        import torch
+        from ultron_core.benchmark import _preserve_benchmark_runtime
+        with self.assertRaisesRegex(ValueError, "num_threads"):
+            with _preserve_benchmark_runtime(1, 0, torch.device("cpu")):
+                pass
+
     def test_bootstrap_interval_is_deterministic(self):
         values = [1.0, 2.0, 2.0, 3.0, 4.0]
         first = bootstrap_median_ci(values, seed=17, resamples=500)
