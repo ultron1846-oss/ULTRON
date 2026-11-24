@@ -47,27 +47,25 @@ Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow must 
 
 ## Supabase integration audit
 
-The existing Supabase project `ultron-memory` was inspected directly. Its project status was `ACTIVE_HEALTHY` at inspection time. The database contains owner-linked memory tables and a `training_api` schema; row-level security is enabled. The public site has no login, so it must not query owner-scoped records or attempt to use the owner-only training function.
+The connected Supabase project `ultron-memory` was inspected directly. It was `ACTIVE_HEALTHY` at inspection time. Its memory tables and `training_api` tables remain owner-linked and protected by row-level security; the public website does not query those records.
 
-- `device-control` is deployed but intentionally retired; it returns HTTP 410.
-- `training-control` requires a valid owner JWT and currently contains an old GitHub repository target (`shayaanfarsheed-cmd/ULTRONAI`) and old Pages origin (`shayaanfarsheed-cmd.github.io`). The current website is `ultron1846-oss/ULTRON`; the backend allowlist/configuration therefore needs Codex-side alignment before any browser integration.
-- The frontend exposes this audit as configuration information only. It does not claim live telemetry, read protected tables, send credentials, dispatch workflows, or start training.
-- No Supabase schema, policies, secrets, or Edge Functions were changed during this frontend work.
-
-### Required backend follow-up (Codex)
-1. Align the server-side GitHub repository constant and allowed Pages origin with `ultron1846-oss/ULTRON` and its deployed Pages origin.
-2. Add a public, read-only health endpoint that returns only service health/configuration booleans; do not expose owner data, run metadata, credentials, or start/stop actions.
-3. Keep training start/stop inaccessible from the public website and retain the explicit training-disabled safeguard.
-4. Document and test the response contract before the frontend adds live polling.
+- `device-control` remains retired and returns HTTP 410.
+- `training-control` is deployed at version 8. Its GitHub repository target is `ultron1846-oss/ULTRON`, and its allowed browser origin is `https://ultron1846-oss.github.io`.
+- A `public_status` action is available without a user session. It returns only generic service state, model status, and explicit training/remote-execution disabled flags. It does not return owner IDs, run metadata, memory records, provider credentials, or secrets.
+- The Edge Function platform JWT check is disabled so the public status action can be called from the account-free site. Every existing protected action still performs its own bearer-token verification and owner-ID check inside the function. The public site calls only `public_status`.
+- The frontend uses the Supabase publishable key in the `apikey` header. No service-role key, secret key, GitHub token, or owner credential is included in the repository.
+- No database schema, RLS policy, user record, or secret was changed. The Edge Function code was updated; training remains disabled and no training job was started.
+- Security advisors also reported three RLS-enabled retired device/pairing tables with no policies, disabled leaked-password protection, and several unindexed foreign keys. These are separate database-hardening items; the public status endpoint does not expose those tables.
 
 ## Backend handoff / remaining work
+
 The backend owner (Codex) should:
 1. Maintain and test the deterministic math engine API without breaking the frontend imports.
 2. Decide and document the `servers.json` schema; include it in the Pages staging step when it exists.
 3. Keep all training entry points hard-disabled and add backend regression tests preventing accidental execution.
 4. Implement knowledge, lesson, verification and memory services behind documented interfaces before the frontend advertises them as available.
 5. Keep provider metadata evidence-based and current; never invent free-tier availability.
-6. Keep the Supabase health-only public contract separate from owner-only training controls.
+6. Keep the Supabase public_status response read-only and separate from owner-only training controls; do not expose database rows or credentials.
 7. Update this README at meaningful milestones so the next development session can resume accurately.
 
 ## Delivery plan
