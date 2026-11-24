@@ -544,5 +544,11 @@ class ExactPolynomialTests(unittest.TestCase):
         self.assertEqual(first.evaluate({"x": Fraction(-5, 2)}), Fraction(21, 4))
 
 
+    def test_direct_construction_cannot_bypass_hard_resource_ceilings(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        with self.assertRaisesRegex(PolynomialError, "max_exponent"):
+            Polynomial((((("x", 257),), Fraction(1)),))
+
+
 if __name__ == "__main__":
     unittest.main()
