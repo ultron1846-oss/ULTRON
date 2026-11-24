@@ -30,3 +30,18 @@ test('math agent uses the existing deterministic math engine', async () => {
   assert.match(app, /solveLinearEquation/);
   assert.match(app, /Unsupported requests are not guessed/);
 });
+
+
+test('Supabase backend page documents the audited contract without exposing owner-only controls', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const backend = await readFile(new URL('../supabase-integration.js', import.meta.url), 'utf8');
+  assert.match(html, /data-page="backend"/);
+  assert.match(app, /renderBackend/);
+  assert.match(backend, /device-control/);
+  assert.match(backend, /training-control/);
+  assert.match(backend, /owner JWT/);
+  assert.match(backend, /ultron1846-oss\/ULTRON/);
+  assert.doesNotMatch(backend, /service_role|sb_secret_|ULTRON_GITHUB_TOKEN/);
+  assert.doesNotMatch(app, /functions\.invoke|fetch\([^)]*training-control|fetch\([^)]*device-control/);
+});
