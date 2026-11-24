@@ -84,7 +84,6 @@ def parameter_accounting(model: NeuroSparseModel) -> dict[str, int | float]:
 def _run_benchmark_impl(
     *, device: str = "cpu", batch: int = 2, sequence: int = 16,
     warmup: int = 10, iterations: int = 50, seed: int = 1729,
-    num_threads: int | None = None,
 ) -> dict:
     if batch <= 0 or sequence <= 0:
         raise ValueError("batch and sequence must be positive")
@@ -197,7 +196,7 @@ def run_benchmark(
     with _preserve_benchmark_runtime(seed, num_threads, target):
         return _run_benchmark_impl(
             device=device, batch=batch, sequence=sequence, warmup=warmup,
-            iterations=iterations, seed=seed, num_threads=None,
+            iterations=iterations, seed=seed,
         )
 
 
