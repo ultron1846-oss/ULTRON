@@ -459,3 +459,27 @@ A bounded unary-call grammar recognizes `sin`, `cos`, `tan`, `asin`, `acos`, `at
 The exact evaluator can evaluate comparisons only when both operands are exact scalar rational expressions. Comparisons nested inside comparisons are rejected. Finite-domain candidate probing remains equality-only and therefore does not treat inequalities as proof candidates. The symbolic simplifier preserves comparison and function-call nodes without rewriting them.
 
 Tests cover ASCII and Unicode comparisons, chained-comparison rejection, function-name allowlisting, nested function-call parsing, and explicit evaluator rejection. This stage does not add trigonometric simplification, numerical function evaluation, domain inference, equation solving, or formal proof.
+
+
+## Exact sparse-polynomial algebra — 2026-11-24
+
+The mathematical core now includes a bounded sparse-polynomial engine in ultron_core/polynomial.py, operating on the existing typed Expr IR.
+
+- Canonical monomials use lexicographically ordered symbol/exponent pairs; coefficients are exact Fraction values.
+- Supports exact polynomial conversion, addition, subtraction through IR conversion, multiplication, non-negative integer powers, exact rational constant scaling/division and rational-point evaluation.
+- Collects like terms, removes zero coefficients and deterministically exports back to the existing expression IR.
+- Enforces configurable maximum total degree, term count and individual exponent. Defaults: 64, 4,096 and 64.
+- Rejects variable denominators, zero denominators, negative/fractional/non-literal powers, function calls, comparisons and assumption-bearing expressions to avoid silently losing domain restrictions.
+- Polynomial canonical equality applies only to expressions converted into this supported rational-coefficient polynomial domain. It is not a general symbolic-equivalence or proof engine.
+
+Regression coverage was added to tests/python/test_math_foundation.py. The parser's stale function-call comment was corrected. This stage does not add rational functions, equation solving, calculus, a formal proof kernel or demonstrated university-level capability. No training, optimizer step, corpus generation, remote execution, website, Supabase or authentication behavior changed.
+
+### Next-chat handoff — exact polynomial foundation
+
+1. Review canonical ordering, exact Fraction arithmetic and resource-budget enforcement.
+2. Run the full Python AI-core test workflow, CPU forward/backward smoke and Node.js test suite; fix failures before merge.
+3. Next math-engine stage: design rational expressions that preserve denominator non-zero constraints, then add exact polynomial division only where divisibility is proven by an implemented algorithm.
+4. Add derivation traces only after every operation has a deterministic, independently checkable verifier.
+5. Keep function-call evaluation unsupported until function-specific domains, branches and exact/approximate semantics are specified.
+6. Do not start training, optimizer steps, generate a corpus, connect Colab/cloud, or change the frontend, Supabase or authentication without separate authorization.
+7. Update this README at every meaningful milestone.
