@@ -97,8 +97,7 @@ The backend owner (Codex) should:
 
 - Google Colab is the selected future notebook environment. The website only links to the official Colab site; it does not authenticate, create notebooks, launch runtimes, submit jobs or start training.
 - The Memory Vault uses browser IndexedDB because the existing Supabase memory tables are owner-authenticated. The no-login public website must not weaken RLS or expose those rows. Cross-device transfer currently requires a user-managed JSON backup.
-- The memory database follows the requested store names, but browser quota and private-browsing behavior vary. “Unlimited history” cannot be guaranteed by browser storage.
-- The Settings memory slider is a saved preference only. A future Colab notebook must independently translate approved settings into batch size and runtime-safe limits.
+- The memory database follows the requested store names, but browser quota and private-browsing behavior vary. “Unlimited history” cannot be guaranteed by browser storage.- The Settings memory slider is a saved preference only. A future Colab notebook must independently translate approved settings into batch size and runtime-safe limits.
 
 ## Next verification steps
 1. Confirm the latest `main` commit is the deployed GitHub Pages version.
@@ -199,7 +198,6 @@ GitHub Actions now runs the Python regression suite and a CPU forward/backward s
 5. Do not start actual model training, cloud execution, or remote jobs without separate explicit authorization.
 6. Continue only when the user says: `Continue to Section D`.
 
-
 ## Section D — benchmark and ablation protocol (2026-11-24)
 
 Section D adds an inference-only benchmark harness and a controlled-experiment protocol. See [Section D benchmark protocol](docs/SECTION_D_BENCHMARK_PROTOCOL.md).
@@ -298,7 +296,6 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 
 
 ## GPU execution-path optimization — 2026-11-24
-
 - Removed two host-visible CUDA scalar checks per model forward: accelerator token IDs now rely on the embedding operator for index validation, while CPU inputs retain explicit min/max validation and the same clear error.
 - The model's internal load-balance loss call now skips range/duplicate scans for router-produced top-k indices. The public helper defaults to full validation; its fast path is opt-in and used only where index provenance is known.
 - Predictive refinement keeps CPU early exit but avoids converting CUDA activity masks to Python booleans each iteration, preventing repeated device synchronization. Accelerator execution uses the configured fixed refinement budget and masks inactive token states.
@@ -398,7 +395,6 @@ The model consumes the tokenizer's integer IDs when configured with `vocab_size=
 
 ### Validation status
 The new Python regression module covers token round trips, stable vocabulary serialization, lexical errors, exact rational checking, deterministic seeds/IDs, JSONL/manifest reproducibility, tokenizer-to-model input compatibility, variable-length batches, padding isolation, memory-write masking and structural IR serialization. GitHub Actions for PR #18 passed all 88 Python regression tests, the CPU forward/backward smoke check, and the Node.js test suite. The smoke check did not perform an optimizer step or training run. The repository was inspected through GitHub's repository interface; this environment could not clone GitHub for local execution, so local test execution has not been claimed.
-
 ### Merged delivery
 - [PR #18](https://github.com/ultron1846-oss/ULTRON/pull/18) merged successfully. Main commit: `38a4b30c28f90998ac5f092fe340df512963fdfc`.
 - PR checks: 88 Python tests passed; CPU forward/backward smoke passed; Node tests passed. No training, optimizer step, external dataset/API, cloud job or remote execution was used.
@@ -498,7 +494,6 @@ The mathematical core now has an exact rational-expression layer in `ultron_core
 
 This is exact arithmetic over a restricted rational-function representation with explicit domain tracking. It does not implement polynomial GCD, factor cancellation, multivariate polynomial division, equation solving, calculus, algebraic numbers or a proof kernel. It is not a general CAS. No training, optimizer step, corpus generation, cloud job, remote execution, website, Supabase or authentication change was performed.
 
-
 ## Exact univariate polynomial division and GCD — 2026-11-24
 
 The sparse-polynomial engine now implements exact Euclidean division over rational coefficients for univariate inputs.
@@ -559,3 +554,21 @@ The defining polynomial is **not asserted to be minimal or irreducible**. The ty
 
 
 A further regression covers an exact rational root encountered during the inward endpoint-adjustment search itself. The isolator now emits that root as a degenerate rational interval instead of passing a root endpoint into the Sturm counter.
+
+## Exact algebraic affine transforms — 2026-11-24
+
+The exact real-algebraic-number representation now supports rational affine transformations \(\beta=a\alpha+b\), where \(a\ne0\) and \(a,b\in\mathbb{Q}\). It constructs the transformed defining polynomial \(q(y)=a^n p((y-b)/a)\) using exact rational polynomial arithmetic, maps the isolating interval exactly, and reverses interval endpoints for negative multipliers. Rational inputs remain exact rational values.
+
+- API: `RealAlgebraicNumber.affine_transform(multiplier, offset=0)`.
+- Inputs reject booleans, floating-point values and zero multipliers.
+- The operation enforces the existing polynomial resource limits.
+- The resulting polynomial is not claimed to be minimal or irreducible.
+- This does not implement arithmetic between two unrelated algebraic numbers, resultants, multivariate algebraic numbers or a proof kernel.
+- Regression tests cover positive, negative and fractional transforms, rational inputs, invalid arguments, exact root counts and resource limits. See [affine transform notes](docs/ALGEBRAIC_AFFINE_TRANSFORMS.md).
+
+No training, optimizer step, external data, remote execution, website, Supabase or authentication changes were made.
+
+### Next mathematical-core step
+
+Implement arithmetic between two real algebraic numbers only after choosing and validating a resultant-based construction with a certified isolating interval for the intended result. Do not approximate roots or infer the correct resultant root from floating-point values.
+
