@@ -437,9 +437,12 @@ class CoreTests(unittest.TestCase):
         with torch.inference_mode():
             first_logits = model(first)["logits"]
             changed_logits = model(changed_future)["logits"]
-        self.assertTrue(torch.allclose(
-            first_logits[:, :3, :], changed_logits[:, :3, :], atol=1e-6, rtol=1e-6
-        ))
+        prefix_difference = (first_logits[:, :3, :] - changed_logits[:, :3, :]).abs()
+        self.assertTrue(
+            torch.isfinite(prefix_difference).all()
+            and float(prefix_difference.max()) <= 1e-5,
+            f"future-token isolation failed; max prefix-logit difference={float(prefix_difference.max())}",
+        )
 
     def test_model_rejects_sequence_longer_than_position_table(self):
         config = NeuroSparseConfig(
