@@ -213,7 +213,7 @@ The parser's stale inline comment about function-call syntax was corrected: supp
 `ultron_core/rational.py` adds a rational-function representation over the existing exact sparse-polynomial ring.
 
 - State is an exact polynomial numerator, a non-zero exact polynomial denominator, and a canonical tuple of polynomials required to be non-zero.
-- Construction always adds the normalized denominator to the restriction set. Division adds the divisor's numerator, because the divisor must be non-zero wherever it is evaluated. Integer exponent zero adds the base numerator as a restriction; negative powers swap numerator/denominator and preserve the same non-zero condition.
+- Construction adds each nonconstant normalized denominator to the restriction set; non-zero constant denominators are omitted because they can never vanish. Division adds the divisor's numerator, because the divisor must be non-zero wherever it is evaluated. Integer exponent zero adds the base numerator as a restriction; negative powers swap numerator/denominator and preserve the same non-zero condition.
 - Addition and multiplication use cross-products without cancellation. This may grow expressions, but avoids losing excluded points. All polynomial products inherit configured degree/term/exponent budgets; the restriction set has a hard cap of 256.
 - Denominator scalar normalization and scalar-normalized restriction deduplication provide deterministic structural representation. This is not a complete canonical form for rational functions; no polynomial GCD or factorization is claimed.
 - Exact evaluation checks every preserved restriction before dividing. Violations raise RationalDomainError rather than returning a value from an enlarged domain.
