@@ -264,3 +264,25 @@ A focused review of the merged Section C/D Python core identified and corrected 
 4. Preserve model outputs, checkpoint compatibility and deterministic tests. Do not claim a speedup from fewer operations alone.
 5. The major architecture prerequisite remains causal sequence mixing and positional information; performance work must not disguise the current prototype's lack of context-aware language modelling.
 6. Keep frontend, Supabase and authentication untouched. Do not train or launch remote jobs without separate explicit authorization.
+
+
+## Broader Python-core review — 2026-11-24
+
+A second review pass hardened API boundaries and benchmark reproducibility:
+
+- Configuration now requires true integer dimensions/token IDs (booleans and fractional numbers are rejected) and finite floating-point thresholds/dropout values.
+- Router balance validation now rejects empty/oversized top-k dimensions, non-integer indices, device mismatches, out-of-range indices and duplicate expert assignments.
+- Predictive refinement rejects malformed rank, empty batch/sequence dimensions and hidden-size mismatches with clear errors.
+- The symbolic expression IR now validates node kinds, tuple structure, child node types, integer atoms without truncation, rational literals and symbol identifiers.
+- Loss and optimizer helpers reject non-finite or malformed scalar hyperparameters.
+- The inference benchmark now isolates its CPU random seed and restores the caller's CPU thread count, avoiding persistent global runtime side effects.
+- New regression tests cover these invalid-input and state-restoration cases.
+
+### Next-chat handoff — after core hardening
+
+1. Review the open core-hardening PR and require both Python AI Core Tests and Node Tests to pass.
+2. Re-run the CPU inference benchmark before/after on the same hardware if measuring performance; this change makes the harness less intrusive but does not itself claim a speedup.
+3. Next architectural milestone is causal sequence mixing and positional information, with explicit tests for context influence and future-token isolation.
+4. Keep the symbolic evaluator's supported operations explicit; finite probes remain counterexample searches, never proofs.
+5. No model training, optimizer steps, external datasets, cloud jobs, Colab sessions or remote execution are authorized by this review.
+6. Keep website, Supabase, authentication and GitHub Pages unchanged. Update this README at every meaningful milestone.
