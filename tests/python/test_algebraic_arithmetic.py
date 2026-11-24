@@ -24,7 +24,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         self.assertEqual((result.lower, result.upper), (Fraction(2), Fraction(4)))
         self.assertEqual(
             result.polynomial.real_root_count_univariate(
-                result.lower, result.upper, variable="z"
+                result.lower, result.upper, variable="x"
             ),
             1,
         )
@@ -37,7 +37,7 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         self.assertLess(result.upper, 1)
         self.assertEqual(
             result.polynomial.real_root_count_univariate(
-                result.lower, result.upper, variable="z"
+                result.lower, result.upper, variable="x"
             ),
             1,
         )
