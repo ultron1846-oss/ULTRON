@@ -1,6 +1,6 @@
 import unittest
 
-from ultron_core.benchmark import bootstrap_median_ci
+from ultron_core.benchmark import bootstrap_median_ci, percentile
 
 
 class BenchmarkStatisticsTests(unittest.TestCase):
@@ -11,6 +11,14 @@ class BenchmarkStatisticsTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertLessEqual(first[0], 2.0)
         self.assertGreaterEqual(first[1], 2.0)
+
+    def test_percentile_interpolates_and_validates(self):
+        self.assertEqual(percentile([1.0, 2.0, 3.0, 4.0], 0.5), 2.5)
+        self.assertEqual(percentile([1.0, 2.0, 3.0, 4.0], 0.95), 3.85)
+        with self.assertRaisesRegex(ValueError, "q must"):
+            percentile([1.0, 2.0], 1.1)
+        with self.assertRaisesRegex(ValueError, "at least one"):
+            percentile([], 0.5)
 
     def test_bootstrap_rejects_single_sample(self):
         with self.assertRaisesRegex(ValueError, "at least two"):
