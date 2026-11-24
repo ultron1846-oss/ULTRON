@@ -154,6 +154,14 @@ class CoreTests(unittest.TestCase):
         self.assertTrue(torch.isfinite(output).all())
         self.assertEqual(calls, {"key": 0, "value": 0})
 
+    def test_formal_status_label_alone_cannot_enter_trusted_knowledge(self):
+        candidate = FormulaCandidate(
+            Expr(ExprKind.EQUAL, args=(Expr(ExprKind.INTEGER, value=1), Expr(ExprKind.INTEGER, value=1))),
+            status=VerificationStatus.FORMALLY_VERIFIED,
+            evidence=("caller supplied status label",),
+        )
+        self.assertFalse(candidate.can_enter_trusted_knowledge())
+
     def test_candidates_are_not_trusted_by_default(self):
         candidates = polynomial_identity_candidates()
         self.assertGreaterEqual(len(candidates), 3)
