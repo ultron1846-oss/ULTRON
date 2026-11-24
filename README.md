@@ -313,3 +313,26 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 - The method now fails closed for all candidates because this repository does not yet contain a formal proof kernel or verifiable proof-receipt type. A status label and free-form evidence text are not proof.
 - Added a regression test showing that a caller-supplied FORMALLY_VERIFIED label cannot promote a candidate into trusted knowledge.
 - Future trusted admission requires a structured proof receipt from an implemented backend and independent validation of that receipt; do not restore status-only trust.
+
+
+## Causal sequence architecture — 2026-11-24
+
+The isolated Python research core now has causal sequence mixing and explicit token positions:
+
+- Added pre-normalized multi-head causal self-attention to each NeuroSparse block, before sparse expert routing.
+- Added learned absolute positional embeddings and a configurable maximum sequence length.
+- Added configuration validation for attention-head divisibility and positive sequence/head dimensions.
+- Added regression tests proving earlier context can influence later-token logits and future tokens cannot influence earlier-token logits.
+- The model remains an untrained research prototype. This architectural milestone does not establish language competence, university-level mathematics, formula discovery, theorem proving, or performance superiority.
+- No training loop, optimizer step, external dataset, pretrained weights, external AI API, cloud job, Colab runtime, or remote execution was used.
+
+### Next-chat handoff — after causal sequence foundation
+
+1. Review the causal architecture PR and require Python regression tests, CPU forward/backward smoke, and the existing Node.js test suite to pass.
+2. Inspect the causal mask semantics and position-limit behavior. Preserve the tests that enforce past-context influence and future-token isolation.
+3. Next architecture work should add a tokenizer/math-aware token contract and deterministic original math-data generation design, with exact schemas and tests before any training is authorized.
+4. Add explicit padding/key-mask semantics before supporting variable-length padded batches; the current causal mask alone does not suppress padded key positions.
+5. Do not claim long-context support, streaming inference, KV caching, FlashAttention, mathematical discovery, formal proof, or university-level math capability.
+6. Keep frontend, Supabase, authentication, Pages deployment and provider integrations unchanged.
+7. Do not start actual training, optimizer steps, Colab sessions, cloud jobs or remote execution without separate explicit authorization.
+8. Update this README at every meaningful milestone.
