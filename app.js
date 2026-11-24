@@ -207,19 +207,28 @@ function bindLearning(){
  showExercise();
 }
 async function loadMemoryPage(){
- const feedback=document.querySelector('#memory-feedback');const history=document.querySelector('#memory-history');
+ const feedback=document.querySelector('#memory-feedback');const history=document.querySelector('#memory-history');const mistakeHistory=document.querySelector('#memory-mistake-history');
  try{
   const summary=await getMemorySummary();
   for(const [key,id] of Object.entries({experiences:'memory-experiences',mistakes:'memory-mistakes',knowledge:'memory-knowledge',checkpoints:'memory-checkpoints'}))document.querySelector('#'+id).textContent=summary[key]??0;
-  const records=await listExperiences(50);
-  history.innerHTML=records.length?records.map(record=>`<div class="memory-record"><div><b>${esc(record.prompt)}</b><p>${esc(record.answer||'No answer recorded')} · ${esc(record.topic||'Uncategorized')}</p><small>${esc(new Date(record.createdAt).toLocaleString())}</small></div><span class="tag ${record.correct?'available':'planned'}">${record.correct?'CORRECT':'REVIEW'}</span></div>`).join(''):'<div class="empty-state"><span>—</span><b>No experiences saved yet</b><p>Complete a practice exercise to create your first local memory.</p></div>';
- }catch(error){history.innerHTML=`<div class="empty-state"><span>!</span><b>Local memory unavailable</b><p>${esc(error.message)}</p></div>`;feedback.textContent='This browser may not support IndexedDB or may be in a restricted private-browsing context.';}
+  const [records,mistakes]=await Promise.all([listExperiences(50),listRecords('mistakes',30)]);
+  const renderRecords=(items,empty)=>items.length?items.map(record=>`<div class="memory-record"><div><b>${esc(record.prompt||record.title||'Saved record')}</b><p>${esc(record.answer||record.explanation||'No answer recorded')} · ${esc(record.topic||'Uncategorized')}</p><small>${esc(new Date(record.createdAt||Date.now()).toLocaleString())}</small></div><span class="tag ${record.correct?'available':'planned'}">${record.correct?'CORRECT':'REVIEW'}</span></div>`).join(''):empty;
+  history.innerHTML=renderRecords(records,'<div class="empty-state"><span>—</span><b>No experiences saved yet</b><p>Complete a practice exercise to create your first local memory.</p></div>');
+  mistakeHistory.innerHTML=renderRecords(mistakes,'<div class="empty-state"><span>✓</span><b>No mistakes saved</b><p>Incorrect practice attempts will appear here for review.</p></div>');
+ }catch(error){const message=`<div class="empty-state"><span>!</span><b>Local memory unavailable</b><p>${esc(error.message)}</p></div>`;history.innerHTML=message;if(mistakeHistory)mistakeHistory.innerHTML=message;feedback.textContent='This browser may not support IndexedDB or may be in a restricted private-browsing context.';}
  document.querySelector('#memory-export').addEventListener('click',async()=>{
-  try{const backup=await exportMemory();const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='ultron-memory-backup.json';link.click();URL.revokeObjectURL(url);feedback.textContent='Memory backup prepared. Check your browser downloads.';}catch(error){feedback.textContent='Could not export memory: '+error.message;}
+  try{const backup=await exportMemory();const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='ultron-memory-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);feedback.textContent='Memory backup prepared. Check your browser downloads.';}catch(error){feedback.textContent='Could not export memory: '+error.message;}
  });
  document.querySelector('#memory-import-file').addEventListener('change',async event=>{
   const file=event.target.files?.[0];if(!file)return;
   try{if(file.size>20*1024*1024)throw new Error('Backup file exceeds the 20 MB import limit.');const payload=JSON.parse(await file.text());const result=await importMemory(payload);feedback.textContent=`Imported ${result.imported} records. Refreshing memory view…`;navigate('memory');}catch(error){feedback.textContent='Import failed: '+error.message;}finally{event.target.value='';}
+ });
+ document.querySelector('#memory-clear').addEventListener('click',async()=>{
+  if(!window.confirm('Permanently delete all ULTRON memory stored in this browser? Export a backup first if you may need these records.'))return;
+  const button=document.querySelector('#memory-clear');button.disabled=true;
+  try{await clearMemory();feedback.textContent='All local ULTRON memory stores were cleared.';await loadMemoryPage();}
+  catch(error){feedback.textContent='Could not clear local memory: '+error.message;}
+  finally{const current=document.querySelector('#memory-clear');if(current)current.disabled=false;}
  });
 }
 async function loadServers(){
