@@ -380,7 +380,7 @@ class MathParserTests(unittest.TestCase):
                 self.assertIs(evaluate(expression, {}), expected)
 
     def test_chained_comparisons_are_rejected(self):
-        for source in ("1 < 2 < 3", "1 <= 2 = 2", "1 != 2 > 0"):
+        for source in ("1 < 2 < 3", "1 <= 2 = 2", "1 != 2 > 0", "1 < = 2"):
             with self.subTest(source=source):
                 with self.assertRaisesRegex(MathParseError, "chained comparisons"):
                     parse_math(source)
