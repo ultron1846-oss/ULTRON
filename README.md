@@ -66,9 +66,9 @@ The connected Supabase project `ultron-memory` was inspected directly. It was `A
 
 The backend owner (Codex) should:
 1. Maintain and test the deterministic math engine API without breaking the frontend imports.
-2. Decide and document the `servers.json` schema; include it in the Pages staging step when it exists.
+2. Maintain the documented `servers.json` provider schema and verify Colab terms and quotas before any future runtime integration.
 3. Keep all training entry points hard-disabled and add backend regression tests preventing accidental execution.
-4. Implement knowledge, lesson, verification and memory services behind documented interfaces before the frontend advertises them as available.
+4. Keep cloud memory synchronization separate from the local Memory Vault. Do not expose owner-linked tables to the no-login website; propose an explicit anonymous-device identity and threat model before any cloud-sync change.
 5. Keep provider metadata evidence-based and current; never invent free-tier availability.
 6. Keep the Supabase public_status response read-only and separate from owner-only training controls; do not expose database rows or credentials.
 7. Update this README at meaningful milestones so the next development session can resume accurately.
