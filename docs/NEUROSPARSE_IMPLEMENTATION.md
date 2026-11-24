@@ -83,3 +83,21 @@ Validation remains the CPU Python regression suite and forward/backward smoke ch
 ### Checkpoint compatibility note
 
 The causal-attention and positional-embedding parameters change the model state and configuration schema. Checkpoint format is now version 2. Version 1 checkpoints from the feed-forward-only prototype are rejected rather than partially loaded or silently initialized; no automatic migration is implemented. This is safe for the current untrained prototype, but a future trained release must provide a deliberate, tested migration or a documented fresh-start boundary.
+
+
+## Checkpoint and verifier boundary hardening — 2026-11-24
+
+- Checkpoint loading now compares the complete saved state-dictionary key set, tensor types, shapes and dtypes against the target model before calling load_state_dict. This prevents a malformed but checksum-consistent payload from partially mutating the target model before a later shape/key error is raised.
+- Finite-domain probing now requires an explicit tuple/list of exact rational samples: integers, rational strings or Fraction values. Floats and booleans are rejected to avoid silently treating binary floating-point approximations as exact mathematical domain points.
+- Rational samples are normalized before probing and duplicate equivalent values are rejected, so sample counts cannot be inflated by entries such as 1 and "1/1".
+- Regression tests verify that malformed checkpoint tensor shapes leave every target parameter unchanged and that finite-probe domains are exact and unambiguous.
+- The SHA-256 manifest remains an accidental-corruption check, not an authenticity signature. Do not load untrusted checkpoint files.
+
+
+- FormulaCandidate now validates its expression type, enum status, identifier, and immutable tuple-of-string metadata fields at construction. This prevents malformed candidate objects from entering evaluator code through annotation-only assumptions.
+
+- Checkpoint preflight also rejects tensor-layout mismatches and safely formats unexpected non-string state keys in validation errors.
+
+- Finite-domain probing enforces a configurable max_samples cap (default 100,000) before evaluating the Cartesian product, preventing accidental unbounded probe workloads.
+
+- Exact exponent evaluation has a configurable absolute-exponent bound (default 1,024); exceeding it raises an explicit evaluation-limit error instead of silently skipping the sample or attempting unbounded integer growth.

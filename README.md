@@ -341,3 +341,32 @@ The isolated Python research core now has causal sequence mixing and explicit to
 ### Checkpoint compatibility
 
 The causal architecture changes model parameters and configuration metadata. Checkpoint serialization now uses format version 2. Older version 1 feed-forward-only checkpoints are rejected; there is no automatic migration. No trained checkpoint existed for this prototype at the time of the change.
+
+
+## Checkpoint and verifier boundary review — 2026-11-24
+
+A further Python-core review tightened two correctness boundaries:
+
+- Checkpoint loading validates the entire model state dictionary—keys, tensor types, shapes and dtypes—before applying any parameter updates. A malformed checkpoint now fails before the target model can be partially changed.
+- Finite-domain probes accept exact integer, rational-string and Fraction sample values only. Floating-point and boolean samples are rejected; equivalent rational values are normalized and duplicates rejected.
+- Regression coverage verifies unchanged target weights after malformed checkpoint rejection and exact finite-domain sample behavior.
+- No training, optimizer step, external dataset, pretrained model, external AI API, cloud execution or remote job was used.
+
+### Next-chat handoff — after checkpoint/verifier hardening
+
+1. Review PR for the checkpoint state preflight and exact rational-domain validation; require Python AI Core Tests, CPU forward/backward smoke and Node Tests to pass.
+2. Preserve the fail-before-mutation checkpoint test and exact-domain verifier tests.
+3. Continue the architecture roadmap with tokenizer/math-token semantics and deterministic original mathematical data generation. Specify formats and test generation determinism before considering training.
+4. Keep the finite-domain evaluator explicitly limited; it searches finite points and cannot prove an identity or novelty.
+5. Keep website, Supabase, authentication, Pages deployment and provider integrations unchanged.
+6. Do not start training, optimizer steps, Colab, cloud jobs or remote execution without separate explicit authorization.
+7. Update this README at every meaningful milestone.
+
+
+- FormulaCandidate construction now validates expression/status types and requires immutable tuple-based metadata, closing another malformed-input path at the mathematical IR boundary.
+
+- Checkpoint preflight also rejects tensor-layout mismatches, and its key-difference diagnostics safely handle malformed non-string keys.
+
+- Finite-domain probing now has a configurable positive max_samples budget (default 100,000) and rejects Cartesian domains that would exceed it before evaluation.
+
+- Exact exponent evaluation is also bounded (default absolute exponent 1,024) so finite probes cannot allocate unbounded rational integers from extreme powers.

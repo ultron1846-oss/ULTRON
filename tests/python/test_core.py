@@ -1,3 +1,4 @@
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,7 +13,7 @@ from ultron_core.memory import FastWeightMemory
 from ultron_core.predictive import PredictiveRefiner
 from ultron_core.routing import load_balance_loss
 from ultron_core.training import causal_language_model_loss
-from ultron_core.verification import probe_candidate
+from ultron_core.verification import evaluate, probe_candidate
 
 
 class CoreTests(unittest.TestCase):
@@ -167,6 +168,15 @@ class CoreTests(unittest.TestCase):
         )
         self.assertFalse(candidate.can_enter_trusted_knowledge())
 
+    def test_formula_candidate_rejects_malformed_metadata(self):
+        expression = polynomial_identity_candidates()[0].expression
+        with self.assertRaisesRegex(TypeError, "expression must be an Expr"):
+            FormulaCandidate(expression=object())
+        with self.assertRaisesRegex(TypeError, "evidence must be a tuple"):
+            FormulaCandidate(expression=expression, evidence=["caller supplied"])
+        with self.assertRaisesRegex(TypeError, "status must be a VerificationStatus"):
+            FormulaCandidate(expression=expression, status="formally_verified")
+
     def test_candidates_are_not_trusted_by_default(self):
         candidates = polynomial_identity_candidates()
         self.assertGreaterEqual(len(candidates), 3)
@@ -180,6 +190,51 @@ class CoreTests(unittest.TestCase):
         result = probe_candidate(candidate, variable_names=('x',))
         self.assertEqual(result.status, VerificationStatus.REJECTED)
         self.assertIsNotNone(result.counterexample)
+
+    def test_finite_probe_rejects_inexact_or_boolean_sample_values(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(TypeError, "exact integers"):
+            probe_candidate(candidate, sample_values=(0.5, 1))
+        with self.assertRaisesRegex(TypeError, "exact integers"):
+            probe_candidate(candidate, sample_values=(False, 1))
+
+    def test_finite_probe_normalizes_exact_rational_samples(self):
+        candidate = polynomial_identity_candidates()[0]
+        result = probe_candidate(
+            candidate, variable_names=("x", "y"), sample_values=("1/2", 1)
+        )
+        self.assertEqual(result.status, VerificationStatus.EXPERIMENTALLY_SUPPORTED)
+        self.assertEqual(result.samples_checked, 4)
+
+    def test_finite_probe_rejects_duplicate_normalized_samples(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(ValueError, "unique after rational normalization"):
+            probe_candidate(candidate, sample_values=(1, "1/1"))
+
+    def test_exact_evaluator_validates_exponent_limit(self):
+        one = Expr(ExprKind.INTEGER, value=1)
+        with self.assertRaisesRegex(ValueError, "non-negative integer"):
+            evaluate(one, {}, max_abs_exponent=-1)
+
+    def test_finite_probe_bounds_exact_exponent_growth(self):
+        x = Expr(ExprKind.SYMBOL, value="x")
+        huge = Expr(ExprKind.INTEGER, value=2048)
+        power = Expr(ExprKind.POW, args=(x, huge))
+        candidate = FormulaCandidate(Expr(ExprKind.EQUAL, args=(power, power)))
+        with self.assertRaisesRegex(ValueError, "exceeds max_abs_exponent"):
+            probe_candidate(candidate, variable_names=("x",), sample_values=(2,))
+        with self.assertRaisesRegex(ValueError, "non-negative integer"):
+            probe_candidate(candidate, max_abs_exponent=-1)
+
+    def test_finite_probe_enforces_evaluation_budget(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(ValueError, "exceeding max_samples"):
+            probe_candidate(
+                candidate, variable_names=("x", "y", "z"),
+                sample_values=(0, 1), max_samples=7,
+            )
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            probe_candidate(candidate, max_samples=0)
 
     def test_finite_probe_rejects_empty_sample_domain(self):
         candidate = polynomial_identity_candidates()[0]
@@ -243,6 +298,54 @@ class CoreTests(unittest.TestCase):
             save_checkpoint(path, model, config, step=0)
             payload = torch.load(path, map_location="cpu", weights_only=True)
             self.assertEqual(payload["format_version"], 2)
+
+    def test_checkpoint_rejects_bad_tensor_shapes_before_mutating_model(self):
+        config = self.config()
+        source = NeuroSparseModel(config)
+        target = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            save_checkpoint(path, source, config, step=3)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            first_key = next(iter(payload["model"]))
+            payload["model"][first_key] = torch.zeros(1)
+            torch.save(payload, path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            path.with_suffix(path.suffix + ".sha256").write_text(
+                digest + "  " + path.name + "\n", encoding="utf-8"
+            )
+            before = {
+                name: value.detach().clone()
+                for name, value in target.state_dict().items()
+            }
+            with self.assertRaisesRegex(ValueError, "has shape"):
+                load_checkpoint(path, target)
+            for name, value in target.state_dict().items():
+                self.assertTrue(torch.equal(value, before[name]), name)
+
+    def test_checkpoint_rejects_bad_tensor_layout_before_mutating_model(self):
+        config = self.config()
+        source = NeuroSparseModel(config)
+        target = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            save_checkpoint(path, source, config, step=3)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            last_key = next(reversed(payload["model"]))
+            payload["model"][last_key] = payload["model"][last_key].to_sparse()
+            torch.save(payload, path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            path.with_suffix(path.suffix + ".sha256").write_text(
+                digest + "  " + path.name + "\\n", encoding="utf-8"
+            )
+            before = {
+                name: value.detach().clone()
+                for name, value in target.state_dict().items()
+            }
+            with self.assertRaisesRegex(ValueError, "has layout"):
+                load_checkpoint(path, target)
+            for name, value in target.state_dict().items():
+                self.assertTrue(torch.equal(value, before[name]), name)
 
     def test_checkpoint_round_trip_and_tamper_detection(self):
         config = self.config()
