@@ -139,3 +139,35 @@ No parser-to-IR conversion, semantic handling of calculus/linear algebra/discret
 - Node.js test workflow: passed.
 - Local execution was not claimed because the working environment could not resolve github.com for a repository clone.
 - Merged as PR #18 at main commit `38a4b30c28f90998ac5f092fe340df512963fdfc`.
+
+
+
+## Mathematical parser and conservative simplifier — 2026-11-24
+
+### Parser
+`ultron_core/math_parser.py` implements a recursive-descent parser over the existing `MathTokenizer` tokens and emits the existing `Expr` nodes. It does not call Python `eval` or `exec`.
+
+Supported grammar:
+- Integer and finite decimal literals. Decimal values are converted to exact `Fraction` numerator/denominator IR atoms.
+- Contiguous identifiers containing letters and trailing digits; simple subscripts such as `x_1` and `x_{12}`.
+- Parenthesized expressions, unary signs, `+`, `-`, `*`, `/`, `×`, `·`, `÷`, `^`, Unicode superscript integer powers, implicit multiplication between adjacent factors, and one top-level equality.
+- Precedence is conventional: exponentiation binds more tightly than unary minus and is right-associative. Contiguous letters are one identifier, so `velocity` is not silently rewritten as `v*e*l*o*c*i*t*y`.
+- Supported lower-case Greek LaTeX aliases map to Unicode symbol names. Unsupported TeX commands fail explicitly.
+- Parser defaults are capped at 100,000 source characters, 1,024 lexer tokens and 128 recursive nesting levels. These are defensive limits, not a throughput benchmark.
+
+The parser deliberately rejects function-call syntax, inequalities, set membership, general LaTeX fractions, matrices, calculus, summation/limit notation and proof syntax. A token recognized by the lexer is not necessarily accepted by the parser.
+
+### Simplifier
+`ultron_core/symbolic.py` applies bounded exact constant folding and a small set of local identities:
+- flatten associative addition/multiplication nodes and combine exact numeric constants;
+- remove additive zero and multiplicative one;
+- simplify `x - 0`, `x / 1`, `x ^ 1`, and double negation;
+- preserve potentially undefined subexpressions (for example, it does not reduce `0 * (1 / 0)` to zero);
+- cap constant-folding exponent magnitude at 64 and leave division-by-zero or over-budget constants explicit.
+
+It does not distribute, factor, reorder symbolic terms, cancel factors, infer domains, or prove equivalence. Test comparisons over finite rational samples are regression checks only.
+
+### Evaluator boundary
+The existing exact evaluator now rejects `0^0` as undefined, as well as division by zero and non-integer exponents. It remains a scalar evaluator, not an equation solver, CAS, proof kernel or calculus engine. FormulaCandidate trusted-knowledge admission remains fail-closed.
+
+No training, optimizer step, corpus generation, external AI API, pretrained weight, cloud job, remote execution or website change was performed for this stage.
