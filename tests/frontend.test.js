@@ -116,3 +116,84 @@ test('browser entry and imported modules pass JavaScript syntax checks', async (
     execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
   }
 });
+
+
+test('Supabase public status client sends only the publishable key and read-only action', async () => {
+  const { fetchSupabasePublicStatus } = await import('../supabase-integration.js');
+  let request;
+  const payload = {
+    ok: true,
+    control_plane: 'online',
+    model_status: 'untrained',
+    training_enabled: false,
+    remote_execution_enabled: false,
+    provider_directory: 'informational_only',
+    checked_at: '2026-11-24T04:00:00.000Z'
+  };
+  const result = await fetchSupabasePublicStatus({
+    fetchImpl: async (url, options) => {
+      request = { url, options };
+      return new Response(JSON.stringify(payload), { status: 200 });
+    }
+  });
+  assert.equal(result.control_plane, 'online');
+  assert.match(request.url, /\/functions\/v1\/training-control$/);
+  assert.equal(request.options.method, 'POST');
+  assert.deepEqual(JSON.parse(request.options.body), { action: 'public_status' });
+  assert.match(request.options.headers.apikey, /^sb_publishable_/);
+  assert.equal(request.options.headers.Authorization, undefined);
+  assert.equal(request.options.cache, 'no-store');
+  assert.ok(request.options.signal instanceof AbortSignal);
+});
+
+test('Supabase public status client rejects unsafe or incomplete status payloads', async () => {
+  const { fetchSupabasePublicStatus } = await import('../supabase-integration.js');
+  await assert.rejects(
+    fetchSupabasePublicStatus({
+      fetchImpl: async () => new Response(JSON.stringify({
+        ok: true,
+        control_plane: 'online',
+        training_enabled: true,
+        remote_execution_enabled: false,
+        provider_directory: 'informational_only'
+      }), { status: 200 })
+    }),
+    /safe read-only contract/
+  );
+});
+
+test('Supabase public status client reports HTTP and malformed JSON errors', async () => {
+  const { fetchSupabasePublicStatus } = await import('../supabase-integration.js');
+  await assert.rejects(
+    fetchSupabasePublicStatus({ fetchImpl: async () => new Response('unavailable', { status: 503 }) }),
+    /HTTP 503/
+  );
+  await assert.rejects(
+    fetchSupabasePublicStatus({ fetchImpl: async () => new Response('not-json', { status: 200 }) }),
+    /invalid JSON/
+  );
+});
+
+test('Supabase public status client bounds requests and reports timeouts clearly', async () => {
+  const { fetchSupabasePublicStatus } = await import('../supabase-integration.js');
+  await assert.rejects(
+    fetchSupabasePublicStatus({
+      timeoutMs: 1,
+      fetchImpl: async (_url, options) => {
+        await new Promise((resolve, reject) => {
+          options.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+        });
+      }
+    }),
+    /timed out/
+  );
+});
+
+test('Supabase backend page exposes refresh, timestamp, and accurate owner-gated boundaries', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  assert.match(app, /id="supabase-refresh"/);
+  assert.match(app, /id="supabase-status-checked"/);
+  assert.match(app, /OWNER-GATED/);
+  assert.match(app, /The browser calls only the training-control public_status action/);
+  assert.match(app, /timeout/);
+});

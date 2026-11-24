@@ -12,7 +12,9 @@ test('public status client calls only the read-only action with a publishable ke
       control_plane: 'online',
       model_status: 'untrained',
       training_enabled: false,
-      remote_execution_enabled: false
+      remote_execution_enabled: false,
+      provider_directory: 'informational_only',
+      checked_at: '2026-11-24T04:00:00.000Z'
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
 
@@ -38,7 +40,7 @@ test('public status client rejects non-success responses', async () => {
   }), { status: 503, headers: { 'Content-Type': 'application/json' } });
 
   try {
-    await assert.rejects(fetchSupabasePublicStatus(), /Unavailable/);
+    await assert.rejects(fetchSupabasePublicStatus(), /HTTP 503/);
   } finally {
     globalThis.fetch = originalFetch;
   }

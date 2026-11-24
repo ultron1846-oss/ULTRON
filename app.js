@@ -1,6 +1,6 @@
-import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-2';
-import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-2';
-import { saveExperience, saveMistake, getMemorySummary, listExperiences, exportMemory, importMemory } from './memory-store.js?v=20261124-2';
+import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
+import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
+import { saveExperience, saveMistake, getMemorySummary, listExperiences, exportMemory, importMemory } from './memory-store.js?v=20261124-3';
 
 const pageNames = { overview:'Overview', learning:'Learn & practice', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings' };
 const topics = [
@@ -103,18 +103,17 @@ function renderBackend(){
  const audit=supabaseBackendAudit;
  const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='active'?'available':'planned'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
  const blockers=audit.blockers.map(item=>`<div class="warning-banner">${esc(item)}</div>`).join('');
- return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Live read-only service status; private records and owner-only controls remain protected.')}
+ return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Live public status check, with private records and owner-only actions kept outside the public website.','<button class="outline-button" id="supabase-refresh" type="button">↻ Refresh status</button>')}
  <div class="status-grid">
- ${card('<div class="mini-label">SUPABASE PROJECT</div><strong class="status-value">ACTIVE</strong><p>Project was healthy when inspected. No database changes were made.</p>','status-card')}
- ${card('<div class="mini-label">PUBLIC STATUS API</div><strong class="status-value" id="supabase-status">CHECKING</strong><p id="supabase-status-detail">Read-only service status. No owner data is exposed.</p>','status-card')}
- ${card('<div class="mini-label">DEVICE CONTROL</div><strong class="status-value">RETIRED</strong><p>The deployed endpoint returns HTTP 410.</p>','status-card')}
- ${card('<div class="mini-label">TRAINING CONTROL</div><strong class="status-value">OWNER ONLY</strong><p>Requires a valid signed-in owner session. No public controls are exposed.</p>','status-card')}
+ ${card('<div class="mini-label">PROJECT AUDIT</div><strong class="status-value">HEALTHY</strong><p>ultron-memory · ap-south-1 · inspected 24 Nov 2026.</p>','status-card')}
+ ${card('<div class="mini-label">PUBLIC STATUS API</div><strong class="status-value" id="supabase-status">CHECKING</strong><p id="supabase-status-detail">Requesting generic read-only service state…</p><p class="muted small" id="supabase-status-checked">Last checked: pending</p>','status-card')}
+ ${card('<div class="mini-label">DEVICE CONTROL</div><strong class="status-value">RETIRED · 410</strong><p>The deployed handler rejects legacy pairing requests.</p>','status-card')}
+ ${card('<div class="mini-label">TRAINING CONTROL</div><strong class="status-value">OWNER-GATED</strong><p>Only generic public status is available here. No owner controls are exposed.</p>','status-card')}
  </div>
- ${card('<div class="eyebrow">DEPLOYED EDGE FUNCTIONS</div><h2>Existing service contracts</h2>'+rows)}
- ${card('<div class="eyebrow">INTEGRATION BLOCKERS</div><h2>What must be aligned before connection</h2>'+blockers)}
- ${card('<div class="eyebrow">PUBLIC WEBSITE SAFETY</div><h2>No login. No training actions.</h2><p class="muted">This website intentionally has no sign-in or account-specific history. The current database records are tied to an authenticated owner and cannot safely be read by the public dashboard. The frontend does not call owner-only functions, read protected tables, store credentials, dispatch workflows or start training.</p><p class="muted small">The public page calls only the read-only public_status action. Owner-only health, status, start and stop actions remain inaccessible from this account-free website.</p><span class="status-pill">TRAINING REMAINS DISABLED</span>')}`;
+ ${card('<div class="eyebrow">DEPLOYED EDGE FUNCTIONS</div><h2>Service boundaries</h2>'+rows)}
+ ${card('<div class="eyebrow">BACKEND SECURITY AUDIT</div><h2>Items kept outside the public frontend</h2>'+blockers)}
+ ${card('<div class="eyebrow">PUBLIC WEBSITE CONTRACT</div><h2>No login. No private data. No execution.</h2><p class="muted">The browser calls only the training-control public_status action using the Supabase publishable key. The request is read-only and has a bounded timeout. It never queries database tables, sends an owner bearer token, or invokes health, status, start or stop.</p><p class="muted small">The existing experiences, knowledge, mistakes, checkpoints and backup records are owner-linked. Their row-level security is not weakened to support this no-login website. The Memory Vault therefore remains browser-local.</p><span class="status-pill">TRAINING DISABLED · REMOTE EXECUTION DISABLED</span>')}`;
 }
-
 function renderSettings(){
  const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
  return `${heading('DEVICE MEMORY SETTINGS','Settings','Local interface preferences. No account is required.')}
@@ -145,19 +144,27 @@ function answerAgent(){
 async function loadSupabaseStatus(){
  const status=document.querySelector('#supabase-status');
  const detail=document.querySelector('#supabase-status-detail');
+ const checked=document.querySelector('#supabase-status-checked');
+ const refresh=document.querySelector('#supabase-refresh');
  if(!status||!detail)return;
+ if(refresh)refresh.disabled=true;
  status.textContent='CHECKING';
- detail.textContent='Requesting the public read-only status endpoint…';
+ detail.textContent='Requesting generic read-only service state…';
+ if(checked)checked.textContent='Last checked: in progress';
  try{
   const result=await fetchSupabasePublicStatus();
-  if(result.control_plane!=='online'||result.training_enabled!==false||result.remote_execution_enabled!==false){
-   throw new Error('The backend response did not match the safe public status contract.');
-  }
   status.textContent='ONLINE';
-  detail.textContent=`Model: ${result.model_status||'unknown'} · Training: disabled · Remote execution: disabled.`;
- }catch{
+  detail.textContent=`Control plane: online · Model: ${result.model_status||'unknown'} · Training: disabled · Remote execution: disabled.`;
+  if(checked){
+   const stamp=result.checked_at?new Date(result.checked_at):new Date();
+   checked.textContent='Last checked: '+(Number.isNaN(stamp.getTime())?'just now':stamp.toLocaleString());
+  }
+ }catch(error){
   status.textContent='UNAVAILABLE';
-  detail.textContent='The public status endpoint could not be reached. Private owner services remain protected; training is disabled.';
+  detail.textContent=error?.message||'The public status endpoint could not be reached.';
+  if(checked)checked.textContent='Last checked: '+new Date().toLocaleString();
+ }finally{
+  if(refresh)refresh.disabled=false;
  }
 }
 function bindLearning(){
@@ -229,7 +236,7 @@ function bind(page){
   content.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('#agent-input').value=b.dataset.example;document.querySelector('#agent-input').focus();}));
  }
  if(page==='servers'){document.querySelector('#servers-refresh').addEventListener('click',loadServers);loadServers();}
- if(page==='backend')loadSupabaseStatus();
+ if(page==='backend'){document.querySelector('#supabase-refresh').addEventListener('click',loadSupabaseStatus);loadSupabaseStatus();}
  if(page==='settings'){
   const slider=document.querySelector('#memory-slider');
   slider.addEventListener('input',()=>{document.querySelector('#memory-value').textContent=slider.value+' GB';safeSet('ultron-memory-level',slider.value);});
