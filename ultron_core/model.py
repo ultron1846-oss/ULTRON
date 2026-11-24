@@ -33,7 +33,9 @@ class NeuroSparseBlock(nn.Module):
             dispatched.index_add_(0,token_pos,values)
         mixed=dispatched.reshape_as(x)+self.memory(x,write=write_memory)
         refined,error,steps=self.refiner(mixed)
-        balance=load_balance_loss(logits.reshape(-1,logits.shape[-1]),idx)
+        # Router top-k guarantees valid, unique indices. Skip redundant
+        # host-visible validation in this performance-critical internal path.
+        balance=load_balance_loss(logits.reshape(-1,logits.shape[-1]),idx,validate_indices=False)
         return residual+self.dropout(refined),balance,error,steps
 
 class NeuroSparseModel(nn.Module):
