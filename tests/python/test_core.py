@@ -159,10 +159,11 @@ class CoreTests(unittest.TestCase):
 
     def test_loss_can_disable_padding_mask(self):
         logits = torch.zeros(1, 3, 4)
+        logits[0, 1, 0] = 10.0  # Make the padding target spuriously easy to predict.
         ids = torch.tensor([[1, 2, 0]])
         masked = causal_language_model_loss(logits, ids, ignore_index=0)
         unmasked = causal_language_model_loss(logits, ids, ignore_index=None)
-        self.assertLess(float(masked), float(unmasked))
+        self.assertGreater(float(masked), float(unmasked))
 
     def test_loss_rejects_negative_auxiliary_weight(self):
         logits = torch.randn(1, 3, 5)
