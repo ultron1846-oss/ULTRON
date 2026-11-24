@@ -19,6 +19,10 @@ def _symbols(expr: Expr) -> set[str]:
     return found
 
 
+def _has_assumptions(expr: Expr) -> bool:
+    return bool(expr.assumptions) or any(_has_assumptions(child) for child in expr.args)
+
+
 def evaluate(expr: Expr, env: dict[str, Fraction]) -> Fraction:
     if expr.kind == ExprKind.INTEGER:
         return Fraction(int(expr.value))
@@ -50,6 +54,14 @@ def probe_candidate(candidate: FormulaCandidate, variable_names=('x', 'y'),
     equation = candidate.expression
     if equation.kind != ExprKind.EQUAL:
         raise ValueError('candidate expression must be an equality')
+    if candidate.domain or candidate.assumptions or _has_assumptions(equation):
+        raise ValueError('finite probing does not interpret candidate domains or assumptions')
+    if not sample_values:
+        raise ValueError('sample_values must not be empty')
+    if len(set(variable_names)) != len(variable_names):
+        raise ValueError('variable_names must be unique')
+    if any(not isinstance(name, str) or not name.isidentifier() for name in variable_names):
+        raise ValueError('variable_names must contain valid identifiers')
     missing = _symbols(equation) - set(variable_names)
     if missing:
         raise ValueError('variable_names omits symbols: ' + ', '.join(sorted(missing)))
@@ -64,5 +76,7 @@ def probe_candidate(candidate: FormulaCandidate, variable_names=('x', 'y'),
         if lhs != rhs:
             return ProbeResult(VerificationStatus.REJECTED, checked, env,
                                'A finite-domain counterexample was found; candidate is rejected.')
+    if checked == 0:
+        raise ValueError('no valid sample points were evaluated')
     return ProbeResult(VerificationStatus.EXPERIMENTALLY_SUPPORTED, checked, None,
                        'No counterexample in the tested finite domain. This is not a proof.')

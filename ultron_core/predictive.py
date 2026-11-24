@@ -20,4 +20,8 @@ class PredictiveRefiner(nn.Module):
             if not bool(active.any()): break
             z=torch.where(active.unsqueeze(-1),self.refine(prediction,z),z)
             steps=steps+active.long()
-        return z.reshape(batch,seq,hidden),error.mean(),steps.max()
+        # Report prediction error for the representation actually returned,
+        # not the pre-update state from the final refinement iteration.
+        final_prediction=self.predictor(z)
+        final_error=F.mse_loss(final_prediction,z,reduction="none").mean(dim=-1)
+        return z.reshape(batch,seq,hidden),final_error.mean(),steps.max()

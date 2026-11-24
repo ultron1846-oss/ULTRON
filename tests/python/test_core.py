@@ -9,6 +9,7 @@ from ultron_core.checkpoint import load_checkpoint, save_checkpoint
 from ultron_core.discovery import polynomial_identity_candidates
 from ultron_core.math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
 from ultron_core.memory import FastWeightMemory
+from ultron_core.predictive import PredictiveRefiner
 from ultron_core.routing import load_balance_loss
 from ultron_core.training import causal_language_model_loss
 from ultron_core.verification import probe_candidate
@@ -75,6 +76,44 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(result.status, VerificationStatus.REJECTED)
         self.assertIsNotNone(result.counterexample)
 
+    def test_finite_probe_rejects_empty_sample_domain(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(ValueError, 'sample_values must not be empty'):
+            probe_candidate(candidate, sample_values=())
+
+    def test_finite_probe_rejects_vacuous_undefined_domain(self):
+        x = Expr(ExprKind.SYMBOL, value='x')
+        minus_one = Expr(ExprKind.INTEGER, value=-1)
+        inverse = Expr(ExprKind.POW, args=(x, minus_one))
+        candidate = FormulaCandidate(Expr(ExprKind.EQUAL, args=(inverse, inverse)))
+        with self.assertRaisesRegex(ValueError, 'no valid sample points'):
+            probe_candidate(candidate, variable_names=('x',), sample_values=(0,))
+
+    def test_finite_probe_does_not_ignore_assumptions(self):
+        x = Expr(ExprKind.SYMBOL, value='x')
+        one = Expr(ExprKind.INTEGER, value=1)
+        candidate = FormulaCandidate(
+            Expr(ExprKind.EQUAL, args=(x, x)),
+            assumptions=('x > 0',),
+        )
+        with self.assertRaisesRegex(ValueError, 'does not interpret'):
+            probe_candidate(candidate, variable_names=('x',))
+
+    def test_finite_probe_rejects_duplicate_variable_names(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(ValueError, 'must be unique'):
+            probe_candidate(candidate, variable_names=('x', 'x'))
+
+    def test_predictive_refiner_error_matches_returned_state(self):
+        torch.manual_seed(23)
+        refiner = PredictiveRefiner(hidden_size=8, max_refinements=1, halt_threshold=0.0)
+        state = torch.randn(2, 3, 8)
+        refined, reported_error, _ = refiner(state)
+        expected_error = torch.nn.functional.mse_loss(
+            refiner.predictor(refined), refined, reduction='none'
+        ).mean(dim=-1).mean()
+        self.assertTrue(torch.allclose(reported_error, expected_error))
+
     def test_finite_probe_never_claims_formal_proof(self):
         result = probe_candidate(polynomial_identity_candidates()[0])
         self.assertEqual(result.status, VerificationStatus.EXPERIMENTALLY_SUPPORTED)
@@ -105,6 +144,26 @@ class CoreTests(unittest.TestCase):
         model = NeuroSparseModel(self.config())
         with self.assertRaisesRegex(ValueError, 'non-empty'):
             model(torch.empty((1, 0), dtype=torch.long))
+
+    def test_loss_ignores_padding_targets(self):
+        logits = torch.zeros(1, 3, 4)
+        ids = torch.tensor([[1, 2, 0]])
+        loss = causal_language_model_loss(logits, ids, ignore_index=0)
+        self.assertAlmostEqual(float(loss), torch.log(torch.tensor(4.0)).item(), places=6)
+
+    def test_loss_rejects_all_padding_targets(self):
+        logits = torch.randn(1, 3, 5)
+        ids = torch.zeros((1, 3), dtype=torch.long)
+        with self.assertRaisesRegex(ValueError, 'all next-token targets are padding'):
+            causal_language_model_loss(logits, ids)
+
+    def test_loss_can_disable_padding_mask(self):
+        logits = torch.zeros(1, 3, 4)
+        logits[0, 1, 0] = 10.0  # Make the padding target spuriously easy to predict.
+        ids = torch.tensor([[1, 2, 0]])
+        masked = causal_language_model_loss(logits, ids, ignore_index=0)
+        unmasked = causal_language_model_loss(logits, ids, ignore_index=None)
+        self.assertGreater(float(masked), float(unmasked))
 
     def test_loss_rejects_negative_auxiliary_weight(self):
         logits = torch.randn(1, 3, 5)

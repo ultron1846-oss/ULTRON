@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import platform
 import random
 import statistics
@@ -15,7 +16,7 @@ from typing import Sequence
 import torch
 
 from .config import NeuroSparseConfig
-from .model import NeuroSparseModel
+from .model import NeuroSparseModel, SparseExpert
 
 
 def bootstrap_median_ci(
@@ -25,6 +26,8 @@ def bootstrap_median_ci(
     """Percentile bootstrap CI for the sample median."""
     if len(samples) < 2:
         raise ValueError("at least two samples are required")
+    if any(not math.isfinite(float(sample)) for sample in samples):
+        raise ValueError("samples must all be finite")
     if resamples < 100:
         raise ValueError("resamples must be at least 100")
     if not 0.0 < confidence < 1.0:
@@ -36,15 +39,15 @@ def bootstrap_median_ci(
         for _ in range(resamples)
     )
     tail = (1.0 - confidence) / 2.0
-    lo = min(resamples - 1, max(0, int(tail * resamples)))
-    hi = min(resamples - 1, max(0, int((1.0 - tail) * resamples)))
-    return medians[lo], medians[hi]
+    return percentile(medians, tail), percentile(medians, 1.0 - tail)
 
 
 def percentile(samples: Sequence[float], q: float) -> float:
     """Linearly interpolated percentile for q in [0, 1]."""
     if not samples:
         raise ValueError("at least one sample is required")
+    if any(not math.isfinite(float(sample)) for sample in samples):
+        raise ValueError("samples must all be finite")
     if not 0.0 <= q <= 1.0:
         raise ValueError("q must be between zero and one")
     ordered = sorted(samples)
@@ -61,7 +64,7 @@ def parameter_accounting(model: NeuroSparseModel) -> dict[str, int | float]:
     expert = sum(
         parameter.numel()
         for module in model.modules()
-        if module.__class__.__name__ == "SparseExpert"
+        if isinstance(module, SparseExpert)
         for parameter in module.parameters()
     )
     shared = total - expert

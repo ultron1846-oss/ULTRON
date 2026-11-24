@@ -20,6 +20,12 @@ class BenchmarkStatisticsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "at least one"):
             percentile([], 0.5)
 
+    def test_statistics_reject_non_finite_samples(self):
+        with self.assertRaisesRegex(ValueError, 'finite'):
+            percentile([1.0, float('nan')], 0.5)
+        with self.assertRaisesRegex(ValueError, 'finite'):
+            bootstrap_median_ci([1.0, float('inf')])
+
     def test_bootstrap_rejects_single_sample(self):
         with self.assertRaisesRegex(ValueError, "at least two"):
             bootstrap_median_ci([1.0])

@@ -219,3 +219,30 @@ Section D adds an inference-only benchmark harness and a controlled-experiment p
 4. Keep website, Supabase, authentication, GitHub Pages and provider integrations unchanged.
 5. Do not start model training, connect Colab, launch remote jobs or use cloud compute without separate explicit authorization.
 6. Update this README and retain a precise next-chat handoff at every meaningful milestone.
+
+
+## Core code review and correctness hardening — 2026-11-24
+
+A focused review of the merged Section C/D Python core identified and corrected these correctness issues in the follow-up code-review branch:
+
+- The finite-domain probe now rejects empty sample sets, duplicate/invalid variable names, and candidates whose domain/assumption metadata it cannot interpret. It also refuses to return experimental support if every attempted point is undefined and zero valid points were evaluated.
+- Predictive refinement now calculates its reported prediction error against the final latent representation actually returned, rather than the pre-update state from the last iteration.
+- Benchmark percentile and bootstrap helpers now reject non-finite samples. Bootstrap interval endpoints use interpolated percentile estimates.
+- Expert parameter accounting now identifies expert modules by type rather than a fragile class-name string.
+- The causal next-token loss masks padding targets by default using `ignore_index=0`, supports an explicit alternate ignore index or `None`, and raises a clear error if every target is ignored.
+- Regression tests cover these cases; the implementation notes document the limits of finite probing and padding-mask behavior.
+
+### Remaining architectural blockers (not silently represented as fixed)
+
+- The current model has no causal self-attention, positional encoding, or other explicit sequence-mixing mechanism. With default `write_memory=False`, each token position is processed independently by the feed-forward/router/refinement stack. It is therefore not yet a context-aware autoregressive language model.
+- The model still has no tokenizer, original deterministic training-data generator, curriculum, tested ablation controls, dense-expert reference path, or formal proof kernel.
+- Memory writes are opt-in and sequential; ordinary forward calls do not update the memory. A future training controller must define safe, deterministic memory lifecycle semantics before relying on it.
+- The finite-domain evaluator supports only its explicitly implemented rational arithmetic operations. It does not interpret domains/assumptions, and it cannot establish a theorem or mathematical novelty.
+
+### Next code-review handoff
+
+1. Review the correctness-hardening pull request and require Python CI plus existing Node CI to pass before merge.
+2. Add causal sequence modelling and position information as a separately designed architecture stage; test that changing earlier context can affect later-token logits while future tokens cannot affect earlier-token logits.
+3. Add property-based tests for symbolic expression evaluation, domain edge cases, checkpoint recovery, memory isolation and router load balancing.
+4. Do not call this prototype an LLM or claim university-level math capability until causal sequence modelling, training, and independent mathematical evaluation have actually been implemented and validated.
+5. No model training, optimizer steps, cloud jobs, Colab sessions, or remote execution are authorized by this review.
