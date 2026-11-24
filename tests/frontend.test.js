@@ -45,3 +45,9 @@ test('Supabase backend page documents the audited contract without exposing owne
   assert.doesNotMatch(backend, /service_role|sb_secret_|ULTRON_GITHUB_TOKEN/);
   assert.doesNotMatch(app, /functions\.invoke|fetch\([^)]*training-control|fetch\([^)]*device-control/);
 });
+
+
+test('Pages deployment stages the Supabase integration module required by app.js', async () => {
+  const workflow = await readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /supabase-integration\.js _site\//);
+});
