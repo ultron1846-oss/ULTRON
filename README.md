@@ -530,3 +530,16 @@ The univariate polynomial engine now supports exact differentiation, Sturm-seque
 - Multivariate inputs and work exceeding configured polynomial limits are rejected.
 
 This computes root counts, not decimal approximations or isolating intervals. It does not yet solve for algebraic root representations, construct minimal polynomials, or provide a formally verified proof receipt. The implementation is an exact algorithm based on Sturm's theorem, not a formal proof-kernel implementation.
+
+
+## Exact real-root isolation — 2026-11-24
+
+The univariate polynomial engine now provides `isolate_real_roots_univariate(lower, upper)`. It first removes repeated factors using the exact polynomial GCD, then recursively bisects rational intervals using exact Sturm root counts.
+
+- Returns disjoint rational intervals, each containing exactly one distinct real root.
+- Returns ((r,r)) for a rational root detected exactly at a bisection midpoint.
+- All non-degenerate interval endpoints are checked to be non-roots.
+- Uses a caller-selected exact rational maximum width, with explicit maximum-depth and interval-count budgets.
+- Uses only integer/Fraction arithmetic; no floating-point root approximations.
+
+The input interval must have non-root endpoints. The zero polynomial, multivariate polynomials, invalid bounds and exhausted budgets are rejected. This is bounded root isolation for univariate rational-coefficient polynomials; it is not a general equation solver, algebraic-number system, or formal proof kernel.
