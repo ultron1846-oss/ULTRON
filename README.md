@@ -295,3 +295,13 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 - The checksum manifest is now written to a temporary file, flushed and fsynced, then atomically replaced. The checkpoint and manifest are still two separate files, so a process interruption between their replacements can leave a detectable mismatch; keep periodic independent backups.
 - The SHA-256 sidecar detects accidental corruption only. It is not a digital signature and does not make untrusted checkpoints safe.
 - Regression tests cover invalid steps and configuration mismatch.
+
+
+## GPU execution-path optimization — 2026-11-24
+
+- Removed two host-visible CUDA scalar checks per model forward: accelerator token IDs now rely on the embedding operator for index validation, while CPU inputs retain explicit min/max validation and the same clear error.
+- The model's internal load-balance loss call now skips range/duplicate scans for router-produced top-k indices. The public helper defaults to full validation; its fast path is opt-in and used only where index provenance is known.
+- Predictive refinement keeps CPU early exit but avoids converting CUDA activity masks to Python booleans each iteration, preventing repeated device synchronization. Accelerator execution uses the configured fixed refinement budget and masks inactive token states.
+- Episodic memory writes now read the ring cursor once per forward and update it once after the sequential write loop, instead of reading/updating the scalar cursor for every token.
+- Regression tests cover the routing fast-path contract; the existing memory ring-wrap test covers cursor correctness.
+- These are synchronization/launch-overhead reductions, not measured speed claims. GPU benchmarks are still required on target hardware.
