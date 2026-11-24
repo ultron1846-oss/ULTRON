@@ -70,6 +70,13 @@ class CoreTests(unittest.TestCase):
         indices = torch.tensor([[0, 1], [2, 3]], dtype=torch.int32)
         self.assertTrue(torch.isfinite(load_balance_loss(logits, indices)))
 
+    def test_router_balance_internal_fast_path_skips_host_validation(self):
+        logits = torch.zeros(2, 4)
+        # Duplicate assignments are rejected by the public validation path,
+        # while the model's router-generated fast path avoids that sync check.
+        indices = torch.tensor([[1, 1], [2, 3]])
+        self.assertTrue(torch.isfinite(load_balance_loss(logits, indices, validate_indices=False)))
+
     def test_router_balance_rejects_non_integer_indices(self):
         with self.assertRaisesRegex(TypeError, "integer dtype"):
             load_balance_loss(torch.zeros(2, 4), torch.tensor([[0.0], [1.0]]))
