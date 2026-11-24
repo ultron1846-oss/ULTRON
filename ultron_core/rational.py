@@ -23,9 +23,12 @@ class RationalDomainError(ZeroDivisionError):
     """A point violates an expression's preserved non-zero domain conditions."""
 
 
-def _normalize_nonzero(polynomial: Polynomial) -> Polynomial:
+def _normalize_nonzero(polynomial: Polynomial) -> Polynomial | None:
     if not polynomial.terms:
         raise RationalExpressionError("a domain non-zero constraint cannot be the zero polynomial")
+    if len(polynomial.terms) == 1 and polynomial.terms[0][0] == ():
+        # A non-zero constant is never zero, so it imposes no domain restriction.
+        return None
     return polynomial.scale(1 / polynomial.terms[-1][1], limits=HARD_LIMITS)
 
 
@@ -34,7 +37,8 @@ def _merge_constraints(*groups: tuple[Polynomial, ...]) -> tuple[Polynomial, ...
     for group in groups:
         for constraint in group:
             normalized = _normalize_nonzero(constraint)
-            unique[normalized.canonical_key()] = normalized
+            if normalized is not None:
+                unique[normalized.canonical_key()] = normalized
     if len(unique) > MAX_DOMAIN_CONSTRAINTS:
         raise RationalExpressionError(
             f"domain constraint count exceeds hard limit {MAX_DOMAIN_CONSTRAINTS}"
