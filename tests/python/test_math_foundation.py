@@ -4,6 +4,10 @@ from pathlib import Path
 import tempfile
 import unittest
 
+import torch
+from ultron_core import NeuroSparseConfig, NeuroSparseModel
+from ultron_core.math_ir import Expr, ExprKind
+from ultron_core.verification import evaluate
 from ultron_core.data_generation import (
     GENERATOR_VERSION, generate_examples, validate_example_text, write_dataset,
 )
@@ -144,3 +148,98 @@ class DeterministicDataGenerationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class ModelIntegrationTests(unittest.TestCase):
+    def test_tokenizer_ids_feed_existing_causal_model(self):
+        vocabulary = MathVocabulary.default()
+        tokenizer = MathTokenizer(vocabulary)
+        config = NeuroSparseConfig(
+            vocab_size=len(vocabulary), hidden_size=32, num_layers=1,
+            num_experts=4, top_k=2, fast_memory_slots=8,
+            max_sequence_length=32,
+        )
+        model = NeuroSparseModel(config).eval()
+        ids = torch.tensor([tokenizer.encode("x+1")], dtype=torch.long)
+        with torch.inference_mode():
+            output = model(ids)
+        self.assertEqual(output["logits"].shape, (1, ids.shape[1], len(vocabulary)))
+
+    def test_padding_tokens_cannot_change_valid_token_logits(self):
+        torch.manual_seed(123)
+        vocabulary = MathVocabulary.default()
+        tokenizer = MathTokenizer(vocabulary)
+        config = NeuroSparseConfig(
+            vocab_size=len(vocabulary), hidden_size=32, num_layers=2,
+            num_experts=4, top_k=2, fast_memory_slots=8,
+            max_sequence_length=16,
+        )
+        model = NeuroSparseModel(config).eval()
+        valid = tokenizer.encode("x+1")
+        pad = vocabulary.token_id("<PAD>")
+        alternate_padding = tokenizer.encode("z-9")
+        first = torch.tensor([valid + [pad, pad]], dtype=torch.long)
+        second = torch.tensor([valid + alternate_padding[:2]], dtype=torch.long)
+        mask = torch.tensor([[True, True, True, False, False]], dtype=torch.bool)
+        with torch.inference_mode():
+            first_logits = model(first, attention_mask=mask)["logits"]
+            second_logits = model(second, attention_mask=mask)["logits"]
+        torch.testing.assert_close(first_logits[:, :len(valid)], second_logits[:, :len(valid)])
+
+    def test_variable_length_batch_uses_per_example_padding_mask(self):
+        vocabulary = MathVocabulary.default()
+        tokenizer = MathTokenizer(vocabulary)
+        config = NeuroSparseConfig(
+            vocab_size=len(vocabulary), hidden_size=32, num_layers=1,
+            num_experts=4, top_k=2, fast_memory_slots=8,
+            max_sequence_length=16,
+        )
+        model = NeuroSparseModel(config).eval()
+        short = tokenizer.encode("x+1")
+        long = tokenizer.encode("x+1+2")
+        pad = vocabulary.token_id("<PAD>")
+        ids = torch.tensor([short + [pad] * (len(long) - len(short)), long])
+        mask = ids.ne(pad)
+        with torch.inference_mode():
+            logits = model(ids, attention_mask=mask)["logits"]
+        self.assertEqual(tuple(logits.shape), (2, len(long), len(vocabulary)))
+        torch.testing.assert_close(logits[0, :len(short)], logits[0, :len(short)])
+
+    def test_attention_mask_validation(self):
+        vocabulary = MathVocabulary.default()
+        model = NeuroSparseModel(NeuroSparseConfig(
+            vocab_size=len(vocabulary), hidden_size=32, num_layers=1,
+            num_experts=4, top_k=2, fast_memory_slots=8,
+        ))
+        ids = torch.tensor([[4, 5, 6]])
+        with self.assertRaisesRegex(TypeError, "torch.bool"):
+            model(ids, attention_mask=torch.ones_like(ids))
+        with self.assertRaisesRegex(ValueError, "same"):
+            model(ids, attention_mask=torch.ones((1, 2), dtype=torch.bool))
+        with self.assertRaisesRegex(ValueError, "at least one"):
+            model(ids, attention_mask=torch.zeros_like(ids, dtype=torch.bool))
+
+    def test_padded_positions_do_not_write_to_episodic_memory(self):
+        vocabulary = MathVocabulary.default()
+        tokenizer = MathTokenizer(vocabulary)
+        config = NeuroSparseConfig(
+            vocab_size=len(vocabulary), hidden_size=32, num_layers=1,
+            num_experts=4, top_k=2, fast_memory_slots=8,
+        )
+        model = NeuroSparseModel(config).train()
+        ids = torch.tensor([tokenizer.encode("x+1") + [0, 0]])
+        mask = torch.tensor([[True, True, True, False, False]])
+        model(ids, write_memory=True, attention_mask=mask)
+        for block in model.blocks:
+            self.assertEqual(int(block.memory.valid.sum()), len(tokenizer.encode("x+1")))
+
+    def test_exact_subtraction_and_division_in_math_ir(self):
+        two = Expr(ExprKind.INTEGER, value=2)
+        six = Expr(ExprKind.INTEGER, value=6)
+        subtraction = Expr(ExprKind.SUB, args=(six, two))
+        division = Expr(ExprKind.DIV, args=(six, two))
+        self.assertEqual(evaluate(subtraction, {}), 4)
+        self.assertEqual(evaluate(division, {}), 3)
+        with self.assertRaises(ZeroDivisionError):
+            evaluate(Expr(ExprKind.DIV, args=(six, Expr(ExprKind.INTEGER, value=0))), {})
