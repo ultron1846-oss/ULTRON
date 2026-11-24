@@ -204,6 +204,17 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(result.status, VerificationStatus.EXPERIMENTALLY_SUPPORTED)
         self.assertIn('not a proof', result.note)
 
+    def test_checkpoint_rejects_invalid_step_and_config_mismatch(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            with self.assertRaisesRegex(ValueError, "non-negative integer"):
+                save_checkpoint(path, model, config, step=1.5)
+            with self.assertRaisesRegex(ValueError, "does not match"):
+                save_checkpoint(path, model, NeuroSparseConfig(vocab_size=65, hidden_size=32,
+                    num_layers=1, num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8))
+
     def test_checkpoint_round_trip_and_tamper_detection(self):
         config = self.config()
         model = NeuroSparseModel(config)
