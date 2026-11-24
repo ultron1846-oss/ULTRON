@@ -78,3 +78,8 @@ The prototype now includes pre-normalized multi-head causal self-attention and l
 - The model remains untrained and still lacks a tokenizer, original deterministic mathematical corpus generator, curriculum, full symbolic algebra, formal proof kernel and demonstrated mathematical capability. Causal attention is a necessary language-modeling prerequisite, not evidence of university-level math ability.
 
 Validation remains the CPU Python regression suite and forward/backward smoke check. These checks do not execute an optimizer step or start training.
+
+
+### Checkpoint compatibility note
+
+The causal-attention and positional-embedding parameters change the model state and configuration schema. Checkpoint format is now version 2. Version 1 checkpoints from the feed-forward-only prototype are rejected rather than partially loaded or silently initialized; no automatic migration is implemented. This is safe for the current untrained prototype, but a future trained release must provide a deliberate, tested migration or a documented fresh-start boundary.
