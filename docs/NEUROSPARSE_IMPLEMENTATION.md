@@ -99,3 +99,5 @@ The causal-attention and positional-embedding parameters change the model state 
 - Checkpoint preflight also rejects tensor-layout mismatches and safely formats unexpected non-string state keys in validation errors.
 
 - Finite-domain probing enforces a configurable max_samples cap (default 100,000) before evaluating the Cartesian product, preventing accidental unbounded probe workloads.
+
+- Exact exponent evaluation has a configurable absolute-exponent bound (default 1,024); exceeding it raises an explicit evaluation-limit error instead of silently skipping the sample or attempting unbounded integer growth.
