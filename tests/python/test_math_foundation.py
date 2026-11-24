@@ -735,6 +735,10 @@ class ExactUnivariatePolynomialDivisionTests(unittest.TestCase):
                          Polynomial.from_expr(parse_math("x^2 + 2*x")))
         with self.assertRaisesRegex(PolynomialError, "gcd"):
             Polynomial.zero().gcd_univariate(Polynomial.zero())
+        with self.assertRaisesRegex(PolynomialError, "multivariate"):
+            Polynomial.from_expr(parse_math("x*y")).gcd_univariate(Polynomial.zero())
+        with self.assertRaisesRegex(PolynomialError, "does not match"):
+            Polynomial.variable("x").gcd_univariate(Polynomial.zero(), variable="y")
 
     def test_division_rejects_zero_divisor_and_multivariate_inputs(self):
         from ultron_core.polynomial import Polynomial, PolynomialError
