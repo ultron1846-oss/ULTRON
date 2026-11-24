@@ -19,7 +19,8 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 ## Architecture
 - `index.html`: public application shell and navigation.
 - `styles.css`: black/crimson control-room visual system and responsive layouts.
-- `app.js`: frontend rendering, navigation, local preferences, Math Agent UI and provider-directory presentation.
+- `app.js`: frontend rendering, navigation, local preferences, Math Agent UI, provider directory and Supabase audit page.
+- `supabase-integration.js`: safe, non-secret snapshot of the inspected Supabase service contract; no network calls or credentials.
 - `math-engine.js`: deterministic arithmetic parser and limited one-variable linear equation solver. No `eval()` or `new Function()`.
 - `tests/`: Node.js built-in regression tests.
 - `.github/workflows/`: test and GitHub Pages workflows.
