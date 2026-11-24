@@ -3,7 +3,7 @@ from fractions import Fraction
 
 from ultron_core.algebraic import RealAlgebraicNumber
 from ultron_core.math_parser import parse_math
-from ultron_core.polynomial import Polynomial, PolynomialError
+from ultron_core.polynomial import Polynomial, PolynomialError, PolynomialLimits
 
 
 class ExactAlgebraicArithmeticTests(unittest.TestCase):
@@ -90,6 +90,26 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
     def test_refinement_budget_fails_closed(self):
         with self.assertRaises(PolynomialError):
             self.sqrt3.subtract(self.sqrt2, max_refinements=0)
+
+    def test_result_variable_is_preserved_for_chained_operations(self):
+        partial = self.sqrt2 + self.sqrt3
+        chained = partial + self.sqrt2
+        self.assertEqual(chained.variable, self.sqrt2.variable)
+        self.assertEqual(
+            chained.polynomial.real_root_count_univariate(
+                chained.lower, chained.upper, variable=self.sqrt2.variable
+            ),
+            1,
+        )
+
+    def test_stricter_operand_limits_are_not_bypassed(self):
+        limited = RealAlgebraicNumber.from_isolating_interval(
+            self.sqrt2_poly, 1, 2,
+            limits=PolynomialLimits(max_total_degree=2, max_terms=32,
+                                    max_exponent=2),
+        )
+        with self.assertRaises(PolynomialError):
+            limited.add(self.sqrt3)
 
 
 if __name__ == "__main__":
