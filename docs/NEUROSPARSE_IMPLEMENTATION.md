@@ -58,3 +58,8 @@ Checkpoint save/load now validates non-negative integer step values, checks that
 ## Accelerator synchronization reduction
 
 The model now skips explicit token min/max checks on accelerator inputs and relies on the embedding operation for index validation; CPU inputs retain the explicit friendly range error. The internal load-balancing call accepts a validation switch: external/default calls still validate index range and uniqueness, while the model disables those scalar checks because indices are produced by PyTorch top-k. Predictive refinement retains CPU early exit but avoids a Python boolean conversion of CUDA activity masks, which would synchronize the device on every refinement iteration. Episodic-memory writes read the ring cursor once per forward and update it once after the sequential write loop rather than synchronizing once per token. These changes reduce host/device synchronization; they do not claim measured throughput gains until benchmarked on accelerator hardware.
+
+
+## Trusted mathematical knowledge gate
+
+The prototype has no formal proof kernel or verifiable proof-receipt type. Consequently, FormulaCandidate.can_enter_trusted_knowledge() now fails closed for every candidate. A caller-supplied FORMALLY_VERIFIED enum value or free-form evidence string is metadata, not a checked proof. Re-enable trusted admission only when a proof backend can return a structured receipt that ULTRON validates independently.
