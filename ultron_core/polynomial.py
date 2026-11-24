@@ -201,6 +201,8 @@ class Polynomial:
             raise TypeError("polynomial exponent must be an integer")
         if exponent < 0:
             raise PolynomialError("negative powers are not polynomials")
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
         if exponent > limits.max_exponent:
             raise PolynomialError(f"power {exponent} exceeds max_exponent={limits.max_exponent}")
         result, factor, remaining = Polynomial.one(), self, exponent
