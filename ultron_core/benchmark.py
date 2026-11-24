@@ -41,6 +41,20 @@ def bootstrap_median_ci(
     return medians[lo], medians[hi]
 
 
+def percentile(samples: Sequence[float], q: float) -> float:
+    """Linearly interpolated percentile for q in [0, 1]."""
+    if not samples:
+        raise ValueError("at least one sample is required")
+    if not 0.0 <= q <= 1.0:
+        raise ValueError("q must be between zero and one")
+    ordered = sorted(samples)
+    position = (len(ordered) - 1) * q
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    fraction = position - lower
+    return ordered[lower] * (1.0 - fraction) + ordered[upper] * fraction
+
+
 def parameter_accounting(model: NeuroSparseModel) -> dict[str, int | float]:
     total = sum(parameter.numel() for parameter in model.parameters())
     # SparseExpert owns a Sequential child; include its descendants explicitly.
@@ -138,6 +152,8 @@ def run_benchmark(
             "median": median,
             "mean": statistics.mean(timings),
             "stdev": statistics.stdev(timings),
+            "p90": percentile(timings, 0.90),
+            "p95": percentile(timings, 0.95),
             "min": min(timings),
             "max": max(timings),
             "bootstrap_median_ci_95_percent": [ci_low, ci_high],
