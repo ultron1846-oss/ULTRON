@@ -171,3 +171,12 @@ It does not distribute, factor, reorder symbolic terms, cancel factors, infer do
 The existing exact evaluator now rejects `0^0` as undefined, as well as division by zero and non-integer exponents. It remains a scalar evaluator, not an equation solver, CAS, proof kernel or calculus engine. FormulaCandidate trusted-knowledge admission remains fail-closed.
 
 No training, optimizer step, corpus generation, external AI API, pretrained weight, cloud job, remote execution or website change was performed for this stage.
+
+
+
+### Parser milestone CI verification
+- GitHub Actions Python regression suite: 104 tests passed.
+- CPU forward/backward smoke: passed on CPU; workflow output confirms no optimizer step or training run.
+- Node.js test workflow: passed.
+- Verification was executed against implementation commit `e5fe00a6cc1afc2f3a9345f9469ba951009d6b53`; a subsequent README/notes-only update is included in the current PR and must pass its own required checks before merge.
+- No local execution, training, dataset generation, external API, pretrained weights or remote execution is claimed.
