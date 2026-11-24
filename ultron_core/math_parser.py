@@ -26,6 +26,9 @@ _LATEX_SYMBOLS = {
     r"\phi": "φ", r"\omega": "ω",
 }
 
+_SUPERSCRIPT_DIGITS = dict(zip("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
+_SUPERSCRIPT_SIGNS = {"⁺": "+", "⁻": "-"}
+
 
 class _RecursiveParser:
     def __init__(self, tokens: tuple[MathToken, ...], max_nesting: int):
@@ -157,6 +160,30 @@ class _RecursiveParser:
 
     def _parse_power(self) -> Expr:
         base = self._parse_primary()
+        token = self._peek()
+        if token is not None and (
+            token.value in _SUPERSCRIPT_DIGITS or token.value in _SUPERSCRIPT_SIGNS
+        ):
+            start = token.offset
+            previous_end = start
+            sign = 1
+            if token.value in _SUPERSCRIPT_SIGNS:
+                sign = -1 if token.value == "⁻" else 1
+                self.position += 1
+                previous_end += len(token.value)
+            digits = []
+            while self._peek() is not None and self._peek().value in _SUPERSCRIPT_DIGITS:
+                current = self._peek()
+                if current.offset != previous_end:
+                    break
+                self.position += 1
+                digits.append(_SUPERSCRIPT_DIGITS[current.value])
+                previous_end = current.offset + len(current.value)
+            if not digits:
+                raise MathParseError("superscript sign must be followed by digits", start)
+            exponent = Expr(ExprKind.INTEGER, value=sign * int("".join(digits)))
+            base = Expr(ExprKind.POW, args=(base, exponent))
+
         operator = self._accept("^")
         if operator is not None:
             self._enter(operator.offset)
