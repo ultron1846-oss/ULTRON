@@ -641,6 +641,13 @@ class ExactRationalExpressionTests(unittest.TestCase):
                 limits=PolynomialLimits(max_total_degree=2),
             )
 
+    def test_custom_limits_above_defaults_survive_rational_normalization(self):
+        from ultron_core.polynomial import PolynomialLimits
+        from ultron_core.rational import RationalFunction
+        limits = PolynomialLimits(max_total_degree=128, max_terms=4096, max_exponent=128)
+        value = RationalFunction.from_expr(parse_math("x^65"), limits=limits)
+        self.assertEqual(value.evaluate({"x": 2}), Fraction(2**65))
+
 
 if __name__ == "__main__":
     unittest.main()
