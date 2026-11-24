@@ -211,6 +211,16 @@ class CoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unique after rational normalization"):
             probe_candidate(candidate, sample_values=(1, "1/1"))
 
+    def test_finite_probe_enforces_evaluation_budget(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(ValueError, "exceeding max_samples"):
+            probe_candidate(
+                candidate, variable_names=("x", "y", "z"),
+                sample_values=(0, 1), max_samples=7,
+            )
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            probe_candidate(candidate, max_samples=0)
+
     def test_finite_probe_rejects_empty_sample_domain(self):
         candidate = polynomial_identity_candidates()[0]
         with self.assertRaisesRegex(ValueError, 'sample_values must not be empty'):
