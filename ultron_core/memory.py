@@ -1,3 +1,4 @@
+import math
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -11,7 +12,7 @@ class FastWeightMemory(nn.Module):
             raise ValueError("hidden_size must be a positive integer")
         if isinstance(slots, bool) or not isinstance(slots, int) or slots <= 0:
             raise ValueError("slots must be a positive integer")
-        if isinstance(decay, bool) or not isinstance(decay, (int, float)) or not torch.isfinite(torch.tensor(decay)).item() or not 0.0 <= decay <= 1.0:
+        if isinstance(decay, bool) or not isinstance(decay, (int, float)) or not math.isfinite(decay) or not 0.0 <= decay <= 1.0:
             raise ValueError("decay must be finite and in [0, 1]")
         self.hidden_size, self.decay = hidden_size, decay
         self.key = nn.Linear(hidden_size, hidden_size, bias=False)
