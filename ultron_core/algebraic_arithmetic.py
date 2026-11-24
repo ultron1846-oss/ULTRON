@@ -260,14 +260,15 @@ def _combine(left: RealAlgebraicNumber, right: RealAlgebraicNumber,
             return RealAlgebraicNumber.from_rational(
                 lower, variable=left.variable, limits=limits
             )
-        try:
+        if (
+            polynomial.evaluate({left.variable: lower}) == 0
+            or polynomial.evaluate({left.variable: upper}) == 0
+        ):
+            count = -1
+        else:
             count = polynomial.real_root_count_univariate(
                 lower, upper, variable=left.variable, limits=limits
             )
-        except PolynomialError as error:
-            if "endpoints must not be roots" not in str(error) and "endpoint" not in str(error):
-                raise
-            count = -1
         if count == 1:
             return RealAlgebraicNumber.from_isolating_interval(
                 polynomial, lower, upper, variable=left.variable, limits=limits
@@ -330,6 +331,6 @@ def reciprocal(value: RealAlgebraicNumber, *,
 
 
 def divide(left: RealAlgebraicNumber, right: RealAlgebraicNumber, **kwargs) -> RealAlgebraicNumber:
-    inverse = reciprocal(right, limits=kwargs.get("limits", DEFAULT_LIMITS),
+    inverse = reciprocal(right, limits=kwargs.get("limits"),
                          max_refinements=kwargs.get("max_refinements", DEFAULT_MAX_REFINE))
     return multiply(left, inverse, **kwargs)
