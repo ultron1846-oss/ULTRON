@@ -162,10 +162,8 @@ class _RecursiveParser:
             if not self._is_digit(next_token) or next_token.offset != previous_end + 1:
                 raise MathParseError("decimal point must be followed by digits", first.offset)
             previous_end += 1
-        while self._is_digit(self._peek()):
+        while self._is_digit(self._peek()) and self._peek().offset == previous_end:
             token = self._take()
-            if token.offset != previous_end:
-                break
             pieces.append(token.value)
             previous_end = token.offset + len(token.value)
 
