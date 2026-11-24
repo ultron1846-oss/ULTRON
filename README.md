@@ -387,6 +387,7 @@ The isolated Python core now has an initial, deliberately bounded mathematical i
 - JSONL output and a deterministic manifest include schema/generator versions, seed, topic counts, example count and SHA-256 content hash. The writer uses temporary files and atomic replacement for each output file.
 - The existing model now accepts an optional boolean `attention_mask` (`True` means a real token). Padding keys are blocked in every causal-attention layer; padded query outputs are zeroed after attention, and padded positions are excluded from optional episodic-memory writes. Entirely padded batch rows are rejected.
 - The mathematical IR and exact evaluator now include binary subtraction and division, including explicit division-by-zero rejection.
+- Mathematical expressions now have strict recursive dictionary serialization, canonical structural JSON and SHA-256 structural hashes. These hashes identify structure; they do not prove algebraic equivalence or canonicalize equivalent formulas.
 
 ### Explicit coverage limits
 The tokenizer is a lexer, not a parser: it does not construct expression trees, infer implicit multiplication, resolve function names, interpret domains/assumptions, or validate mathematical meaning. Its current fixed vocabulary is a documented subset, not complete LaTeX or complete mathematical notation. Some calculus, linear-algebra, set, logic and proof symbols are lexically recognized, but this does not mean their semantics or operations are implemented. Unsupported characters fail closed.
