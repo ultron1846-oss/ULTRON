@@ -47,7 +47,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig, opt
         )
         manifest_tmp = Path(manifest_name)
         with os.fdopen(manifest_fd, "w", encoding="utf-8") as stream:
-            stream.write(digest + "  " + target.name + "\\n")
+            stream.write(digest + "  " + target.name + "\n")
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(manifest_tmp, manifest)
