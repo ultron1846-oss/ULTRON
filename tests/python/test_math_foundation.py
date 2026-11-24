@@ -677,6 +677,94 @@ class ExactRationalExpressionTests(unittest.TestCase):
         value = RationalFunction.from_expr(parse_math("x^65"), limits=limits)
         self.assertEqual(value.evaluate({"x": 2}), Fraction(2**65))
 
+class ExactUnivariatePolynomialDivisionTests(unittest.TestCase):
+    def test_division_exact_quotient_and_zero_remainder(self):
+        from ultron_core.polynomial import Polynomial
+        dividend = Polynomial.from_expr(parse_math("x^3 - 1"))
+        divisor = Polynomial.from_expr(parse_math("x - 1"))
+        quotient, remainder = dividend.divide_univariate(divisor)
+        self.assertEqual(quotient, Polynomial.from_expr(parse_math("x^2 + x + 1")))
+        self.assertEqual(remainder, Polynomial.zero())
+        self.assertEqual(
+            quotient.multiply(divisor).add(remainder),
+            dividend,
+        )
+        self.assertEqual(dividend.exact_divide_univariate(divisor), quotient)
+
+    def test_division_returns_exact_nonzero_remainder(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        dividend = Polynomial.from_expr(parse_math("x^2 + 1"))
+        divisor = Polynomial.from_expr(parse_math("x + 1"))
+        quotient, remainder = dividend.divide_univariate(divisor)
+        self.assertEqual(quotient, Polynomial.from_expr(parse_math("x - 1")))
+        self.assertEqual(remainder, Polynomial.constant(2))
+        self.assertEqual(quotient.multiply(divisor).add(remainder), dividend)
+        with self.assertRaisesRegex(PolynomialError, "not exact"):
+            dividend.exact_divide_univariate(divisor)
+
+    def test_fraction_coefficients_are_divided_exactly(self):
+        from ultron_core.polynomial import Polynomial
+        dividend = Polynomial.from_expr(parse_math("1/2*x^2 + 1/3*x + 1/18"))
+        divisor = Polynomial.from_expr(parse_math("1/2*x + 1/6"))
+        quotient, remainder = dividend.divide_univariate(divisor)
+        self.assertEqual(quotient, Polynomial.from_expr(parse_math("x + 1/3")))
+        self.assertEqual(remainder, Polynomial.zero())
+
+    def test_monic_univariate_gcd(self):
+        from ultron_core.polynomial import Polynomial
+        left = Polynomial.from_expr(parse_math("x^3 - 2*x^2 + x"))
+        right = Polynomial.from_expr(parse_math("x^2 - 1"))
+        expected = Polynomial.from_expr(parse_math("x - 1"))
+        self.assertEqual(left.gcd_univariate(right), expected)
+        self.assertEqual(right.gcd_univariate(left), expected)
+
+    def test_coprime_and_constant_gcd(self):
+        from ultron_core.polynomial import Polynomial
+        left = Polynomial.from_expr(parse_math("x^2 + 1"))
+        right = Polynomial.from_expr(parse_math("x + 1"))
+        self.assertEqual(left.gcd_univariate(right), Polynomial.one())
+        self.assertEqual(
+            Polynomial.constant(6).gcd_univariate(Polynomial.constant(9)),
+            Polynomial.one(),
+        )
+
+    def test_gcd_zero_polynomial_edges(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        polynomial = Polynomial.from_expr(parse_math("2*x^2 + 4*x"))
+        self.assertEqual(Polynomial.zero().gcd_univariate(polynomial),
+                         Polynomial.from_expr(parse_math("x^2 + 2*x")))
+        with self.assertRaisesRegex(PolynomialError, "gcd"):
+            Polynomial.zero().gcd_univariate(Polynomial.zero())
+        with self.assertRaisesRegex(PolynomialError, "multivariate"):
+            Polynomial.from_expr(parse_math("x*y")).gcd_univariate(Polynomial.zero())
+        with self.assertRaisesRegex(PolynomialError, "does not match"):
+            Polynomial.variable("x").gcd_univariate(Polynomial.zero(), variable="y")
+
+    def test_division_rejects_zero_divisor_and_multivariate_inputs(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        polynomial = Polynomial.from_expr(parse_math("x + 1"))
+        with self.assertRaisesRegex(PolynomialError, "division by zero"):
+            polynomial.divide_univariate(Polynomial.zero())
+        with self.assertRaisesRegex(PolynomialError, "multivariate"):
+            Polynomial.from_expr(parse_math("x*y + 1")).divide_univariate(
+                Polynomial.from_expr(parse_math("x + 1"))
+            )
+        with self.assertRaisesRegex(PolynomialError, "one shared variable"):
+            Polynomial.from_expr(parse_math("x + 1")).divide_univariate(
+                Polynomial.from_expr(parse_math("y + 1"))
+            )
+
+    def test_division_rejects_variable_mismatch_and_honors_budgets(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError, PolynomialLimits
+        polynomial = Polynomial.from_expr(parse_math("x^3 + 1"))
+        divisor = Polynomial.from_expr(parse_math("x + 1"))
+        with self.assertRaisesRegex(PolynomialError, "does not match"):
+            polynomial.divide_univariate(divisor, variable="y")
+        with self.assertRaisesRegex(PolynomialError, "total degree"):
+            polynomial.divide_univariate(
+                divisor, limits=PolynomialLimits(max_total_degree=2)
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

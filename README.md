@@ -497,3 +497,16 @@ The mathematical core now has an exact rational-expression layer in `ultron_core
 - Function calls, comparisons, assumption-bearing expressions and non-integer powers remain unsupported.
 
 This is exact arithmetic over a restricted rational-function representation with explicit domain tracking. It does not implement polynomial GCD, factor cancellation, multivariate polynomial division, equation solving, calculus, algebraic numbers or a proof kernel. It is not a general CAS. No training, optimizer step, corpus generation, cloud job, remote execution, website, Supabase or authentication change was performed.
+
+
+## Exact univariate polynomial division and GCD — 2026-11-24
+
+The sparse-polynomial engine now implements exact Euclidean division over rational coefficients for univariate inputs.
+
+- `divide_univariate` returns quotient and remainder satisfying (A=QB+R), with (R=0) or (deg R<deg B).
+- `exact_divide_univariate` returns the quotient only when the remainder is zero.
+- `gcd_univariate` uses the Euclidean algorithm and returns the monic GCD over (mathbb{Q}[x]).
+- Inputs with multivariate monomials or multiple distinct variables are rejected. No multivariate monomial order or multivariate division is inferred.
+- Configured polynomial degree, term and exponent limits are checked on inputs and intermediate quotient/remainder states.
+
+This is a univariate exact-algebra operation only. It does not yet cancel factors in RationalFunction, because rational cancellation must preserve the original non-zero domain restrictions. No training or optimizer step is involved.

@@ -257,5 +257,161 @@ class Polynomial:
             return Expr(ExprKind.INTEGER, value=0)
         return terms[0] if len(terms) == 1 else Expr(ExprKind.ADD, args=tuple(terms))
 
+    def divide_univariate(
+        self,
+        divisor: "Polynomial",
+        *,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> tuple["Polynomial", "Polynomial"]:
+        """Return exact quotient and remainder over Q for univariate inputs only.
+
+        The method rejects multivariate terms instead of applying an ambiguous
+        monomial order. Coefficients are Fractions, so each division step is
+        exact. The invariant is self = quotient * divisor + remainder, with
+        remainder zero or degree(remainder) < degree(divisor).
+        """
+        if not isinstance(divisor, Polynomial):
+            raise TypeError("divisor must be a Polynomial")
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+        if variable is not None and (
+            not isinstance(variable, str) or not variable.isidentifier()
+        ):
+            raise ValueError("variable must be a valid identifier or None")
+        if not divisor.terms:
+            raise PolynomialError("polynomial division by zero")
+
+        _check_budget(dict(self.terms), limits)
+        _check_budget(dict(divisor.terms), limits)
+
+        symbols = set()
+        for polynomial in (self, divisor):
+            for monomial, _ in polynomial.terms:
+                if len(monomial) > 1:
+                    raise PolynomialError("univariate division does not accept multivariate monomials")
+                if monomial:
+                    symbols.add(monomial[0][0])
+        if len(symbols) > 1:
+            raise PolynomialError("univariate division requires one shared variable")
+        inferred = next(iter(symbols), None)
+        if variable is not None and inferred not in (None, variable):
+            raise PolynomialError(
+                f"polynomial variable {inferred!r} does not match requested variable {variable!r}"
+            )
+        selected = variable or inferred
+
+        def degree_map(polynomial):
+            result = {}
+            for monomial, coefficient in polynomial.terms:
+                degree = monomial[0][1] if monomial else 0
+                result[degree] = coefficient
+            return result
+
+        def monomial_for(degree):
+            return () if degree == 0 else ((selected, degree),)
+
+        remainder = degree_map(self)
+        divisor_terms = degree_map(divisor)
+        divisor_degree = max(divisor_terms)
+        divisor_lead = divisor_terms[divisor_degree]
+        quotient = {}
+
+        while remainder:
+            remainder_degree = max(remainder)
+            if remainder_degree < divisor_degree:
+                break
+            shift = remainder_degree - divisor_degree
+            if shift > limits.max_exponent:
+                raise PolynomialError(
+                    f"quotient exponent {shift} exceeds max_exponent={limits.max_exponent}"
+                )
+            factor = remainder[remainder_degree] / divisor_lead
+            quotient[shift] = quotient.get(shift, Fraction(0)) + factor
+            if quotient[shift] == 0:
+                del quotient[shift]
+
+            for degree, coefficient in divisor_terms.items():
+                target_degree = degree + shift
+                remainder[target_degree] = (
+                    remainder.get(target_degree, Fraction(0)) - factor * coefficient
+                )
+                if remainder[target_degree] == 0:
+                    del remainder[target_degree]
+
+            quotient_terms = {
+                monomial_for(degree): coefficient
+                for degree, coefficient in quotient.items()
+                if coefficient
+            }
+            remainder_terms = {
+                monomial_for(degree): coefficient
+                for degree, coefficient in remainder.items()
+                if coefficient
+            }
+            _check_budget(quotient_terms, limits)
+            _check_budget(remainder_terms, limits)
+
+        quotient_terms = {
+            monomial_for(degree): coefficient
+            for degree, coefficient in quotient.items()
+            if coefficient
+        }
+        remainder_terms = {
+            monomial_for(degree): coefficient
+            for degree, coefficient in remainder.items()
+            if coefficient
+        }
+        return (
+            Polynomial(_canonical(quotient_terms, limits)),
+            Polynomial(_canonical(remainder_terms, limits)),
+        )
+
+    def exact_divide_univariate(
+        self,
+        divisor: "Polynomial",
+        *,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> "Polynomial":
+        """Return the exact univariate quotient or fail if a remainder exists."""
+        quotient, remainder = self.divide_univariate(
+            divisor, variable=variable, limits=limits
+        )
+        if remainder.terms:
+            raise PolynomialError("univariate polynomial division is not exact")
+        return quotient
+
+    def gcd_univariate(
+        self,
+        other: "Polynomial",
+        *,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> "Polynomial":
+        """Return the monic Euclidean GCD over Q for univariate polynomials."""
+        if not isinstance(other, Polynomial):
+            raise TypeError("other must be a Polynomial")
+        if not self.terms and not other.terms:
+            raise PolynomialError("gcd(0, 0) is undefined")
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+
+        # Validate the left operand even when the right operand is zero and
+        # the Euclidean loop would otherwise be skipped entirely.
+        if not other.terms:
+            self.divide_univariate(Polynomial.one(), variable=variable, limits=limits)
+
+        left, right = self, other
+        while right.terms:
+            _, remainder = left.divide_univariate(
+                right, variable=variable, limits=limits
+            )
+            left, right = right, remainder
+
+        if not left.terms:
+            raise PolynomialError("gcd(0, 0) is undefined")
+        return left.scale(1 / left.terms[-1][1], limits=limits)
+
     def canonical_key(self):
         return self.terms
