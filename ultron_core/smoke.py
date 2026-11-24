@@ -19,7 +19,7 @@ def run(device='cpu', batch=2, sequence=16, profile=False):
         torch.cuda.reset_peak_memory_stats(target)
     start = time.perf_counter()
     output = model(ids)
-    loss = causal_language_model_loss(output['logits'], ids, output['load_balance_loss'])
+    loss = causal_language_model_loss(output['logits'], ids, output['load_balance_loss'], output['prediction_error'])
     loss.backward()
     result = {'device': str(target), 'input_shape': list(ids.shape),
         'loss': float(loss.detach().cpu()), 'backward': True,
