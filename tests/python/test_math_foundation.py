@@ -342,7 +342,7 @@ class MathParserTests(unittest.TestCase):
                     parse_math(source)
 
     def test_parser_rejects_unsupported_semantics_instead_of_guessing(self):
-        for source in ("sin(x)", "x_1", r"\frac{1}{2}", "x <= 3", "x ∈ ℝ"):
+        for source in ("sin(x)", "x_{i,2}", r"\frac{1}{2}", "x <= 3", "x ∈ ℝ"):
             with self.subTest(source=source):
                 with self.assertRaises(MathParseError):
                     parse_math(source)
