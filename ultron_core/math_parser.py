@@ -6,6 +6,7 @@ use eval/exec, infer mathematical domains, or claim support for full LaTeX.
 from __future__ import annotations
 
 from fractions import Fraction
+import re
 
 from .math_ir import Expr, ExprKind
 from .math_tokenizer import MathToken, MathTokenizer
@@ -349,7 +350,14 @@ class MathParser:
             raise TypeError("mathematical input must be a string")
         if len(source) > self.max_source_chars:
             raise MathParseError("maximum source length exceeded", self.max_source_chars)
-        tokens = self.tokenizer.tokenize(source)
+        try:
+            tokens = self.tokenizer.tokenize(source)
+        except ValueError as exc:
+            match = re.search(r"at offset (\\d+)$", str(exc))
+            if match is None:
+                raise
+            message = str(exc).rsplit(" at offset ", 1)[0]
+            raise MathParseError(message, int(match.group(1))) from exc
         if len(tokens) > self.max_tokens:
             raise MathParseError("maximum token count exceeded", tokens[self.max_tokens].offset)
         return _RecursiveParser(tokens, self.max_nesting).parse()
