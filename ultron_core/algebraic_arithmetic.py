@@ -91,11 +91,6 @@ def _resultant_matrix(left: RealAlgebraicNumber,
     m, n = max(p), max(q)
     if m + n < 1:
         raise PolynomialError("resultant requires at least one non-constant polynomial")
-    if m + n > MAX_RESULTANT_MATRIX:
-        raise PolynomialError(
-            f"resultant matrix size {m+n} exceeds hard limit {MAX_RESULTANT_MATRIX}"
-        )
-
     transformed: dict[int, Polynomial] = {}
     if operation in ("add", "subtract"):
         # Q(z - x) for addition; Q(x - z) is not used. Subtraction is
@@ -134,6 +129,10 @@ def _resultant_matrix(left: RealAlgebraicNumber,
     q_desc = [transformed.get(power, Polynomial.zero())
               for power in range(transformed_degree, -1, -1)]
     size = m + transformed_degree
+    if size > MAX_RESULTANT_MATRIX:
+        raise PolynomialError(
+            f"resultant matrix size {size} exceeds hard limit {MAX_RESULTANT_MATRIX}"
+        )
     matrix = [[Polynomial.zero() for _ in range(size)] for _ in range(size)]
 
     # transformed_degree shifted rows of P, followed by m shifted rows of Q.
