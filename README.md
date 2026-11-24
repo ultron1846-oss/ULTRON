@@ -1,73 +1,82 @@
-# ULTRON — Mathematics Workspace
+# ULTRON — Mathematics Intelligence Workspace
 
-ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current work is a prototype foundation, not a complete AI system. It uses no external AI APIs, pretrained models, pretrained weights, or paid services. Model training remains disabled unless separately authorized.
+ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current website is a static frontend and deterministic foundation prototype—not a trained AI model.
 
-## Repository status
+## Frontend status
 
-- Default and current branch: `main`.
-- Open pull requests: none. Milestone PRs [#1](https://github.com/ultron1846-oss/ULTRON/pull/1) and [#2](https://github.com/ultron1846-oss/ULTRON/pull/2) are merged.
-- Latest local test result: `node --test` — 6 passed, 0 failed.
-- Latest main-branch test workflow: passed.
-- Public site: verified at the target URL after GitHub's Pages build/deployment workflow succeeded. The separate custom Pages action workflow failed on its first run at `Configure Pages`, so that deployment path still needs validation.
+The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
-The initial repository contained only a placeholder README. PR #1 added the first application and math foundation. PR #2 added the repository assessment, documentation, and delivery workflows.
+### Current pages
+- **Supabase backend:** live read-only status check plus an audit of the existing project and Edge Function contracts. It never calls owner-only services from the public site.
+- **Overview:** honest system status, model/training state, mathematical capability summary and local practice count.
+- **How ULTRON learns:** explains the intended verified learning lifecycle and distinguishes learning exercises from neural-model training.
+- **Math Agent:** browser interface to the existing deterministic arithmetic parser and limited linear-equation solver.
+- **Servers:** reads optional `servers.json`, handles missing/malformed directory data and never starts remote jobs.
+- **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
+
+The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training.
 
 ## Architecture
+- `index.html`: public application shell and navigation.
+- `styles.css`: black/crimson control-room visual system and responsive layouts.
+- `app.js`: frontend rendering, navigation, local preferences, Math Agent UI, provider directory and Supabase audit page.
+- `supabase-integration.js`: public status client and non-secret audit metadata. It uses only the publishable API key and the read-only `public_status` action.
+- `math-engine.js`: deterministic arithmetic parser and limited one-variable linear equation solver. No `eval()` or `new Function()`.
+- `tests/`: Node.js built-in regression tests.
+- `.github/workflows/`: test and GitHub Pages workflows.
 
-- `index.html` is the static application shell.
-- `styles.css` provides responsive desktop, tablet, and mobile styles.
-- `app.js` renders the dashboard and the Mathematics, Learning, Engine, Knowledge, Training, Settings, and System Information sections.
-- `math-engine.js` is a deterministic arithmetic parser and limited one-variable linear equation solver. It accepts `×` and `÷` and does not use `eval()` or `new Function()`.
-- `tests/` contains Node.js built-in tests; no third-party packages are required.
-- `docs/` records assessment, architecture, research, testing, deployment, limitations, and next steps.
-- `.github/workflows/` contains the Node test workflow and static Pages deployment workflow.
+## Safety boundaries
+- No external AI APIs or pretrained model weights.
+- No login or registration required.
+- No provider job submission or background execution from the public frontend.
+- **Actual model training remains disabled** until separate explicit user authorization.
+- The RAM slider is a browser-local preference only; it does not control physical RAM or GPU VRAM.
+- Provider availability and free-tier terms are not guaranteed; verify directly with providers.
 
-## Current implementation
+## Development and tests
+Requires Node.js 18 or later. Run:
 
-- Responsive navigation and dashboard with explicit prototype labels.
-- Arithmetic expressions with parentheses, signs, decimals, exponentiation, and standard multiplication/division symbols.
-- A limited solver for one-variable linear equations.
-- One arithmetic practice problem with local progress tracking.
-- A resource preference control that is explicitly not physical RAM allocation.
-- Training controls that remain disabled and state that no model exists.
-- A hand-authored starter glossary and planned-domain labels.
+```sh
+node --test
+```
 
-Planned cards are not implemented functionality.
-
-## Tests
-
-With Node.js 18 or later, run `node --test` (or `npm test` where npm is installed). The current suite covers arithmetic parsing, unsafe and malformed expression rejection, linear equations, navigation entry points, persistence hooks, responsive viewport declaration, and workflow guardrails. It does not replace browser interaction tests. iPad Safari and live deployment have not been verified.
+Automated tests do not replace live browser testing. iPad Safari testing must only be reported after it has actually been performed.
 
 ## GitHub Pages
+Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow must stage every runtime asset required by the frontend, including `math-engine.js` and (when added by backend work) `servers.json`. A successful Actions deployment is not by itself proof of every page interaction.
 
-Target URL: `https://ultron1846-oss.github.io/ULTRON/`.
+## Supabase integration audit
 
-The custom static workflow stages the required site files and has no build step. It deploys only from `main`. Its first run stopped at `Configure Pages` with a “Get Pages site failed” error. A GitHub-generated Pages build/deployment run later succeeded, and the public dashboard loaded at the target URL. Confirm the repository **Settings → Pages** source before relying on the custom workflow; validate that workflow separately after the setting is confirmed.
+The connected Supabase project `ultron-memory` was inspected directly. It was `ACTIVE_HEALTHY` at inspection time. Its memory tables and `training_api` tables remain owner-linked and protected by row-level security; the public website does not query those records.
 
-## Known limitations
+- `device-control` remains retired and returns HTTP 410.
+- `training-control` is deployed at version 8. Its GitHub repository target is `ultron1846-oss/ULTRON`, and its allowed browser origin is `https://ultron1846-oss.github.io`.
+- A `public_status` action is available without a user session. It returns only generic service state, model status, and explicit training/remote-execution disabled flags. It does not return owner IDs, run metadata, memory records, provider credentials, or secrets.
+- The Edge Function platform JWT check is disabled so the public status action can be called from the account-free site. Every existing protected action still performs its own bearer-token verification and owner-ID check inside the function. The public site calls only `public_status`.
+- The frontend uses the Supabase publishable key in the `apikey` header. No service-role key, secret key, GitHub token, or owner credential is included in the repository.
+- No database schema, RLS policy, user record, or secret was changed. The Edge Function code was updated; training remains disabled and no training job was started.
+- Security advisors also reported three RLS-enabled retired device/pairing tables with no policies, disabled leaked-password protection, and several unindexed foreign keys. These are separate database-hardening items; the public status endpoint does not expose those tables.
 
-- The engine supports numeric arithmetic and a narrow linear equation format only; it is not a computer algebra system.
-- Most mathematics topics are planned and do not yet have lessons, verified exercises, or formulas.
-- Learning contains one exercise; progress and preferences use browser local storage, not IndexedDB or cloud storage.
-- The resource control records workload preference and cannot allocate or measure physical memory.
-- There is no model, generated training data, durable model checkpoint, backend, or authentication system.
-- The repository contains no Subspace code or reference; its intended meaning is unresolved.
-- The custom Actions deployment path has not yet passed; the public site itself is live and browser-verified.
+## Backend handoff / remaining work
 
-## Five-PR development plan
+The backend owner (Codex) should:
+1. Maintain and test the deterministic math engine API without breaking the frontend imports.
+2. Decide and document the `servers.json` schema; include it in the Pages staging step when it exists.
+3. Keep all training entry points hard-disabled and add backend regression tests preventing accidental execution.
+4. Implement knowledge, lesson, verification and memory services behind documented interfaces before the frontend advertises them as available.
+5. Keep provider metadata evidence-based and current; never invent free-tier availability.
+6. Keep the Supabase public_status response read-only and separate from owner-only training controls; do not expose database rows or credentials.
+7. Update this README at meaningful milestones so the next development session can resume accurately.
 
-1. **PR #1 — Website foundation:** responsive shell, prototype sections, safe arithmetic foundation, and initial tests. Merged.
-2. **PR #2 — Repository assessment and delivery groundwork:** architecture and issue documentation, research notes, test workflow, Pages workflow, and deployment instructions. Merged.
-3. **PR #3 — Mathematical engine and knowledge:** expand mathematical operations and verification, define structured knowledge entries, and add regression tests for supported operations.
-4. **PR #4 — Learning and browser memory:** verified lesson/exercise flows, learner mistake history, IndexedDB-backed local progress, and safe export/import.
-5. **PR #5 — Original intelligence research and integration:** document and test an original model/data-generation/training design, integrate only evidence-backed components, and add evaluation/checkpoint foundations. Training must remain disabled absent separate authorization.
+## Delivery plan
 
-Later milestones should be implemented, tested, and documented before their PRs are opened. The repository safety policy limits new PRs to two per 24 hours.
+The screenshot-inspired frontend redesign is delivered as one consolidated pull request: [PR #3](https://github.com/ultron1846-oss/ULTRON/pull/3). Do not split this frontend milestone into additional pull requests. Codex owns backend services and backend tests; this frontend branch must not duplicate backend implementation. Keep actual training disabled.
 
-## Next steps
+## Next frontend steps
+1. Run the full Node test suite and inspect the PR checks.
+2. Verify the deployed Pages URL and asset paths after merge.
+3. Test touch navigation, forms, scrolling and layout on iPad Safari and mobile browsers.
+4. Connect additional backend capabilities only after their interfaces and tests exist.
 
-1. Confirm the GitHub Pages publishing source, then validate the custom deployment workflow without creating repeated runs.
-2. Begin PR #3 by specifying the supported mathematical grammar and verification invariants before adding operations.
-3. Add browser checks on desktop, mobile, and iPad Safari when an available test environment supports them.
-4. Keep actual model training disabled unless the user separately authorizes it.
-
+## Project rule
+A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.

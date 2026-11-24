@@ -1,30 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080a0f"><meta name="description" content="ULTRON — an independent mathematics learning and calculation workspace.">
-  <title>ULTRON — Mathematics Workspace</title><link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080809">
+  <meta name="description" content="ULTRON — an independent mathematics workspace and learning system.">
+  <title>ULTRON | Mathematics Intelligence</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Main navigation">
-      <a class="brand" href="#dashboard" aria-label="ULTRON dashboard"><span class="brand-mark">U</span><span>ULTRON<small>MATHEMATICS SYSTEM</small></span></a>
-      <div class="nav-label">WORKSPACE</div>
+    <header class="topbar">
+      <a class="brand" href="#overview" aria-label="ULTRON overview">
+        <span class="brand-mark">U</span><span class="brand-copy">ULTRON<small>MATHEMATICS INTELLIGENCE</small></span>
+      </a>
+      <div class="topbar-right"><span class="public-pill">PUBLIC</span><button class="theme-button" id="theme-toggle" aria-label="Toggle contrast">◐</button><button class="mobile-menu" id="mobile-menu" aria-label="Toggle navigation" aria-expanded="false">☰</button></div>
+    </header>
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="nav-heading">CONTROL ROOM</div>
       <nav id="navigation">
-        <button class="nav-item active" data-page="dashboard"><span>◈</span>Dashboard</button>
-        <button class="nav-item" data-page="mathematics"><span>∑</span>Mathematics</button>
-        <button class="nav-item" data-page="learning"><span>▤</span>Learning</button>
-        <button class="nav-item" data-page="engine"><span>⌘</span>Math engine</button>
-        <button class="nav-item" data-page="knowledge"><span>◇</span>Knowledge</button>
-        <button class="nav-item" data-page="training"><span>◉</span>Training control</button>
+        <button class="nav-item active" data-page="overview"><span>◇</span>Overview</button>
+        <button class="nav-item" data-page="learning"><span>∿</span>How ULTRON learns</button>
+        <button class="nav-item" data-page="agent"><span>Σ</span>Math Agent</button>
+        <button class="nav-item" data-page="servers"><span>⌘</span>Servers</button>
+        <button class="nav-item" data-page="backend"><span>◈</span>Supabase backend</button>
+        <button class="nav-item" data-page="settings"><span>⚙</span>Settings</button>
       </nav>
-      <div class="sidebar-bottom"><div class="status-dot"></div><span>LOCAL WORKSPACE</span><span class="version">v0.1.0</span></div>
+      <div class="sidebar-bottom"><div class="nav-heading">ACCESS</div><span>PUBLIC DASHBOARD</span><small>No account required</small></div>
     </aside>
     <main class="main-area">
-      <header class="topbar"><div class="crumb">ULTRON <span>/</span> <b id="page-crumb">Dashboard</b></div><div class="top-actions"><button class="icon-button" data-page="settings" aria-label="Open settings">⚙</button><span class="local-badge"><i></i> All data stays here</span></div></header>
+      <div class="breadcrumb">ULTRON <span>/</span> <b id="page-crumb">Overview</b></div>
       <section id="page-content" class="content" tabindex="-1" aria-live="polite"></section>
-      <footer>ULTRON <span>•</span> Independent mathematics foundation <span>•</span> Prototype 0.1.0</footer>
+      <footer><span>ULTRON TRAINING CONTROL</span><span>PUBLIC MATHEMATICS WORKSPACE</span></footer>
     </main>
   </div>
   <script type="module" src="app.js"></script>
-</body></html>
+</body>
+</html>

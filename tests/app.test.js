@@ -2,12 +2,34 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-test('static shell exposes every requested primary section and entry points', async () => {
+test('control-room shell exposes all five primary destinations', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  for (const page of ['overview', 'learning', 'agent', 'servers', 'settings']) {
+    assert.ok(html.includes(`data-page="${page}"`), `missing navigation destination: ${page}`);
+  }
+  assert.ok(html.includes('viewport-fit=cover'));
+  assert.ok(html.includes('mobile-menu'));
+});
+
+test('frontend keeps model training and remote execution disabled', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
-  for (const page of ['dashboard','mathematics','learning','engine','knowledge','training']) assert.match(html, new RegExp(`data-page="${page}"`));
-  for (const page of ['settings','system']) assert.match(app, new RegExp(`${page}:`));
-  assert.match(html, /viewport/);
-  assert.match(app, /localStorage/);
-  assert.doesNotMatch(app, /\beval\s*\(|new Function/);
+  assert.ok(app.includes('TRAINING DISABLED'));
+  assert.ok(app.includes('REMOTE EXECUTION DISABLED'));
+  assert.ok(!app.includes('optimizer.step('));
+  assert.ok(!app.includes('startTraining('));
+  assert.ok(!app.includes('new Function'));
+});
+
+test('provider directory handles missing data without inventing availability', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  assert.ok(app.includes("fetch('./servers.json'"));
+  assert.ok(app.includes('Provider directory unavailable'));
+  assert.ok(app.includes('No provider is assumed available'));
+});
+
+test('Math Agent uses the existing deterministic engine and rejects unsupported input', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  assert.ok(app.includes('evaluateExpression'));
+  assert.ok(app.includes('solveLinearEquation'));
+  assert.ok(app.includes('Unsupported requests are not guessed'));
 });
