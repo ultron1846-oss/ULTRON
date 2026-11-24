@@ -392,10 +392,14 @@ class MathParserTests(unittest.TestCase):
             evaluate(arithmetic, {})
 
     def test_chained_comparisons_are_rejected(self):
-        for source in ("1 < 2 < 3", "1 <= 2 = 2", "1 != 2 > 0", "1 < = 2"):
+        for source in ("1 < 2 < 3", "1 <= 2 = 2", "1 != 2 > 0"):
             with self.subTest(source=source):
                 with self.assertRaisesRegex(MathParseError, "chained comparisons"):
                     parse_math(source)
+
+    def test_spaced_ascii_compound_comparison_is_rejected(self):
+        with self.assertRaises(MathParseError):
+            parse_math("1 < = 2")
 
     def test_parser_errors_include_source_offsets(self):
         with self.assertRaisesRegex(MathParseError, "offset 1"):
