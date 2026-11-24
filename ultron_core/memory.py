@@ -32,10 +32,15 @@ class FastWeightMemory(nn.Module):
         self.valid.zero_()
         self.cursor.zero_()
 
-    def forward(self, x: torch.Tensor, write: bool = False) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, write: bool = False, write_mask: torch.Tensor | None = None) -> torch.Tensor:
         # Key/value projections are only consumed by the write path. Avoid two
         # full hidden-size projections during ordinary read-only inference.
         should_write = write and self.training
+        if write_mask is not None:
+            if not isinstance(write_mask, torch.Tensor) or write_mask.dtype != torch.bool:
+                raise TypeError("write_mask must be a boolean tensor")
+            if write_mask.shape != x.shape[:2] or write_mask.device != x.device:
+                raise ValueError("write_mask must match the input batch/sequence shape and device")
         if should_write:
             keys = F.normalize(self.key(x), dim=-1)
             values = self.value(x)
@@ -58,16 +63,20 @@ class FastWeightMemory(nn.Module):
                 gates = torch.sigmoid(self.gate(x)).squeeze(-1)
                 slot = int(self.cursor.item())
                 slot_count = self.episodic_keys.shape[0]
-                for b in range(x.shape[0]):
-                    for t in range(x.shape[1]):
-                        key = keys[b, t].detach()
-                        value = values[b, t].detach()
-                        prediction = torch.mv(self.fast_weights, key)
-                        delta = (value - prediction) * gates[b, t].detach()
-                        self.fast_weights.mul_(self.decay).add_(torch.outer(delta, key))
-                        self.episodic_keys[slot].copy_(key)
-                        self.episodic_values[slot].copy_(value)
-                        self.valid[slot] = True
-                        slot = (slot + 1) % slot_count
+                if write_mask is None:
+                    write_positions = ((b, t) for b in range(x.shape[0]) for t in range(x.shape[1]))
+                else:
+                    # One bounded mask transfer, rather than a device sync per token.
+                    write_positions = torch.nonzero(write_mask, as_tuple=False).tolist()
+                for b, t in write_positions:
+                    key = keys[b, t].detach()
+                    value = values[b, t].detach()
+                    prediction = torch.mv(self.fast_weights, key)
+                    delta = (value - prediction) * gates[b, t].detach()
+                    self.fast_weights.mul_(self.decay).add_(torch.outer(delta, key))
+                    self.episodic_keys[slot].copy_(key)
+                    self.episodic_values[slot].copy_(value)
+                    self.valid[slot] = True
+                    slot = (slot + 1) % slot_count
                 self.cursor.fill_(slot)
         return recalled
