@@ -35,7 +35,7 @@ class CoreTests(unittest.TestCase):
         model = NeuroSparseModel(self.config())
         ids = torch.randint(1, 64, (2, 6))
         output = model(ids)
-        loss = causal_language_model_loss(output['logits'], ids, output['load_balance_loss'])
+        loss = causal_language_model_loss(output['logits'], ids, output['load_balance_loss'], output['prediction_error'])
         loss.backward()
         self.assertTrue(any(p.grad is not None for p in model.parameters()))
 
@@ -100,6 +100,17 @@ class CoreTests(unittest.TestCase):
         candidate = FormulaCandidate(Expr(ExprKind.EQUAL, args=(x, y)))
         with self.assertRaisesRegex(ValueError, 'omits symbols'):
             probe_candidate(candidate, variable_names=('x',))
+
+    def test_model_rejects_empty_sequence(self):
+        model = NeuroSparseModel(self.config())
+        with self.assertRaisesRegex(ValueError, 'non-empty'):
+            model(torch.empty((1, 0), dtype=torch.long))
+
+    def test_loss_rejects_negative_auxiliary_weight(self):
+        logits = torch.randn(1, 3, 5)
+        ids = torch.randint(0, 5, (1, 3))
+        with self.assertRaisesRegex(ValueError, 'non-negative'):
+            causal_language_model_loss(logits, ids, balance_weight=-1)
 
 
 if __name__ == '__main__':
