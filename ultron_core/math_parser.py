@@ -365,4 +365,4 @@ class MathParser:
 
 def parse_math(source: str, tokenizer: MathTokenizer | None = None) -> Expr:
     """Convenience function for parsing source text into an Expr."""
-    return MathParser(tokenizer).parse()
+    return MathParser(tokenizer).parse(source)
