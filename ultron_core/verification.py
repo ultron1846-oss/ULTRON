@@ -31,6 +31,8 @@ class EvaluationLimitError(ValueError):
 def evaluate(
     expr: Expr, env: dict[str, Fraction], *, max_abs_exponent: int = 1024
 ) -> Fraction:
+    if isinstance(max_abs_exponent, bool) or not isinstance(max_abs_exponent, int) or max_abs_exponent < 0:
+        raise ValueError("max_abs_exponent must be a non-negative integer")
     if expr.kind == ExprKind.INTEGER:
         return Fraction(int(expr.value))
     if expr.kind == ExprKind.RATIONAL:
