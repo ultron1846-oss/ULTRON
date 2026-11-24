@@ -168,6 +168,15 @@ class CoreTests(unittest.TestCase):
         )
         self.assertFalse(candidate.can_enter_trusted_knowledge())
 
+    def test_formula_candidate_rejects_malformed_metadata(self):
+        expression = polynomial_identity_candidates()[0].expression
+        with self.assertRaisesRegex(TypeError, "expression must be an Expr"):
+            FormulaCandidate(expression=object())
+        with self.assertRaisesRegex(TypeError, "evidence must be a tuple"):
+            FormulaCandidate(expression=expression, evidence=["caller supplied"])
+        with self.assertRaisesRegex(TypeError, "status must be a VerificationStatus"):
+            FormulaCandidate(expression=expression, status="formally_verified")
+
     def test_candidates_are_not_trusted_by_default(self):
         candidates = polynomial_identity_candidates()
         self.assertGreaterEqual(len(candidates), 3)
