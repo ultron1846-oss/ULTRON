@@ -24,7 +24,13 @@ def _has_assumptions(expr: Expr) -> bool:
     return bool(expr.assumptions) or any(_has_assumptions(child) for child in expr.args)
 
 
-def evaluate(expr: Expr, env: dict[str, Fraction]) -> Fraction:
+class EvaluationLimitError(ValueError):
+    """Raised when exact evaluation would exceed the configured work budget."""
+
+
+def evaluate(
+    expr: Expr, env: dict[str, Fraction], *, max_abs_exponent: int = 1024
+) -> Fraction:
     if expr.kind == ExprKind.INTEGER:
         return Fraction(int(expr.value))
     if expr.kind == ExprKind.RATIONAL:
@@ -33,7 +39,7 @@ def evaluate(expr: Expr, env: dict[str, Fraction]) -> Fraction:
         if str(expr.value) not in env:
             raise ValueError(f'missing variable {expr.value}')
         return env[str(expr.value)]
-    values = [evaluate(arg, env) for arg in expr.args]
+    values = [evaluate(arg, env, max_abs_exponent=max_abs_exponent) for arg in expr.args]
     if expr.kind == ExprKind.ADD:
         return sum(values, Fraction(0))
     if expr.kind == ExprKind.MUL:
@@ -46,7 +52,12 @@ def evaluate(expr: Expr, env: dict[str, Fraction]) -> Fraction:
     if expr.kind == ExprKind.POW:
         if values[1].denominator != 1:
             raise ValueError('integer exponents only')
-        return values[0] ** int(values[1])
+        exponent = int(values[1])
+        if abs(exponent) > max_abs_exponent:
+            raise EvaluationLimitError(
+                f"absolute exponent {abs(exponent)} exceeds max_abs_exponent={max_abs_exponent}"
+            )
+        return values[0] ** exponent
     raise ValueError(f'unsupported expression {expr.kind.value}')
 
 
@@ -55,6 +66,7 @@ def probe_candidate(
     variable_names: Sequence[str] = ("x", "y"),
     sample_values: Sequence[int | str | Fraction] = (-3, -2, -1, 0, 1, 2, 3),
     max_samples: int = 100_000,
+    max_abs_exponent: int = 1024,
 ) -> ProbeResult:
     if not isinstance(candidate, FormulaCandidate):
         raise TypeError("candidate must be a FormulaCandidate")
@@ -68,6 +80,8 @@ def probe_candidate(
         raise ValueError("variable_names must be unique")
     if isinstance(max_samples, bool) or not isinstance(max_samples, int) or max_samples <= 0:
         raise ValueError("max_samples must be a positive integer")
+    if isinstance(max_abs_exponent, bool) or not isinstance(max_abs_exponent, int) or max_abs_exponent < 0:
+        raise ValueError("max_abs_exponent must be a non-negative integer")
     if not sample_values:
         raise ValueError("sample_values must not be empty")
     if any(
@@ -99,7 +113,12 @@ def probe_candidate(
     for values in product(exact_samples, repeat=len(variable_names)):
         env = {name: value for name, value in zip(variable_names, values)}
         try:
-            lhs, rhs = (evaluate(arg, env) for arg in equation.args)
+            lhs, rhs = (
+                evaluate(arg, env, max_abs_exponent=max_abs_exponent)
+                for arg in equation.args
+            )
+        except EvaluationLimitError:
+            raise
         except (ZeroDivisionError, ValueError):
             continue
         checked += 1
