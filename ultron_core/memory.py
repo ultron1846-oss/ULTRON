@@ -1,3 +1,4 @@
+import math
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -7,8 +8,12 @@ class FastWeightMemory(nn.Module):
     """Fast-weight associative matrix plus a bounded content-addressable episodic store."""
     def __init__(self, hidden_size: int, slots: int, decay: float = 0.995):
         super().__init__()
-        if not 0.0 <= decay <= 1.0:
-            raise ValueError("decay must be in [0, 1]")
+        if isinstance(hidden_size, bool) or not isinstance(hidden_size, int) or hidden_size <= 0:
+            raise ValueError("hidden_size must be a positive integer")
+        if isinstance(slots, bool) or not isinstance(slots, int) or slots <= 0:
+            raise ValueError("slots must be a positive integer")
+        if isinstance(decay, bool) or not isinstance(decay, (int, float)) or not math.isfinite(decay) or not 0.0 <= decay <= 1.0:
+            raise ValueError("decay must be finite and in [0, 1]")
         self.hidden_size, self.decay = hidden_size, decay
         self.key = nn.Linear(hidden_size, hidden_size, bias=False)
         self.value = nn.Linear(hidden_size, hidden_size, bias=False)
@@ -51,6 +56,8 @@ class FastWeightMemory(nn.Module):
             # Sequential delta updates preserve update order; this prototype path is not GPU-optimized.
             with torch.no_grad():
                 gates = torch.sigmoid(self.gate(x)).squeeze(-1)
+                slot = int(self.cursor.item())
+                slot_count = self.episodic_keys.shape[0]
                 for b in range(x.shape[0]):
                     for t in range(x.shape[1]):
                         key = keys[b, t].detach()
@@ -58,9 +65,9 @@ class FastWeightMemory(nn.Module):
                         prediction = torch.mv(self.fast_weights, key)
                         delta = (value - prediction) * gates[b, t].detach()
                         self.fast_weights.mul_(self.decay).add_(torch.outer(delta, key))
-                        slot = int(self.cursor.item())
                         self.episodic_keys[slot].copy_(key)
                         self.episodic_values[slot].copy_(value)
                         self.valid[slot] = True
-                        self.cursor.add_(1).remainder_(self.episodic_keys.shape[0])
+                        slot = (slot + 1) % slot_count
+                self.cursor.fill_(slot)
         return recalled

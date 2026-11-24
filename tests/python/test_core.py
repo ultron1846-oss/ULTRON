@@ -24,6 +24,16 @@ class CoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             NeuroSparseConfig(top_k=9)
 
+    def test_config_rejects_non_integer_dimensions(self):
+        for field in ("vocab_size", "hidden_size", "num_layers", "num_experts", "top_k", "pad_token_id"):
+            with self.subTest(field=field), self.assertRaises((TypeError, ValueError)):
+                NeuroSparseConfig(**{field: 2.5})
+
+    def test_config_rejects_non_finite_float_settings(self):
+        for field in ("halt_threshold", "dropout"):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                NeuroSparseConfig(**{field: float("nan")})
+
     def test_forward_shapes_and_finite_values(self):
         model = NeuroSparseModel(self.config())
         ids = torch.randint(1, 64, (2, 7))
@@ -47,6 +57,52 @@ class CoreTests(unittest.TestCase):
         self.assertTrue(torch.isfinite(loss))
         self.assertAlmostEqual(float(loss.detach()), 1.0, places=5)
         loss.backward()
+
+    def test_router_balance_rejects_empty_top_k_and_duplicate_assignments(self):
+        logits = torch.zeros(2, 4)
+        with self.assertRaisesRegex(ValueError, "dimensions"):
+            load_balance_loss(logits, torch.empty(2, 0, dtype=torch.long))
+        with self.assertRaisesRegex(ValueError, "distinct"):
+            load_balance_loss(logits, torch.tensor([[1, 1], [2, 3]]))
+
+    def test_router_balance_accepts_integer_index_widths(self):
+        logits = torch.zeros(2, 4)
+        indices = torch.tensor([[0, 1], [2, 3]], dtype=torch.int32)
+        self.assertTrue(torch.isfinite(load_balance_loss(logits, indices)))
+
+    def test_router_balance_internal_fast_path_skips_host_validation(self):
+        logits = torch.zeros(2, 4)
+        # Duplicate assignments are rejected by the public validation path,
+        # while the model's router-generated fast path avoids that sync check.
+        indices = torch.tensor([[1, 1], [2, 3]])
+        self.assertTrue(torch.isfinite(load_balance_loss(logits, indices, validate_indices=False)))
+
+    def test_router_balance_rejects_non_integer_indices(self):
+        with self.assertRaisesRegex(TypeError, "integer dtype"):
+            load_balance_loss(torch.zeros(2, 4), torch.tensor([[0.0], [1.0]]))
+
+    def test_refiner_and_memory_reject_invalid_constructor_dimensions(self):
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            PredictiveRefiner(hidden_size=0, max_refinements=1, halt_threshold=0.1)
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            FastWeightMemory(hidden_size=8, slots=0)
+
+    def test_predictive_refiner_rejects_invalid_shapes(self):
+        refiner = PredictiveRefiner(hidden_size=8, max_refinements=1, halt_threshold=0.1)
+        with self.assertRaisesRegex(ValueError, "shape"):
+            refiner(torch.randn(2, 8))
+        with self.assertRaisesRegex(ValueError, "non-empty"):
+            refiner(torch.empty(1, 0, 8))
+        with self.assertRaisesRegex(ValueError, "hidden dimension"):
+            refiner(torch.randn(1, 2, 7))
+
+    def test_expression_ir_rejects_truncating_integer_values(self):
+        with self.assertRaisesRegex(TypeError, "must be an int"):
+            Expr(ExprKind.INTEGER, value=1.5)
+        with self.assertRaisesRegex(ValueError, "identifier"):
+            Expr(ExprKind.SYMBOL, value="not a symbol")
+        with self.assertRaisesRegex(ValueError, "rational"):
+            Expr(ExprKind.RATIONAL, value="1/0")
 
     def test_fast_and_episodic_memory_write_reset(self):
         memory = FastWeightMemory(hidden_size=8, slots=3)
@@ -97,6 +153,14 @@ class CoreTests(unittest.TestCase):
             value_handle.remove()
         self.assertTrue(torch.isfinite(output).all())
         self.assertEqual(calls, {"key": 0, "value": 0})
+
+    def test_formal_status_label_alone_cannot_enter_trusted_knowledge(self):
+        candidate = FormulaCandidate(
+            Expr(ExprKind.EQUAL, args=(Expr(ExprKind.INTEGER, value=1), Expr(ExprKind.INTEGER, value=1))),
+            status=VerificationStatus.FORMALLY_VERIFIED,
+            evidence=("caller supplied status label",),
+        )
+        self.assertFalse(candidate.can_enter_trusted_knowledge())
 
     def test_candidates_are_not_trusted_by_default(self):
         candidates = polynomial_identity_candidates()
@@ -155,6 +219,17 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(result.status, VerificationStatus.EXPERIMENTALLY_SUPPORTED)
         self.assertIn('not a proof', result.note)
 
+    def test_checkpoint_rejects_invalid_step_and_config_mismatch(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            with self.assertRaisesRegex(ValueError, "non-negative integer"):
+                save_checkpoint(path, model, config, step=1.5)
+            with self.assertRaisesRegex(ValueError, "does not match"):
+                save_checkpoint(path, model, NeuroSparseConfig(vocab_size=65, hidden_size=32,
+                    num_layers=1, num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8))
+
     def test_checkpoint_round_trip_and_tamper_detection(self):
         config = self.config()
         model = NeuroSparseModel(config)
@@ -187,6 +262,11 @@ class CoreTests(unittest.TestCase):
         loss = causal_language_model_loss(logits, ids, ignore_index=0)
         self.assertAlmostEqual(float(loss), torch.log(torch.tensor(4.0)).item(), places=6)
 
+    def test_loss_accepts_int32_token_ids(self):
+        logits = torch.zeros(1, 3, 4)
+        ids = torch.tensor([[1, 2, 3]], dtype=torch.int32)
+        self.assertTrue(torch.isfinite(causal_language_model_loss(logits, ids)))
+
     def test_loss_rejects_all_padding_targets(self):
         logits = torch.randn(1, 3, 5)
         ids = torch.zeros((1, 3), dtype=torch.long)
@@ -200,6 +280,20 @@ class CoreTests(unittest.TestCase):
         masked = causal_language_model_loss(logits, ids, ignore_index=0)
         unmasked = causal_language_model_loss(logits, ids, ignore_index=None)
         self.assertGreater(float(masked), float(unmasked))
+
+    def test_loss_rejects_non_finite_auxiliary_weights(self):
+        logits = torch.randn(1, 3, 5)
+        ids = torch.randint(0, 5, (1, 3))
+        with self.assertRaisesRegex(ValueError, "finite non-negative"):
+            causal_language_model_loss(logits, ids, balance_weight=float("nan"))
+
+    def test_optimizer_rejects_non_finite_hyperparameters(self):
+        from ultron_core.training import make_optimizer
+        model = NeuroSparseModel(self.config())
+        with self.assertRaisesRegex(ValueError, "learning_rate"):
+            make_optimizer(model, learning_rate=float("nan"))
+        with self.assertRaisesRegex(ValueError, "weight_decay"):
+            make_optimizer(model, weight_decay=float("inf"))
 
     def test_loss_rejects_negative_auxiliary_weight(self):
         logits = torch.randn(1, 3, 5)

@@ -264,3 +264,52 @@ A focused review of the merged Section C/D Python core identified and corrected 
 4. Preserve model outputs, checkpoint compatibility and deterministic tests. Do not claim a speedup from fewer operations alone.
 5. The major architecture prerequisite remains causal sequence mixing and positional information; performance work must not disguise the current prototype's lack of context-aware language modelling.
 6. Keep frontend, Supabase and authentication untouched. Do not train or launch remote jobs without separate explicit authorization.
+
+
+## Broader Python-core review — 2026-11-24
+
+A second review pass hardened API boundaries and benchmark reproducibility:
+
+- Configuration now requires true integer dimensions/token IDs (booleans and fractional numbers are rejected) and finite floating-point thresholds/dropout values.
+- Router balance validation now rejects empty/oversized top-k dimensions, non-integer indices, device mismatches, out-of-range indices and duplicate expert assignments.
+- Predictive refinement rejects malformed rank, empty batch/sequence dimensions and hidden-size mismatches with clear errors.
+- The symbolic expression IR now validates node kinds, tuple structure, child node types, integer atoms without truncation, rational literals and symbol identifiers.
+- Loss and optimizer helpers reject non-finite or malformed scalar hyperparameters.
+- The inference benchmark now isolates its CPU random seed and restores the caller's CPU thread count, avoiding persistent global runtime side effects.
+- New regression tests cover these invalid-input and state-restoration cases.
+
+### Next-chat handoff — after core hardening
+
+1. Review the open core-hardening PR and require both Python AI Core Tests and Node Tests to pass.
+2. Re-run the CPU inference benchmark before/after on the same hardware if measuring performance; this change makes the harness less intrusive but does not itself claim a speedup.
+3. Next architectural milestone is causal sequence mixing and positional information, with explicit tests for context influence and future-token isolation.
+4. Keep the symbolic evaluator's supported operations explicit; finite probes remain counterexample searches, never proofs.
+5. No model training, optimizer steps, external datasets, cloud jobs, Colab sessions or remote execution are authorized by this review.
+6. Keep website, Supabase, authentication and GitHub Pages unchanged. Update this README at every meaningful milestone.
+
+
+## Checkpoint integrity review — 2026-11-24
+
+- Checkpoint save now rejects fractional/negative/bool step values and mismatched model/config metadata instead of silently truncating or writing misleading metadata.
+- Checkpoint load validates checksum-manifest syntax, payload mapping structure, non-negative step metadata, target-model configuration compatibility and optimizer-state presence before applying state.
+- The checksum manifest is now written to a temporary file, flushed and fsynced, then atomically replaced. The checkpoint and manifest are still two separate files, so a process interruption between their replacements can leave a detectable mismatch; keep periodic independent backups.
+- The SHA-256 sidecar detects accidental corruption only. It is not a digital signature and does not make untrusted checkpoints safe.
+- Regression tests cover invalid steps and configuration mismatch.
+
+
+## GPU execution-path optimization — 2026-11-24
+
+- Removed two host-visible CUDA scalar checks per model forward: accelerator token IDs now rely on the embedding operator for index validation, while CPU inputs retain explicit min/max validation and the same clear error.
+- The model's internal load-balance loss call now skips range/duplicate scans for router-produced top-k indices. The public helper defaults to full validation; its fast path is opt-in and used only where index provenance is known.
+- Predictive refinement keeps CPU early exit but avoids converting CUDA activity masks to Python booleans each iteration, preventing repeated device synchronization. Accelerator execution uses the configured fixed refinement budget and masks inactive token states.
+- Episodic memory writes now read the ring cursor once per forward and update it once after the sequential write loop, instead of reading/updating the scalar cursor for every token.
+- Regression tests cover the routing fast-path contract; the existing memory ring-wrap test covers cursor correctness.
+- These are synchronization/launch-overhead reductions, not measured speed claims. GPU benchmarks are still required on target hardware.
+
+
+## Mathematical trust-boundary review — 2026-11-24
+
+- Closed a trust-boundary gap: a caller could previously construct a candidate with FORMALLY_VERIFIED status and have can_enter_trusted_knowledge() return true without any proof checker.
+- The method now fails closed for all candidates because this repository does not yet contain a formal proof kernel or verifiable proof-receipt type. A status label and free-form evidence text are not proof.
+- Added a regression test showing that a caller-supplied FORMALLY_VERIFIED label cannot promote a candidate into trusted knowledge.
+- Future trusted admission requires a structured proof receipt from an implemented backend and independent validation of that receipt; do not restore status-only trust.

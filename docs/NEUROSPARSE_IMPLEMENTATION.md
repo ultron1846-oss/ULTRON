@@ -43,3 +43,23 @@ The smoke tool performs forward and backward propagation only. It performs no op
 ## Read-only memory projection optimization
 
 Read-only memory calls now compute only the query projection. Key and value projections are required only for a write performed while the module is in training mode; they are skipped for ordinary inference and for write requests made while the module is in evaluation mode. This removes two hidden-size linear projections from the common read-only path without changing memory state or recall equations. Regression tests use module hooks to verify the skipped projections in both empty-memory and populated-memory read-only cases. Performance gains remain unquantified until measured on target hardware.
+
+
+## Core validation and reproducibility hardening
+
+Configuration fields now reject booleans/fractional values where integer dimensions or token IDs are required, and reject non-finite threshold/dropout settings. The routing balance helper validates non-empty top-k assignments, integer index dtype, device consistency, index range and duplicate expert assignments. The predictive refiner validates rank and non-empty dimensions. The expression IR validates node kinds, child tuples, integer atoms, rational literals and symbol identifiers before evaluation. Loss/optimizer helpers reject malformed weights and hyperparameters. The inference benchmark isolates its CPU RNG seed and restores the caller's CPU thread count after execution. These checks improve API safety and experiment reproducibility; they do not make the current prototype a context-aware LLM or a theorem prover.
+
+
+## Checkpoint validation hardening
+
+Checkpoint save/load now validates non-negative integer step values, checks that serialized configuration matches the model configuration, validates manifest syntax and payload structure before loading, and atomically replaces the checksum manifest through a temporary file. Optimizer restoration now fails explicitly if the caller requests an optimizer restore but the checkpoint contains no optimizer state. The SHA-256 sidecar remains an accidental-corruption check, not an authenticity signature; do not load checkpoints from untrusted sources.
+
+
+## Accelerator synchronization reduction
+
+The model now skips explicit token min/max checks on accelerator inputs and relies on the embedding operation for index validation; CPU inputs retain the explicit friendly range error. The internal load-balancing call accepts a validation switch: external/default calls still validate index range and uniqueness, while the model disables those scalar checks because indices are produced by PyTorch top-k. Predictive refinement retains CPU early exit but avoids a Python boolean conversion of CUDA activity masks, which would synchronize the device on every refinement iteration. Episodic-memory writes read the ring cursor once per forward and update it once after the sequential write loop rather than synchronizing once per token. These changes reduce host/device synchronization; they do not claim measured throughput gains until benchmarked on accelerator hardware.
+
+
+## Trusted mathematical knowledge gate
+
+The prototype has no formal proof kernel or verifiable proof-receipt type. Consequently, FormulaCandidate.can_enter_trusted_knowledge() now fails closed for every candidate. A caller-supplied FORMALLY_VERIFIED enum value or free-form evidence string is metadata, not a checked proof. Re-enable trusted admission only when a proof backend can return a structured receipt that ULTRON validates independently.
