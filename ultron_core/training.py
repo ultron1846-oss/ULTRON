@@ -22,9 +22,16 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         raise ValueError("logits vocabulary dimension must be non-empty")
     if input_ids.dtype not in (torch.int32, torch.int64):
         raise TypeError("input_ids must use int32 or int64 token IDs")
+    if input_ids.device != logits.device:
+        raise ValueError("logits and input_ids must be on the same device")
+    if ignore_index is not None and (isinstance(ignore_index, bool) or not isinstance(ignore_index, int)):
+        raise TypeError("ignore_index must be an integer or None")
     for name, auxiliary in (("load_balance", load_balance), ("prediction_error", prediction_error)):
-        if auxiliary is not None and (not isinstance(auxiliary, torch.Tensor) or auxiliary.numel() != 1):
-            raise ValueError(f"{name} must be a scalar tensor")
+        if auxiliary is not None:
+            if not isinstance(auxiliary, torch.Tensor) or auxiliary.numel() != 1:
+                raise ValueError(f"{name} must be a scalar tensor")
+            if not auxiliary.is_floating_point() or auxiliary.device != logits.device:
+                raise ValueError(f"{name} must be a floating-point scalar on the logits device")
     targets = input_ids[:, 1:].reshape(-1)
     flat_logits = logits[:, :-1].reshape(-1, logits.shape[-1])
     if ignore_index is not None:
