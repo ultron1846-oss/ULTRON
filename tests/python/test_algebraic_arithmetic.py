@@ -48,6 +48,16 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
         self.assertEqual(result.polynomial, expected)
         self.assertEqual((result.lower, result.upper), (Fraction(1), Fraction(4)))
 
+    def test_product_handles_zero_as_an_unselected_conjugate(self):
+        polynomial = Polynomial.from_expr(parse_math("x^2 - x"))
+        selected_one = RealAlgebraicNumber.from_isolating_interval(
+            polynomial, Fraction(1, 2), Fraction(3, 2)
+        )
+        result = self.sqrt2.multiply(selected_one)
+        expected = Polynomial.from_expr(parse_math("x^4 - 2*x^2"))
+        self.assertEqual(result.polynomial, expected)
+        self.assertGreater(result.lower, 0)
+
     def test_reciprocal_and_quotient_are_exact(self):
         inverse = self.sqrt3.reciprocal()
         inverse_expected = Polynomial.from_expr(parse_math("1 - 3*x^2"))
