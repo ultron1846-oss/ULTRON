@@ -490,7 +490,7 @@ Regression coverage was added to tests/python/test_math_foundation.py. The parse
 The mathematical core now has an exact rational-expression layer in `ultron_core/rational.py`. It represents a rational expression as exact sparse-polynomial numerator and denominator plus an explicit set of polynomial non-zero domain constraints.
 
 - Supports exact conversion from the existing Expr IR, addition, subtraction through IR conversion, multiplication, division, integer powers (including negative powers), rational scaling and exact evaluation at integer/Fraction points.
-- Every denominator contributes a preserved non-zero constraint. Dividing by a rational expression also requires its numerator to be non-zero. Zero powers require the base numerator to be non-zero, matching the evaluator's undefined (0^0) rule.
+- Every nonconstant denominator contributes a preserved non-zero constraint; non-zero constant denominators are omitted as vacuous. Dividing by a rational expression also requires its numerator to be non-zero. Zero powers require the base numerator to be non-zero, matching the evaluator's undefined (0^0) rule.
 - No polynomial GCD cancellation is performed. For example, (x/x) evaluates to 1 where defined but remains undefined at (x=0). The same applies to ((x^2-1)/(x-1)) at (x=1).
 - Denominators are normalized by a rational scalar for deterministic representation; non-zero constraints are normalized and deduplicated. Structural representation equality is not advertised as general rational-function equivalence.
 - The layer inherits polynomial degree, term and exponent limits, and caps preserved domain constraints at 256.
