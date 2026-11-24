@@ -10,7 +10,7 @@
 - Dual memory experiment: one fast-weight associative matrix plus a bounded content-addressable episodic key/value store. Both are experimental; neither guarantees perfect recall.
 - Typed mathematical expression IR with explicit assumption metadata.
 - Hand-authored formula-candidate templates and finite-domain counterexample probes. A successful probe is experimental support, never proof or novelty evidence.
-- Training loss and optimizer helpers. Importing the package does not start training.
+- Training loss and optimizer helpers. The next-token loss ignores the configured padding ID by default (pass a different `ignore_index` or `None` explicitly when needed). Importing the package does not start training.
 - Atomic checkpoint file replacement with SHA-256 integrity manifest and weights-only loading. Load only trusted local files.
 - CPU/GPU forward/backward smoke tool and optional torch.profiler FLOP/memory reporting.
 
