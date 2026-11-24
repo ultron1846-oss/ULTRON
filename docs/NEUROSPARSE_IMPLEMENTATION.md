@@ -53,3 +53,8 @@ Configuration fields now reject booleans/fractional values where integer dimensi
 ## Checkpoint validation hardening
 
 Checkpoint save/load now validates non-negative integer step values, checks that serialized configuration matches the model configuration, validates manifest syntax and payload structure before loading, and atomically replaces the checksum manifest through a temporary file. Optimizer restoration now fails explicitly if the caller requests an optimizer restore but the checkpoint contains no optimizer state. The SHA-256 sidecar remains an accidental-corruption check, not an authenticity signature; do not load checkpoints from untrusted sources.
+
+
+## Accelerator synchronization reduction
+
+The model now skips explicit token min/max checks on accelerator inputs and relies on the embedding operation for index validation; CPU inputs retain the explicit friendly range error. The internal load-balancing call accepts a validation switch: external/default calls still validate index range and uniqueness, while the model disables those scalar checks because indices are produced by PyTorch top-k. Predictive refinement retains CPU early exit but avoids a Python boolean conversion of CUDA activity masks, which would synchronize the device on every refinement iteration. Episodic-memory writes read the ring cursor once per forward and update it once after the sequential write loop rather than synchronizing once per token. These changes reduce host/device synchronization; they do not claim measured throughput gains until benchmarked on accelerator hardware.
