@@ -823,6 +823,81 @@ class DomainSafeRationalReductionTests(unittest.TestCase):
         twice = once.cancel_common_univariate_factors()
         self.assertTrue(once.same_representation(twice))
 
+class ExactSturmRootCountingTests(unittest.TestCase):
+    def test_univariate_derivative_is_exact(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^3 - 3*x + 2"))
+        self.assertEqual(
+            polynomial.derivative_univariate(),
+            Polynomial.from_expr(parse_math("3*x^2 - 3")),
+        )
+
+    def test_sturm_sequence_for_quadratic(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        sequence = polynomial.sturm_sequence_univariate()
+        self.assertEqual(len(sequence), 3)
+        self.assertEqual(sequence[0], polynomial)
+        self.assertEqual(sequence[1], Polynomial.from_expr(parse_math("2*x")))
+        self.assertEqual(sequence[2], Polynomial.constant(2))
+
+    def test_exact_root_counts_for_quadratic_intervals(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        self.assertEqual(polynomial.real_root_count_univariate(-2, 2), 2)
+        self.assertEqual(polynomial.real_root_count_univariate(-1, 1), 0)
+        self.assertEqual(polynomial.real_root_count_univariate(0, 2), 1)
+        self.assertEqual(polynomial.real_root_count_univariate(-2, 0), 1)
+
+    def test_repeated_roots_are_counted_once(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("(x - 1)^2*(x + 2)"))
+        self.assertEqual(polynomial.real_root_count_univariate(-3, 3), 2)
+        self.assertEqual(polynomial.real_root_count_univariate(-1, 2), 1)
+        self.assertEqual(polynomial.real_root_count_univariate(-3, 0), 1)
+
+    def test_polynomial_without_real_roots_and_nonzero_constant(self):
+        from ultron_core.polynomial import Polynomial
+        no_real_roots = Polynomial.from_expr(parse_math("x^2 + 1"))
+        self.assertEqual(no_real_roots.real_root_count_univariate(-5, 5), 0)
+        self.assertEqual(
+            Polynomial.constant(Fraction(3, 7)).real_root_count_univariate(-2, 2),
+            0,
+        )
+
+    def test_sturm_rejects_zero_polynomial_and_root_endpoints(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        with self.assertRaisesRegex(PolynomialError, "zero polynomial"):
+            Polynomial.zero().sturm_sequence_univariate()
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 1"))
+        with self.assertRaisesRegex(PolynomialError, "endpoints"):
+            polynomial.real_root_count_univariate(-1, 2)
+        with self.assertRaisesRegex(PolynomialError, "endpoints"):
+            polynomial.real_root_count_univariate(-2, 1)
+
+    def test_sturm_validates_interval_types_and_order(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 + 1"))
+        with self.assertRaises(TypeError):
+            polynomial.real_root_count_univariate(0.0, 2)
+        with self.assertRaises(TypeError):
+            polynomial.real_root_count_univariate(False, 2)
+        with self.assertRaises(ValueError):
+            polynomial.real_root_count_univariate(2, 1)
+        with self.assertRaises(ValueError):
+            polynomial.real_root_count_univariate(1, 1)
+
+    def test_sturm_rejects_multivariate_inputs_and_enforces_limits(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError, PolynomialLimits
+        multivariate = Polynomial.from_expr(parse_math("x*y + 1"))
+        with self.assertRaisesRegex(PolynomialError, "multivariate"):
+            multivariate.sturm_sequence_univariate()
+        cubic = Polynomial.from_expr(parse_math("x^3 - 1"))
+        with self.assertRaisesRegex(PolynomialError, "total degree"):
+            cubic.real_root_count_univariate(
+                0, 2, limits=PolynomialLimits(max_total_degree=2)
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

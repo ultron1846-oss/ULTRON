@@ -61,6 +61,28 @@ def _canonical(terms, limits):
     _check_budget(cleaned, limits)
     return tuple((m, cleaned[m]) for m in sorted(cleaned))
 
+def _resolve_univariate_symbol(polynomials, variable):
+    if variable is not None and (
+        not isinstance(variable, str) or not variable.isidentifier()
+    ):
+        raise ValueError("variable must be a valid identifier or None")
+    symbols = set()
+    for polynomial in polynomials:
+        for monomial, _ in polynomial.terms:
+            if len(monomial) > 1:
+                raise PolynomialError("univariate operation does not accept multivariate monomials")
+            if monomial:
+                symbols.add(monomial[0][0])
+    if len(symbols) > 1:
+        raise PolynomialError("univariate operation requires one shared variable")
+    inferred = next(iter(symbols), None)
+    if variable is not None and inferred not in (None, variable):
+        raise PolynomialError(
+            f"polynomial variable {inferred!r} does not match requested variable {variable!r}"
+        )
+    return variable or inferred
+
+
 def _merge_monomials(left, right):
     powers = dict(left)
     for symbol, exponent in right:
@@ -412,6 +434,112 @@ class Polynomial:
         if not left.terms:
             raise PolynomialError("gcd(0, 0) is undefined")
         return left.scale(1 / left.terms[-1][1], limits=limits)
+
+    def derivative_univariate(
+        self,
+        *,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> "Polynomial":
+        """Differentiate exactly with respect to the sole univariate symbol."""
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+        _check_budget(dict(self.terms), limits)
+        selected = _resolve_univariate_symbol((self,), variable)
+        if selected is None:
+            return Polynomial.zero()
+        derivative_terms = {}
+        for monomial, coefficient in self.terms:
+            if not monomial:
+                continue
+            symbol, exponent = monomial[0]
+            if symbol != selected:
+                raise PolynomialError("polynomial variable does not match derivative variable")
+            derivative_monomial = (
+                () if exponent == 1 else ((selected, exponent - 1),)
+            )
+            derivative_terms[derivative_monomial] = coefficient * exponent
+        return Polynomial(_canonical(derivative_terms, limits))
+
+    def sturm_sequence_univariate(
+        self,
+        *,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> tuple["Polynomial", ...]:
+        """Build the exact Sturm sequence over Q for a nonzero univariate polynomial."""
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+        if not self.terms:
+            raise PolynomialError("Sturm sequence is undefined for the zero polynomial")
+        _check_budget(dict(self.terms), limits)
+        selected = _resolve_univariate_symbol((self,), variable)
+        derivative = self.derivative_univariate(variable=selected, limits=limits)
+        sequence = [self]
+        if not derivative.terms:
+            return tuple(sequence)
+        sequence.append(derivative)
+        while sequence[-1].terms:
+            _, remainder = sequence[-2].divide_univariate(
+                sequence[-1], variable=selected, limits=limits
+            )
+            if not remainder.terms:
+                break
+            sequence.append(remainder.scale(-1, limits=limits))
+            if len(sequence) > limits.max_total_degree + 2:
+                raise PolynomialError("Sturm sequence exceeded the configured degree budget")
+        return tuple(sequence)
+
+    def real_root_count_univariate(
+        self,
+        lower: int | Fraction,
+        upper: int | Fraction,
+        *,
+        variable: str | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
+    ) -> int:
+        """Count distinct real roots in (lower, upper) using exact Sturm variations.
+
+        Interval endpoints must be exact integers/Fractions and must not be roots.
+        The method counts roots; it does not approximate or isolate their values.
+        """
+        if isinstance(lower, bool) or not isinstance(lower, (int, Fraction)):
+            raise TypeError("lower endpoint must be an integer or Fraction")
+        if isinstance(upper, bool) or not isinstance(upper, (int, Fraction)):
+            raise TypeError("upper endpoint must be an integer or Fraction")
+        if not isinstance(limits, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits")
+        lower, upper = Fraction(lower), Fraction(upper)
+        if lower >= upper:
+            raise ValueError("lower endpoint must be strictly less than upper endpoint")
+        if not self.terms:
+            raise PolynomialError("the zero polynomial has no finite root count")
+        _check_budget(dict(self.terms), limits)
+
+        selected = _resolve_univariate_symbol((self,), variable)
+        environment_lower = {} if selected is None else {selected: lower}
+        environment_upper = {} if selected is None else {selected: upper}
+        if self.evaluate(environment_lower) == 0 or self.evaluate(environment_upper) == 0:
+            raise PolynomialError("Sturm interval endpoints must not be roots")
+
+        sequence = self.sturm_sequence_univariate(
+            variable=selected, limits=limits
+        )
+
+        def variations_at(environment):
+            signs = []
+            for polynomial in sequence:
+                value = polynomial.evaluate(environment)
+                if value > 0:
+                    signs.append(1)
+                elif value < 0:
+                    signs.append(-1)
+            return sum(left != right for left, right in zip(signs, signs[1:]))
+
+        count = variations_at(environment_lower) - variations_at(environment_upper)
+        if count < 0:
+            raise PolynomialError("Sturm variation count violated monotonicity")
+        return count
 
     def canonical_key(self):
         return self.terms
