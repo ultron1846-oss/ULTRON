@@ -305,3 +305,11 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 - Episodic memory writes now read the ring cursor once per forward and update it once after the sequential write loop, instead of reading/updating the scalar cursor for every token.
 - Regression tests cover the routing fast-path contract; the existing memory ring-wrap test covers cursor correctness.
 - These are synchronization/launch-overhead reductions, not measured speed claims. GPU benchmarks are still required on target hardware.
+
+
+## Mathematical trust-boundary review — 2026-11-24
+
+- Closed a trust-boundary gap: a caller could previously construct a candidate with FORMALLY_VERIFIED status and have can_enter_trusted_knowledge() return true without any proof checker.
+- The method now fails closed for all candidates because this repository does not yet contain a formal proof kernel or verifiable proof-receipt type. A status label and free-form evidence text are not proof.
+- Added a regression test showing that a caller-supplied FORMALLY_VERIFIED label cannot promote a candidate into trusted knowledge.
+- Future trusted admission requires a structured proof receipt from an implemented backend and independent validation of that receipt; do not restore status-only trust.
