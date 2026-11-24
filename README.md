@@ -361,3 +361,6 @@ A further Python-core review tightened two correctness boundaries:
 5. Keep website, Supabase, authentication, Pages deployment and provider integrations unchanged.
 6. Do not start training, optimizer steps, Colab, cloud jobs or remote execution without separate explicit authorization.
 7. Update this README at every meaningful milestone.
+
+
+- FormulaCandidate construction now validates expression/status types and requires immutable tuple-based metadata, closing another malformed-input path at the mathematical IR boundary.
