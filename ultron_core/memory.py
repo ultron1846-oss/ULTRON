@@ -56,6 +56,8 @@ class FastWeightMemory(nn.Module):
             # Sequential delta updates preserve update order; this prototype path is not GPU-optimized.
             with torch.no_grad():
                 gates = torch.sigmoid(self.gate(x)).squeeze(-1)
+                slot = int(self.cursor.item())
+                slot_count = self.episodic_keys.shape[0]
                 for b in range(x.shape[0]):
                     for t in range(x.shape[1]):
                         key = keys[b, t].detach()
@@ -63,9 +65,9 @@ class FastWeightMemory(nn.Module):
                         prediction = torch.mv(self.fast_weights, key)
                         delta = (value - prediction) * gates[b, t].detach()
                         self.fast_weights.mul_(self.decay).add_(torch.outer(delta, key))
-                        slot = int(self.cursor.item())
                         self.episodic_keys[slot].copy_(key)
                         self.episodic_values[slot].copy_(value)
                         self.valid[slot] = True
-                        self.cursor.add_(1).remainder_(self.episodic_keys.shape[0])
+                        slot = (slot + 1) % slot_count
+                self.cursor.fill_(slot)
         return recalled
