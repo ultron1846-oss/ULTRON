@@ -8,7 +8,7 @@ from __future__ import annotations
 from fractions import Fraction
 import re
 
-from .math_ir import Expr, ExprKind
+from .math_ir import Expr, ExprKind, SUPPORTED_FUNCTIONS
 from .math_tokenizer import MathToken, MathTokenizer
 
 
@@ -28,7 +28,7 @@ _LATEX_SYMBOLS = {
 }
 
 _SUPERSCRIPT_DIGITS = dict(zip("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
-_SUPERSCRIPT_SIGNS = {"⁺": "+", "⁻": "-"}
+_SUPERSCRIPT_SIGNS = {"⁺": "+", "⁻": "-"}\n\n_COMPARISON_OPERATORS = {\n    "=": (ExprKind.EQUAL, 1), "≠": (ExprKind.NOT_EQUAL, 1),\n    "<": (ExprKind.LESS_THAN, 1), "≤": (ExprKind.LESS_EQUAL, 1),\n    ">": (ExprKind.GREATER_THAN, 1), "≥": (ExprKind.GREATER_EQUAL, 1),\n    "!=": (ExprKind.NOT_EQUAL, 2), "<=": (ExprKind.LESS_EQUAL, 2),\n    ">=": (ExprKind.GREATER_EQUAL, 2),\n}
 
 
 class _RecursiveParser:
@@ -100,22 +100,11 @@ class _RecursiveParser:
         if token is None:
             return left
 
-        operators = {
-            "=": (ExprKind.EQUAL, 1),
-            "≠": (ExprKind.NOT_EQUAL, 1),
-            "<": (ExprKind.LESS_THAN, 1),
-            "≤": (ExprKind.LESS_EQUAL, 1),
-            ">": (ExprKind.GREATER_THAN, 1),
-            "≥": (ExprKind.GREATER_EQUAL, 1),
-            "!=": (ExprKind.NOT_EQUAL, 2),
-            "<=": (ExprKind.LESS_EQUAL, 2),
-            ">=": (ExprKind.GREATER_EQUAL, 2),
-        }
         pair = token.value
         next_token = self.tokens[self.position + 1] if self.position + 1 < len(self.tokens) else None
         if pair in ("!", "<", ">") and next_token is not None and next_token.value == "=":
             pair += "="
-        spec = operators.get(pair)
+        spec = _COMPARISON_OPERATORS.get(pair)
         if spec is None:
             return left
         kind, width = spec
