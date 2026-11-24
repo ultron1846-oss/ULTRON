@@ -641,6 +641,12 @@ class ExactRationalExpressionTests(unittest.TestCase):
                 limits=PolynomialLimits(max_total_degree=2),
             )
 
+    def test_nonzero_constant_denominators_do_not_create_fake_restrictions(self):
+        from ultron_core.rational import RationalFunction
+        value = RationalFunction.from_expr(parse_math("x/2"))
+        self.assertEqual(value.nonzero_constraints, ())
+        self.assertEqual(value.evaluate({"x": 6}), Fraction(3))
+
     def test_custom_limits_above_defaults_survive_rational_normalization(self):
         from ultron_core.polynomial import PolynomialLimits
         from ultron_core.rational import RationalFunction
