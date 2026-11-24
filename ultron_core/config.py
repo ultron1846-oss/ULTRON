@@ -28,8 +28,8 @@ class NeuroSparseConfig:
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int):
                 raise TypeError(f"{name} must be an integer")
-        for name in integer_fields[:-1]:
-            if getattr(self, name) <= 0:
+        for name in integer_fields:
+            if name != "pad_token_id" and getattr(self, name) <= 0:
                 raise ValueError(f"{name} must be positive")
         if self.hidden_size % self.num_attention_heads != 0:
             raise ValueError("hidden_size must be divisible by num_attention_heads")
