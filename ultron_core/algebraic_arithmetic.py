@@ -22,6 +22,23 @@ MAX_RESULTANT_MATRIX = 10
 DEFAULT_MAX_REFINE = 4096
 
 
+def _effective_limits(left: RealAlgebraicNumber,
+                      right: RealAlgebraicNumber | None,
+                      requested: PolynomialLimits | None) -> PolynomialLimits:
+    policies = [left.limits]
+    if right is not None:
+        policies.append(right.limits)
+    if requested is not None:
+        if not isinstance(requested, PolynomialLimits):
+            raise TypeError("limits must be PolynomialLimits or None")
+        policies.append(requested)
+    return PolynomialLimits(
+        max_total_degree=min(item.max_total_degree for item in policies),
+        max_terms=min(item.max_terms for item in policies),
+        max_exponent=min(item.max_exponent for item in policies),
+    )
+
+
 def _coefficients(value: RealAlgebraicNumber) -> dict[int, Fraction]:
     result: dict[int, Fraction] = {}
     for monomial, coefficient in value.polynomial.terms:
@@ -157,8 +174,8 @@ def resultant_polynomial(left: RealAlgebraicNumber,
                          right: RealAlgebraicNumber,
                          operation: str,
                          *,
-                         variable: str = "z",
-                         limits: PolynomialLimits = DEFAULT_LIMITS) -> Polynomial:
+                         variable: str | None = None,
+                         limits: PolynomialLimits | None = None) -> Polynomial:
     """Return a resultant polynomial for sum or product of two algebraic values.
 
     The output may contain extraneous factors and is not guaranteed minimal.
@@ -167,12 +184,11 @@ def resultant_polynomial(left: RealAlgebraicNumber,
         raise TypeError("left and right must be RealAlgebraicNumber instances")
     if left.variable != right.variable:
         raise ValueError("algebraic operands must use the same source variable")
+    if variable is None:
+        variable = left.variable
     if not isinstance(variable, str) or not variable.isidentifier():
         raise ValueError("result variable must be a valid identifier")
-    if variable == left.variable:
-        raise ValueError("result variable must differ from the source variable")
-    if not isinstance(limits, PolynomialLimits):
-        raise TypeError("limits must be PolynomialLimits")
+    limits = _effective_limits(left, right, limits)
     if operation not in ("add", "subtract", "mul"):
         raise ValueError("operation must be 'add', 'subtract', or 'mul'")
 
@@ -216,15 +232,14 @@ def _refine_wider(left: RealAlgebraicNumber,
 
 def _combine(left: RealAlgebraicNumber, right: RealAlgebraicNumber,
              operation: str, *, max_refinements: int = DEFAULT_MAX_REFINE,
-             limits: PolynomialLimits = DEFAULT_LIMITS) -> RealAlgebraicNumber:
+             limits: PolynomialLimits | None = None) -> RealAlgebraicNumber:
     if not isinstance(left, RealAlgebraicNumber) or not isinstance(right, RealAlgebraicNumber):
         raise TypeError("both operands must be RealAlgebraicNumber instances")
     if left.variable != right.variable:
         raise ValueError("algebraic operands must use the same source variable")
     if isinstance(max_refinements, bool) or not isinstance(max_refinements, int) or max_refinements < 0:
         raise ValueError("max_refinements must be a non-negative integer")
-    if not isinstance(limits, PolynomialLimits):
-        raise TypeError("limits must be PolynomialLimits")
+    limits = _effective_limits(left, right, limits)
 
     if operation == "subtract" and left.same_value_as(right):
         return RealAlgebraicNumber.from_rational(0, variable=left.variable, limits=limits)
@@ -233,7 +248,11 @@ def _combine(left: RealAlgebraicNumber, right: RealAlgebraicNumber,
         value = a + b if operation == "add" else a - b if operation == "subtract" else a * b
         return RealAlgebraicNumber.from_rational(value, variable=left.variable, limits=limits)
 
-    polynomial = resultant_polynomial(left, right, operation, limits=limits)
+    # Keep the operand's variable label on the result so arithmetic chains
+    # remain composable with values created from the same source variable.
+    polynomial = resultant_polynomial(
+        left, right, operation, variable=left.variable, limits=limits
+    )
     a, b = left, right
     for attempt in range(max_refinements + 1):
         lower, upper = _interval_bounds(a, b, operation)
@@ -243,7 +262,7 @@ def _combine(left: RealAlgebraicNumber, right: RealAlgebraicNumber,
             )
         try:
             count = polynomial.real_root_count_univariate(
-                lower, upper, variable="z", limits=limits
+                lower, upper, variable=left.variable, limits=limits
             )
         except PolynomialError as error:
             if "endpoints must not be roots" not in str(error) and "endpoint" not in str(error):
@@ -251,7 +270,7 @@ def _combine(left: RealAlgebraicNumber, right: RealAlgebraicNumber,
             count = -1
         if count == 1:
             return RealAlgebraicNumber.from_isolating_interval(
-                polynomial, lower, upper, variable="z", limits=limits
+                polynomial, lower, upper, variable=left.variable, limits=limits
             )
         if attempt == max_refinements:
             break
@@ -275,14 +294,13 @@ def multiply(left: RealAlgebraicNumber, right: RealAlgebraicNumber, **kwargs) ->
 
 def reciprocal(value: RealAlgebraicNumber, *,
                max_refinements: int = DEFAULT_MAX_REFINE,
-               limits: PolynomialLimits = DEFAULT_LIMITS) -> RealAlgebraicNumber:
+               limits: PolynomialLimits | None = None) -> RealAlgebraicNumber:
     """Return 1/value exactly; reject zero and refine until its interval avoids 0."""
     if not isinstance(value, RealAlgebraicNumber):
         raise TypeError("value must be a RealAlgebraicNumber")
     if isinstance(max_refinements, bool) or not isinstance(max_refinements, int) or max_refinements < 0:
         raise ValueError("max_refinements must be a non-negative integer")
-    if not isinstance(limits, PolynomialLimits):
-        raise TypeError("limits must be PolynomialLimits")
+    limits = _effective_limits(value, None, limits)
     current = value
     if current.is_rational:
         if current.lower == 0:
