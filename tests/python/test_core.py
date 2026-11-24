@@ -13,7 +13,7 @@ from ultron_core.memory import FastWeightMemory
 from ultron_core.predictive import PredictiveRefiner
 from ultron_core.routing import load_balance_loss
 from ultron_core.training import causal_language_model_loss
-from ultron_core.verification import probe_candidate
+from ultron_core.verification import evaluate, probe_candidate
 
 
 class CoreTests(unittest.TestCase):
@@ -210,6 +210,11 @@ class CoreTests(unittest.TestCase):
         candidate = polynomial_identity_candidates()[0]
         with self.assertRaisesRegex(ValueError, "unique after rational normalization"):
             probe_candidate(candidate, sample_values=(1, "1/1"))
+
+    def test_exact_evaluator_validates_exponent_limit(self):
+        one = Expr(ExprKind.INTEGER, value=1)
+        with self.assertRaisesRegex(ValueError, "non-negative integer"):
+            evaluate(one, {}, max_abs_exponent=-1)
 
     def test_finite_probe_bounds_exact_exponent_growth(self):
         x = Expr(ExprKind.SYMBOL, value="x")
