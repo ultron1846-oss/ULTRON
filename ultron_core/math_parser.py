@@ -166,8 +166,7 @@ class _RecursiveParser:
                     following.offset,
                 )
 
-            # f(x) is deliberately not interpreted as f multiplied by x:
-            # function-call semantics do not yet exist in the current IR.
+            # Function calls are parsed in _parse_primary and emitted as typed CALL nodes.
             if result.kind == ExprKind.SYMBOL and following.value == "(":
                 raise MathParseError(
                     "function-call syntax is not supported; function IR is not implemented",
