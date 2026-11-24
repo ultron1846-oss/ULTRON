@@ -898,6 +898,107 @@ class ExactSturmRootCountingTests(unittest.TestCase):
                 0, 2, limits=PolynomialLimits(max_total_degree=2)
             )
 
+class ExactRealRootIsolationTests(unittest.TestCase):
+    def test_irrational_roots_are_isolated_in_disjoint_rational_intervals(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        intervals = polynomial.isolate_real_roots_univariate(
+            -2, 2, max_width=Fraction(1, 100)
+        )
+        self.assertEqual(len(intervals), 2)
+        self.assertLess(intervals[0][1], intervals[1][0])
+        for left, right in intervals:
+            self.assertLess(left, right)
+            self.assertLessEqual(right - left, Fraction(1, 100))
+            self.assertEqual(
+                polynomial.real_root_count_univariate(left, right), 1
+            )
+            self.assertNotEqual(polynomial.evaluate({"x": left}), 0)
+            self.assertNotEqual(polynomial.evaluate({"x": right}), 0)
+
+    def test_exact_rational_roots_are_returned_as_degenerate_intervals(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 1"))
+        self.assertEqual(
+            polynomial.isolate_real_roots_univariate(-2, 2),
+            ((Fraction(-1), Fraction(-1)), (Fraction(1), Fraction(1))),
+        )
+
+    def test_mixed_rational_and_irrational_roots(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("(x - 1)*(x^2 - 2)"))
+        intervals = polynomial.isolate_real_roots_univariate(
+            -2, 2, max_width=Fraction(1, 100)
+        )
+        self.assertEqual(len(intervals), 3)
+        self.assertIn((Fraction(1), Fraction(1)), intervals)
+        for left, right in intervals:
+            if left != right:
+                self.assertEqual(
+                    polynomial.real_root_count_univariate(left, right), 1
+                )
+
+    def test_repeated_roots_are_isolated_once_each(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("(x - 1)^2*(x + 2)^3"))
+        intervals = polynomial.isolate_real_roots_univariate(
+            -3, 3, max_width=Fraction(1, 100)
+        )
+        self.assertEqual(len(intervals), 2)
+        self.assertEqual(
+            sum(polynomial.real_root_count_univariate(a, b)
+                for a, b in intervals if a != b)
+            + sum(1 for a, b in intervals if a == b),
+            2,
+        )
+
+    def test_constant_has_no_roots(self):
+        from ultron_core.polynomial import Polynomial
+        self.assertEqual(
+            Polynomial.constant(7).isolate_real_roots_univariate(-2, 2), ()
+        )
+
+    def test_isolation_rejects_zero_polynomial_and_root_endpoints(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        with self.assertRaisesRegex(PolynomialError, "zero polynomial"):
+            Polynomial.zero().isolate_real_roots_univariate(-2, 2)
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 1"))
+        with self.assertRaisesRegex(PolynomialError, "endpoints"):
+            polynomial.isolate_real_roots_univariate(-1, 2)
+
+    def test_isolation_validates_exact_bounds_and_width(self):
+        from ultron_core.polynomial import Polynomial
+        polynomial = Polynomial.from_expr(parse_math("x^2 + 1"))
+        with self.assertRaises(TypeError):
+            polynomial.isolate_real_roots_univariate(0.0, 2)
+        with self.assertRaises(TypeError):
+            polynomial.isolate_real_roots_univariate(0, 2, max_width=0.1)
+        with self.assertRaises(ValueError):
+            polynomial.isolate_real_roots_univariate(0, 2, max_width=0)
+        with self.assertRaises(ValueError):
+            polynomial.isolate_real_roots_univariate(2, 1)
+
+    def test_isolation_enforces_depth_and_interval_budgets(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        with self.assertRaisesRegex(PolynomialError, "max_depth"):
+            polynomial.isolate_real_roots_univariate(
+                -2, 2, max_width=Fraction(1, 1000), max_depth=0
+            )
+        with self.assertRaisesRegex(PolynomialError, "max_intervals"):
+            polynomial.isolate_real_roots_univariate(
+                -2, 2, max_width=Fraction(1, 1000), max_intervals=1
+            )
+
+    def test_isolation_rejects_multivariate_inputs_and_variable_mismatch(self):
+        from ultron_core.polynomial import Polynomial, PolynomialError
+        multivariate = Polynomial.from_expr(parse_math("x*y + 1"))
+        with self.assertRaisesRegex(PolynomialError, "multivariate"):
+            multivariate.isolate_real_roots_univariate(-2, 2)
+        polynomial = Polynomial.from_expr(parse_math("x^2 - 2"))
+        with self.assertRaisesRegex(PolynomialError, "does not match"):
+            polynomial.isolate_real_roots_univariate(-2, 2, variable="y")
+
 
 if __name__ == "__main__":
     unittest.main()
