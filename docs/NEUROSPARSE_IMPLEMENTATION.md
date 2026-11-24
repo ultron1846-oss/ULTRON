@@ -247,3 +247,15 @@ The returned RationalFunction retains every original non-zero domain constraint,
 - ((x(x-1))/(x(x+1))) reduces to ((x-1)/(x+1)), while retaining both original excluded points (x=0) and (x=-1).
 
 The operation rejects multivariate numerator/denominator terms. It is idempotent for the tested canonical representations. It does not establish arbitrary symbolic equivalence, prove identities, or add multivariate factorization.
+
+
+## Exact real-root counting with Sturm sequences — 2026-11-24
+
+Polynomial now exposes:
+- derivative_univariate(variable=..., limits=...): exact formal derivative for one named variable.
+- sturm_sequence_univariate(variable=..., limits=...): exact signed remainder sequence over (mathbb{Q}).
+- real_root_count_univariate(lower, upper, variable=..., limits=...): exact count of distinct real roots in the open rational interval ((lower, upper)).
+
+The root-count operation requires integer/Fraction endpoints in strictly increasing order and rejects intervals whose endpoints are roots. Sign variations omit zero-valued sequence members at an endpoint, as in Sturm's theorem. Repeated roots are counted once. A nonzero constant has zero roots; the zero polynomial is rejected because its zero set is not finite.
+
+This does not numerically approximate roots or return isolating intervals. Multivariate root counting, algebraic-number objects, minimal-polynomial arithmetic and formal proof receipts are not implemented. The algorithm's correctness is covered by regression examples, but the implementation is not independently machine-checked by a proof kernel.
