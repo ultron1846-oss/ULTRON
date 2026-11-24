@@ -123,19 +123,26 @@ def _resultant_matrix(left: RealAlgebraicNumber,
     else:
         raise ValueError("unsupported resultant operation")
 
+    # For products, Q may have zero as another conjugate. Then x^n Q(z/x)
+    # can have lower degree in x; trim its zero leading coefficients before
+    # constructing the Sylvester matrix or the determinant would vanish.
+    transformed_degree = max(
+        (power for power, coefficient in transformed.items() if coefficient.terms),
+        default=0,
+    )
     p_desc = [Polynomial.constant(p.get(power, 0)) for power in range(m, -1, -1)]
     q_desc = [transformed.get(power, Polynomial.zero())
-              for power in range(n, -1, -1)]
-    size = m + n
+              for power in range(transformed_degree, -1, -1)]
+    size = m + transformed_degree
     matrix = [[Polynomial.zero() for _ in range(size)] for _ in range(size)]
 
-    # n shifted rows of P, followed by m shifted rows of transformed Q.
-    for row in range(n):
+    # transformed_degree shifted rows of P, followed by m shifted rows of Q.
+    for row in range(transformed_degree):
         for index, coefficient in enumerate(p_desc):
             matrix[row][row + index] = coefficient
     for row in range(m):
         for index, coefficient in enumerate(q_desc):
-            matrix[n + row][row + index] = coefficient
+            matrix[transformed_degree + row][row + index] = coefficient
     return matrix
 
 
