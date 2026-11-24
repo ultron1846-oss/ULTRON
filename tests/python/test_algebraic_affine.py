@@ -46,7 +46,7 @@ class RealAlgebraicAffineTransformTests(unittest.TestCase):
         )
         # Defining polynomials may differ by a nonzero rational scalar.
         self.assertEqual(
-            transformed.polynomial.scale(4),
+            transformed.polynomial.scale(36),
             expected,
         )
         self.assertEqual(
@@ -77,7 +77,7 @@ class RealAlgebraicAffineTransformTests(unittest.TestCase):
 
         limited = RealAlgebraicNumber.from_isolating_interval(
             self.sqrt2.polynomial, 1, 2,
-            limits=PolynomialLimits(max_total_degree=1),
+            limits=PolynomialLimits(max_terms=2),
         )
         with self.assertRaises(PolynomialError):
             limited.affine_transform(2, 1)
