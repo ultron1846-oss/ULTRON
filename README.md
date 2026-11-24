@@ -4,21 +4,22 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 ## Frontend status
 
-A follow-up startup/navigation hardening change keeps a complete static overview visible before JavaScript modules load, adds visible browser error reporting if a module fails, cache-busts the app entry and its imports, and replaces the intentionally empty overview telemetry placeholders with actionable project status and quick links. This is a resilience fallback; a successful render in the real iPad browser still needs device verification.
+The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
 The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages
 - **Supabase backend:** refreshable, bounded-time read-only status check with visible last-checked time, plus an audit of deployed Edge Function contracts and backend security findings. It never calls owner-only services from the public site.
-- **Overview:** honest system status, model/training state, mathematical capability summary and local practice count.
-- **How ULTRON learns:** explains the intended verified learning lifecycle and distinguishes learning exercises from neural-model training.
-- **Math Agent:** browser interface to the existing deterministic arithmetic parser and limited linear-equation solver.
-- **Learn & practice:** topic roadmap, four fixed foundation exercises, answer checking, hints and local practice counts.
-- **Memory vault:** IndexedDB stores experiences and mistakes locally, with JSON export/import for device-to-device transfer. This is not cloud sync.
-- **Servers:** reads optional `servers.json`, handles missing/malformed directory data and never starts remote jobs.
+- **Overview:** honest system status, model/training state, capability summary, roadmap and quick links to current pages.
+- **Mathematics topics:** curriculum roadmap with descriptions, prerequisites, representative examples and explicit available/planned status. The former fixed exercise card and its answer/hint/next controls have been removed.
+- **Math Agent:** browser interface to the deterministic arithmetic parser and limited linear-equation solver; unsupported requests are rejected rather than guessed.
+- **Memory vault:** IndexedDB stores existing experiences and mistakes locally, with JSON export/import for manual device-to-device transfer. This is not cloud sync.
+- **Servers & Colab:** reads `servers.json`, handles missing/malformed directory data and never starts remote jobs.
+- **Supabase backend:** checks only the public read-only status endpoint; private owner records remain protected.
+- **Owner sign in:** optional email/password sign-in for the existing owner account; there is no public sign-up.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
 
-The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training.
+The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training. The Math Agent currently supports only its documented deterministic arithmetic and limited linear-equation operations.
 
 ## Architecture
 - `index.html`: public application shell and navigation.
@@ -100,11 +101,13 @@ The backend owner (Codex) should:
 - The Settings memory slider is a saved preference only. A future Colab notebook must independently translate approved settings into batch size and runtime-safe limits.
 
 ## Next verification steps
-1. Run `node --test` and inspect all GitHub Actions checks on the frontend completion PR.
-2. Confirm GitHub Pages deployment and verify that every runtime asset is staged.
-3. Test navigation, topic selection, exercise checking, memory export/import and slider behavior on iPad Safari.
-4. Confirm the live Supabase `public_status` request from the deployed Pages origin and use the backend page's refresh/last-checked indicator.
-5. Keep actual model training and remote execution disabled until separately authorized.
+1. Confirm the latest `main` commit is the deployed GitHub Pages version.
+2. On iPad Safari, test navigation and every page: Overview, Mathematics Topics, Math Agent, Memory Vault, Servers & Colab, Supabase Backend, Settings and Owner Sign-in.
+3. Test supported Math Agent inputs and unsupported-input handling; the removed fixed exercise card must not reappear.
+4. Test Memory Vault history, JSON export/import and clear-all only after exporting any data you want to keep.
+5. Test the workload preference slider and verify it is clearly described as a saved preference, not actual memory allocation.
+6. Verify the public Supabase status refresh and owner sign-in/sign-out without exposing private data.
+7. Keep actual model training, Colab connection and remote execution disabled until separately authorized.
 
 ## Project rule
 A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.
@@ -150,3 +153,20 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 - Removed the now-unused exercise fixtures, event handlers and practice-only imports from the browser entry module.
 - Existing IndexedDB experience/mistake history and backup tools remain intact; this UI change does not delete browser data. Existing local practice counters are left untouched rather than destructively clearing user preferences.
 - No backend, Supabase, owner authentication, Colab connection, remote execution or model-training behavior changed.
+
+
+## GitHub Pages deployment verification — 2026-11-24
+
+The latest frontend commit `932fcf005d414fdd1338d4d58265afd9b8ed64c4` was checked against both Pages workflows. The repository's custom `Deploy static site to GitHub Pages` workflow successfully staged and uploaded the `github-pages` artifact, but its deploy step failed because GitHub could not resolve the artifact for that concurrent deployment. The built-in `pages build and deployment` workflow then completed its build, artifact upload and deploy jobs successfully for the same commit. Therefore the latest commit has a successful Pages deployment through the built-in workflow; do not interpret the custom workflow's failed run as proof that the site is offline.
+
+The repository currently has two deployment paths targeting the same Pages environment. This is a workflow-coordination issue to monitor; avoid changing the Pages source or deleting either workflow without validating the repository's Pages configuration and confirming the replacement deploy path. The custom workflow's artifact contains the explicitly staged runtime files, while the built-in Jekyll workflow independently built and deployed the repository content.
+
+## Next-chat handoff — post-removal release
+
+- Latest merged change: PR #9, removing the fixed exercise interface and retaining the Mathematics Topics roadmap and existing local Memory Vault records.
+- The latest commit's built-in GitHub Pages deployment completed successfully. Custom deployment run failed at its deploy step after artifact upload; see the deployment verification section above.
+- README content has been aligned to the current page structure and the removal of the fixed exercise interface.
+- Perform the real iPad Safari page-by-page interaction test before declaring frontend completion.
+- Do not connect Google Colab, start a server, submit remote jobs or train the model. The user explicitly deferred server connection until the AI is ready.
+- Preserve Supabase RLS, owner-only checks, credentials and private records. Do not change Auth settings or secrets during frontend QA.
+- Update this README at every meaningful milestone and leave a precise next-chat handoff.
