@@ -52,6 +52,10 @@ The backend owner (Codex) should:
 5. Keep provider metadata evidence-based and current; never invent free-tier availability.
 6. Update this README at meaningful milestones so the next development session can resume accurately.
 
+## Delivery plan
+
+The screenshot-inspired frontend redesign is delivered as one consolidated pull request: [PR #3](https://github.com/ultron1846-oss/ULTRON/pull/3). Do not split this frontend milestone into additional pull requests. Codex owns backend services and backend tests; this frontend branch must not duplicate backend implementation. Keep actual training disabled.
+
 ## Next frontend steps
 1. Run the full Node test suite and inspect the PR checks.
 2. Verify the deployed Pages URL and asset paths after merge.
