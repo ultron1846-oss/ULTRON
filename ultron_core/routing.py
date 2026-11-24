@@ -6,6 +6,11 @@ from torch.nn import functional as F
 class SparseRouter(nn.Module):
     def __init__(self, hidden_size: int, num_experts: int, top_k: int):
         super().__init__()
+        for name, value in (("hidden_size", hidden_size), ("num_experts", num_experts), ("top_k", top_k)):
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(f"{name} must be an integer")
+        if hidden_size <= 0 or num_experts <= 0:
+            raise ValueError("hidden_size and num_experts must be positive")
         if not 1 <= top_k <= num_experts:
             raise ValueError("top_k must be between 1 and num_experts")
         self.num_experts, self.top_k = num_experts, top_k
@@ -25,6 +30,8 @@ def load_balance_loss(logits: torch.Tensor, indices: torch.Tensor) -> torch.Tens
     """Switch-style balance penalty; assignment frequency sums to one."""
     if logits.ndim != 2 or indices.ndim != 2 or logits.shape[0] != indices.shape[0]:
         raise ValueError("expected logits [tokens, experts] and indices [tokens, top_k]")
+    if not logits.is_floating_point():
+        raise TypeError("router logits must use a floating-point dtype")
     experts = logits.shape[-1]
     if experts <= 0 or indices.shape[1] <= 0 or indices.shape[1] > experts:
         raise ValueError("expert and top-k dimensions must be valid and non-empty")
