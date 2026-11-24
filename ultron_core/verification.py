@@ -62,6 +62,8 @@ def evaluate(
         return left >= right
     if expr.kind == ExprKind.CALL:
         raise ValueError(f"exact evaluator does not implement function {expr.value}")
+    if any(isinstance(value, bool) for value in values):
+        raise ValueError("comparison results cannot be used as scalar operands")
     if expr.kind == ExprKind.ADD:
         return sum(values, Fraction(0))
     if expr.kind == ExprKind.SUB:
