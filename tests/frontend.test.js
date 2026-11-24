@@ -55,14 +55,17 @@ test('Pages deployment stages every runtime module and data file', async () => {
 });
 
 
-test('learning page exposes topic exploration and real local practice interactions', async () => {
+test('learning page exposes the mathematics roadmap without the removed fixed exercise UI', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
-  assert.match(app, /function renderLearning/);
-  assert.match(app, /data-topic-index/);
-  assert.match(app, /practice-check/);
-  assert.match(app, /saveExperience/);
-  assert.match(app, /ultron-practice-count/);
+  const start = app.indexOf('function renderLearning(){');
+  const end = app.indexOf('function renderAgent(){', start);
+  assert.ok(start >= 0 && end > start);
+  const learning = app.slice(start, end);
+  assert.match(learning, /data-topic-index/);
+  assert.match(learning, /Mathematics roadmap/);
+  assert.doesNotMatch(learning, /Practice an exercise|practice-check|practice-answer|practice-hint|practice-next/);
   assert.match(app, /MODEL TRAINING DISABLED/);
+  assert.match(app, /listExperiences\(50\)/);
 });
 
 test('Colab directory is informational and remote execution stays disabled', async () => {
