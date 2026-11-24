@@ -423,7 +423,7 @@ The next AI-core stage adds a bounded recursive-descent parser that converts sup
 - Parentheses, unary plus/minus, addition, subtraction, multiplication, division, integer/general power syntax, and one top-level equality.
 - Explicit and Unicode multiplication/division symbols (`*`, `×`, `·`, `/`, `÷`), implicit multiplication such as `2x` and `2(x+1)`, supported Greek LaTeX aliases, and Unicode superscript integer powers.
 - Standard precedence: powers bind more tightly than unary minus; powers are right-associative. Contiguous letters form one identifier (`velocity`), not a product of single-letter symbols.
-- Source-offset parse errors and explicit limits for source characters, token count and recursive nesting.
+- Source-offset parse errors and explicit limits of 100,000 source characters, 512 lexer tokens and 128 recursive nesting levels.
 - No Python `eval` or `exec`.
 
 ### Conservative symbolic transformations
