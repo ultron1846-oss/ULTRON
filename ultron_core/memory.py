@@ -7,8 +7,12 @@ class FastWeightMemory(nn.Module):
     """Fast-weight associative matrix plus a bounded content-addressable episodic store."""
     def __init__(self, hidden_size: int, slots: int, decay: float = 0.995):
         super().__init__()
-        if not 0.0 <= decay <= 1.0:
-            raise ValueError("decay must be in [0, 1]")
+        if isinstance(hidden_size, bool) or not isinstance(hidden_size, int) or hidden_size <= 0:
+            raise ValueError("hidden_size must be a positive integer")
+        if isinstance(slots, bool) or not isinstance(slots, int) or slots <= 0:
+            raise ValueError("slots must be a positive integer")
+        if isinstance(decay, bool) or not isinstance(decay, (int, float)) or not torch.isfinite(torch.tensor(decay)).item() or not 0.0 <= decay <= 1.0:
+            raise ValueError("decay must be finite and in [0, 1]")
         self.hidden_size, self.decay = hidden_size, decay
         self.key = nn.Linear(hidden_size, hidden_size, bias=False)
         self.value = nn.Linear(hidden_size, hidden_size, bias=False)
