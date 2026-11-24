@@ -30,7 +30,11 @@ class PredictiveRefiner(nn.Module):
             prediction=self.predictor(z)
             error=F.mse_loss(prediction,z,reduction="none").mean(dim=-1)
             active=error>self.halt_threshold
-            if not bool(active.any()): break
+            # A Python boolean on a CUDA tensor synchronizes the device.
+            # Keep early-exit savings on CPU; on accelerators run the small,
+            # fixed refinement budget and let torch.where preserve inactive rows.
+            if state.device.type == "cpu" and not bool(active.any()):
+                break
             z=torch.where(active.unsqueeze(-1),self.refine(prediction,z),z)
             steps=steps+active.long()
         # Report prediction error for the representation actually returned,
