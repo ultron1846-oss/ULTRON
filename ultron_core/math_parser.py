@@ -353,7 +353,7 @@ class MathParser:
         try:
             tokens = self.tokenizer.tokenize(source)
         except ValueError as exc:
-            match = re.search(r"at offset (\\d+)$", str(exc))
+            match = re.search(r"at offset (\d+)$", str(exc))
             if match is None:
                 raise
             message = str(exc).rsplit(" at offset ", 1)[0]
