@@ -538,7 +538,7 @@ The univariate polynomial engine now provides `isolate_real_roots_univariate(low
 
 - Returns disjoint rational intervals, each containing exactly one distinct real root.
 - Returns ((r,r)) for a rational root detected exactly at a bisection midpoint.
-- All non-degenerate interval endpoints are checked to be non-roots.
+- All non-degenerate interval endpoints are checked against the original polynomial, including when an exact rational root was removed from the square-free polynomial during bisection.
 - Uses a caller-selected exact rational maximum width, with explicit maximum-depth and interval-count budgets.
 - Uses only integer/Fraction arithmetic; no floating-point root approximations.
 
