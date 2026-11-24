@@ -47,6 +47,7 @@ class NeuroSparseModel(nn.Module):
 
     def forward(self,input_ids:torch.Tensor,write_memory:bool=False):
         if input_ids.ndim!=2: raise ValueError("input_ids must be [batch,sequence]")
+        if input_ids.shape[0] == 0 or input_ids.shape[1] == 0: raise ValueError("batch and sequence dimensions must be non-empty")
         if input_ids.dtype not in (torch.int32,torch.int64): raise TypeError("input_ids must be integer")
         if input_ids.numel() and (input_ids.min()<0 or input_ids.max()>=self.config.vocab_size):
             raise ValueError("token id outside vocabulary")
