@@ -43,6 +43,7 @@ def load_balance_loss(logits: torch.Tensor, indices: torch.Tensor) -> torch.Tens
         return logits.new_zeros(())
     if indices.numel() and (indices.min() < 0 or indices.max() >= experts):
         raise ValueError("expert index out of range")
+    indices = indices.to(dtype=torch.long)
     ordered = indices.sort(dim=-1).values
     if indices.shape[1] > 1 and bool((ordered[:, 1:] == ordered[:, :-1]).any()):
         raise ValueError("each token must select distinct experts")
