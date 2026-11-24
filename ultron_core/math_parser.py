@@ -75,7 +75,9 @@ class _RecursiveParser:
 
     @staticmethod
     def _is_digit(token: MathToken | None) -> bool:
-        return token is not None and token.kind == "digit"
+        # The grammar accepts ASCII numeric literals. Superscript digits are
+        # parsed only by the exponent production, never as ordinary numbers.
+        return token is not None and token.value in "0123456789"
 
     @staticmethod
     def _is_identifier(token: MathToken | None) -> bool:
@@ -135,6 +137,13 @@ class _RecursiveParser:
             following = self._peek()
             if not self._starts_primary(following):
                 return result
+            if result.kind in (ExprKind.INTEGER, ExprKind.RATIONAL) and (
+                self._is_digit(following) or following.value == "."
+            ):
+                raise MathParseError(
+                    "adjacent numeric literals require an explicit operator",
+                    following.offset,
+                )
 
             # f(x) is deliberately not interpreted as f multiplied by x:
             # function-call semantics do not yet exist in the current IR.
