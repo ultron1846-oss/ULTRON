@@ -1072,6 +1072,13 @@ class RealAlgebraicNumberTests(unittest.TestCase):
         b = RealAlgebraicNumber.from_isolating_interval(second, 1, 2)
         self.assertTrue(a.same_value_as(b))
         self.assertEqual(a.compare_to(b), 0)
+        nonminimal = Polynomial.from_expr(parse_math("(x^2 - 2)^2"))
+        c = RealAlgebraicNumber.from_isolating_interval(nonminimal, 1, 2)
+        self.assertTrue(a.same_value_as(c))
+        self.assertEqual(a.compare_to(c), 0)
+        negative = RealAlgebraicNumber.from_isolating_interval(first, -2, -1)
+        self.assertFalse(a.same_value_as(negative))
+        self.assertEqual(negative.compare_to(a), -1)
 
     def test_exact_comparison_of_distinct_irrational_roots(self):
         from ultron_core.algebraic import RealAlgebraicNumber
