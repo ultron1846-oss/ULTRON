@@ -411,3 +411,40 @@ The new Python regression module covers token round trips, stable vocabulary ser
 5. Preserve padding-aware causal attention and tests proving future-token isolation and padded-key isolation.
 6. Do not start training, optimizer steps, download datasets/weights, call external AI APIs, use Colab/cloud, or change the website, Pages, Supabase or authentication without separate authorization.
 7. Update this README and the implementation notes at the next meaningful milestone.
+
+
+## Mathematical parser and conservative symbolic foundation — 2026-11-24
+
+This AI-core stage adds a bounded recursive-descent parser that converts supported tokenizer output into the existing `Expr` IR. It does not introduce a competing expression representation.
+
+### Implemented grammar
+- Exact integer and finite decimal literals; decimals are converted directly to exact rational IR atoms using `Fraction`, never binary floating point.
+- Identifiers made of contiguous letters/digits, including simple indexed names such as `x_1` and `x_{12}`.
+- Parentheses, unary plus/minus, addition, subtraction, multiplication, division, integer/general power syntax, and one top-level equality.
+- Explicit and Unicode multiplication/division symbols (`*`, `×`, `·`, `/`, `÷`), implicit multiplication such as `2x` and `2(x+1)`, supported Greek LaTeX aliases, and Unicode superscript integer powers.
+- Standard precedence: powers bind more tightly than unary minus; powers are right-associative. Contiguous letters form one identifier (`velocity`), not a product of single-letter symbols.
+- Source-offset parse errors and explicit limits of 100,000 source characters, 512 lexer tokens and 128 recursive nesting levels.
+- No Python `eval` or `exec`.
+
+### Conservative symbolic transformations
+- Exact bounded constant folding using rational arithmetic.
+- Flattening associative addition/multiplication nodes, combining numeric constants, removing additive zero and multiplicative one, simplifying subtraction by zero and division/power by one, and removing double negation.
+- Does not distribute, factor, reorder symbolic terms, infer domains, cancel common factors, or reduce a zero product if another factor may be undefined.
+- Constant folding uses an exponent magnitude cap of 64. Division-by-zero and over-budget expressions remain explicit.
+- Finite sample comparisons in tests are regression evidence, not a formal proof of equivalence.
+
+### Validation status
+- GitHub Actions on implementation commit `e5fe00a6cc1afc2f3a9345f9469ba951009d6b53`: 104 Python regression tests passed; CPU forward/backward smoke passed; Node.js tests passed.
+- The CPU smoke is architecture validation only. It performs no optimizer step or training run.
+- Local execution was not claimed; CI is the execution evidence for this milestone.
+
+### Explicit unsupported scope
+The parser does not yet support function calls (including `sin(x)`), general LaTeX fractions, inequalities, set membership, matrices, calculus operators, summations, limits, complex numbers, assumptions/domains, or proof syntax. Such input is rejected rather than silently assigned a guessed meaning. The evaluator remains exact scalar arithmetic only; it does not solve equations or provide general symbolic semantics. The model remains untrained.
+
+### Next handoff
+1. Expand the typed IR and parser one feature family at a time (function-call nodes and typed comparisons are likely next), with explicit domain semantics and independent tests.
+2. Build exact polynomial/rational normalization only after defining a grammar and preserving undefined-domain conditions.
+3. Add equation-solving algorithms only with derivation traces and independently checkable exact results; do not label finite probing as proof.
+4. Keep formal proof status fail-closed until a proof kernel and verifiable receipt exist.
+5. No training, optimizer steps, external datasets/APIs, pretrained weights, cloud jobs, or website/frontend changes without separate authorization.
+6. Update this README and implementation notes at the next milestone.

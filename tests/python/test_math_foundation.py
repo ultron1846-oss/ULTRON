@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from fractions import Fraction
 
 import torch
 from ultron_core import NeuroSparseConfig, NeuroSparseModel
@@ -12,6 +13,8 @@ from ultron_core.data_generation import (
     GENERATOR_VERSION, generate_examples, validate_example_text, verify_dataset, write_dataset,
 )
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary
+from ultron_core.math_parser import MathParseError, MathParser, parse_math
+from ultron_core.symbolic import simplify
 
 
 class MathTokenizerTests(unittest.TestCase):
@@ -285,6 +288,118 @@ class ModelIntegrationTests(unittest.TestCase):
         self.assertEqual(evaluate(division, {}), 3)
         with self.assertRaises(ZeroDivisionError):
             evaluate(Expr(ExprKind.DIV, args=(six, Expr(ExprKind.INTEGER, value=0))), {})
+
+
+class MathParserTests(unittest.TestCase):
+    def setUp(self):
+        self.parser = MathParser()
+
+    def test_parse_arithmetic_and_equality_into_existing_ir(self):
+        equation = self.parser.parse("2x + 3 = 7")
+        self.assertEqual(equation.kind, ExprKind.EQUAL)
+        self.assertEqual(evaluate(equation.args[0], {"x": Fraction(2)}), 7)
+        self.assertEqual(evaluate(equation.args[1], {}), 7)
+
+    def test_precedence_unary_sign_and_right_associative_power(self):
+        self.assertEqual(evaluate(parse_math("-x^2"), {"x": Fraction(3)}), -9)
+        self.assertEqual(evaluate(parse_math("2^3^2"), {}), 512)
+        self.assertEqual(evaluate(parse_math("2^-2"), {}), Fraction(1, 4))
+        self.assertEqual(evaluate(parse_math("-(2 + 1) * 4"), {}), -12)
+
+    def test_implicit_and_explicit_multiplication(self):
+        self.assertEqual(evaluate(parse_math("2x"), {"x": Fraction(4)}), 8)
+        self.assertEqual(evaluate(parse_math("2(x + 1)"), {"x": Fraction(4)}), 10)
+        self.assertEqual(evaluate(parse_math("(x + 1)(x - 1)"), {"x": Fraction(4)}), 15)
+        self.assertEqual(evaluate(parse_math("2 × (x + 1)"), {"x": Fraction(4)}), 10)
+        self.assertEqual(evaluate(parse_math("8 ÷ 2"), {}), 4)
+
+    def test_contiguous_identifiers_and_spaced_products_are_distinct(self):
+        self.assertEqual(parse_math("velocity").value, "velocity")
+        self.assertEqual(parse_math("velocity2").value, "velocity2")
+        self.assertEqual(parse_math("x_1").value, "x_1")
+        self.assertEqual(parse_math("x_{12}").value, "x_12")
+        spaced = parse_math("v e")
+        self.assertEqual(spaced.kind, ExprKind.MUL)
+        self.assertNotEqual(parse_math("ve"), spaced)
+
+    def test_decimal_literals_are_exact_rationals(self):
+        self.assertEqual(evaluate(parse_math("0.125"), {}), Fraction(1, 8))
+        self.assertEqual(evaluate(parse_math(".5"), {}), Fraction(1, 2))
+        self.assertEqual(evaluate(parse_math("1.25 + 0.5"), {}), Fraction(7, 4))
+
+    def test_supported_latex_greek_symbol_alias(self):
+        self.assertEqual(parse_math(r"\alpha + 1").args[0].value, "α")
+
+    def test_unicode_superscript_powers_are_parsed_as_exponents(self):
+        self.assertEqual(evaluate(parse_math("x²"), {"x": Fraction(3)}), 9)
+        self.assertEqual(evaluate(parse_math("x⁻²"), {"x": Fraction(2)}), Fraction(1, 4))
+        self.assertEqual(evaluate(parse_math("x²³"), {"x": Fraction(2)}), 2 ** 23)
+
+    def test_parser_rejects_empty_and_trailing_input(self):
+        for source in ("", "   ", "1 2", "x = y = z", "1.", "(x + 1"):
+            with self.subTest(source=source):
+                with self.assertRaises(MathParseError):
+                    parse_math(source)
+
+    def test_parser_rejects_unsupported_semantics_instead_of_guessing(self):
+        for source in ("sin(x)", "x_{i,2}", "x₁", r"\frac{1}{2}", "x <= 3", "x ∈ ℝ"):
+            with self.subTest(source=source):
+                with self.assertRaises(MathParseError):
+                    parse_math(source)
+
+    def test_parser_errors_include_source_offsets(self):
+        with self.assertRaisesRegex(MathParseError, "offset 1"):
+            parse_math("x_")
+        with self.assertRaisesRegex(MathParseError, "offset 1"):
+            parse_math("x🙂")
+
+    def test_parser_enforces_source_token_and_nesting_budgets(self):
+        with self.assertRaisesRegex(MathParseError, "source length"):
+            MathParser(max_source_chars=3).parse("1234")
+        with self.assertRaisesRegex(MathParseError, "token count"):
+            MathParser(max_tokens=2).parse("1 + 2")
+        with self.assertRaisesRegex(MathParseError, "nesting"):
+            MathParser(max_nesting=2).parse("(((x)))")
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            MathParser(max_tokens=0)
+
+
+class ConservativeSimplificationTests(unittest.TestCase):
+    def test_exact_constant_folding_and_identity_rewrites(self):
+        expression = parse_math("x + 0 + 2 + 3")
+        reduced = simplify(expression)
+        self.assertEqual(reduced.kind, ExprKind.ADD)
+        self.assertEqual(reduced.args[0], Expr(ExprKind.SYMBOL, value="x"))
+        self.assertEqual(reduced.args[1], Expr(ExprKind.INTEGER, value=5))
+        for sample in (Fraction(-7, 3), Fraction(-1), Fraction(0), Fraction(5, 2), Fraction(11)):
+            self.assertEqual(
+                evaluate(expression, {"x": sample}),
+                evaluate(reduced, {"x": sample}),
+            )
+
+    def test_multiplication_division_power_and_double_negation_rewrites(self):
+        self.assertEqual(simplify(parse_math("x * 1")), Expr(ExprKind.SYMBOL, value="x"))
+        self.assertEqual(simplify(parse_math("x / 1")), Expr(ExprKind.SYMBOL, value="x"))
+        self.assertEqual(simplify(parse_math("x ^ 1")), Expr(ExprKind.SYMBOL, value="x"))
+        self.assertEqual(simplify(parse_math("-(-x)")), Expr(ExprKind.SYMBOL, value="x"))
+        self.assertEqual(evaluate(simplify(parse_math("(x + 0) * (1 * 3)")), {"x": Fraction(4)}), 12)
+
+    def test_does_not_apply_zero_product_rule_to_potentially_undefined_term(self):
+        expression = parse_math("0 * (1 / 0)")
+        reduced = simplify(expression)
+        self.assertEqual(reduced.kind, ExprKind.MUL)
+        self.assertEqual(reduced.args[0], Expr(ExprKind.INTEGER, value=0))
+        with self.assertRaises(ZeroDivisionError):
+            evaluate(reduced, {})
+
+    def test_division_by_zero_remains_explicit_and_zero_to_zero_is_rejected(self):
+        self.assertEqual(simplify(parse_math("1 / 0")).kind, ExprKind.DIV)
+        with self.assertRaisesRegex(ValueError, "zero to the zero"):
+            evaluate(parse_math("0^0"), {})
+
+    def test_simplifier_rejects_non_expr_input(self):
+        with self.assertRaises(TypeError):
+            simplify("x + 1")
 
 
 if __name__ == "__main__":

@@ -65,6 +65,8 @@ def evaluate(
             raise EvaluationLimitError(
                 f"absolute exponent {abs(exponent)} exceeds max_abs_exponent={max_abs_exponent}"
             )
+        if values[0] == 0 and exponent == 0:
+            raise ValueError("zero to the zero power is undefined")
         return values[0] ** exponent
     raise ValueError(f'unsupported expression {expr.kind.value}')
 
