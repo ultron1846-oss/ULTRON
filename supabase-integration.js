@@ -2,54 +2,84 @@
 // The publishable key is designed for browser use. Never add service-role or secret keys here.
 const PROJECT_URL = 'https://euhmejpaswmdpsutbtse.supabase.co';
 const PUBLISHABLE_KEY = 'sb_publishable_5QK9sdn3C4EIeB0Jy_8TDQ_UKAaZ-9l';
+const REQUEST_TIMEOUT_MS = 10000;
 
 export const supabaseBackendAudit = Object.freeze({
   projectRef: 'euhmejpaswmdpsutbtse',
+  projectName: 'ultron-memory',
+  region: 'ap-south-1',
   currentWebsiteRepository: 'ultron1846-oss/ULTRON',
   projectStatusAtInspection: 'ACTIVE_HEALTHY',
-  trainingControlVersion: 8,
   inspectedOn: '2026-11-24',
   services: [
     {
       name: 'device-control',
       state: 'retired',
       label: 'RETIRED · HTTP 410',
-      detail: 'Device pairing is retired. The deployed function rejects stale pairing clients.'
+      detail: 'The function remains deployed but its current handler rejects every request with HTTP 410. It cannot pair devices, issue credentials or accept heartbeats.'
     },
     {
       name: 'training-control',
-      state: 'public-status-owner-controls',
-      label: 'PUBLIC STATUS · OWNER CONTROLS',
-      detail: 'The public_status action returns safe service-state flags only. health, status, start and stop remain owner-session gated.'
+      state: 'protected',
+      label: 'PUBLIC STATUS · OWNER ACTIONS',
+      detail: 'The public_status action returns generic service-state flags only. Health, status, start and stop actions require a verified owner session inside the function.'
     }
   ],
   blockers: [
-    'Memory and training records remain owner-linked and protected by row-level security; this public website cannot read them without an authenticated owner session.',
-    'Provider discovery remains informational. No provider jobs, device pairing or remote training controls are exposed.',
-    'Actual model training remains disabled. The public status response reports this explicitly.'
+    'The public website has no login and therefore cannot access owner-linked memory, checkpoint or training records. Those tables remain protected by row-level security.',
+    'The public status endpoint is read-only. It does not return owner IDs, records, run metadata, provider credentials or secrets.',
+    'Provider discovery is informational only. The website does not submit provider jobs or launch remote workloads; actual model training remains disabled.',
+    'The Supabase security advisor reports three retired device/pairing tables with RLS enabled but no policies, plus disabled leaked-password protection. These are separate backend-hardening items and were not changed by this frontend integration.'
   ]
 });
 
-export async function fetchSupabasePublicStatus() {
-  const response = await fetch(`${PROJECT_URL}/functions/v1/training-control`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: PUBLISHABLE_KEY
-    },
-    body: JSON.stringify({ action: 'public_status' }),
-    cache: 'no-store'
-  });
+export async function fetchSupabasePublicStatus({
+  fetchImpl = fetch,
+  timeoutMs = REQUEST_TIMEOUT_MS
+} = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-  let payload;
   try {
-    payload = await response.json();
-  } catch {
-    throw new Error('Supabase returned an invalid status response.');
-  }
+    const response = await fetchImpl(`${PROJECT_URL}/functions/v1/training-control`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: PUBLISHABLE_KEY
+      },
+      body: JSON.stringify({ action: 'public_status' }),
+      cache: 'no-store',
+      signal: controller.signal
+    });
 
-  if (!response.ok || payload?.ok !== true) {
-    throw new Error(payload?.error || `Supabase status request failed (HTTP ${response.status}).`);
+    if (!response.ok) {
+      throw new Error(`Supabase status request failed (HTTP ${response.status}).`);
+    }
+
+    let payload;
+    try {
+      payload = await response.json();
+    } catch {
+      throw new Error('Supabase returned an invalid JSON status response.');
+    }
+
+    if (
+      payload?.ok !== true ||
+      payload?.control_plane !== 'online' ||
+      payload?.training_enabled !== false ||
+      payload?.remote_execution_enabled !== false ||
+      payload?.provider_directory !== 'informational_only'
+    ) {
+      throw new Error('Supabase returned a status payload that does not match ULTRON’s safe read-only contract.');
+    }
+
+    return payload;
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error('Supabase status request timed out. The website did not access private backend data.');
+    }
+    throw error instanceof Error ? error : new Error('Supabase status request failed.');
+  } finally {
+    clearTimeout(timeout);
   }
-  return payload;
 }
