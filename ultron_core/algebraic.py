@@ -53,7 +53,7 @@ class RealAlgebraicNumber:
     variable: str
     lower: Fraction
     upper: Fraction
-    limits: PolynomialLimits | None = None
+    limits: PolynomialLimits = DEFAULT_LIMITS
 
     def __post_init__(self):
         if not isinstance(self.polynomial, Polynomial):
@@ -97,7 +97,7 @@ class RealAlgebraicNumber:
         upper: int | Fraction,
         *,
         variable: str | None = None,
-        limits: PolynomialLimits | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
     ) -> "RealAlgebraicNumber":
         selected = _infer_variable(polynomial, variable)
         return cls(polynomial, selected, lower, upper, limits)
@@ -108,7 +108,7 @@ class RealAlgebraicNumber:
         value: int | Fraction,
         *,
         variable: str = "x",
-        limits: PolynomialLimits | None = None,
+        limits: PolynomialLimits = DEFAULT_LIMITS,
     ) -> "RealAlgebraicNumber":
         if isinstance(value, bool) or not isinstance(value, (int, Fraction)):
             raise TypeError("value must be an integer or Fraction")
