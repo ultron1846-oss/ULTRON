@@ -170,3 +170,31 @@ The repository currently has two deployment paths targeting the same Pages envir
 - Do not connect Google Colab, start a server, submit remote jobs or train the model. The user explicitly deferred server connection until the AI is ready.
 - Preserve Supabase RLS, owner-only checks, credentials and private records. Do not change Auth settings or secrets during frontend QA.
 - Update this README at every meaningful milestone and leave a precise next-chat handoff.
+
+
+## Original mathematical AI core — Section C prototype (2026-11-24)
+
+An isolated Python/PyTorch research scaffold now lives in `ultron_core/`; it does not alter the JavaScript website, GitHub Pages runtime, Supabase, authentication, or existing browser memory. See [NeuroSparse implementation notes](docs/NEUROSPARSE_IMPLEMENTATION.md).
+
+The prototype includes sparse top-k expert dispatch, bounded predictive latent refinement, fast-weight plus bounded episodic memory, a typed mathematical expression representation, seed formula candidates, finite-domain counterexample probing, checkpoint integrity helpers, and CPU/GPU smoke/profiling tools. These are experimental components, not a trained model, formal theorem prover, or demonstrated mathematical discovery system. The default expert selection ratio is 25%, not the proposed 2% target.
+
+### Install and validate
+
+Install a PyTorch wheel appropriate for the target CPU/CUDA device, then run:
+
+```sh
+python -m unittest discover -s tests/python -v
+python -m ultron_core.smoke --device cpu --batch 2 --sequence 8
+python -m ultron_core.smoke --device cuda --profile
+```
+
+GitHub Actions now runs the Python regression suite and a CPU forward/backward smoke check on pull requests and pushes to `main`. Smoke validation does not execute an optimizer step or start training. No training corpus, pretrained weights, external AI API, cloud job, or remote execution is used.
+
+### Next-chat handoff — after Section C
+
+1. Review the Section C pull request and inspect its Python CI result; run the same tests in a supported local CPU environment before making performance claims.
+2. Review expert dispatch overhead, load-balancing behavior, fast/episodic memory semantics, checkpoint recovery, and profiler output. The current reference paths are not optimized GPU kernels.
+3. Continue with deterministic original mathematical data generation, richer symbolic operations, and formal-verifier interfaces only after the user authorizes the next stage.
+4. Keep the website, Supabase, authentication, Pages deployment, and provider integrations unchanged.
+5. Do not start actual model training, cloud execution, or remote jobs without separate explicit authorization.
+6. Continue only when the user says: `Continue to Section D`.
