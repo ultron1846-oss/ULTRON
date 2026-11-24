@@ -12,3 +12,7 @@
 
 /* Optional owner sign-in panel */
 .owner-form{display:grid;gap:10px;margin-top:18px;max-width:520px}.owner-form .field-label{margin-top:8px}.owner-form[hidden]{display:none}.owner-form .agent-actions{flex-wrap:wrap}.owner-form button:disabled{opacity:.55;cursor:wait}
+
+
+/* Tablet/mobile finishing: safe areas, stable viewport sizing and reduced motion. */
+html{min-height:100%;min-height:100svh}body{min-height:100vh;min-height:100svh}.topbar{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}.main-area{padding-bottom:max(0px,env(safe-area-inset-bottom))}button,.file-button{-webkit-tap-highlight-color:transparent}button:disabled{opacity:.55;cursor:not-allowed}.soft-contrast .panel,.soft-contrast .status-card{background:#1b1b1f;border-color:#81505a}.soft-contrast .muted,.soft-contrast .page-heading p{color:#c4bcc0}@media(max-width:760px){.topbar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}.sidebar{padding-bottom:max(18px,env(safe-area-inset-bottom))}.main-area{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}.nav-item{min-height:52px}.agent-actions>button,.agent-actions>.file-button{min-height:46px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
