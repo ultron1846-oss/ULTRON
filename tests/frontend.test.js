@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-test('control-room shell exposes its six primary destinations', async () => {
+test('control-room shell exposes its seven primary destinations', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   for (const page of ['overview','learning','agent','memory','servers','backend','settings']) assert.match(html, new RegExp(`data-page="${page}"`));
   assert.match(html, /viewport-fit=cover/);
@@ -48,7 +48,7 @@ test('Supabase backend page documents the audited contract without exposing owne
 });
 
 
-test('Pages deployment stages the Supabase integration module required by app.js', async () => {
+test('Pages deployment stages every runtime module and data file', async () => {
   const workflow = await readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
   assert.match(workflow, /cp .*supabase-integration\.js .*_site\//);
 });
