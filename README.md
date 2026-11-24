@@ -364,3 +364,5 @@ A further Python-core review tightened two correctness boundaries:
 
 
 - FormulaCandidate construction now validates expression/status types and requires immutable tuple-based metadata, closing another malformed-input path at the mathematical IR boundary.
+
+- Checkpoint preflight also rejects tensor-layout mismatches, and its key-difference diagnostics safely handle malformed non-string keys.
