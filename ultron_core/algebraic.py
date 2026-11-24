@@ -197,6 +197,20 @@ class RealAlgebraicNumber:
 
         left, right = self, other
         for step in range(max_refinements + 1):
+            if left.is_rational and right.is_rational:
+                return (left.lower > right.lower) - (left.lower < right.lower)
+            if left.is_rational and not right.is_rational:
+                if (
+                    right.lower < left.lower < right.upper
+                    and right.polynomial.evaluate({right.variable: left.lower}) == 0
+                ):
+                    return 0
+            if right.is_rational and not left.is_rational:
+                if (
+                    left.lower < right.lower < left.upper
+                    and left.polynomial.evaluate({left.variable: right.lower}) == 0
+                ):
+                    return 0
             if left.is_rational:
                 if left.lower <= right.lower:
                     return -1
