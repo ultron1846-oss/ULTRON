@@ -7,6 +7,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages
+- **Supabase backend:** audited view of the existing Supabase project and deployed Edge Function contracts. It intentionally does not call owner-only services from the public site.
 - **Overview:** honest system status, model/training state, mathematical capability summary and local practice count.
 - **How ULTRON learns:** explains the intended verified learning lifecycle and distinguishes learning exercises from neural-model training.
 - **Math Agent:** browser interface to the existing deterministic arithmetic parser and limited linear-equation solver.
@@ -43,6 +44,21 @@ Automated tests do not replace live browser testing. iPad Safari testing must on
 ## GitHub Pages
 Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow must stage every runtime asset required by the frontend, including `math-engine.js` and (when added by backend work) `servers.json`. A successful Actions deployment is not by itself proof of every page interaction.
 
+## Supabase integration audit
+
+The existing Supabase project `ultron-memory` was inspected directly. Its project status was `ACTIVE_HEALTHY` at inspection time. The database contains owner-linked memory tables and a `training_api` schema; row-level security is enabled. The public site has no login, so it must not query owner-scoped records or attempt to use the owner-only training function.
+
+- `device-control` is deployed but intentionally retired; it returns HTTP 410.
+- `training-control` requires a valid owner JWT and currently contains an old GitHub repository target (`shayaanfarsheed-cmd/ULTRONAI`) and old Pages origin (`shayaanfarsheed-cmd.github.io`). The current website is `ultron1846-oss/ULTRON`; the backend allowlist/configuration therefore needs Codex-side alignment before any browser integration.
+- The frontend exposes this audit as configuration information only. It does not claim live telemetry, read protected tables, send credentials, dispatch workflows, or start training.
+- No Supabase schema, policies, secrets, or Edge Functions were changed during this frontend work.
+
+### Required backend follow-up (Codex)
+1. Align the server-side GitHub repository constant and allowed Pages origin with `ultron1846-oss/ULTRON` and its deployed Pages origin.
+2. Add a public, read-only health endpoint that returns only service health/configuration booleans; do not expose owner data, run metadata, credentials, or start/stop actions.
+3. Keep training start/stop inaccessible from the public website and retain the explicit training-disabled safeguard.
+4. Document and test the response contract before the frontend adds live polling.
+
 ## Backend handoff / remaining work
 The backend owner (Codex) should:
 1. Maintain and test the deterministic math engine API without breaking the frontend imports.
@@ -50,7 +66,8 @@ The backend owner (Codex) should:
 3. Keep all training entry points hard-disabled and add backend regression tests preventing accidental execution.
 4. Implement knowledge, lesson, verification and memory services behind documented interfaces before the frontend advertises them as available.
 5. Keep provider metadata evidence-based and current; never invent free-tier availability.
-6. Update this README at meaningful milestones so the next development session can resume accurately.
+6. Keep the Supabase health-only public contract separate from owner-only training controls.
+7. Update this README at meaningful milestones so the next development session can resume accurately.
 
 ## Delivery plan
 
