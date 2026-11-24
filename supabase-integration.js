@@ -2,6 +2,7 @@
 // This is a documentation snapshot, not a live health check. Never put server secrets here.
 export const supabaseBackendAudit = Object.freeze({
   projectRef: 'euhmejpaswmdpsutbtse',
+  currentWebsiteRepository: 'ultron1846-oss/ULTRON',
   projectStatusAtInspection: 'ACTIVE_HEALTHY',
   inspectedOn: '2026-11-24',
   services: [
