@@ -36,13 +36,13 @@ function navigate(page){
   document.querySelector('#page-crumb').textContent=pageNames[key];
   nav.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===key));
   bind(key);
-  try{history.replaceState(null,'',\`#\${key}\`);}catch(error){console.warn('ULTRON could not update the address hash:',error);}
+  try{history.replaceState(null,'',`#${key}`);}catch(error){console.warn('ULTRON could not update the address hash:',error);}
   document.querySelector('#sidebar').classList.remove('open');
   document.querySelector('#mobile-menu').setAttribute('aria-expanded','false');
   try{content.focus({preventScroll:true});}catch{content.focus();}
  }catch(error){
   console.error('ULTRON page render failed:',key,error);
-  content.innerHTML=\`<div class="page-heading"><div><div class="eyebrow">FRONTEND ERROR</div><h1>Could not open \${esc(pageNames[key])}</h1><p>The application caught an error instead of leaving the page blank.</p></div></div><div class="warning-banner" role="alert">\${esc(error?.message||String(error))}</div><article class="panel"><h2>Recovery</h2><p class="muted">Try the Overview again. If this repeats, send the error text above so it can be traced to the exact module.</p><button class="outline-button" id="retry-overview" type="button">Reload overview</button></article>\`;
+  content.innerHTML=`<div class="page-heading"><div><div class="eyebrow">FRONTEND ERROR</div><h1>Could not open ${esc(pageNames[key])}</h1><p>The application caught an error instead of leaving the page blank.</p></div></div><div class="warning-banner" role="alert">${esc(error?.message||String(error))}</div><article class="panel"><h2>Recovery</h2><p class="muted">Try the Overview again. If this repeats, send the error text above so it can be traced to the exact module.</p><button class="outline-button" id="retry-overview" type="button">Reload overview</button></article>`;
   const retry=document.querySelector('#retry-overview');
   if(retry)retry.addEventListener('click',()=>navigate('overview'));
  }
@@ -50,23 +50,23 @@ function navigate(page){
 function renderOverview(){
  const count=Number(safeGet('ultron-practice-count','0'))||0;
  const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
- return \`\${heading('CONTROL ROOM / PROJECT STATUS','ULTRON overview','A live map of what works today, what is being built next, and what remains safely disabled.','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
+ return `${heading('CONTROL ROOM / PROJECT STATUS','ULTRON overview','A live map of what works today, what is being built next, and what remains safely disabled.','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
  <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, local practice and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
  <div class="status-grid">
- \${[['MATH ENGINE','AVAILABLE','Arithmetic parser and limited linear equation solver.'],['LEARNING','READY','Topic roadmap and foundation exercises.'],['MEMORY VAULT','LOCAL','IndexedDB storage with manual JSON backup.'],['MODEL TRAINING','DISABLED','No model weights or training runs are active.']].map(([a,b,c])=>card(\`<div class="mini-label">\${a}</div><strong class="status-value">\${b}</strong><p>\${c}</p>\`,'status-card')).join('')}
+ ${[['MATH ENGINE','AVAILABLE','Arithmetic parser and limited linear equation solver.'],['LEARNING','READY','Topic roadmap and foundation exercises.'],['MEMORY VAULT','LOCAL','IndexedDB storage with manual JSON backup.'],['MODEL TRAINING','DISABLED','No model weights or training runs are active.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
  </div>
  <div class="grid two-col">
- \${card('<div class="eyebrow">QUICK ACCESS / 01</div><h2>Math Agent</h2><p class="muted">Solve supported arithmetic expressions and simple linear equations using ULTRON’s local deterministic engine.</p><button class="outline-button" data-page="agent">Open Math Agent →</button>')}
- \${card(\`<div class="eyebrow">QUICK ACCESS / 02</div><h2>Learning activity</h2><div class="big-number">\${count}</div><p class="muted">Correct practice answers recorded in this browser.</p><button class="outline-button" data-page="learning">Continue practice →</button>\`)}
+ ${card('<div class="eyebrow">QUICK ACCESS / 01</div><h2>Math Agent</h2><p class="muted">Solve supported arithmetic expressions and simple linear equations using ULTRON’s local deterministic engine.</p><button class="outline-button" data-page="agent">Open Math Agent →</button>')}
+ ${card(`<div class="eyebrow">QUICK ACCESS / 02</div><h2>Learning activity</h2><div class="big-number">${count}</div><p class="muted">Correct practice answers recorded in this browser.</p><button class="outline-button" data-page="learning">Continue practice →</button>`)}
  </div>
  <div class="grid two-col lower-grid">
- \${card('<div class="eyebrow">PROJECT ROADMAP / NEXT</div><h2>What is being built</h2><div class="capability-list"><div><b>1. Finish frontend verification</b><span class="tag available">CURRENT</span></div><div><b>2. Verify iPad navigation and storage</b><span class="tag planned">NEXT</span></div><div><b>3. Prepare Colab notebook integration</b><span class="tag planned">PLANNED</span></div><div><b>4. Validate checkpoints and resume flow</b><span class="tag planned">PLANNED</span></div></div>')}
- \${card('<div class="eyebrow">INFRASTRUCTURE / SELECTED</div><h2>Google Colab</h2><p class="muted">Colab is the selected future notebook environment. It is listed for planning only; ULTRON does not connect to it, allocate a runtime or submit jobs.</p><span class="status-pill">NOT CONNECTED</span><div style="margin-top:16px"><button class="outline-button" data-page="servers">View servers &amp; Colab →</button></div>')}
+ ${card('<div class="eyebrow">PROJECT ROADMAP / NEXT</div><h2>What is being built</h2><div class="capability-list"><div><b>1. Finish frontend verification</b><span class="tag available">CURRENT</span></div><div><b>2. Verify iPad navigation and storage</b><span class="tag planned">NEXT</span></div><div><b>3. Prepare Colab notebook integration</b><span class="tag planned">PLANNED</span></div><div><b>4. Validate checkpoints and resume flow</b><span class="tag planned">PLANNED</span></div></div>')}
+ ${card('<div class="eyebrow">INFRASTRUCTURE / SELECTED</div><h2>Google Colab</h2><p class="muted">Colab is the selected future notebook environment. It is listed for planning only; ULTRON does not connect to it, allocate a runtime or submit jobs.</p><span class="status-pill">NOT CONNECTED</span><div style="margin-top:16px"><button class="outline-button" data-page="servers">View servers &amp; Colab →</button></div>')}
  </div>
  <div class="grid two-col lower-grid">
- \${card(\`<div class="eyebrow">DEVICE MEMORY / PREFERENCE</div><h2>Preferred workload budget</h2><div class="big-number">\${level} GB</div><p class="muted">Saved browser preference only. It does not allocate physical RAM or change a future Colab runtime.</p><button class="outline-button" data-page="settings">Open settings →</button>\`)}
- \${card('<div class="eyebrow">BACKEND / STATUS</div><h2>Supabase connection</h2><p class="muted">The backend page checks the public read-only status endpoint. Private owner data remains protected and is not exposed to this public site.</p><button class="outline-button" data-page="backend">Inspect backend status →</button>')}
- </div>\`;
+ ${card(`<div class="eyebrow">DEVICE MEMORY / PREFERENCE</div><h2>Preferred workload budget</h2><div class="big-number">${level} GB</div><p class="muted">Saved browser preference only. It does not allocate physical RAM or change a future Colab runtime.</p><button class="outline-button" data-page="settings">Open settings →</button>`)}
+ ${card('<div class="eyebrow">BACKEND / STATUS</div><h2>Supabase connection</h2><p class="muted">The backend page checks the public read-only status endpoint. Private owner data remains protected and is not exposed to this public site.</p><button class="outline-button" data-page="backend">Inspect backend status →</button>')}
+ </div>`;
 }
 function renderLearning(){
  const topicCards=topics.map((topic,index)=>`<button class="topic-card" type="button" data-topic-index="${index}" aria-pressed="${index===0?'true':'false'}"><span class="topic-symbol">${esc(topic.symbol)}</span><span><b>${esc(topic.name)}</b><small>${esc(topic.desc)}</small></span><span class="tag ${topic.level==='AVAILABLE'?'available':'planned'}">${esc(topic.level)}</span></button>`).join('');
