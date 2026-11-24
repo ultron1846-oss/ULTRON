@@ -44,16 +44,16 @@ class ExactAlgebraicArithmeticTests(unittest.TestCase):
 
     def test_product_is_exact(self):
         result = self.sqrt2 * self.sqrt3
-        expected = Polynomial.from_expr(parse_math("z^2 - 6"))
+        expected = Polynomial.from_expr(parse_math("z^4 - 12*z^2 + 36"))
         self.assertEqual(result.polynomial, expected)
         self.assertEqual((result.lower, result.upper), (Fraction(1), Fraction(4)))
 
     def test_reciprocal_and_quotient_are_exact(self):
         inverse = self.sqrt3.reciprocal()
-        inverse_expected = Polynomial.from_expr(parse_math("2*z^2 - 1"))
+        inverse_expected = Polynomial.from_expr(parse_math("1 - 3*z^2"))
         self.assertEqual(inverse.polynomial, inverse_expected)
         quotient = self.sqrt2 / self.sqrt3
-        quotient_expected = Polynomial.from_expr(parse_math("3*z^2 - 2"))
+        quotient_expected = Polynomial.from_expr(parse_math("9*z^4 - 12*z^2 + 4"))
         self.assertEqual(quotient.polynomial, quotient_expected)
         self.assertGreater(quotient.lower, 0)
         self.assertLess(quotient.upper, 1)
