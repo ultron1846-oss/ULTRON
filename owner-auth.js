@@ -18,7 +18,7 @@ function saveSession(session){try{localStorage.setItem(SESSION_KEY,JSON.stringif
 export function clearOwnerSession(){try{localStorage.removeItem(SESSION_KEY);}catch{}}
 export async function signInOwner(email,password){
  const normalized=String(email||'').trim().toLowerCase();
- if(!/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(normalized))throw new Error('Enter a valid email address.');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized))throw new Error('Enter a valid email address.');
  if(typeof password!=='string'||!password)throw new Error('Enter your password.');
  const data=await request('/auth/v1/token?grant_type=password',{method:'POST',body:{email:normalized,password}});
  if(!data.access_token||!data.refresh_token||!data.user?.id)throw new Error('Supabase returned an incomplete sign-in session.');
