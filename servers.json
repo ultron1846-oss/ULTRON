@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "purpose": "Informational provider directory only. No provider jobs are submitted by the website.",
+  "providers": [
+    {
+      "id": "google-colab",
+      "name": "Google Colab",
+      "role": "Planned primary notebook environment for future ULTRON training",
+      "description": "Selected by the project owner for the future training notebook. The website does not connect to Colab, launch runtimes, upload data or start training.",
+      "url": "https://colab.research.google.com/",
+      "status": "SELECTED · NOT CONNECTED",
+      "execution_enabled": false
+    }
+  ]
+}
