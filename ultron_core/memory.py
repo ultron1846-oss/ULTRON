@@ -28,8 +28,14 @@ class FastWeightMemory(nn.Module):
         self.cursor.zero_()
 
     def forward(self, x: torch.Tensor, write: bool = False) -> torch.Tensor:
-        keys = F.normalize(self.key(x), dim=-1)
-        values = self.value(x)
+        # Key/value projections are only consumed by the write path. Avoid two
+        # full hidden-size projections during ordinary read-only inference.
+        should_write = write and self.training
+        if should_write:
+            keys = F.normalize(self.key(x), dim=-1)
+            values = self.value(x)
+        else:
+            keys = values = None
         queries = F.normalize(self.query(x), dim=-1)
         fast_recall = torch.matmul(queries, self.fast_weights.to(dtype=x.dtype))
         if bool(self.valid.any()):
@@ -41,7 +47,7 @@ class FastWeightMemory(nn.Module):
             episodic_recall = torch.zeros_like(x)
         recalled = fast_recall + episodic_recall
 
-        if write and self.training:
+        if should_write:
             # Sequential delta updates preserve update order; this prototype path is not GPU-optimized.
             with torch.no_grad():
                 gates = torch.sigmoid(self.gate(x)).squeeze(-1)

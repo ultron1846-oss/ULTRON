@@ -246,3 +246,21 @@ A focused review of the merged Section C/D Python core identified and corrected 
 3. Add property-based tests for symbolic expression evaluation, domain edge cases, checkpoint recovery, memory isolation and router load balancing.
 4. Do not call this prototype an LLM or claim university-level math capability until causal sequence modelling, training, and independent mathematical evaluation have actually been implemented and validated.
 5. No model training, optimizer steps, cloud jobs, Colab sessions, or remote execution are authorized by this review.
+
+
+## Core performance optimization — 2026-11-24
+
+- The memory module now skips key and value linear projections during read-only calls. Those projections are only required to update fast weights and episodic slots during a training-mode write.
+- The optimization preserves the query projection and existing recall calculations; it does not change memory contents or checkpoint tensor shapes.
+- Regression tests verify that read-only calls do not execute key/value projections, both before memory is populated and after a write has populated it. A write request in evaluation mode is also treated as read-only.
+- No Rust/C++ rewrite was introduced. PyTorch already executes the tensor kernels in compiled native code; replacing Python orchestration with another language without a measured bottleneck would add complexity without a demonstrated speedup.
+- No performance gain is claimed until the before/after benchmark is run on the intended CPU/GPU hardware. No training, optimizer steps, external data, cloud compute or remote jobs were run.
+
+### Next optimization handoff
+
+1. Run Python regression tests and CPU forward/backward smoke; run the inference benchmark before and after on the same device and environment to quantify impact.
+2. Add profiler ranges for router dispatch, expert execution, predictive refinement and memory read/write; optimize only the dominant measured stages.
+3. Compare eager PyTorch with optional torch.compile on representative batch/sequence sizes before considering custom C++/CUDA kernels or Rust orchestration.
+4. Preserve model outputs, checkpoint compatibility and deterministic tests. Do not claim a speedup from fewer operations alone.
+5. The major architecture prerequisite remains causal sequence mixing and positional information; performance work must not disguise the current prototype's lack of context-aware language modelling.
+6. Keep frontend, Supabase and authentication untouched. Do not train or launch remote jobs without separate explicit authorization.

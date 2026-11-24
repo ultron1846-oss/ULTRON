@@ -38,3 +38,8 @@ The smoke tool performs forward and backward propagation only. It performs no op
 4. The finite-domain verifier cannot prove identities or establish mathematical novelty.
 5. The checkpoint integrity manifest detects accidental modification but is not a signature or defense against a malicious writer who can replace both files.
 6. No training or remote execution was performed for this milestone.
+
+
+## Read-only memory projection optimization
+
+Read-only memory calls now compute only the query projection. Key and value projections are required only for a write performed while the module is in training mode; they are skipped for ordinary inference and for write requests made while the module is in evaluation mode. This removes two hidden-size linear projections from the common read-only path without changing memory state or recall equations. Regression tests use module hooks to verify the skipped projections in both empty-memory and populated-memory read-only cases. Performance gains remain unquantified until measured on target hardware.
