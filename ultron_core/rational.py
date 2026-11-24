@@ -122,9 +122,15 @@ class RationalFunction:
             return left.divide(right, limits=limits)
         if kind == ExprKind.POW:
             base, exponent_node = expression.args
-            if exponent_node.kind != ExprKind.INTEGER:
+            if exponent_node.kind == ExprKind.INTEGER:
+                exponent = exponent_node.value
+            elif (
+                exponent_node.kind == ExprKind.NEG
+                and exponent_node.args[0].kind == ExprKind.INTEGER
+            ):
+                exponent = -exponent_node.args[0].value
+            else:
                 raise RationalExpressionError("rational powers must be integer literals")
-            exponent = exponent_node.value
             if abs(exponent) > limits.max_exponent:
                 raise RationalExpressionError(
                     f"absolute power {abs(exponent)} exceeds max_exponent={limits.max_exponent}"
