@@ -704,7 +704,7 @@ class ExactUnivariatePolynomialDivisionTests(unittest.TestCase):
 
     def test_fraction_coefficients_are_divided_exactly(self):
         from ultron_core.polynomial import Polynomial
-        dividend = Polynomial.from_expr(parse_math("1/2*x^2 + 1/3*x + 1/6"))
+        dividend = Polynomial.from_expr(parse_math("1/2*x^2 + 1/3*x + 1/18"))
         divisor = Polynomial.from_expr(parse_math("1/2*x + 1/6"))
         quotient, remainder = dividend.divide_univariate(divisor)
         self.assertEqual(quotient, Polynomial.from_expr(parse_math("x + 1/3")))
@@ -712,8 +712,8 @@ class ExactUnivariatePolynomialDivisionTests(unittest.TestCase):
 
     def test_monic_univariate_gcd(self):
         from ultron_core.polynomial import Polynomial
-        left = Polynomial.from_expr(parse_math("x^3 - x^2 - x + 1"))
-        right = Polynomial.from_expr(parse_math("x^2 - 2*x + 1"))
+        left = Polynomial.from_expr(parse_math("x^3 - 2*x^2 + x"))
+        right = Polynomial.from_expr(parse_math("x^2 - 1"))
         expected = Polynomial.from_expr(parse_math("x - 1"))
         self.assertEqual(left.gcd_univariate(right), expected)
         self.assertEqual(right.gcd_univariate(left), expected)
