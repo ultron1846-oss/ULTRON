@@ -65,6 +65,11 @@ class CoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "distinct"):
             load_balance_loss(logits, torch.tensor([[1, 1], [2, 3]]))
 
+    def test_router_balance_accepts_integer_index_widths(self):
+        logits = torch.zeros(2, 4)
+        indices = torch.tensor([[0, 1], [2, 3]], dtype=torch.int32)
+        self.assertTrue(torch.isfinite(load_balance_loss(logits, indices)))
+
     def test_router_balance_rejects_non_integer_indices(self):
         with self.assertRaisesRegex(TypeError, "integer dtype"):
             load_balance_loss(torch.zeros(2, 4), torch.tensor([[0.0], [1.0]]))
@@ -230,6 +235,11 @@ class CoreTests(unittest.TestCase):
         ids = torch.tensor([[1, 2, 0]])
         loss = causal_language_model_loss(logits, ids, ignore_index=0)
         self.assertAlmostEqual(float(loss), torch.log(torch.tensor(4.0)).item(), places=6)
+
+    def test_loss_accepts_int32_token_ids(self):
+        logits = torch.zeros(1, 3, 4)
+        ids = torch.tensor([[1, 2, 3]], dtype=torch.int32)
+        self.assertTrue(torch.isfinite(causal_language_model_loss(logits, ids)))
 
     def test_loss_rejects_all_padding_targets(self):
         logits = torch.randn(1, 3, 5)
