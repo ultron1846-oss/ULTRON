@@ -106,7 +106,7 @@ class Polynomial:
     def variable(cls, name):
         if not isinstance(name, str) or not name.isidentifier():
             raise ValueError("variable name must be a valid identifier")
-        return cls((((name, 1),), Fraction(1)))
+        return cls(((((name, 1),), Fraction(1)),))
 
     @classmethod
     def from_expr(cls, expression: Expr, *, limits: PolynomialLimits = DEFAULT_LIMITS):
