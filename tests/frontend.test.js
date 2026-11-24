@@ -49,5 +49,5 @@ test('Supabase backend page documents the audited contract without exposing owne
 
 test('Pages deployment stages the Supabase integration module required by app.js', async () => {
   const workflow = await readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
-  assert.match(workflow, /supabase-integration\.js _site\//);
+  assert.match(workflow, /cp .*supabase-integration\.js .*_site\//);
 });
