@@ -647,6 +647,29 @@ class ExactRationalExpressionTests(unittest.TestCase):
         self.assertEqual(value.nonzero_constraints, ())
         self.assertEqual(value.evaluate({"x": 6}), Fraction(3))
 
+    def test_rational_results_match_independent_exact_evaluator_on_sample_points(self):
+        from ultron_core.rational import RationalDomainError, RationalFunction
+        samples = (
+            "x/2 + 1/3",
+            "(x + 1)/(x - 2)",
+            "1/(1/x)",
+            "x^-2",
+            "(x^2 + 1)/(x + 1)",
+        )
+        for source in samples:
+            expression = parse_math(source)
+            rational = RationalFunction.from_expr(expression)
+            for point in range(-3, 4):
+                environment = {"x": Fraction(point)}
+                with self.subTest(source=source, point=point):
+                    try:
+                        expected = evaluate(expression, environment)
+                    except ZeroDivisionError:
+                        with self.assertRaises(RationalDomainError):
+                            rational.evaluate(environment)
+                    else:
+                        self.assertEqual(rational.evaluate(environment), expected)
+
     def test_custom_limits_above_defaults_survive_rational_normalization(self):
         from ultron_core.polynomial import PolynomialLimits
         from ultron_core.rational import RationalFunction
