@@ -94,6 +94,13 @@ class CoreTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_checkpoint(path, restored)
 
+    def test_probe_requires_every_expression_variable(self):
+        x = Expr(ExprKind.SYMBOL, value='x')
+        y = Expr(ExprKind.SYMBOL, value='y')
+        candidate = FormulaCandidate(Expr(ExprKind.EQUAL, args=(x, y)))
+        with self.assertRaisesRegex(ValueError, 'omits symbols'):
+            probe_candidate(candidate, variable_names=('x',))
+
 
 if __name__ == '__main__':
     unittest.main()
