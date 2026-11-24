@@ -510,3 +510,10 @@ The sparse-polynomial engine now implements exact Euclidean division over ration
 - Configured polynomial degree, term and exponent limits are checked on inputs and intermediate quotient/remainder states.
 
 This is a univariate exact-algebra operation only. It does not yet cancel factors in RationalFunction, because rational cancellation must preserve the original non-zero domain restrictions. No training or optimizer step is involved.
+
+
+## Domain-safe univariate rational reduction — 2026-11-24
+
+RationalFunction now exposes `cancel_common_univariate_factors()`. It computes the exact univariate polynomial GCD of numerator and denominator, divides both exactly, and returns the reduced pair.
+
+Crucially, the method carries forward the complete original non-zero constraint set. Thus `x/x` can reduce structurally to (1/1) while still rejecting (x=0); ((x^2-1)/(x-1)) can reduce to (x+1) while still rejecting (x=1). It rejects multivariate numerator/denominator inputs instead of guessing a multivariate GCD. Reduction is structural simplification, not proof of arbitrary expression equivalence.
