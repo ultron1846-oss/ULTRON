@@ -1,3 +1,4 @@
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -181,6 +182,26 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(result.status, VerificationStatus.REJECTED)
         self.assertIsNotNone(result.counterexample)
 
+    def test_finite_probe_rejects_inexact_or_boolean_sample_values(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(TypeError, "exact integers"):
+            probe_candidate(candidate, sample_values=(0.5, 1))
+        with self.assertRaisesRegex(TypeError, "exact integers"):
+            probe_candidate(candidate, sample_values=(False, 1))
+
+    def test_finite_probe_normalizes_exact_rational_samples(self):
+        candidate = polynomial_identity_candidates()[0]
+        result = probe_candidate(
+            candidate, variable_names=("x", "y"), sample_values=("1/2", 1)
+        )
+        self.assertEqual(result.status, VerificationStatus.EXPERIMENTALLY_SUPPORTED)
+        self.assertEqual(result.samples_checked, 4)
+
+    def test_finite_probe_rejects_duplicate_normalized_samples(self):
+        candidate = polynomial_identity_candidates()[0]
+        with self.assertRaisesRegex(ValueError, "unique after rational normalization"):
+            probe_candidate(candidate, sample_values=(1, "1/1"))
+
     def test_finite_probe_rejects_empty_sample_domain(self):
         candidate = polynomial_identity_candidates()[0]
         with self.assertRaisesRegex(ValueError, 'sample_values must not be empty'):
@@ -243,6 +264,30 @@ class CoreTests(unittest.TestCase):
             save_checkpoint(path, model, config, step=0)
             payload = torch.load(path, map_location="cpu", weights_only=True)
             self.assertEqual(payload["format_version"], 2)
+
+    def test_checkpoint_rejects_bad_tensor_shapes_before_mutating_model(self):
+        config = self.config()
+        source = NeuroSparseModel(config)
+        target = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "checkpoint.pt"
+            save_checkpoint(path, source, config, step=3)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            first_key = next(iter(payload["model"]))
+            payload["model"][first_key] = torch.zeros(1)
+            torch.save(payload, path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            path.with_suffix(path.suffix + ".sha256").write_text(
+                digest + "  " + path.name + "\n", encoding="utf-8"
+            )
+            before = {
+                name: value.detach().clone()
+                for name, value in target.state_dict().items()
+            }
+            with self.assertRaisesRegex(ValueError, "has shape"):
+                load_checkpoint(path, target)
+            for name, value in target.state_dict().items():
+                self.assertTrue(torch.equal(value, before[name]), name)
 
     def test_checkpoint_round_trip_and_tamper_detection(self):
         config = self.config()
