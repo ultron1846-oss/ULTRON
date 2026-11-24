@@ -206,3 +206,19 @@ ultron_core/polynomial.py adds bounded exact sparse-polynomial algebra over Frac
 This is a polynomial ring over rational coefficients and finitely many named variables. It is not a rational-function engine, algebraic-number system, general CAS, equation solver or proof kernel. Non-constant denominators are rejected so denominator-domain restrictions are not silently discarded. Canonical equality applies only after both expressions are soundly converted into this supported polynomial domain.
 
 The parser's stale inline comment about function-call syntax was corrected: supported calls are represented as typed CALL nodes, but the exact evaluator still refuses to evaluate them. No training, optimizer step, corpus generation, external API, pretrained weights, cloud job, remote execution, website, Supabase or authentication change was performed.
+
+
+## Domain-preserving exact rational expressions — 2026-11-24
+
+`ultron_core/rational.py` adds a rational-function representation over the existing exact sparse-polynomial ring.
+
+- State is an exact polynomial numerator, a non-zero exact polynomial denominator, and a canonical tuple of polynomials required to be non-zero.
+- Construction always adds the normalized denominator to the restriction set. Division adds the divisor's numerator, because the divisor must be non-zero wherever it is evaluated. Integer exponent zero adds the base numerator as a restriction; negative powers swap numerator/denominator and preserve the same non-zero condition.
+- Addition and multiplication use cross-products without cancellation. This may grow expressions, but avoids losing excluded points. All polynomial products inherit configured degree/term/exponent budgets; the restriction set has a hard cap of 256.
+- Denominator scalar normalization and scalar-normalized restriction deduplication provide deterministic structural representation. This is not a complete canonical form for rational functions; no polynomial GCD or factorization is claimed.
+- Exact evaluation checks every preserved restriction before dividing. Violations raise RationalDomainError rather than returning a value from an enlarged domain.
+- The converter accepts integer/rational/symbol atoms, arithmetic, division and integer powers. Function calls, comparisons and assumptions fail closed.
+
+Important semantics: (x/x) is represented with the condition (x\ne0), and ((x^2-1)/(x-1)) retains (x\ne1); neither is simplified by cancelling factors. (1/(1/x)) also retains the inner condition (x\ne0). This design preserves partial-function domains under nested operations.
+
+Limitations: no polynomial GCD, cancellation, multivariate division, equation solving, calculus, algebraic-number semantics, or proof kernel. It is not a general CAS. No training or optimizer step is performed by these operations.
