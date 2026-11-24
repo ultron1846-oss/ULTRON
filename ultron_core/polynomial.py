@@ -397,6 +397,11 @@ class Polynomial:
         if not isinstance(limits, PolynomialLimits):
             raise TypeError("limits must be PolynomialLimits")
 
+        # Validate the left operand even when the right operand is zero and
+        # the Euclidean loop would otherwise be skipped entirely.
+        if not other.terms:
+            self.divide_univariate(Polynomial.one(), variable=variable, limits=limits)
+
         left, right = self, other
         while right.terms:
             _, remainder = left.divide_univariate(
