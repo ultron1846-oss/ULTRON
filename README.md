@@ -370,3 +370,40 @@ A further Python-core review tightened two correctness boundaries:
 - Finite-domain probing now has a configurable positive max_samples budget (default 100,000) and rejects Cartesian domains that would exceed it before evaluation.
 
 - Exact exponent evaluation is also bounded (default absolute exponent 1,024) so finite probes cannot allocate unbounded rational integers from extreme powers.
+
+
+## Mathematical tokenization and deterministic data foundation — 2026-11-24
+
+The isolated Python core now has an initial, deliberately bounded mathematical input/data foundation. This is infrastructure only; it does not train the model or establish mathematical competence.
+
+### Implemented
+- `ultron_core/math_tokenizer.py` provides a deterministic version-1 lexical vocabulary with reserved PAD/BOS/EOS IDs, longest-match mathematical operator tokens, digit-level exact numeric spelling, Latin/Greek symbols, common superscript/subscript glyphs, delimiters and preserved whitespace.
+- Tokenization is lossless for the explicitly supported lexical subset. Unknown characters fail with an offset; they are not silently mapped to an unknown token.
+- Numeric values do not create per-literal vocabulary entries. For example, `2x`, `2*x` and `2 × x` remain distinct token sequences. The tokenizer preserves the source minus sign and does not infer whether it is unary or binary.
+- Vocabulary serialization is deterministic JSON with a schema version and strict duplicate/reserved-token checks. The default vocabulary IDs are fixed by the source-defined canonical token order.
+- `ultron_core/data_generation.py` creates original deterministic arithmetic, exact-rational arithmetic and one-variable linear-equation examples using a local seeded PRNG and Python `Fraction`.
+- Each example carries a SHA-256-derived stable identifier, generator version, topic, difficulty, source/target text, exact answer, seed/index, generation parameters, validation status and provenance.
+- The emitted text is checked by a separate strict regular-expression parser and exact-rational calculation path. This is an independent implementation path from the generator's arithmetic expression construction, but it is not a formal proof system.
+- JSONL output and a deterministic manifest include schema/generator versions, seed, topic counts, example count and SHA-256 content hash. The writer uses temporary files and atomic replacement for each output file.
+- The existing model now accepts an optional boolean `attention_mask` (`True` means a real token). Padding keys are blocked in every causal-attention layer; padded query outputs are zeroed after attention, and padded positions are excluded from optional episodic-memory writes. Entirely padded batch rows are rejected.
+- The mathematical IR and exact evaluator now include binary subtraction and division, including explicit division-by-zero rejection.
+- Mathematical expressions now have strict recursive dictionary serialization, canonical structural JSON and SHA-256 structural hashes. These hashes identify structure; they do not prove algebraic equivalence or canonicalize equivalent formulas.
+
+### Explicit coverage limits
+The tokenizer is a lexer, not a parser: it does not construct expression trees, infer implicit multiplication, resolve function names, interpret domains/assumptions, or validate mathematical meaning. Its current fixed vocabulary is a documented subset, not complete LaTeX or complete mathematical notation. Some calculus, linear-algebra, set, logic and proof symbols are lexically recognized, but this does not mean their semantics or operations are implemented. Unsupported characters fail closed.
+
+The initial generator supports only integer arithmetic, exact rational arithmetic and simple one-variable linear equations. It does not yet generate calculus, matrices, eigenvalue problems, graph theory, proof derivations, conjectures or counterexamples. Those topics remain planned work. No large corpus was generated or committed.
+
+The model consumes the tokenizer's integer IDs when configured with `vocab_size=len(MathVocabulary.default())`; no tokenizer is automatically attached to model construction. The attention mask is explicit and must be passed for padded batches. Right-padding is the intended common layout, but left-padding is guarded against all-masked query NaNs. No training, optimizer step, checkpoint creation, cloud execution or remote job was performed.
+
+### Validation status
+The new Python regression module covers token round trips, stable vocabulary serialization, lexical errors, exact rational checking, deterministic seeds/IDs, JSONL/manifest reproducibility, tokenizer-to-model input compatibility, variable-length batches, padding isolation and memory-write masking. The existing Python and Node suites are still required in CI. The repository was inspected through GitHub's repository interface; this environment could not clone GitHub for local execution, so local test execution has not been claimed.
+
+### Next engineering handoff
+1. Review this branch and require the Python AI Core Tests, CPU forward/backward smoke and Node Tests to pass in GitHub Actions.
+2. If a CI failure occurs, inspect the exact failing job and fix it before merge; do not claim unexecuted local tests.
+3. Expand the existing math IR and parser only with explicit grammar, exact semantics and independent tests; do not create a competing expression system.
+4. Extend generation one mathematical family at a time, with independent exact validation and provenance. Keep calculus, linear algebra, discrete mathematics and proof-oriented data marked unsupported until implemented.
+5. Preserve padding-aware causal attention and tests proving future-token isolation and padded-key isolation.
+6. Do not start training, optimizer steps, download datasets/weights, call external AI APIs, use Colab/cloud, or change the website, Pages, Supabase or authentication without separate authorization.
+7. Update this README and the implementation notes at the next meaningful milestone.

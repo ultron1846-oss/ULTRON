@@ -44,11 +44,17 @@ def evaluate(
     values = [evaluate(arg, env, max_abs_exponent=max_abs_exponent) for arg in expr.args]
     if expr.kind == ExprKind.ADD:
         return sum(values, Fraction(0))
+    if expr.kind == ExprKind.SUB:
+        return values[0] - values[1]
     if expr.kind == ExprKind.MUL:
         result = Fraction(1)
         for value in values:
             result *= value
         return result
+    if expr.kind == ExprKind.DIV:
+        if values[1] == 0:
+            raise ZeroDivisionError("division by zero")
+        return values[0] / values[1]
     if expr.kind == ExprKind.NEG:
         return -values[0]
     if expr.kind == ExprKind.POW:

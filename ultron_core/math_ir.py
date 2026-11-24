@@ -2,9 +2,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
+import hashlib
+import json
 
 class ExprKind(str, Enum):
-    INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; MUL="mul"; POW="pow"; NEG="neg"; EQUAL="equal"
+    INTEGER="integer"; RATIONAL="rational"; SYMBOL="symbol"; ADD="add"; SUB="sub"; MUL="mul"; DIV="div"; POW="pow"; NEG="neg"; EQUAL="equal"
 
 @dataclass(frozen=True)
 class Expr:
@@ -22,7 +24,7 @@ class Expr:
             raise TypeError("assumptions must be a tuple of strings")
         arity = {
             ExprKind.INTEGER: 0, ExprKind.RATIONAL: 0, ExprKind.SYMBOL: 0,
-            ExprKind.ADD: None, ExprKind.MUL: None, ExprKind.POW: 2,
+            ExprKind.ADD: None, ExprKind.SUB: 2, ExprKind.MUL: None, ExprKind.DIV: 2, ExprKind.POW: 2,
             ExprKind.NEG: 1, ExprKind.EQUAL: 2,
         }[self.kind]
         if arity is not None and len(self.args) != arity:
@@ -44,6 +46,40 @@ class Expr:
                 raise ValueError("symbol expression value must be a valid identifier")
         elif self.value is not None:
             raise ValueError("operator expression cannot have value")
+
+    def to_dict(self) -> dict:
+        """Return a lossless, version-independent structural representation."""
+        return {
+            "kind": self.kind.value,
+            "value": self.value,
+            "args": [argument.to_dict() for argument in self.args],
+            "assumptions": list(self.assumptions),
+        }
+
+    @classmethod
+    def from_dict(cls, value: dict) -> "Expr":
+        if not isinstance(value, dict) or set(value) != {"kind", "value", "args", "assumptions"}:
+            raise ValueError("expression document must contain kind, value, args and assumptions only")
+        if not isinstance(value["kind"], str):
+            raise TypeError("expression kind must be a string")
+        if not isinstance(value["args"], list) or not isinstance(value["assumptions"], list):
+            raise TypeError("expression args and assumptions must be lists")
+        try:
+            kind = ExprKind(value["kind"])
+        except ValueError as exc:
+            raise ValueError(f"unsupported expression kind: {value['kind']}") from exc
+        args = tuple(cls.from_dict(argument) for argument in value["args"])
+        assumptions = tuple(value["assumptions"])
+        return cls(kind=kind, value=value["value"], args=args, assumptions=assumptions)
+
+    def canonical_json(self) -> str:
+        """Canonical structural JSON; this does not perform algebraic simplification."""
+        return json.dumps(self.to_dict(), sort_keys=True, ensure_ascii=False,
+                          separators=(",", ":"))
+
+    def structural_hash(self) -> str:
+        return hashlib.sha256(self.canonical_json().encode("utf-8")).hexdigest()
+
 
 class VerificationStatus(str, Enum):
     CANDIDATE="candidate"; EXPERIMENTALLY_SUPPORTED="experimentally_supported"; DERIVED="derived"; FORMALLY_VERIFIED="formally_verified"; REJECTED="rejected"; UNRESOLVED="unresolved"

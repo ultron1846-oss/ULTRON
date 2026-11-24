@@ -41,7 +41,7 @@ class NeuroSparseBlock(nn.Module):
         self.refiner = PredictiveRefiner(h, c.max_refinements, c.halt_threshold)
         self.dropout = nn.Dropout(c.dropout)
 
-    def forward(self, x, write_memory=False, causal_mask=None):
+    def forward(self, x, write_memory=False, causal_mask=None, key_padding_mask=None, write_mask=None):
         # Pre-normalized causal self-attention is the sequence-mixing path.
         # True entries in PyTorch's boolean attention mask are disallowed.
         attention_input = self.attention_norm(x)
@@ -50,8 +50,15 @@ class NeuroSparseBlock(nn.Module):
             attention_input,
             attention_input,
             attn_mask=causal_mask,
+            key_padding_mask=key_padding_mask,
             need_weights=False,
         )
+        # Left-padded query rows can have no causally visible valid key. PyTorch
+        # may return NaNs for those padded queries; they are never model targets.
+        if key_padding_mask is not None:
+            attention_output = attention_output.masked_fill(
+                key_padding_mask.unsqueeze(-1), 0.0
+            )
         x = x + self.dropout(attention_output)
 
         residual = x
@@ -68,7 +75,7 @@ class NeuroSparseBlock(nn.Module):
             values = expert(flat.index_select(0, token_pos)) * wt[token_pos, slot_pos].unsqueeze(-1)
             dispatched.index_add_(0, token_pos, values)
 
-        mixed = dispatched.reshape_as(x) + self.memory(x, write=write_memory)
+        mixed = dispatched.reshape_as(x) + self.memory(x, write=write_memory, write_mask=write_mask)
         refined, error, steps = self.refiner(mixed)
         # Router top-k guarantees valid, unique indices. Skip redundant
         # host-visible validation in this performance-critical internal path.
@@ -95,7 +102,7 @@ class NeuroSparseModel(nn.Module):
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.lm_head.weight = self.embedding.weight
 
-    def forward(self, input_ids: torch.Tensor, write_memory: bool = False):
+    def forward(self, input_ids: torch.Tensor, write_memory: bool = False, attention_mask: torch.Tensor | None = None):
         if input_ids.ndim != 2:
             raise ValueError("input_ids must be [batch, sequence]")
         if input_ids.shape[0] == 0 or input_ids.shape[1] == 0:
@@ -105,6 +112,22 @@ class NeuroSparseModel(nn.Module):
         sequence_length = input_ids.shape[1]
         if sequence_length > self.config.max_sequence_length:
             raise ValueError("sequence length exceeds max_sequence_length")
+        if attention_mask is not None:
+            if not isinstance(attention_mask, torch.Tensor):
+                raise TypeError("attention_mask must be a boolean tensor")
+            if attention_mask.dtype != torch.bool:
+                raise TypeError("attention_mask must use torch.bool")
+            if attention_mask.shape != input_ids.shape:
+                raise ValueError("attention_mask must have the same [batch, sequence] shape as input_ids")
+            if attention_mask.device != input_ids.device:
+                raise ValueError("attention_mask and input_ids must be on the same device")
+            if not bool(attention_mask.any(dim=1).all()):
+                raise ValueError("every sequence must contain at least one non-padding token")
+            key_padding_mask = ~attention_mask
+            write_mask = attention_mask
+        else:
+            key_padding_mask = None
+            write_mask = None
         # CPU range checks are cheap; on CUDA, avoid synchronizing the device
         # just to inspect scalar min/max values. Embedding validates indices.
         if input_ids.device.type == "cpu" and (
@@ -123,7 +146,8 @@ class NeuroSparseModel(nn.Module):
         balances, errors, steps = [], [], []
         for block in self.blocks:
             x, balance, error, count = block(
-                x, write_memory=write_memory, causal_mask=causal_mask
+                x, write_memory=write_memory, causal_mask=causal_mask,
+                key_padding_mask=key_padding_mask, write_mask=write_mask
             )
             balances.append(balance)
             errors.append(error)
