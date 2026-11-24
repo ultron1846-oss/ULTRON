@@ -620,28 +620,42 @@ class Polynomial:
                 # polynomial, not merely the reduced polynomial.
                 if self.evaluate({selected: left}) == 0:
                     shifted = False
+                    exact_root = None
                     for attempt in range(max_depth):
                         candidate = left + (right - left) / (2 ** (attempt + 1))
+                        if current.evaluate({selected: candidate}) == 0:
+                            exact_root = candidate
+                            break
                         if current.real_root_count_univariate(
                             candidate, right, variable=selected, limits=limits
                         ) == count:
                             left = candidate
                             shifted = True
                             break
+                    if exact_root is not None:
+                        isolated.append((exact_root, exact_root))
+                        continue
                     if not shifted:
                         raise PolynomialError(
                             "could not move isolating interval away from a root endpoint within max_depth"
                         )
                 if self.evaluate({selected: right}) == 0:
                     shifted = False
+                    exact_root = None
                     for attempt in range(max_depth):
                         candidate = right - (right - left) / (2 ** (attempt + 1))
+                        if current.evaluate({selected: candidate}) == 0:
+                            exact_root = candidate
+                            break
                         if current.real_root_count_univariate(
                             left, candidate, variable=selected, limits=limits
                         ) == count:
                             right = candidate
                             shifted = True
                             break
+                    if exact_root is not None:
+                        isolated.append((exact_root, exact_root))
+                        continue
                     if not shifted:
                         raise PolynomialError(
                             "could not move isolating interval away from a root endpoint within max_depth"
