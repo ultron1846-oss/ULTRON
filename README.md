@@ -468,7 +468,7 @@ The mathematical core now includes a bounded sparse-polynomial engine in ultron_
 - Canonical monomials use lexicographically ordered symbol/exponent pairs; coefficients are exact Fraction values.
 - Supports exact polynomial conversion, addition, subtraction through IR conversion, multiplication, non-negative integer powers, exact rational constant scaling/division and rational-point evaluation.
 - Collects like terms, removes zero coefficients and deterministically exports back to the existing expression IR.
-- Enforces configurable maximum total degree, term count and individual exponent. Defaults: 64, 4,096 and 64.
+- Enforces configurable maximum total degree, term count and individual exponent. Defaults: 64, 4,096 and 64; absolute constructor ceilings are 256, 16,384 and 256.
 - Rejects variable denominators, zero denominators, negative/fractional/non-literal powers, function calls, comparisons and assumption-bearing expressions to avoid silently losing domain restrictions.
 - Polynomial canonical equality applies only to expressions converted into this supported rational-coefficient polynomial domain. It is not a general symbolic-equivalence or proof engine.
 
