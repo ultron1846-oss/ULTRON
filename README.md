@@ -4,6 +4,8 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 ## Frontend status
 
+A follow-up startup/navigation hardening change keeps a complete static overview visible before JavaScript modules load, adds visible browser error reporting if a module fails, cache-busts the app entry and its imports, and replaces the intentionally empty overview telemetry placeholders with actionable project status and quick links. This is a resilience fallback; a successful render in the real iPad browser still needs device verification.
+
 The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages

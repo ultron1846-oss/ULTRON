@@ -1,6 +1,6 @@
-import { evaluateExpression, solveLinearEquation } from './math-engine.js';
-import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js';
-import { saveExperience, saveMistake, getMemorySummary, listExperiences, exportMemory, importMemory } from './memory-store.js';
+import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-2';
+import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-2';
+import { saveExperience, saveMistake, getMemorySummary, listExperiences, exportMemory, importMemory } from './memory-store.js?v=20261124-2';
 
 const pageNames = { overview:'Overview', learning:'Learn & practice', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings' };
 const topics = [
@@ -30,38 +30,62 @@ const card=(body,cls='')=>`<article class="panel ${cls}">${body}</article>`;
 const heading=(eyebrow,title,subtitle,action='')=>`<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div>${action}</div>`;
 function navigate(page){
  const key=pageNames[page]?page:'overview';
- document.querySelector('#page-crumb').textContent=pageNames[key];
- nav.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===key));
- content.innerHTML=render(key); bind(key);
- history.replaceState(null,'',`#${key}`);
- document.querySelector('#sidebar').classList.remove('open');
- document.querySelector('#mobile-menu').setAttribute('aria-expanded','false');
- content.focus({preventScroll:true});
+ try{
+  const markup=render(key);
+  content.innerHTML=markup;
+  document.querySelector('#page-crumb').textContent=pageNames[key];
+  nav.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===key));
+  bind(key);
+  try{history.replaceState(null,'',`#${key}`);}catch(error){console.warn('ULTRON could not update the address hash:',error);}
+  document.querySelector('#sidebar').classList.remove('open');
+  document.querySelector('#mobile-menu').setAttribute('aria-expanded','false');
+  try{content.focus({preventScroll:true});}catch{content.focus();}
+ }catch(error){
+  console.error('ULTRON page render failed:',key,error);
+  content.innerHTML=`<div class="page-heading"><div><div class="eyebrow">FRONTEND ERROR</div><h1>Could not open ${esc(pageNames[key])}</h1><p>The application caught an error instead of leaving the page blank.</p></div></div><div class="warning-banner" role="alert">${esc(error?.message||String(error))}</div><article class="panel"><h2>Recovery</h2><p class="muted">Try the Overview again. If this repeats, send the error text above so it can be traced to the exact module.</p><button class="outline-button" id="retry-overview" type="button">Reload overview</button></article>`;
+  const retry=document.querySelector('#retry-overview');
+  if(retry)retry.addEventListener('click',()=>navigate('overview'));
+ }
 }
 function renderOverview(){
- const count=Number(safeGet('ultron-practice-count','0'));
- return `${heading('TRAINING OPERATIONS / OVERVIEW','System overview','Public browser mode · no account-specific data','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
- <div class="hero-panel"><div><div class="eyebrow">WHAT DO I DO NEXT?</div><h2>ULTRON is not training</h2><p>This public website provides the mathematics workspace and system information. The neural model is untrained and remote execution is not enabled.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> NEURAL MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
+ const count=Number(safeGet('ultron-practice-count','0'))||0;
+ const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
+ return `${heading('CONTROL ROOM / PROJECT STATUS','ULTRON overview','A live map of what works today, what is being built next, and what remains safely disabled.','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
+ <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, local practice and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
  <div class="status-grid">
- ${[['NEURAL MODEL','UNTRAINED','No neural weights have been trained.'],['MATH AGENT','AVAILABLE','Deterministic foundation solver.'],['PROOF CHECKER','LIMITED','No general proof checker is implemented.'],['TRAINING','DISABLED','No training run is authorized.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
+ ${[['MATH ENGINE','AVAILABLE','Arithmetic parser and limited linear equation solver.'],['LEARNING','READY','Topic roadmap and foundation exercises.'],['MEMORY VAULT','LOCAL','IndexedDB storage with manual JSON backup.'],['MODEL TRAINING','DISABLED','No model weights or training runs are active.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
  </div>
  <div class="grid two-col">
- ${card('<div class="eyebrow">MODEL PROGRESS</div><h2>Neural model evaluation</h2><div class="empty-state"><span>—</span><b>Not available</b><p>No trained model or evaluation results exist yet.</p></div>')}
- ${card('<div class="eyebrow">TRAINING TELEMETRY</div><h2>Learning curve</h2><div class="empty-state"><span>—</span><b>No telemetry</b><p>Training is disabled. No loss values or training curves are being generated.</p></div>')}
+ ${card('<div class="eyebrow">QUICK ACCESS / 01</div><h2>Math Agent</h2><p class="muted">Solve supported arithmetic expressions and simple linear equations using ULTRON’s local deterministic engine.</p><button class="outline-button" data-page="agent">Open Math Agent →</button>')}
+ ${card(`<div class="eyebrow">QUICK ACCESS / 02</div><h2>Learning activity</h2><div class="big-number">${count}</div><p class="muted">Correct practice answers recorded in this browser.</p><button class="outline-button" data-page="learning">Continue practice →</button>`)}
  </div>
  <div class="grid two-col lower-grid">
- ${card(`<div class="eyebrow">MATHEMATICAL CAPABILITIES</div><h2>Available foundation</h2><div class="capability-list"><div><b>Arithmetic parser</b><span class="tag available">AVAILABLE</span></div><div><b>Linear equation solver</b><span class="tag available">LIMITED</span></div><div><b>Structured topic library</b><span class="tag planned">IN PROGRESS</span></div><div><b>General symbolic algebra</b><span class="tag planned">NOT IMPLEMENTED</span></div></div>`)}
- ${card(`<div class="eyebrow">LOCAL LEARNING</div><h2>Practice activity</h2><div class="big-number">${count}</div><p class="muted">Correct practice answers recorded in this browser.</p><button class="outline-button" data-page="learning">Open learning system →</button>`)}
+ ${card('<div class="eyebrow">PROJECT ROADMAP / NEXT</div><h2>What is being built</h2><div class="capability-list"><div><b>1. Finish frontend verification</b><span class="tag available">CURRENT</span></div><div><b>2. Verify iPad navigation and storage</b><span class="tag planned">NEXT</span></div><div><b>3. Prepare Colab notebook integration</b><span class="tag planned">PLANNED</span></div><div><b>4. Validate checkpoints and resume flow</b><span class="tag planned">PLANNED</span></div></div>')}
+ ${card('<div class="eyebrow">INFRASTRUCTURE / SELECTED</div><h2>Google Colab</h2><p class="muted">Colab is the selected future notebook environment. It is listed for planning only; ULTRON does not connect to it, allocate a runtime or submit jobs.</p><span class="status-pill">NOT CONNECTED</span><div style="margin-top:16px"><button class="outline-button" data-page="servers">View servers &amp; Colab →</button></div>')}
+ </div>
+ <div class="grid two-col lower-grid">
+ ${card(`<div class="eyebrow">DEVICE MEMORY / PREFERENCE</div><h2>Preferred workload budget</h2><div class="big-number">${level} GB</div><p class="muted">Saved browser preference only. It does not allocate physical RAM or change a future Colab runtime.</p><button class="outline-button" data-page="settings">Open settings →</button>`)}
+ ${card('<div class="eyebrow">BACKEND / STATUS</div><h2>Supabase connection</h2><p class="muted">The backend page checks the public read-only status endpoint. Private owner data remains protected and is not exposed to this public site.</p><button class="outline-button" data-page="backend">Inspect backend status →</button>')}
  </div>`;
 }
 function renderLearning(){
  const topicCards=topics.map((topic,index)=>`<button class="topic-card" type="button" data-topic-index="${index}" aria-pressed="${index===0?'true':'false'}"><span class="topic-symbol">${esc(topic.symbol)}</span><span><b>${esc(topic.name)}</b><small>${esc(topic.desc)}</small></span><span class="tag ${topic.level==='AVAILABLE'?'available':'planned'}">${esc(topic.level)}</span></button>`).join('');
  const exerciseIndex=Math.min(exercises.length-1,Math.max(0,Number(safeGet('ultron-practice-index','0'))%exercises.length));
  const exercise=exercises[exerciseIndex];
- return `${heading('LEARNING OPERATIONS / CORE PROCESS','Learn & practice','Explore the mathematics roadmap, work through verified foundation exercises and review your practice history.')}
- ${card('<div class="eyebrow">TOPIC LIBRARY</div><h2>Mathematics roadmap</h2><p class="muted">Select a topic to inspect its scope, prerequisite and a representative example. A planned topic is a learning outline, not a claim that the solver already supports it.</p><div class="topic-grid" id="topic-grid">'+topicCards+'</div><div class="topic-detail" id="topic-detail" aria-live="polite"><div class="eyebrow">AVAILABLE FOUNDATION</div><h3>Arithmetic</h3><p>Arithmetic studies number systems and the operations used to calculate with them.</p><p><b>Example:</b> 18 × 7 = 126</p><p class="muted">Prerequisite: Whole numbers</p></div>')}
- ${card('<div class="eyebrow">FOUNDATION PRACTICE / LOCAL</div><h2>Practice an exercise</h2><p class="muted">These fixed, original exercises are checked locally by the deterministic arithmetic engine. Correct answers increase your local practice count; they do not train the neural model.</p><div class="practice-box"><div class="practice-meta"><span id="practice-number">EXERCISE ${exerciseIndex+1} OF ${exercises.length}</span><span id="practice-total">CORRECT: ${Number(safeGet('ultron-practice-count','0'))||0}</span></div><h3 id="practice-question">${esc(exercise.question)} = ?</h3><label class="field-label" for="practice-answer">Your answer</label><input id="practice-answer" class="text-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Enter your answer" maxlength="40"><div class="agent-actions"><button class="primary-button" id="practice-check" type="button">Check answer</button><button class="outline-button" id="practice-hint" type="button">Show hint</button><button class="outline-button" id="practice-next" type="button">Next exercise</button></div><p id="practice-feedback" class="practice-feedback" role="status" aria-live="polite">Work it out, then check your answer.</p><p id="practice-hint-text" class="muted small" hidden></p></div>')}
- <div class="grid two-col lower-grid">${card('<div class="eyebrow">DATA QUALITY</div><h2>Verified learning material</h2><p class="muted">Practice material is checked before it is treated as trusted knowledge. Incorrect attempts can be stored locally as mistakes for later review.</p><ul class="feature-list"><li>Original problem statements</li><li>Deterministic answer checks</li><li>Topic and prerequisite labels</li><li>Local practice history</li></ul>')}${card('<div class="eyebrow">MODEL SAFETY</div><h2>Practice is not training</h2><p class="muted">Completing exercises changes only local practice history. It does not generate a dataset, update neural weights, call a cloud notebook or launch a training process.</p><span class="status-pill">MODEL TRAINING DISABLED</span>')}</div>`;
+ const practiceCard=card(
+  '<div class="eyebrow">FOUNDATION PRACTICE / LOCAL</div><h2>Practice an exercise</h2><p class="muted">These fixed, original exercises are checked locally by the deterministic arithmetic engine. Correct answers increase your local practice count; they do not train the neural model.</p><div class="practice-box"><div class="practice-meta"><span id="practice-number">EXERCISE '
+  +(exerciseIndex+1)+' OF '+exercises.length
+  +'</span><span id="practice-total">CORRECT: '+(Number(safeGet('ultron-practice-count','0'))||0)
+  +'</span></div><h3 id="practice-question">'+esc(exercise.question)
+  +' = ?</h3><label class="field-label" for="practice-answer">Your answer</label><input id="practice-answer" class="text-input" type="text" inputmode="decimal" autocomplete="off" placeholder="Enter your answer" maxlength="40"><div class="agent-actions"><button class="primary-button" id="practice-check" type="button">Check answer</button><button class="outline-button" id="practice-hint" type="button">Show hint</button><button class="outline-button" id="practice-next" type="button">Next exercise</button></div><p id="practice-feedback" class="practice-feedback" role="status" aria-live="polite">Work it out, then check your answer.</p><p id="practice-hint-text" class="muted small" hidden></p></div>'
+ );
+ return heading('LEARNING OPERATIONS / CORE PROCESS','Learn & practice','Explore the mathematics roadmap, work through verified foundation exercises and review your practice history.')
+  +card('<div class="eyebrow">TOPIC LIBRARY</div><h2>Mathematics roadmap</h2><p class="muted">Select a topic to inspect its scope, prerequisite and a representative example. A planned topic is a learning outline, not a claim that the solver already supports it.</p><div class="topic-grid" id="topic-grid">'+topicCards+'</div><div class="topic-detail" id="topic-detail" aria-live="polite"><div class="eyebrow">AVAILABLE FOUNDATION</div><h3>Arithmetic</h3><p>Arithmetic studies number systems and the operations used to calculate with them.</p><p><b>Example:</b> 18 × 7 = 126</p><p class="muted">Prerequisite: Whole numbers</p></div>')
+  +practiceCard
+  +'<div class="grid two-col lower-grid">'
+  +card('<div class="eyebrow">DATA QUALITY</div><h2>Verified learning material</h2><p class="muted">Practice material is checked before it is treated as trusted knowledge. Incorrect attempts can be stored locally as mistakes for later review.</p><ul class="feature-list"><li>Original problem statements</li><li>Deterministic answer checks</li><li>Topic and prerequisite labels</li><li>Local practice history</li></ul>')
+  +card('<div class="eyebrow">MODEL SAFETY</div><h2>Practice is not training</h2><p class="muted">Completing exercises changes only local practice history. It does not generate a dataset, update neural weights, call a cloud notebook or launch a training process.</p><span class="status-pill">MODEL TRAINING DISABLED</span>')
+  +'</div>';
 }
 function renderAgent(){
  return `${heading('MATHEMATICAL WORKSPACE / STAGE 1','Math Agent','ULTRON independently solves supported foundation questions, shows working and checks the answer through the deterministic math engine.','<span class="status-pill">LOCAL · DETERMINISTIC</span>')}
