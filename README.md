@@ -336,3 +336,8 @@ The isolated Python research core now has causal sequence mixing and explicit to
 6. Keep frontend, Supabase, authentication, Pages deployment and provider integrations unchanged.
 7. Do not start actual training, optimizer steps, Colab sessions, cloud jobs or remote execution without separate explicit authorization.
 8. Update this README at every meaningful milestone.
+
+
+### Checkpoint compatibility
+
+The causal architecture changes model parameters and configuration metadata. Checkpoint serialization now uses format version 2. Older version 1 feed-forward-only checkpoints are rejected; there is no automatic migration. No trained checkpoint existed for this prototype at the time of the change.
