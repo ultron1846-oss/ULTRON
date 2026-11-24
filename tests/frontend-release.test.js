@@ -31,6 +31,7 @@ test('Memory Vault supports mistake review, safe clear-all and committed transac
   assert.match(app, /memory-mistake-history/);
   assert.match(app, /memory-clear/);
   assert.match(app, /window\.confirm\(/);
+  assert.match(app, /await clearMemory\(\);navigate\('memory'\)/);
   assert.match(memory, /export async function listRecords/);
   assert.match(memory, /export async function clearMemory/);
   assert.match(memory, /tx\.oncomplete/);

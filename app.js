@@ -226,7 +226,7 @@ async function loadMemoryPage(){
  document.querySelector('#memory-clear').addEventListener('click',async()=>{
   if(!window.confirm('Permanently delete all ULTRON memory stored in this browser? Export a backup first if you may need these records.'))return;
   const button=document.querySelector('#memory-clear');button.disabled=true;
-  try{await clearMemory();feedback.textContent='All local ULTRON memory stores were cleared.';await loadMemoryPage();}
+  try{await clearMemory();navigate('memory');}
   catch(error){feedback.textContent='Could not clear local memory: '+error.message;}
   finally{const current=document.querySelector('#memory-clear');if(current)current.disabled=false;}
  });
