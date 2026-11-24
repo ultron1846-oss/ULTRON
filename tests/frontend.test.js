@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 
 test('control-room shell exposes its seven primary destinations', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
@@ -84,4 +85,34 @@ test('memory page provides local backup and restore without public Supabase tabl
   assert.match(memory, /experiences.*knowledge.*mistakes.*checkpoints/);
   assert.match(memory, /ultron-local-memory/);
   assert.doesNotMatch(app, /from ['"]@supabase|\.from\(['"]experiences/);
+});
+
+
+test('frontend entry point keeps a useful overview visible before modules load', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /STARTUP \/ FALLBACK VIEW/);
+  assert.match(html, /NEURAL MODEL/);
+  assert.match(html, /TRAINING DISABLED/);
+  assert.match(html, /window\.addEventListener\('error'/);
+  assert.match(html, /window\.addEventListener\('unhandledrejection'/);
+  assert.match(html, /app\.js\?v=/);
+});
+
+test('overview contains real project status and actionable navigation instead of empty chart placeholders', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  const overview = app.slice(app.indexOf('function renderOverview'), app.indexOf('function renderLearning'));
+  assert.match(overview, /Foundation workspace online/);
+  assert.match(overview, /Math Agent/);
+  assert.match(overview, /Google Colab/);
+  assert.match(overview, /Project roadmap/);
+  assert.doesNotMatch(overview, /No telemetry|Learning curve|Neural model evaluation/);
+  assert.match(app, /nav\.addEventListener\('click'/);
+  assert.match(app, /function navigate\(page\)/);
+  assert.match(app, /Could not open/);
+});
+
+test('browser entry and imported modules pass JavaScript syntax checks', async () => {
+  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
+    execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
+  }
 });
