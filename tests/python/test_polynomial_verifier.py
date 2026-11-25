@@ -121,6 +121,22 @@ class PolynomialIdentityVerifierTests(unittest.TestCase):
         tampered = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         self.assertFalse(validate_polynomial_identity_certificate(candidate, tampered))
 
+    def test_certificate_reuses_its_validated_resource_limits(self):
+        x = symbol("x")
+        candidate = equal(add(x, integer(1)), add(integer(1), x))
+        limits = PolynomialLimits(max_total_degree=16, max_terms=256, max_exponent=16)
+        result = verify_polynomial_identity(candidate, limits=limits)
+        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertTrue(validate_polynomial_identity_certificate(candidate, result.certificate_json))
+
+    def test_verifier_rejects_limits_above_hard_resource_caps(self):
+        x = symbol("x")
+        candidate = equal(x, x)
+        with self.assertRaisesRegex(ValueError, "exceeds hard verifier limit"):
+            verify_polynomial_identity(
+                candidate, limits=PolynomialLimits(max_total_degree=257, max_terms=10, max_exponent=10)
+            )
+
     def test_verified_candidate_still_cannot_enter_trusted_knowledge(self):
         x = symbol("x")
         candidate = FormulaCandidate(equal(add(x, integer(0)), x))
