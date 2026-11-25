@@ -25,3 +25,10 @@ No pretrained model/weights, external AI API, or externally generated training c
 ## Before training
 
 Complete [PRETRAINING_READINESS.md](PRETRAINING_READINESS.md), including model/vocabulary audit, leakage-safe splits, robust checkpoint recovery, verified math evaluation, free-runtime measurements, manual iPad acceptance, and the outstanding Supabase Auth setting. Do not claim parameter counts, accuracy, training progress, or checkpoints unless actually measured/created.
+
+
+## Memory-aware loss and optimizer selection
+
+`causal_language_model_loss(..., loss_chunk_size=2048)` computes FP32 cross-entropy in token chunks per batch row. The chunk size bounds the temporary FP32 logits tensor; the loss is normalized by the total count of non-padding next-token targets, so padding and uneven final chunks do not change the mean. Use a smaller chunk to reduce peak loss memory (at the cost of more kernel launches) or a larger chunk for fewer launches when memory permits. Regression tests compare scalar loss and gradients with the original full-tensor reference.
+
+`make_optimizer(..., fused=None)` automatically requests fused AdamW only when all trainable parameters are on one CUDA device. Automatic mode falls back to ordinary AdamW if the installed build rejects fused mode. `fused=False` forces the portable implementation; `fused=True` requires one CUDA device. Benchmark on target hardware before claiming a throughput improvement. The default learning rate and weight decay are unchanged.
