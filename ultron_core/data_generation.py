@@ -15,8 +15,8 @@ import re
 import tempfile
 from typing import Iterable
 
-GENERATOR_VERSION = "0.1.0"
-SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations")
+GENERATOR_VERSION = "0.2.0"
+SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative")
 _MAX_EXAMPLES = 100_000
 
 
