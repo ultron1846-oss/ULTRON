@@ -141,9 +141,13 @@ function attachSaveButton(node,prompt,answer,explanation){const button=document.
 function runAgentCommand(raw){
  if(!raw.startsWith('/'))return false;
  const command=raw.trim().split(/\s+/)[0].toLowerCase();
- if(command==='/help'||command==='/menu'||command==='/commands'){
-  const list=['/help — show command help','/menu — open command directory','/commands — list registered commands','/topics — list mathematics topics and status','/graph <function> — plot a function locally (e.g. /graph y=x^2)',...mathToolHelp().split('\n'),...topics.map(topic=>topic.command+' — '+topic.name)];
+ if(command==='/help'||command==='/menu'||command==='/commands'||command==='/tools'){
+  const list=[...mathToolHelp().split('\n'),...topics.map(topic=>topic.command+' — '+topic.name)];
   addChat('assistant','ULTRON Math Agent commands:\n'+list.join('\n')+'\n\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
+  return true;
+ }
+ if(command==='/status'){
+  addChat('assistant','Math Agent status: arithmetic and linear equations use the deterministic math engine; graphing and registered calculator tools execute locally. Numerical derivative/integral results are approximations. Unsupported topics are not claimed as solved.','LOCAL · NO AI API · TRAINING DISABLED');
   return true;
  }
  if(command==='/topics'){
