@@ -119,10 +119,10 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 Training is **not approved**. It requires Phases 1–9 review, outstanding iPad acceptance and Supabase Auth setting, clean validation, resource-budget confirmation, and separate explicit authorization. A 40M parameter count alone is not readiness.
 
-## Next-chat handoff
+## Next engineering handoff
 
-1. Review PR 43 and CI.
-2. Continue Phase 5 generator and split-integrity review in its own PR.
-3. Then harden checkpoint/recovery and add a no-optimizer dry-run.
-4. Update README at every meaningful milestone.
-5. Do not enable training or remote training jobs without separate authorization.
+1. Review PR #60 and merge only after Node/Python checks pass.
+2. Expand Phase 7 with symbolic-equivalence/proof-verifier metrics and broader independently validated mathematical suites.
+3. Phase 8: bind the dataset manifest hash into checkpoint cursor metadata and add restore/recovery tests that do not execute optimizer steps.
+4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
+5. Keep real-weight training and remote execution disabled until separate explicit authorization.
