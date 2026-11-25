@@ -6,6 +6,7 @@ import time
 from dataclasses import dataclass
 
 from .config import NeuroSparseConfig, count_parameters
+from .resumable_sampler import ResumableRandomSampler
 import torch
 from torch.nn import functional as F
 
