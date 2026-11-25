@@ -70,8 +70,10 @@ def verify_rational_steps(steps,final_expression,expected_answer):
             issues.append(f"step {name}: {exc}")
     final_value=None; final_correct=False
     try:
+        if len(final_expression)>_MAX_EXPR_CHARS:
+            raise ValueError("final expression exceeds complexity limit")
         tree=ast.parse(final_expression,mode="eval")
-        if len(final_expression)>_MAX_EXPR_CHARS or sum(1 for _ in ast.walk(tree))>_MAX_AST_NODES:
+        if sum(1 for _ in ast.walk(tree))>_MAX_AST_NODES:
             raise ValueError("final expression exceeds complexity limit")
         final_value=_evaluate(tree,values)
         final_correct=final_value==_fraction(expected_answer)
