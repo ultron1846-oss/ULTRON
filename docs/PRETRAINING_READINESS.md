@@ -109,9 +109,10 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
-- [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
+- [x] Carry global step, epoch, next-batch and next-sample cursors, seed, accumulation, and dataset hash through trainer checkpoint callbacks.
+- [x] Keep batch index and sampler sample index distinct; validate sample cursor against dataset size.
 - [x] Rewind cursor for uncommitted accumulation groups that are discarded.
-- [ ] Ensure caller restores/positions the DataLoader sampler from saved cursor.
+- [ ] Owner/caller reconstructs `ResumableRandomSampler` from `next_sample_index` and uses DataLoader `num_workers=0` for exact resume.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
 
