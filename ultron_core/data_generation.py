@@ -238,7 +238,7 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
             upper += 1
         answer = sum(
             (Fraction(coefficient, power + 1)
-             * (upper ** (power + 1) - lower ** (power + 1)
+             * (upper ** (power + 1) - lower ** (power + 1))
              for power, coefficient in coefficients.items()),
             Fraction(0),
         )
