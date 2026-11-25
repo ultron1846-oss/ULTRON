@@ -19,6 +19,58 @@ from ultron_core.symbolic import simplify
 from ultron_core.preflight import preflight_training_plan
 
 
+class ResumableRandomSamplerTests(unittest.TestCase):
+    def test_resume_cursor_replays_same_epoch_permutation_tail(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        dataset = list(range(37))
+        kwargs = {"seed": 1846, "dataset_manifest_sha256": "a" * 64}
+        uninterrupted = ResumableRandomSampler(dataset, **kwargs)
+        expected = list(iter(uninterrupted))
+        partial = ResumableRandomSampler(dataset, **kwargs)
+        first = [next(iter(partial)) for _ in range(1)]
+        # Consume a deterministic prefix using one iterator.
+        partial = ResumableRandomSampler(dataset, **kwargs)
+        iterator = iter(partial)
+        prefix = [next(iterator) for _ in range(11)]
+        state = partial.state_dict()
+        restored = ResumableRandomSampler(dataset, **kwargs)
+        restored.load_state_dict(state)
+        self.assertEqual(prefix + list(restored), expected)
+        self.assertEqual(len(set(expected)), len(dataset))
+
+    def test_epoch_changes_permutation_and_state_round_trips(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        dataset = list(range(29))
+        sampler = ResumableRandomSampler(dataset, seed=19, dataset_manifest_sha256="b" * 64)
+        epoch0 = list(sampler)
+        sampler.set_epoch(1)
+        epoch1 = list(sampler)
+        self.assertNotEqual(epoch0, epoch1)
+        restored = ResumableRandomSampler(dataset, seed=19, dataset_manifest_sha256="b" * 64)
+        restored.load_state_dict(sampler.state_dict())
+        self.assertEqual(list(restored), [])
+
+    def test_sampler_state_rejects_dataset_hash_size_and_seed_mismatch(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        state = ResumableRandomSampler([0, 1, 2], seed=7,
+            dataset_manifest_sha256="c" * 64).state_dict()
+        with self.assertRaisesRegex(ValueError, "manifest hash"):
+            ResumableRandomSampler([0, 1, 2], seed=7,
+                dataset_manifest_sha256="d" * 64).load_state_dict(state)
+        with self.assertRaisesRegex(ValueError, "dataset size"):
+            ResumableRandomSampler([0, 1, 2, 3], seed=7,
+                dataset_manifest_sha256="c" * 64).load_state_dict(state)
+        with self.assertRaisesRegex(ValueError, "seed"):
+            ResumableRandomSampler([0, 1, 2], seed=8,
+                dataset_manifest_sha256="c" * 64).load_state_dict(state)
+
+    def test_sampler_rejects_invalid_cursor(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        with self.assertRaisesRegex(ValueError, "next_index"):
+            ResumableRandomSampler([1, 2], seed=1,
+                dataset_manifest_sha256="e" * 64, next_index=3)
+
+
 class MathTokenizerTests(unittest.TestCase):
     def setUp(self):
         self.vocabulary = MathVocabulary.default()
