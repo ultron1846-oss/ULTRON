@@ -10,7 +10,7 @@ from ultron_core import NeuroSparseConfig, NeuroSparseModel
 from ultron_core.math_ir import Expr, ExprKind
 from ultron_core.verification import evaluate
 from ultron_core.data_generation import (
-    GENERATOR_VERSION, generate_examples, split_examples, validate_example_text, verify_dataset, write_dataset,
+    GENERATOR_VERSION, SUPPORTED_TOPICS, generate_examples, split_examples, validate_example_text, verify_dataset, write_dataset,
 )
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary
 from ultron_core.math_parser import MathParseError, MathParser, parse_math
