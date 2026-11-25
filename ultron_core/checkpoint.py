@@ -135,7 +135,8 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
             manifest_temporary.unlink(missing_ok=True)
 
 def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="cpu",
-                   scheduler=None, restore_rng: bool = True):
+                   scheduler=None, restore_rng: bool = True,
+                   expected_dataset_manifest_sha256=None):
     target = Path(path)
     manifest = _manifest(target)
     backup_path, backup_manifest = _backup(target), _backup(_manifest(target))
@@ -180,6 +181,16 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             not isinstance(dataset_hash, str) or len(dataset_hash) != 64
             or any(char not in "0123456789abcdef" for char in dataset_hash)):
         raise ValueError("checkpoint dataset manifest hash is malformed")
+    if expected_dataset_manifest_sha256 is not None and (
+            not isinstance(expected_dataset_manifest_sha256, str)
+            or len(expected_dataset_manifest_sha256) != 64
+            or any(char not in "0123456789abcdef" for char in expected_dataset_manifest_sha256)):
+        raise ValueError("expected_dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
+    if expected_dataset_manifest_sha256 is not None:
+        if dataset_hash is None:
+            raise ValueError("checkpoint has no dataset manifest hash for expected dataset")
+        if not hmac.compare_digest(dataset_hash, expected_dataset_manifest_sha256):
+            raise ValueError("checkpoint dataset manifest hash does not match expected dataset")
     rng_state = payload.get("rng")
     if restore_rng and version >= 3 and not isinstance(rng_state, dict):
         raise ValueError("checkpoint RNG state is missing")
