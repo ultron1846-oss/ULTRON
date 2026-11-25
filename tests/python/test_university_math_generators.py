@@ -79,6 +79,52 @@ class UniversityFoundationTests(unittest.TestCase):
             v=item["ingredients"]
             self.assertEqual(int(item["answer"]),v["shirt_choices"]*v["pants_choices"]*v["shoe_choices"])
 
+
+    def test_batch3_independent_math_checks(self):
+        for seed in range(250):
+            difficulty=1+seed%5
+            item=generate(seed,difficulty,"predicate_logic")
+            v=item["ingredients"]
+            expected=(v["threshold"]==len(v["domain"])) if v["quantifier"]=="forall" else bool(v["threshold"])
+            self.assertEqual(item["answer"],str(expected).lower())
+
+            item=generate(seed,difficulty,"relations_and_equivalence")
+            v=item["ingredients"]
+            self.assertEqual(v["equivalence_class"],[x for x in v["domain"] if x%v["modulus"]==v["element"]%v["modulus"]])
+
+            item=generate(seed,difficulty,"subspaces_and_span")
+            v=item["ingredients"]
+            self.assertEqual(v["coefficients"],v["target"])
+
+            item=generate(seed,difficulty,"linear_independence")
+            v=item["ingredients"]
+            a,b=v["vectors"][0]; c,e=v["vectors"][1]
+            self.assertEqual(v["determinant"],a*e-b*c)
+            self.assertEqual(item["answer"],"independent" if v["determinant"]!=0 else "dependent")
+
+            item=generate(seed,difficulty,"basis_and_dimension")
+            v=item["ingredients"]
+            a,b=v["vectors"][0]; c,e=v["vectors"][1]
+            self.assertNotEqual(a*e-b*c,0)
+            self.assertEqual(v["dimension"],2)
+
+            item=generate(seed,difficulty,"matrix_rank")
+            v=item["ingredients"]
+            a,b=v["matrix"][0]; c,e=v["matrix"][1]
+            determinant=a*e-b*c
+            rank=2 if determinant else (1 if any((a,b,c,e)) else 0)
+            self.assertEqual(v["rank"],rank)
+            self.assertEqual(item["answer"],str(rank))
+
+            item=generate(seed,difficulty,"limits_and_continuity")
+            v=item["ingredients"]
+            self.assertEqual(int(item["answer"]),v["constant"])
+
+            item=generate(seed,difficulty,"derivative_theory")
+            v=item["ingredients"]
+            a,b,_=v["coefficients"]
+            self.assertEqual(int(item["answer"]),2*a*v["point"]+b)
+
     def test_university_registry_declared(self):
         self.assertEqual(set(GENERATOR_METADATA),set(TOPICS))
         registry=render_registries()["university/registry.json"]
