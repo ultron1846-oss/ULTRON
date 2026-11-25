@@ -4,7 +4,7 @@ from ultron_core.evaluation import evaluate_predictions
 
 class ExactAnswerEvaluationTests(unittest.TestCase):
     def test_reports_exact_accuracy_coverage_and_abstentions(self):
-        examples = generate_examples(88, 30)
+        examples = generate_examples(88, 30, topics=("arithmetic",))
         predictions = {item.example_id: item.exact_answer for item in examples}
         predictions[examples[0].example_id] = "0" if examples[0].exact_answer != "0" else "1"
         predictions[examples[1].example_id] = None
