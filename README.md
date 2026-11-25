@@ -821,3 +821,17 @@ Checkpoint format version 5 now stores optional validated training settings, inc
 - The checkpoint format accepts versions 2, 3, 4, and 5 for backwards compatibility.
 
 No training run or remote job was started. Tests cover metadata persistence, validation, and precision mismatch/legacy BF16 resume rejection.
+
+
+## Opt-in activation checkpointing — 2026-11-25
+
+Added block-level activation recomputation for the transformer model.
+
+- `NeuroSparseModel.set_activation_checkpointing(True)` enables checkpointed block execution during gradient-enabled training.
+- The bounded controller exposes `TrainingSettings(activation_checkpointing=True)`, scopes the setting to the session, and restores the model's previous value.
+- Activation checkpointing is disabled by default. It trades recomputation for lower saved-activation memory; no speed or memory improvement is claimed until measured on the target hardware.
+- It is disabled for memory-writing forwards to avoid repeating mutable memory side effects.
+- Checkpoint metadata validation now accepts the activation-checkpointing setting.
+- Tests compare forward outputs and gradients against the ordinary path on a small deterministic CPU model.
+
+No full-model training or remote job was started.
