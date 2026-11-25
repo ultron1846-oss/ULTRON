@@ -146,7 +146,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         steps=[f"Substitute {x}: {a}({x})²+({b})({x})+({c}).",f"Evaluate to {value}."]
         exact=lambda:a*x*x+b*x+c==value
     elif topic == "coordinate_geometry":
-        k=n(1,5*d); x1,y1=0,0; x2,y2=3*k,4*k
+        k=n(1,10*d); x1,y1=0,0; x2,y2=3*k,4*k
         dist=5*k; slope=Fraction(y2-y1,x2-x1)
         ingredients.update(points=[x1,y1,x2,y2],k=k,distance=dist,slope=str(slope))
         problem=f"On a map, a path runs from ({x1},{y1}) to ({x2},{y2}). Find its straight-line distance and slope."
