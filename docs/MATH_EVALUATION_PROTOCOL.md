@@ -50,4 +50,6 @@ Before any trained-model quality claim:
 - pre-register primary metrics and keep a separate untouched test split;
 - compare against deterministic baselines and report multiple seeds.
 
+For the supported polynomial derivative topic, semantic equality is checked by exact integer-coefficient maps, not raw string comparison. Rational and definite-integral answers are compared as exact fractions. These equivalence checks are limited to the current generator grammar and are not a general-purpose computer algebra system.
+
 No model evaluation or training run has been performed as part of this protocol.
