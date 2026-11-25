@@ -925,7 +925,7 @@ Progression is gated by measured topic-level results: Stage B broadens to geomet
 This plan does not authorize data generation, training, optimizer steps or remote jobs. Training remains disabled until separate explicit authorization, and frontend/device acceptance remains a prerequisite.
 
 
-## Stage A implementation — paired benchmark gate (PR in review)
+## Stage A implementation — paired benchmark gate (merged PR #118)
 
 Stage A now adds `ultron_core/benchmark_comparison.py`, a paired exact-answer comparison tool for caller-supplied ULTRON and baseline prediction files. It compares both systems on the same independently validated references, reports topic-level accuracy/coverage/valid-answer rate, paired wins/losses/ties, exact McNemar p-values, Holm correction, and explicit pass/fail gate conditions. Defaults require 200 examples per topic, a significant corrected paired win, and no more than a 2-percentage-point coverage or validity regression.
 
