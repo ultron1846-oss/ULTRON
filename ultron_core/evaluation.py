@@ -2,7 +2,7 @@
 from __future__ import annotations
 from collections import Counter
 from typing import Mapping, Iterable
-from .data_generation import MathExample, _parse_integer_polynomial, _parse_linear_system_answer, validate_example_text
+from .data_generation import MathExample, _parse_integer_polynomial, _parse_linear_system_answer, _parse_matrix_inverse_answer, validate_example_text
 
 def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[str, str | None]) -> dict:
     """Score exact rational and supported polynomial answers; no model is run."""
@@ -47,6 +47,8 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
                 _parse_integer_polynomial(raw)
             elif item.topic == "linear_system_2x2":
                 _parse_linear_system_answer(raw)
+            elif item.topic == "matrix_inverse_2x2":
+                _parse_matrix_inverse_answer(raw)
             else:
                 from fractions import Fraction
                 Fraction(raw.strip())

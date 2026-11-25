@@ -15,8 +15,8 @@ import re
 import tempfile
 from typing import Iterable
 
-GENERATOR_VERSION = "0.4.0"
-SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral", "matrix_determinant_2x2", "linear_system_2x2")
+GENERATOR_VERSION = "0.5.0"
+SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral", "matrix_determinant_2x2", "linear_system_2x2", "matrix_inverse_2x2")
 _MAX_EXAMPLES = 100_000
 
 
@@ -131,6 +131,22 @@ def _parse_linear_system_answer(text: str) -> tuple[Fraction, Fraction]:
     return Fraction(match.group(1)), Fraction(match.group(2))
 
 
+def _parse_matrix_inverse_answer(text: str) -> tuple[Fraction, Fraction, Fraction, Fraction]:
+    """Parse a 2x2 exact-rational matrix answer."""
+    if not isinstance(text, str):
+        raise ValueError("matrix answer must be text")
+    pattern = (
+        r"^\s*\[\[\s*([+-]?\d+(?:/\d+)?)\s*,\s*"
+        r"([+-]?\d+(?:/\d+)?)\s*\]\s*,\s*"
+        r"\[\s*([+-]?\d+(?:/\d+)?)\s*,\s*"
+        r"([+-]?\d+(?:/\d+)?)\s*\]\]\s*$"
+    )
+    match = re.fullmatch(pattern, text)
+    if not match:
+        raise ValueError("matrix answer must be a 2x2 rational matrix")
+    return tuple(Fraction(value) for value in match.groups())
+
+
 def validate_example_text(input_text: str, expected_answer: str, topic: str) -> bool:
     """Independently parse generated text and validate exact rational/polynomial answers."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
@@ -175,6 +191,26 @@ def validate_example_text(input_text: str, expected_answer: str, topic: str) -> 
         try:
             a, b, c, d = map(int, match.groups())
             return Fraction(a * d - b * c) == Fraction(expected_answer)
+        except (ValueError, ZeroDivisionError, TypeError):
+            return False
+    if topic == "matrix_inverse_2x2":
+        match = re.fullmatch(
+            r"^\s*inverse\s*:\s*\[\[\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\]\s*,\s*\[\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\]\s*\]\s*$",
+            input_text, flags=re.IGNORECASE,
+        )
+        if not match:
+            return False
+        try:
+            a, b, c, d = map(int, match.groups())
+            determinant = a * d - b * c
+            if determinant == 0:
+                return False
+            expected = _parse_matrix_inverse_answer(expected_answer)
+            actual = (
+                Fraction(d, determinant), Fraction(-b, determinant),
+                Fraction(-c, determinant), Fraction(a, determinant),
+            )
+            return actual == expected
         except (ValueError, ZeroDivisionError, TypeError):
             return False
     if topic == "linear_system_2x2":
@@ -303,6 +339,23 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         prompt = f"determinant: [[{a}, {b}], [{c}, {d}]]"
         params = {"a": a, "b": b, "c": c, "d": d}
         difficulty = 3
+    elif topic == "matrix_inverse_2x2":
+        while True:
+            a, b, c, d = (rng.randint(-6, 6) for _ in range(4))
+            determinant = a * d - b * c
+            if determinant != 0:
+                break
+        inverse_values = (
+            Fraction(d, determinant), Fraction(-b, determinant),
+            Fraction(-c, determinant), Fraction(a, determinant),
+        )
+        prompt = f"inverse: [[{a}, {b}], [{c}, {d}]]"
+        answer = (
+            f"[[{_fraction_text(inverse_values[0])}, {_fraction_text(inverse_values[1])}], "
+            f"[{_fraction_text(inverse_values[2])}, {_fraction_text(inverse_values[3])}]]"
+        )
+        params = {"a": a, "b": b, "c": c, "d": d, "determinant": determinant}
+        difficulty = 4
     elif topic == "linear_system_2x2":
         while True:
             a, b, d, e = (rng.randint(-5, 5) for _ in range(4))
@@ -321,7 +374,7 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
     else:
         raise ValueError(f"unsupported topic: {topic}")
 
-    answer_text = answer if topic in ("polynomial_derivative", "linear_system_2x2") else _fraction_text(answer)
+    answer_text = answer if topic in ("polynomial_derivative", "linear_system_2x2", "matrix_inverse_2x2") else _fraction_text(answer)
     valid = validate_example_text(prompt, answer_text, topic)
     payload = {
         "generator_version": GENERATOR_VERSION, "seed": seed, "index": index,

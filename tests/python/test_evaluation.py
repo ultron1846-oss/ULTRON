@@ -4,7 +4,7 @@ from ultron_core.evaluation import evaluate_predictions
 
 class ExactAnswerEvaluationTests(unittest.TestCase):
     def test_reports_exact_accuracy_coverage_and_abstentions(self):
-        examples = generate_examples(88, 30)
+        examples = generate_examples(88, 30, topics=("arithmetic",))
         predictions = {item.example_id: item.exact_answer for item in examples}
         predictions[examples[0].example_id] = "0" if examples[0].exact_answer != "0" else "1"
         predictions[examples[1].example_id] = None
@@ -86,6 +86,17 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         report = evaluate_predictions(examples, predictions)
         self.assertEqual(report["correct"], 100)
         self.assertEqual(report["error_class_counts"]["correct_answer"], 100)
+
+    def test_evaluator_scores_exact_matrix_inverse_predictions(self):
+        examples = generate_examples(725, 30, topics=("matrix_inverse_2x2",))
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["correct"], 30)
+        self.assertEqual(report["error_class_counts"]["correct_answer"], 30)
+        predictions[examples[0].example_id] = "not a matrix"
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["invalid_predictions"], 1)
+        self.assertEqual(report["correct"], 29)
 
     def test_scores_exact_polynomial_derivative_predictions(self):
         examples = generate_examples(29, 25, topics=("polynomial_derivative",))
