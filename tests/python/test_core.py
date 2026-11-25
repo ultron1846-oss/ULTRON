@@ -288,7 +288,7 @@ class CoreTests(unittest.TestCase):
         torch.manual_seed(731)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "resume.pt"
-            save_checkpoint(path, model, config, step=12, data_state={"epoch": 2, "batch": 9})
+            save_checkpoint(path, model, config, step=12, data_state={"epoch": 2, "batch": 9}, dataset_manifest_sha256="a" * 64)
             expected_torch = torch.rand(4)
             expected_python = random.random()
             torch.manual_seed(5)
@@ -297,6 +297,7 @@ class CoreTests(unittest.TestCase):
             metadata = load_checkpoint(path, restored)
             self.assertEqual(metadata["format_version"], 3)
             self.assertEqual(metadata["data_state"], {"epoch": 2, "batch": 9})
+            self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
             torch.testing.assert_close(torch.rand(4), expected_torch)
             self.assertEqual(random.random(), expected_python)
 
@@ -305,22 +306,35 @@ class CoreTests(unittest.TestCase):
         model = NeuroSparseModel(config)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "recover.pt"
-            save_checkpoint(path, model, config, step=4, data_state={"cursor": 4})
+            save_checkpoint(path, model, config, step=4, data_state={"cursor": 4}, dataset_manifest_sha256="a" * 64)
             first_state = {name: value.detach().clone() for name, value in model.state_dict().items()}
             with torch.no_grad():
                 for parameter in model.parameters():
                     parameter.add_(0.25)
-            save_checkpoint(path, model, config, step=5, data_state={"cursor": 5})
+            save_checkpoint(path, model, config, step=5, data_state={"cursor": 5}, dataset_manifest_sha256="b" * 64)
             with path.open("ab") as stream:
                 stream.write(b"corrupt-current")
             restored = NeuroSparseModel(config)
             metadata = load_checkpoint(path, restored, restore_rng=False)
             self.assertEqual(metadata["step"], 4)
             self.assertEqual(metadata["data_state"], {"cursor": 4})
+            self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
             self.assertTrue(metadata["source_path"].endswith(".bak"))
             for name, value in restored.state_dict().items():
                 self.assertTrue(torch.equal(value, first_state[name]), name)
 
+
+
+    def test_checkpoint_requires_valid_dataset_hash_for_cursor(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "hash-required.pt"
+            with self.assertRaisesRegex(ValueError, "requires a dataset manifest"):
+                save_checkpoint(path, model, config, data_state={"cursor": 0})
+            with self.assertRaisesRegex(ValueError, "lowercase SHA-256"):
+                save_checkpoint(path, model, config, data_state={"cursor": 0},
+                               dataset_manifest_sha256="bad")
 
     def test_checkpoint_rejects_invalid_step_and_config_mismatch(self):
         config = self.config()
@@ -340,7 +354,7 @@ class CoreTests(unittest.TestCase):
             path = Path(directory) / "checkpoint.pt"
             save_checkpoint(path, model, config, step=0)
             payload = torch.load(path, map_location="cpu", weights_only=True)
-            self.assertEqual(payload["format_version"], 3)
+            self.assertEqual(payload["format_version"], 4)
 
     def test_checkpoint_rejects_bad_tensor_shapes_before_mutating_model(self):
         config = self.config()
