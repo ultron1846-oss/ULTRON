@@ -92,6 +92,13 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["stop_reason"], "step_limit")
         self.assertEqual(self.optimizer.steps, 2)
         self.assertEqual(len(saved), 2)
+        self.assertEqual(saved[0][0], 1)
+        self.assertEqual(saved[0][1]["data_state"]["next_batch_index"], 2)
+        self.assertEqual(saved[1][0], 2)
+        self.assertEqual(saved[1][1]["data_state"]["next_batch_index"], 4)
+        self.assertEqual(saved[1][1]["dataset_manifest_sha256"], "a" * 64)
+        self.assertEqual(result["global_step"], 2)
+        self.assertEqual(result["data_state"]["next_batch_index"], 4)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
     def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
@@ -156,7 +163,8 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_uses_restored_rng_without_reseeding(self):
         metadata = {"format_version": 4, "rng_restored": True,
-                    "data_state": {"epoch": 2, "batch": 3},
+                    "step": 12,
+                    "data_state": {"epoch": 2, "next_batch_index": 3},
                     "dataset_manifest_sha256": "a" * 64}
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                    max_seconds=60, write_memory=False)
@@ -167,6 +175,59 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             seed.assert_not_called()
         self.assertTrue(result["resumed_from_checkpoint"])
         self.assertEqual(self.optimizer.steps, 1)
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["global_step"], 13)
+        self.assertEqual(result["data_state"]["epoch"], 2)
+        self.assertEqual(result["data_state"]["next_batch_index"], 5)
+
+    def test_resume_requires_next_batch_cursor(self):
+        metadata = {"format_version": 4, "step": 8, "rng_restored": True,
+                    "data_state": {"epoch": 1, "batch": 3},
+                    "dataset_manifest_sha256": "a" * 64}
+        with self.assertRaisesRegex(ValueError, "epoch and next_batch_index"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, resume_metadata=metadata)
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_incomplete_accumulation_cursor_rewinds_to_last_committed_step(self):
+        result = run_training_steps(self.model, self.batches[:3], self.optimizer,
+            self.report, settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
+            max_seconds=60), training_authorized=True)
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["microbatches_seen"], 3)
+        self.assertEqual(result["discarded_microbatches"], 1)
+        self.assertEqual(result["global_step"], 1)
+        self.assertEqual(result["data_state"]["next_batch_index"], 2)
+
+    def test_initial_cursor_is_preserved_and_advanced(self):
+        result = run_training_steps(self.model, self.batches[:2], self.optimizer,
+            self.report, settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+            max_seconds=60), training_authorized=True,
+            initial_data_state={"epoch": 5, "next_batch_index": 10})
+        self.assertEqual(result["data_state"]["epoch"], 5)
+        self.assertEqual(result["data_state"]["next_batch_index"], 12)
+        self.assertEqual(result["global_step"], 1)
+
+    def test_checkpoint_callback_metadata_can_be_persisted_and_restored(self):
+        import tempfile
+        from pathlib import Path
+        from ultron_core.checkpoint import save_checkpoint, load_checkpoint
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "mock-resume.pt"
+            def save_callback(step, metrics):
+                save_checkpoint(path, self.model, self.model.config, step=step,
+                    data_state=metrics["data_state"],
+                    dataset_manifest_sha256=metrics["dataset_manifest_sha256"])
+            settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                       max_seconds=60)
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=settings, training_authorized=True, checkpoint_callback=save_callback)
+            restored = MockModel()
+            metadata = load_checkpoint(path, restored,
+                expected_dataset_manifest_sha256="a" * 64)
+            self.assertEqual(metadata["step"], 1)
+            self.assertEqual(metadata["data_state"]["next_batch_index"], 2)
+            self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
         base = {"format_version": 4, "rng_restored": True,
