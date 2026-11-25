@@ -85,9 +85,11 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 8 — Checkpoint and recovery
 
-- [ ] Save model, optimizer, scheduler, global step, config, RNG states, data cursor, and dataset manifest hash.
-- [ ] Validate checkpoint and optimizer compatibility before mutating live state.
-- [ ] Test interrupted writes, stale manifests, corruption, and last-known-good recovery.
+- [x] Save model, optimizer, scheduler state, global step, config, RNG state, and optional data cursor metadata.
+- [ ] Include dataset manifest hash in the training cursor.
+- [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
+- [x] Test corrupted current checkpoint fallback to last verified backup.
+- [x] Test RNG replay and data cursor restoration.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance.
 - [ ] Document storage and backup limits.
 
