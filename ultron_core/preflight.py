@@ -72,6 +72,10 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
         "batch_size": batch_size, "sequence_length": sequence_length,
         "gradient_accumulation_steps": gradient_accumulation_steps,
         "model_weights_fp32_bytes": weight_bytes,
+        "model_gradients_fp32_bytes": parameter_count * 4,
+        "model_adamw_moments_fp32_bytes": parameter_count * 8,
+        "model_persistent_state_fp32_bytes": persistent_bytes,
+        # Backward-compatible alias; includes weights as well as gradient/optimizer state.
         "model_grad_and_adamw_state_fp32_bytes": persistent_bytes,
         "memory_budget_bytes": budget_bytes, "budget_covers_persistent_state": fits,
         "limitations": [
