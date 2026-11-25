@@ -4,6 +4,28 @@ from ultron_core.benchmark import bootstrap_median_ci, percentile
 
 
 class BenchmarkStatisticsTests(unittest.TestCase):
+    def test_parameter_accounting_separates_trainable_and_fixed_weights(self):
+        from ultron_core import NeuroSparseConfig, NeuroSparseModel
+        from ultron_core.model import SparseExpert
+        from ultron_core.benchmark import parameter_accounting
+        config = NeuroSparseConfig(vocab_size=64, hidden_size=32, num_layers=1,
+            num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8,
+            num_attention_heads=4)
+        model = NeuroSparseModel(config)
+        report = parameter_accounting(model)
+        total = sum(p.numel() for p in model.parameters())
+        trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        expert = sum(p.numel() for module in model.modules()
+                     if isinstance(module, SparseExpert)
+                     for p in module.parameters() if p.requires_grad)
+        self.assertEqual(report["parameters_total"], total)
+        self.assertEqual(report["parameters_trainable"], trainable)
+        self.assertEqual(report["parameters_fixed"], total - trainable)
+        self.assertEqual(report["parameters_expert_trainable"], expert)
+        self.assertEqual(report["estimated_structurally_active_trainable_parameters_per_token"],
+                         report["parameters_shared_trainable"] + report["estimated_selected_expert_parameters_per_token"])
+
+
     def test_benchmark_runtime_restores_rng_and_thread_count(self):
         import torch
         from ultron_core.benchmark import _preserve_benchmark_runtime

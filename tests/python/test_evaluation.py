@@ -11,17 +11,33 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         predictions[examples[2].example_id] = "not a rational"
         report = evaluate_predictions(examples, predictions)
         self.assertEqual(report["total_examples"], 30)
+        self.assertEqual(report["attempted"], 29)
         self.assertEqual(report["answered"], 28)
-        self.assertEqual(report["abstentions"], 2)
+        self.assertEqual(report["abstentions"], 1)
         self.assertEqual(report["invalid_predictions"], 1)
+        self.assertEqual(report["incorrect_valid_predictions"], 1)
         self.assertEqual(report["correct"], 27)
-        self.assertAlmostEqual(report["coverage"], 28 / 30)
+        self.assertAlmostEqual(report["coverage"], 29 / 30)
+        self.assertAlmostEqual(report["valid_answer_rate"], 28 / 30)
         self.assertAlmostEqual(report["exact_accuracy_all"], 27 / 30)
         self.assertAlmostEqual(report["exact_accuracy_answered"], 27 / 28)
         self.assertFalse(report["proof_verified"])
         self.assertFalse(report["model_evaluated"])
         self.assertFalse(report["training_performed"])
 
+
+    def test_invalid_predictions_are_not_abstentions(self):
+        examples = generate_examples(93, 30)
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        predictions[examples[0].example_id] = "invalid answer"
+        predictions[examples[1].example_id] = None
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["attempted"], 29)
+        self.assertEqual(report["answered"], 28)
+        self.assertEqual(report["invalid_predictions"], 1)
+        self.assertEqual(report["abstentions"], 1)
+        self.assertAlmostEqual(report["coverage"], 29 / 30)
+        self.assertAlmostEqual(report["valid_answer_rate"], 28 / 30)
 
     def test_scores_exact_polynomial_derivative_predictions(self):
         examples = generate_examples(29, 25, topics=("polynomial_derivative",))

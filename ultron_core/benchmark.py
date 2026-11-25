@@ -60,24 +60,42 @@ def percentile(samples: Sequence[float], q: float) -> float:
 
 
 def parameter_accounting(model: NeuroSparseModel) -> dict[str, int | float]:
-    total = sum(parameter.numel() for parameter in model.parameters())
-    # SparseExpert owns a Sequential child; include its descendants explicitly.
-    expert = sum(
+    parameters_total = sum(parameter.numel() for parameter in model.parameters())
+    parameters_trainable = sum(
+        parameter.numel() for parameter in model.parameters() if parameter.requires_grad
+    )
+    expert_total = sum(
         parameter.numel()
         for module in model.modules()
         if isinstance(module, SparseExpert)
         for parameter in module.parameters()
     )
-    shared = total - expert
+    expert_trainable = sum(
+        parameter.numel()
+        for module in model.modules()
+        if isinstance(module, SparseExpert)
+        for parameter in module.parameters()
+        if parameter.requires_grad
+    )
+    shared_total = parameters_total - expert_total
+    shared_trainable = parameters_trainable - expert_trainable
     selected_ratio = model.config.top_k / model.config.num_experts
-    active_expert_estimate = int(expert * selected_ratio)
+    active_expert_estimate = int(expert_trainable * selected_ratio)
+    active_trainable_estimate = shared_trainable + active_expert_estimate
     return {
-        "parameters_total": total,
-        "parameters_expert_total": expert,
-        "parameters_shared_total": shared,
+        "parameters_total": parameters_total,
+        "parameters_trainable": parameters_trainable,
+        "parameters_fixed": parameters_total - parameters_trainable,
+        "parameters_expert_total": expert_total,
+        "parameters_expert_trainable": expert_trainable,
+        "parameters_shared_total": shared_total,
+        "parameters_shared_trainable": shared_trainable,
         "expert_selection_ratio_per_token": selected_ratio,
         "estimated_selected_expert_parameters_per_token": active_expert_estimate,
-        "estimated_structurally_active_parameters_per_token": shared + active_expert_estimate,
+        "estimated_structurally_active_trainable_parameters_per_token": active_trainable_estimate,
+        # Backward-compatible name; this is a structural trainable-parameter estimate,
+        # not measured FLOPs, executed parameter count, or hardware activity.
+        "estimated_structurally_active_parameters_per_token": active_trainable_estimate,
     }
 
 
