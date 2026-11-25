@@ -180,6 +180,27 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["epoch"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 5)
 
+
+    def test_resume_rejects_changed_seed_or_accumulation(self):
+        metadata = {"format_version": 4, "rng_restored": True, "step": 4,
+                    "data_state": {"epoch": 0, "next_batch_index": 2, "seed": 0,
+                                   "gradient_accumulation_steps": 2},
+                    "dataset_manifest_sha256": "a" * 64}
+        with self.assertRaisesRegex(ValueError, "seed does not match"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                         seed=1, max_seconds=60, write_memory=False),
+                training_authorized=True, resume_metadata=metadata)
+        altered_report = dict(self.report)
+        altered_report["gradient_accumulation_steps"] = 1
+        with self.assertRaisesRegex(ValueError, "accumulation does not match"):
+            run_training_steps(self.model, self.batches, self.optimizer, altered_report,
+                settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=1,
+                                         max_seconds=60, write_memory=False),
+                training_authorized=True, resume_metadata=metadata)
+        self.assertEqual(self.optimizer.steps, 0)
+
+
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
                     "data_state": {"epoch": 1, "batch": 3},
