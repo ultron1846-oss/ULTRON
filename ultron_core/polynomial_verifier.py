@@ -10,7 +10,7 @@ from hashlib import sha256
 import json
 
 from .math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
-from .polynomial import Polynomial, PolynomialError, PolynomialLimits
+from .polynomial import HARD_LIMITS, Polynomial, PolynomialError, PolynomialLimits, Term
 
 
 _CERTIFICATE_SCHEMA = "ultron.polynomial_identity.v1"
@@ -24,8 +24,16 @@ class PolynomialIdentityResult:
     expression_sha256: str
     certificate_json: str | None
     certificate_sha256: str | None
-    difference_terms: tuple
+    difference_terms: tuple[Term, ...]
     note: str
+
+
+def _validate_limits(limits: PolynomialLimits) -> None:
+    if not isinstance(limits, PolynomialLimits):
+        raise TypeError("limits must be PolynomialLimits")
+    for name in ("max_total_degree", "max_terms", "max_exponent"):
+        if getattr(limits, name) > getattr(HARD_LIMITS, name):
+            raise ValueError(f"{name} exceeds hard verifier limit")
 
 
 def _has_assumptions(expression: Expr) -> bool:
@@ -99,8 +107,7 @@ def verify_polynomial_identity(
             VerificationStatus.UNRESOLVED, expression_hash, None, None, (),
             "Expressions with assumptions are outside the verifier's scope.",
         )
-    if not isinstance(limits, PolynomialLimits):
-        raise TypeError("limits must be PolynomialLimits")
+    _validate_limits(limits)
 
     try:
         left = Polynomial.from_expr(expression.args[0], limits=limits)
@@ -142,11 +149,22 @@ def validate_polynomial_identity_certificate(
     try:
         supplied = json.loads(certificate_json)
         canonical = json.dumps(supplied, sort_keys=True, separators=(",", ":"))
+        if not isinstance(supplied, dict) or supplied.get("schema") != _CERTIFICATE_SCHEMA:
+            return False
+        limit_values = supplied.get("limits")
+        if not isinstance(limit_values, dict) or set(limit_values) != {
+            "max_total_degree", "max_terms", "max_exponent"
+        }:
+            return False
+        if any(isinstance(value, bool) or not isinstance(value, int) for value in limit_values.values()):
+            return False
+        limits = PolynomialLimits(**limit_values)
+        _validate_limits(limits)
     except (json.JSONDecodeError, TypeError, ValueError):
         return False
     if canonical != certificate_json:
         return False
-    result = verify_polynomial_identity(candidate)
+    result = verify_polynomial_identity(candidate, limits=limits)
     if result.status != VerificationStatus.FORMALLY_VERIFIED:
         return False
     return (
