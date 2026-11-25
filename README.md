@@ -957,3 +957,14 @@ The percentage generator now distinguishes count and continuous quantities. Coun
 The contextual-generator audit also corrected potentially invalid quiz scores, ticket totals, cost-variable domains, and checked ratio counts, geometry dimensions, angle bounds, statistics values, and probability bounds. Tests include 2,500 percentage seeds across all five difficulty levels.
 
 **Validation and merge:** PR #127 was reviewed and merged (merge commit `f5ee61050ef564d9b63997e2fe1ebbbc2ad4f3d6`). Python AI Core Tests passed, including the full Python regression suite and CPU forward/backward smoke; Node Tests passed on PR head `bbe79c5225cd74d52efbd05e7d652eedc713a026`. Separate post-merge workflow runs were not yet reported by the Actions query. No training, dataset generation, or remote execution was started. Next: proceed to Batch 3 (Grades 9–12) only as generator/verifier/test infrastructure, retaining exact checks and updating this README at the next milestone.
+
+
+## Grade 1–4 hardening and Grade 8–12 generator batch — 2026-11-25
+
+Grade 1–4 already had 10 topic generators; this update adds an explicit semantic-validation hook for non-negative counts, currency formatting, time conversion, and positive rectangle measures, plus complete contextual-topic and registry-parity regression tests.
+
+Batch 3 adds 22 deterministic Grade 8–12 topics: linear equations, systems, quadratics, polynomial operations/factoring, functions, coordinate geometry, triangle geometry, trigonometry, sequences, logarithms, limits, derivatives, definite integrals, matrices, combinatorics, number theory, complex numbers, vectors, statistics, probability, and a narrow divisibility proof template. Each item is seed-replay verified and includes ingredients and solution steps. Contextual coverage is declared in generator metadata and the registry builder now regenerates Grade 1–4, Grade 5–8, Grade 8–12, and combined registries.
+
+**Important limits:** These are original deterministic practice-item generators, not trained-model capability. Difficulty is heuristic. The proof topic is not a general proof checker. The Grade 8–12 batch needs randomized CI and final review before merge. No training, corpus generation, or remote execution was started.
+
+**Next handoff:** Run Python 3.11 regression CI and Node tests on the PR. Review the final diff, fix any failing generators or metadata mismatches, and merge only after all required checks pass. Keep training disabled.
