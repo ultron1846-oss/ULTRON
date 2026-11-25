@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.utils.checkpoint import checkpoint as activation_checkpoint
 from .config import NeuroSparseConfig
 from .routing import SparseRouter, load_balance_loss
 from .memory import FastWeightMemory
@@ -101,6 +102,12 @@ class NeuroSparseModel(nn.Module):
         self.final_norm = nn.LayerNorm(config.hidden_size)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.lm_head.weight = self.embedding.weight
+        self.activation_checkpointing = False
+
+    def set_activation_checkpointing(self, enabled: bool) -> None:
+        if not isinstance(enabled, bool):
+            raise TypeError("activation_checkpointing must be boolean")
+        self.activation_checkpointing = enabled
 
     def reset_memory(self) -> None:
         """Clear mutable fast/episodic memory before processing a new independent example."""
@@ -155,10 +162,23 @@ class NeuroSparseModel(nn.Module):
 
         balances, errors, steps = [], [], []
         for block in self.blocks:
-            x, balance, error, count = block(
-                x, write_memory=write_memory, causal_mask=causal_mask,
-                key_padding_mask=key_padding_mask, write_mask=write_mask
-            )
+            if (self.activation_checkpointing and self.training
+                    and torch.is_grad_enabled() and not write_memory):
+                # Recompute block activations during backward to reduce saved
+                # activation memory. Mutable memory writes remain unsupported.
+                def block_forward(hidden, current_block=block):
+                    return current_block(
+                        hidden, write_memory=False, causal_mask=causal_mask,
+                        key_padding_mask=key_padding_mask, write_mask=write_mask
+                    )
+                x, balance, error, count = activation_checkpoint(
+                    block_forward, x, use_reentrant=False
+                )
+            else:
+                x, balance, error, count = block(
+                    x, write_memory=write_memory, causal_mask=causal_mask,
+                    key_padding_mask=key_padding_mask, write_mask=write_mask
+                )
             balances.append(balance)
             errors.append(error)
             steps.append(count.to(x.dtype))
