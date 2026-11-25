@@ -5,6 +5,10 @@
 ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current website is a static frontend and deterministic foundation prototype—not a trained AI model.
 
 
+## Optimization milestone — causal SDPA mask memory (PR in review)
+
+ULTRON's causal attention now uses PyTorch scaled-dot-product attention with the existing fused Q/K/V and output projection weights. Unpadded sequences use the built-in causal flag rather than materializing a quadratic boolean mask; padded sequences preserve the combined causal and key-validity mask. Checkpoint parameter naming is retained. Output and input-gradient parity tests are included. This removes one explicit O(sequence_length²) mask allocation on the unpadded path; no target-hardware speed or peak-memory result has been measured. No training or dataset generation was performed.
+
 ## Current continuation handoff — pre-training readiness
 
 The latest code review fixed shared fast-memory contamination risk: training-time writes reject batches containing multiple independent examples, and the model exposes `reset_memory()`. The bounded trainer resets memory at batch boundaries and rejects memory-writing mode until sequential chunk semantics exist. Its checkpoint callback now carries global step and the next-batch cursor; the caller must restore the sampler/iterator from that cursor. CI uses only a mock optimizer; no real weights were updated.
