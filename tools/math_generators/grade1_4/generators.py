@@ -46,11 +46,11 @@ def semantic_check(topic: str, answer: str, problem: str) -> bool:
             return Fraction(answer) >= 0
         if topic == "time_and_money":
             if answer.startswith("$"):
-                return bool(re.fullmatch(r"\\$\\d+\\.\\d{2}", answer))
-            match = re.fullmatch(r"(\\d+) hours? (\\d+) minutes?", answer)
+                return bool(re.fullmatch(r"\$\d+\.\d{2}", answer))
+            match = re.fullmatch(r"(\d+) hours? (\d+) minutes?", answer)
             return bool(match and int(match.group(2)) < 60 and int(match.group(1)) >= 0)
         if topic == "perimeter_and_area":
-            match = re.fullmatch(r"perimeter=(\\d+); area=(\\d+)", answer)
+            match = re.fullmatch(r"perimeter=(\d+); area=(\d+)", answer)
             return bool(match and int(match.group(1)) > 0 and int(match.group(2)) > 0)
         return False
     except (ValueError, ZeroDivisionError):
