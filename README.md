@@ -10,6 +10,10 @@ The latest frontend PR removes owner login and account-specific access UI. The p
 
 The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
+## Frontend release gate
+
+The account-free interface and release preflight are covered by automated regression tests. Before calling the frontend fully complete, perform the real iPad Safari acceptance pass: open every page, exercise mobile navigation and contrast, run supported/unsupported Math Agent inputs, verify IndexedDB history and backup/restore, and check the workload slider. Do not start training or connect a cloud runtime during this pass.
+
 The frontend uses the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages
@@ -19,7 +23,6 @@ The frontend uses the supplied ULTRON control-room reference: near-black surface
 - **Math Agent:** browser interface to the deterministic arithmetic parser and limited linear-equation solver; unsupported requests are rejected rather than guessed.
 - **Memory vault:** IndexedDB stores existing experiences and mistakes locally, with JSON export/import for manual device-to-device transfer. This is not cloud sync.
 - **Servers & Colab:** reads `servers.json`, handles missing/malformed directory data and never starts remote jobs.
-- **Supabase backend:** checks only the generic service-status endpoint; private database records remain protected.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
 
 The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training. The Math Agent currently supports only its documented deterministic arithmetic and limited linear-equation operations.
