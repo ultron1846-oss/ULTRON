@@ -12,7 +12,7 @@ test('GitHub Pages stages required runtime modules and excludes account authenti
   }
   assert.doesNotMatch(app, /owner-auth|signInOwner|verifyOwner|signOutOwner|renderOwner|bindOwner/);
   assert.doesNotMatch(html, /data-page="owner"|Owner sign in|owner-password|owner-email/);
-  assert.doesNotMatch(workflow, /owner-auth\\.js/);
+  assert.doesNotMatch(workflow, /owner-auth\.js/);
 });
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
