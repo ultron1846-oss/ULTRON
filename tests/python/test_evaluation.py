@@ -54,7 +54,7 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertEqual(report["answered"], 20)
         self.assertEqual(report["correct"], 19)
         self.assertEqual(report["incorrect_valid_predictions"], 1)
-        self.assertEqual(report["per_topic"]["linear_system_2x2"]["correct"], 19)
+        self.assertAlmostEqual(report["per_topic"]["linear_system_2x2"]["exact_accuracy_all"], 19 / 20)
 
     def test_scores_exact_polynomial_definite_integral_predictions(self):
         examples = generate_examples(39, 25, topics=("polynomial_definite_integral",))
