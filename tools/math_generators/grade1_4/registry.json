@@ -4,43 +4,53 @@
   "topics": [
     {
       "topic": "counting",
-      "grade_band": "G1-2"
+      "grade_band": "G1-2",
+      "includes_word_problems": false
     },
     {
       "topic": "addition",
-      "grade_band": "G1-2"
+      "grade_band": "G1-2",
+      "includes_word_problems": false
     },
     {
       "topic": "subtraction",
-      "grade_band": "G1-2"
+      "grade_band": "G1-2",
+      "includes_word_problems": false
     },
     {
       "topic": "place_value",
-      "grade_band": "G1-2"
+      "grade_band": "G1-2",
+      "includes_word_problems": false
     },
     {
       "topic": "multiplication",
-      "grade_band": "G3-4"
+      "grade_band": "G3-4",
+      "includes_word_problems": true
     },
     {
       "topic": "division",
-      "grade_band": "G3-4"
+      "grade_band": "G3-4",
+      "includes_word_problems": true
     },
     {
       "topic": "fractions_basics",
-      "grade_band": "G3-4"
+      "grade_band": "G3-4",
+      "includes_word_problems": true
     },
     {
       "topic": "simple_word_problems",
-      "grade_band": "G3-4"
+      "grade_band": "G3-4",
+      "includes_word_problems": true
     },
     {
       "topic": "time_and_money",
-      "grade_band": "G3-4"
+      "grade_band": "G3-4",
+      "includes_word_problems": true
     },
     {
       "topic": "perimeter_and_area",
-      "grade_band": "G3-4"
+      "grade_band": "G3-4",
+      "includes_word_problems": true
     }
   ]
 }
