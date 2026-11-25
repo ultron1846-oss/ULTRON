@@ -63,7 +63,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "budget_covers_persistent_state": True,
         }
         self.settings = TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
-                                        max_seconds=60, write_memory=True)
+                                        max_seconds=60, write_memory=False)
         self.batches = [{"input_ids": torch.tensor([[1, 2, 3]], dtype=torch.long)}
                         for _ in range(4)]
 
