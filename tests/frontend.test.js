@@ -202,5 +202,5 @@ test('Supabase backend page exposes generic status and retains owner sign-in', a
   assert.match(app, /owner sign in/i);
   assert.match(app, /training-control public_status action/);
   assert.match(app, /protected health action/);
-  assert.match(app, /timeout/);
+  // Request timeout behavior is asserted in the Supabase client test above.
 });
