@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "coverage_through": "G5-8",
+  "topics": [
+    {
+      "topic": "counting",
+      "grade_band": "G1-2",
+      "word_problems": false
+    },
+    {
+      "topic": "addition",
+      "grade_band": "G1-2",
+      "word_problems": false
+    },
+    {
+      "topic": "subtraction",
+      "grade_band": "G1-2",
+      "word_problems": false
+    },
+    {
+      "topic": "place_value",
+      "grade_band": "G1-2",
+      "word_problems": false
+    },
+    {
+      "topic": "multiplication",
+      "grade_band": "G3-4",
+      "word_problems": true
+    },
+    {
+      "topic": "division",
+      "grade_band": "G3-4",
+      "word_problems": true
+    },
+    {
+      "topic": "fractions_basics",
+      "grade_band": "G3-4",
+      "word_problems": true
+    },
+    {
+      "topic": "simple_word_problems",
+      "grade_band": "G3-4",
+      "word_problems": true
+    },
+    {
+      "topic": "time_and_money",
+      "grade_band": "G3-4",
+      "word_problems": true
+    },
+    {
+      "topic": "perimeter_and_area",
+      "grade_band": "G3-4",
+      "word_problems": true
+    },
+    {
+      "topic": "decimal_operations",
+      "grade_band": "G5-6",
+      "word_problems": false
+    },
+    {
+      "topic": "fraction_operations",
+      "grade_band": "G5-6",
+      "word_problems": false
+    },
+    {
+      "topic": "ratios",
+      "grade_band": "G5-6",
+      "word_problems": true
+    },
+    {
+      "topic": "percentages",
+      "grade_band": "G5-6",
+      "word_problems": true
+    },
+    {
+      "topic": "integers",
+      "grade_band": "G5-6",
+      "word_problems": true
+    },
+    {
+      "topic": "exponents",
+      "grade_band": "G5-6",
+      "word_problems": false
+    },
+    {
+      "topic": "order_of_operations",
+      "grade_band": "G5-6",
+      "word_problems": true
+    },
+    {
+      "topic": "linear_equations",
+      "grade_band": "G7-8",
+      "word_problems": true
+    },
+    {
+      "topic": "inequalities",
+      "grade_band": "G7-8",
+      "word_problems": true
+    },
+    {
+      "topic": "basic_geometry",
+      "grade_band": "G5-8",
+      "word_problems": true
+    },
+    {
+      "topic": "angles",
+      "grade_band": "G5-8",
+      "word_problems": true
+    },
+    {
+      "topic": "statistics_basics",
+      "grade_band": "G5-8",
+      "word_problems": true
+    },
+    {
+      "topic": "simple_probability",
+      "grade_band": "G5-8",
+      "word_problems": true
+    }
+  ]
+}

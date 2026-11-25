@@ -936,6 +936,24 @@ This is evaluation infrastructure—not a measured ULTRON-vs-Fable result. It do
 
 ## Grade 1–4 question generator package — 2026-11-25
 
-The proposed `tools/math_generators/grade1_4/` package adds ten deterministic original-template generators for counting, addition, subtraction, place value, multiplication, division, fraction basics, simple word problems, time and money, and perimeter/area. Each generated problem is checked before return; `verify()` replays the seed and applies an arithmetic or inverse check. The topic/grade-band registry and deterministic train/held-out split script are included. The randomized regression suite checks 1,000 generated problems per topic. Difficulty is heuristic and requires curriculum calibration; these generators do not establish ULTRON model capability. Dataset files are not generated and no training was started. See the package README for usage and split commands.
+The merged `tools/math_generators/grade1_4/` package adds ten deterministic original-template generators for counting, addition, subtraction, place value, multiplication, division, fraction basics, simple word problems, time and money, and perimeter/area. Each generated problem is checked before return; `verify()` replays the seed and applies an arithmetic or inverse check. The topic/grade-band registry and deterministic train/held-out split script are included. The randomized regression suite checks 1,000 generated problems per topic. Difficulty is heuristic and requires curriculum calibration; these generators do not establish ULTRON model capability. Dataset files are not generated and no training was started. See the package README for usage and split commands.
 
-**Next handoff:** Review and merge the Grade 1–4 generator PR only after Python 3.11 CI passes. Then combine its coverage registry with the Level 1 arithmetic/linear-equation source and define the next batch (Grades 5–8) using the same generator/verifier/test contract. Continue to update this README at each milestone.
+**Next handoff:** Continue with Grades 5–8 generators and contextual word problems using the same generator/verifier/test contract. Continue to update this README at each milestone.
+
+
+## Grade 5–8 generator batch — 2026-11-25
+
+The `tools/math_generators/grade5_8/` package adds thirteen deterministic, original-template generators: decimal operations, fraction operations, ratios, percentages, integers, exponents, order of operations, linear equations, inequalities, basic geometry, angles, statistics, and simple probability. Contextual word problems are included across ratio, percent, integer, order-of-operations, equation, inequality, geometry, angle, statistics, and probability tasks. Every generated item is checked before return; the verifier replays the seed and checks the exact result. The registry flags word-problem coverage, and the split script uses separate seed ranges plus content fingerprints for train/benchmark separation. Tests exercise 1,000 seeds per topic. Difficulty remains heuristic and needs curriculum calibration. No training or dataset generation was started.
+
+**Next handoff:** Run Python CI and review PR for Grade 5–8. After merge, continue Batch 3 (Grades 9–12), retaining contextual word problems in applicable topics and exact answer verification. The combined topic registry is at `tools/math_generators/registry.json`.
+
+
+## Grade 5–8 generator validation update — 2026-11-25
+
+PR #127 now includes generator-declared contextual metadata and `tools/math_generators/build_registry.py`. Run `python -m tools.math_generators.build_registry` to regenerate the Grade 5–8 and combined registries. Regression tests require the committed JSON to match generated output and assert the complete Grade 5–8 word-problem topic set, including integers and order of operations.
+
+The percentage generator now distinguishes count and continuous quantities. Count totals are multiples of `100 / gcd(percent, 100)`; continuous results are limited to two decimal places with appropriate rounding language. A shared semantic-validation hook is applied after each topic's exact arithmetic verifier.
+
+The contextual-generator audit also corrected potentially invalid quiz scores, ticket totals, cost-variable domains, and checked ratio counts, geometry dimensions, angle bounds, statistics values, and probability bounds. Tests include 2,500 percentage seeds across all five difficulty levels.
+
+**Validation status at this handoff:** code and regression tests have been committed to the PR branch; run the full Grade 5–8 randomized suite, Python 3.11 CI, and Node tests. Merge only after all required checks pass and the final diff is reviewed. No training or dataset generation was started.
