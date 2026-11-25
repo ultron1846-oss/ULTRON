@@ -212,6 +212,10 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         sampler_state = cursor.get("sampler_state")
         if resume_metadata is not None and not isinstance(sampler_state, dict):
             raise ValueError("resume checkpoint is missing sampler_state")
+        if sampler_state is None and (
+                epoch != 0 or next_batch_index != 0
+                or sampler.state_dict().get("next_index") != 0):
+            raise ValueError("non-zero initial cursor requires sampler_state")
         if isinstance(sampler_state, dict):
             sampler.load_state_dict(sampler_state)
         live_sampler_state = sampler.state_dict()
