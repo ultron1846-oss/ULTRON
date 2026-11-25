@@ -15,6 +15,10 @@ The repository now defines a proposed foundation configuration of **63,408,643 u
 
 Source review corrected stale training documentation: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, and checkpoint utilities, but no complete training loop or full resume controller. Training remains disabled.
 
+## Phase 5 — data integrity hardening
+
+The original generator currently covers only arithmetic, rational arithmetic, and simple linear equations. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
