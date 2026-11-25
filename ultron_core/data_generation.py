@@ -15,8 +15,8 @@ import re
 import tempfile
 from typing import Iterable
 
-GENERATOR_VERSION = "0.2.0"
-SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative")
+GENERATOR_VERSION = "0.3.0"
+SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral")
 _MAX_EXAMPLES = 100_000
 
 
@@ -122,6 +122,23 @@ def validate_example_text(input_text: str, expected_answer: str, topic: str) -> 
     """Independently parse generated text and validate exact rational/polynomial answers."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
         return False
+    if topic == "polynomial_definite_integral":
+        pattern = r"^\s*integrate\s*:\s*(.*?)\s+from\s*x\s*=\s*([+-]?\d+(?:/\d+)?)\s+to\s*x\s*=\s*([+-]?\d+(?:/\d+)?)\s*$"
+        match = re.fullmatch(pattern, input_text, flags=re.IGNORECASE)
+        if not match:
+            return False
+        try:
+            polynomial = _parse_integer_polynomial(match.group(1))
+            lower, upper = Fraction(match.group(2)), Fraction(match.group(3))
+            actual = sum(
+                (Fraction(coefficient, power + 1)
+                 * (upper ** (power + 1) - lower ** (power + 1))
+                 for power, coefficient in polynomial.items()),
+                Fraction(0),
+            )
+            return actual == Fraction(expected_answer)
+        except (ValueError, ZeroDivisionError, TypeError):
+            return False
     if topic == "polynomial_derivative":
         match = re.fullmatch(r"^\s*differentiate\s*:\s*(.*?)\s*$", input_text, flags=re.IGNORECASE)
         if not match:
@@ -210,6 +227,26 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         answer = _format_integer_polynomial(derivative)
         params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items()))}
         difficulty = degree
+    elif topic == "polynomial_definite_integral":
+        degree = rng.randint(1, 4)
+        coefficients = {power: rng.randint(-5, 5) for power in range(degree + 1)}
+        if coefficients[degree] == 0:
+            coefficients[degree] = rng.choice((-5, -4, -3, -2, -1, 1, 2, 3, 4, 5))
+        lower = Fraction(rng.randint(-4, 4), rng.randint(1, 3))
+        upper = Fraction(rng.randint(-4, 4), rng.randint(1, 3))
+        if lower == upper:
+            upper += 1
+        answer = sum(
+            (Fraction(coefficient, power + 1)
+             * (upper ** (power + 1) - lower ** (power + 1))
+             for power, coefficient in coefficients.items()),
+            Fraction(0),
+        )
+        prompt = (f"integrate: {_format_integer_polynomial(coefficients)} "
+                  f"from x={_fraction_text(lower)} to x={_fraction_text(upper)}")
+        params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items())),
+                  "lower": _fraction_text(lower), "upper": _fraction_text(upper)}
+        difficulty = degree + 1
     else:
         raise ValueError(f"unsupported topic: {topic}")
 

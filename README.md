@@ -53,6 +53,8 @@ Phase 8 now binds a resumable data cursor to a validated dataset-manifest SHA-25
 
 Checkpoint resume now returns whether RNG restoration succeeded. The trainer refuses resume without restored RNG, data cursor, and a matching dataset-manifest SHA-256; it skips initial reseeding on resume so checkpoint RNG is preserved.
 
+The generator now also creates and independently validates exact definite integrals of integer-coefficient polynomials (degree 1–4), generator version 0.3.0. This is a bounded calculus task set, not broad university-math coverage.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.

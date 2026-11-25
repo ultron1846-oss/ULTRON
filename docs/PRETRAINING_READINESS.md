@@ -60,6 +60,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
 - [ ] Add corpus-level balance/coverage reports and independent validators for broader topics.
 - [x] Add bounded polynomial derivative generation with an independent exact polynomial parser/validator.
+- [x] Add exact definite polynomial-integral generation and independent rational antiderivative evaluation.
 - [ ] Expand further topics only with independent exact validators.
 - [ ] Ensure ULTRON-generated data only; no external generated corpus.
 
@@ -89,7 +90,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add exact answer scoring for current rational and polynomial-derivative topics, including coverage/abstention and per-topic metrics.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
-- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational and polynomial-derivative tasks.
+- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational, polynomial-derivative, and definite-integral tasks.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
 - [ ] Add symbolic equivalence, proof-checker acceptance, and richer error classes.

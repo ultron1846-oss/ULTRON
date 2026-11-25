@@ -22,9 +22,10 @@ Current generator topics are:
 - integer arithmetic;
 - rational arithmetic;
 - simple one-variable linear equations;
-- bounded polynomial derivatives with integer coefficients and degree 2–5.
+- bounded polynomial derivatives with integer coefficients and degree 2–5;
+- exact definite integrals of integer-coefficient polynomials (degree 1–4, rational bounds).
 
-For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded canonical polynomial grammar. It does not parse natural-language explanations, derivations, or proof steps.
+For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded canonical polynomial grammar. Definite-integral predictions use exact rational strings. It does not parse natural-language explanations, derivations, or proof steps.
 
 ## Held-out evaluation rules
 

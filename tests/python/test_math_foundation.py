@@ -155,6 +155,19 @@ class DeterministicDataGenerationTests(unittest.TestCase):
                 verify_dataset(path)
 
 
+
+    def test_polynomial_definite_integrals_are_exactly_validated(self):
+        examples = generate_examples(812, 70, topics=("polynomial_definite_integral",))
+        self.assertTrue(all(validate_example_text(item.input_text, item.exact_answer, item.topic)
+                            for item in examples))
+        self.assertTrue(validate_example_text(
+            "integrate: x^2 from x=0 to x=3", "9", "polynomial_definite_integral"))
+        self.assertTrue(validate_example_text(
+            "integrate: 2*x + 1 from x=-1/2 to x=3/2", "4", "polynomial_definite_integral"))
+        self.assertFalse(validate_example_text(
+            "integrate: x^2 from x=0 to x=3", "8", "polynomial_definite_integral"))
+
+
     def test_polynomial_derivative_examples_are_exactly_validated(self):
         examples = generate_examples(717, 80, topics=("polynomial_derivative",))
         self.assertTrue(all(item.validation_status == "semantically_checked" for item in examples))
