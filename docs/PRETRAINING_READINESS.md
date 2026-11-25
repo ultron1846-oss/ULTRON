@@ -20,8 +20,9 @@
 
 ## Phase 2 — Website completion and acceptance
 
-Automated frontend hardening is merged, but manual iPad acceptance is **not recorded**.
+Automated frontend hardening and the disabled Training Control readiness page are merged, but manual iPad acceptance is **not recorded**.
 
+- [x] Add Training Control readiness page with generic public status and disabled execution buttons; no job action is wired.
 - [ ] Verify navigation, fallback/error states, and honest untrained status.
 - [ ] Test supported/unsupported Math Agent inputs and equation edge cases.
 - [ ] Verify explicit memory save/retry, vault display, export/import, and local persistence.
@@ -120,6 +121,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 ## Phase 9 — Free runtime and operations
 
 - [x] Review official Colab, Lightning AI, Hugging Face Spaces, and ZeroGPU constraints with current sources.
+- [x] Add website Training Control page for generic public status and readiness blockers; no owner-specific job history or execution action.
 - [x] Document the single-runtime, checkpoint-resumable strategy and current no-phone constraint.
 - [x] Record that free Hugging Face ZeroGPU quota is short/shared and not a dependable long training host.
 - [ ] Owner: verify actual Colab access, hardware, quotas, idle timeout, and persistence from a clean iPad session.
