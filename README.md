@@ -57,7 +57,11 @@ node --test
 Automated tests do not replace live browser testing. iPad Safari testing must only be reported after it has actually been performed.
 
 ## GitHub Pages
-Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow validates every runtime asset before staging, including `math-engine.js`, `supabase-integration.js`, `memory-store.js` and `servers.json`, and rejects the retired `owner-auth.js` file. A successful Actions deployment is not by itself proof of every page interaction.
+
+Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The repository uses GitHub's built-in Pages branch deployment, which successfully published the account-free frontend. The redundant custom `.github/workflows/pages.yml` workflow was removed because it repeatedly uploaded an artifact that the subsequent deploy step could not find, while the built-in `pages build and deployment` workflow succeeded for the same main commit.
+
+Keep the required runtime assets in the repository root: `index.html`, `styles.css`, `app.js`, `math-engine.js`, `supabase-integration.js`, `memory-store.js` and `servers.json`. Regression tests verify they exist and are non-empty. Do not reintroduce a second deployment workflow unless its artifact handoff is independently validated.
+
 
 ## Supabase integration audit
 
@@ -160,7 +164,7 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 
 The latest frontend commit `932fcf005d414fdd1338d4d58265afd9b8ed64c4` was checked against both Pages workflows. The repository's custom `Deploy static site to GitHub Pages` workflow successfully staged and uploaded the `github-pages` artifact, but its deploy step failed because GitHub could not resolve the artifact for that concurrent deployment. The built-in `pages build and deployment` workflow then completed its build, artifact upload and deploy jobs successfully for the same commit. Therefore the latest commit has a successful Pages deployment through the built-in workflow; do not interpret the custom workflow's failed run as proof that the site is offline.
 
-The repository currently has two deployment paths targeting the same Pages environment. This is a workflow-coordination issue to monitor; avoid changing the Pages source or deleting either workflow without validating the repository's Pages configuration and confirming the replacement deploy path. The custom workflow's artifact contains the explicitly staged runtime files, while the built-in Jekyll workflow independently built and deployed the repository content.
+The redundant custom deployment workflow has been removed in the frontend release PR. The built-in GitHub Pages deployment remains the single deployment path and has completed successfully for the merged account-free frontend.
 
 ## Next-chat handoff — post-removal release
 
