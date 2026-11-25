@@ -67,8 +67,9 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 ## Phase 6 — Training-loop implementation (not execution)
 
 - [x] Add no-allocation preflight for parameter floor, tokenizer, splits, and workload bounds.
-- [ ] Implement bounded orchestration only after architecture/data gates.
-- [ ] Include gradient accumulation, clipping, finite loss/gradient checks, deterministic seeds, cancellation, and step/time/resource caps.
+- [x] Implement bounded orchestration with explicit authorization, accumulation, clipping, finite checks, cancellation, and step/time caps.
+- [x] Include gradient accumulation, clipping, finite loss/gradient checks, cancellation, and step/time caps.
+- [ ] Add deterministic RNG/data-loader seed restoration and measured resource cap enforcement.
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
 - [ ] Implement and test trainer-level isolation across examples, batches, and validation.
 - [ ] Keep remote dispatch disabled; require explicit owner authorization for any run.

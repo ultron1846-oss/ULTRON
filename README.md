@@ -29,7 +29,7 @@ The foundation config now binds to the canonical 240-token math vocabulary inste
 
 ## Phase 6 — training preflight (validation only)
 
-Added `ultron_core/preflight.py` to validate the 40M floor, canonical tokenizer size, non-empty prompt-disjoint splits, sequence/batch settings, and FP32 persistent-state estimate. The report explicitly says `PREFLIGHT_ONLY`, training unauthorized, zero optimizer steps, and remote execution disabled. It does not instantiate a model or optimizer.
+Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a passing preflight report, the 40M floor, per-example memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and per-call step/time caps. CI exercises only a mock model/optimizer; no real weights were updated.
 
 ## Model review — fast-memory isolation
 
