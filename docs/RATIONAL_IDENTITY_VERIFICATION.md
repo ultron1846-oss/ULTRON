@@ -9,7 +9,7 @@
 - `UNRESOLVED`: the expression is unsupported, has unparsed assumptions/domain annotations, or exceeds a resource limit.
 
 ## Domain preservation
-
+For example, `x/x = 1` is verified as a rational-function identity **with the condition `x ≠ 0`**. The verifier returns that non-zero constraint and does not rewrite the original expression as globally defined at `x = 0`.
 For example, `x/x = 1` is verified as a rational-function identity **with the condition (x \ne 0)**. The verifier returns that non-zero constraint and does not rewrite the original expression as globally defined at (x=0).
 
 A verified result does not assert that the two sides have identical domains. It establishes equality on the intersection of their defined domains, while retaining each side's original non-zero constraints in the certificate.
