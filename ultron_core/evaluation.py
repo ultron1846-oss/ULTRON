@@ -32,7 +32,9 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
         attempted += 1
         attempts[item.topic] += 1
         if not isinstance(raw, str):
-            raise TypeError("prediction values must be strings or None")
+            invalid += 1
+            invalid_by_topic[item.topic] += 1
+            continue
         try:
             if item.topic == "polynomial_derivative":
                 _parse_integer_polynomial(raw)
