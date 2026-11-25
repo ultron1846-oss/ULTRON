@@ -44,3 +44,8 @@ Non-finite loss or gradients still prevent the optimizer step. The regression te
 ## Causal attention memory optimization
 
 The model routes its existing fused Q/K/V and output-projection parameters through PyTorch scaled-dot-product attention. For unpadded batches, it uses the built-in causal flag instead of allocating an explicit boolean sequence-by-sequence mask. This preserves the MultiheadAttention parameter names and checkpoint layout. Padded batches use a combined causal/key-validity mask with SDPA's True-means-allowed convention. Regression tests compare outputs and input gradients against the previous MultiheadAttention reference path. The fast path removes one explicit quadratic mask allocation; measured throughput and device-specific peak-memory improvement remain unverified until benchmarked on target hardware.
+
+
+## Bounded training loss metrics
+
+The training controller retains only the current gradient-accumulation group's detached losses for finite-value validation and checkpoint metrics. The session-wide mean is tracked with a single on-device scalar sum and a count, then materialized once at finalization. This prevents a long training session from retaining one CUDA scalar tensor per microbatch or constructing a full-session stack at the end. The metric remains the arithmetic mean of all processed microbatch losses, including a final incomplete group that is discarded from optimizer updates. Regression coverage simulates 20 microbatches and asserts that stack sizes remain bounded by the accumulation group. This is a memory-growth fix; no training or device benchmark was run.
