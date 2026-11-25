@@ -89,7 +89,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 7 — Evaluation and benchmark protocol
 
-- [x] Add exact answer scoring for current rational and polynomial-derivative topics, including coverage/abstention and per-topic metrics.
+- [x] Add exact answer scoring for rational arithmetic, polynomial derivatives, and definite polynomial integrals, including coverage/abstention and per-topic metrics.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational, polynomial-derivative, and definite-integral tasks.
