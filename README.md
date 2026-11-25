@@ -19,7 +19,7 @@ The current model specification sets a **minimum of 40,000,000 trainable paramet
 
 The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the 40M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
 
-Source review corrected stale training documentation: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, and checkpoint utilities, but no complete training loop or full resume controller. Training remains disabled.
+Source review: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, checkpoint utilities, and a bounded local training controller. The controller has only been tested with a mock model/optimizer; no real weights have been updated and the full resume controller remains incomplete. Training remains disabled.
 
 ## Phase 5 — data integrity hardening
 
@@ -29,7 +29,7 @@ The foundation config now binds to the canonical 240-token math vocabulary inste
 
 ## Phase 6 — training preflight (validation only)
 
-Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a passing preflight report, the 40M floor, per-example memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and per-call step/time caps. CI exercises only a mock model/optimizer; no real weights were updated.
+Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a complete non-authorizing preflight report, a budget covering persistent state, matching batch/sequence/accumulation limits, the 40M trainable floor, memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and step/time caps. Memory writing defaults off. CI exercises only a mock model/optimizer; no real weights were updated. Live resource monitoring remains pending.
 
 ## Model review — fast-memory isolation
 
