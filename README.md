@@ -914,3 +914,12 @@ The deterministic browser math engine now has a strict TypeScript source at `src
 ## Bounded training loss metrics — 2026-11-25
 
 The training controller now retains only the current gradient-accumulation group's detached losses for validation/checkpoint metrics. A running scalar sum and count produce the session mean at finalization, avoiding per-microbatch GPU scalar retention and a full-session tensor stack. The mean still includes all processed microbatches, including an incomplete final group that is discarded from optimizer updates. Regression coverage simulates 20 microbatches and checks bounded stack size. No training or device benchmark was run.
+
+
+## Path to Fable 5.2 — staged math capability plan
+
+ULTRON's current capability roadmap is [Path to Fable 5.2](docs/PATH_TO_FABLE_5_2.md). Stage A is the active $0 target: arithmetic, algebra and basic calculus with independently checked answers. Stage A is **in progress**, not passed: the browser Math Agent currently supports deterministic arithmetic and limited linear equations, and calculus coverage plus a matched benchmark against Fable 5.2 are not yet established.
+
+Progression is gated by measured topic-level results: Stage B broadens to geometry, trigonometry, probability, statistics, linear algebra and number theory; Stage C adds multi-step and competition-style reasoning, considering 1B+ parameters only when justified by results and resource estimates; Stage D adds formal proof checking with Lean. Each topic requires its own verifier, validated data generator, leakage-resistant benchmark and regression tests. Parameter count alone is not evidence of capability.
+
+This plan does not authorize data generation, training, optimizer steps or remote jobs. Training remains disabled until separate explicit authorization, and frontend/device acceptance remains a prerequisite.
