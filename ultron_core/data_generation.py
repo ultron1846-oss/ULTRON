@@ -136,10 +136,10 @@ def _parse_matrix_inverse_answer(text: str) -> tuple[Fraction, Fraction, Fractio
     if not isinstance(text, str):
         raise ValueError("matrix answer must be text")
     pattern = (
-        r"^\\s*\\[\\[\\s*([+-]?\\d+(?:/\\d+)?)\\s*,\\s*"
-        r"([+-]?\\d+(?:/\\d+)?)\\s*\\]\\s*,\\s*"
-        r"\\[\\s*([+-]?\\d+(?:/\\d+)?)\\s*,\\s*"
-        r"([+-]?\\d+(?:/\\d+)?)\\s*\\]\\]\\s*$"
+        r"^\s*\[\[\s*([+-]?\d+(?:/\d+)?)\s*,\s*"
+        r"([+-]?\d+(?:/\d+)?)\s*\]\s*,\s*"
+        r"\[\s*([+-]?\d+(?:/\d+)?)\s*,\s*"
+        r"([+-]?\d+(?:/\d+)?)\s*\]\]\s*$"
     )
     match = re.fullmatch(pattern, text)
     if not match:
@@ -195,7 +195,7 @@ def validate_example_text(input_text: str, expected_answer: str, topic: str) -> 
             return False
     if topic == "matrix_inverse_2x2":
         match = re.fullmatch(
-            r"^\\s*inverse\\s*:\\s*\\[\\[\\s*([+-]?\\d+)\\s*,\\s*([+-]?\\d+)\\s*\\]\\s*,\\s*\\[\\s*([+-]?\\d+)\\s*,\\s*([+-]?\\d+)\\s*\\]\\s*\\]\\s*$",
+            r"^\s*inverse\s*:\s*\[\[\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\]\s*,\s*\[\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\]\s*\]\s*$",
             input_text, flags=re.IGNORECASE,
         )
         if not match:
