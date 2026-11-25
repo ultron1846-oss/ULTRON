@@ -233,6 +233,21 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(list(resumed), full[4:])
 
 
+
+    def test_initial_cursor_rejects_wrong_dataset_identity(self):
+        with self.assertRaisesRegex(ValueError, "dataset_size does not match"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                initial_data_state={"epoch": 0, "next_batch_index": 0,
+                                    "next_sample_index": 0, "dataset_size": 99})
+        with self.assertRaisesRegex(ValueError, "dataset manifest hash"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                initial_data_state={"epoch": 0, "next_batch_index": 0,
+                                    "next_sample_index": 0, "dataset_manifest_sha256": "b" * 64})
+        self.assertEqual(self.optimizer.steps, 0)
+
+
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True, "dataset_hash_verified": True,
                     "data_state": {"epoch": 1, "batch": 3},
