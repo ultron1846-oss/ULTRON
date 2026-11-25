@@ -28,6 +28,14 @@ BANDS = {
     "Taylor_series": "University",
     "conditional_probability": "University",
     "counting_principles": "University",
+    "predicate_logic": "University",
+    "relations_and_equivalence": "University",
+    "subspaces_and_span": "University",
+    "linear_independence": "University",
+    "basis_and_dimension": "University",
+    "matrix_rank": "University",
+    "limits_and_continuity": "University",
+    "derivative_theory": "University",
 }
 TOPICS = tuple(BANDS)
 WORD_TOPICS = {"conditional_probability", "counting_principles"}
@@ -220,6 +228,83 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=str(total)
         steps=["Use the multiplication principle for independent choices.",f"{shirts}×{pants}×{shoes}={total} outfits."]
         exact=lambda:total==shirts*pants*shoes and total>0
+
+    elif topic == "predicate_logic":
+        size=n(2,8*d)
+        threshold=n(1,size)
+        quantifier=rng.choice(("forall","exists"))
+        satisfying=[x for x in range(1,size+1) if x<=threshold]
+        value=(len(satisfying)==size) if quantifier=="forall" else bool(satisfying)
+        data.update(domain=list(range(1,size+1)),threshold=threshold,quantifier=quantifier,satisfying=satisfying,value=value)
+        symbol="∀" if quantifier=="forall" else "∃"
+        problem=f"Over the domain {{1,...,{size}}}, evaluate {symbol}x: x≤{threshold}."
+        answer=str(value).lower()
+        steps=[f"The values satisfying x≤{threshold} are {satisfying}.",f"The {quantifier} statement is {str(value).lower()}."]
+        exact=lambda:value==((threshold==size) if quantifier=="forall" else threshold>=1)
+    elif topic == "relations_and_equivalence":
+        size=n(4,20*d)
+        modulus=n(2,min(8,size))
+        element=n(0,size-1)
+        cls=[x for x in range(size) if x%modulus==element%modulus]
+        data.update(domain=list(range(size)),modulus=modulus,element=element,equivalence_class=cls)
+        problem=f"On {{0,...,{size-1}}}, define a~b iff a≡b (mod {modulus}). Find the equivalence class of {element}."
+        answer=str(cls)
+        steps=[f"Members of the class have remainder {element%modulus} modulo {modulus}.",f"The class is {cls}."]
+        exact=lambda:cls==[x for x in range(size) if x%modulus==element%modulus]
+    elif topic == "subspaces_and_span":
+        x,y=n(-20*d,20*d),n(-20*d,20*d)
+        data.update(vectors=[[1,0],[0,1]],target=[x,y],coefficients=[x,y])
+        problem=f"Express ({x},{y}) as a linear combination of e1=(1,0) and e2=(0,1)."
+        answer=f"{x}e1+({y})e2"
+        steps=[f"Use the standard basis: ({x},{y})={x}(1,0)+({y})(0,1)."]
+        exact=lambda:[x,y]==data["target"] and [x,y]==data["coefficients"]
+    elif topic == "linear_independence":
+        a,b,c,e=[n(-8*d,8*d) for _ in range(4)]
+        determinant=a*e-b*c
+        independent=determinant!=0
+        data.update(vectors=[[a,b],[c,e]],determinant=determinant,independent=independent)
+        problem=f"Determine whether vectors ({a},{b}) and ({c},{e}) in R² are linearly independent."
+        answer="independent" if independent else "dependent"
+        steps=[f"Form the determinant {a}×{e}−{b}×{c}={determinant}.",f"Nonzero determinant means {answer}."]
+        exact=lambda:independent==(determinant!=0) and determinant==a*e-b*c
+    elif topic == "basis_and_dimension":
+        while True:
+            a,b,c,e=[n(-8*d,8*d) for _ in range(4)]
+            determinant=a*e-b*c
+            if determinant!=0:
+                break
+        data.update(vectors=[[a,b],[c,e]],determinant=determinant,is_basis=True,dimension=2)
+        problem=f"Do vectors ({a},{b}) and ({c},{e}) form a basis of R²? State the dimension."
+        answer="yes; dimension=2"
+        steps=[f"The determinant is {determinant}≠0, so the vectors are independent.", "Two independent vectors in R² form a basis; dim(R²)=2."]
+        exact=lambda:determinant==a*e-b*c and determinant!=0 and data["dimension"]==2
+    elif topic == "matrix_rank":
+        a,b,c,e=[n(-6*d,6*d) for _ in range(4)]
+        determinant=a*e-b*c
+        rank=2 if determinant else (1 if any((a,b,c,e)) else 0)
+        data.update(matrix=[[a,b],[c,e]],determinant=determinant,rank=rank)
+        problem=f"Find the rank of matrix [[{a},{b}],[{c},{e}]]."
+        answer=str(rank)
+        steps=[f"The determinant is {determinant}.",f"Rank is {rank} by the 2×2 rank criterion."]
+        exact=lambda:rank==(2 if determinant else (1 if any((a,b,c,e)) else 0))
+    elif topic == "limits_and_continuity":
+        center=n(-10*d,10*d)
+        slope=n(-8*d,8*d)
+        limit_value=n(-20*d,20*d)
+        data.update(center=center,slope=slope,constant=limit_value,limit=limit_value)
+        problem=f"Evaluate lim(x→{center}) [{slope}(x−{center})+({limit_value})]."
+        answer=str(limit_value)
+        steps=[f"As x approaches {center}, the term {slope}(x−{center}) approaches 0.",f"The limit is {limit_value}."]
+        exact=lambda:limit_value==data["constant"]
+    elif topic == "derivative_theory":
+        a,b,c,x=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-10*d,10*d)
+        derivative=2*a*x+b
+        data.update(coefficients=[a,b,c],point=x,derivative_at_point=derivative)
+        problem=f"For f(x)={a}x²+({b})x+({c}), find f'({x})."
+        answer=str(derivative)
+        steps=[f"Differentiate: f'(x)=2({a})x+({b}).",f"Substitute x={x}: f'({x})={derivative}."]
+        exact=lambda:derivative==2*a*x+b
+
     else:
         raise ValueError("unknown topic: "+str(topic))
     fields={"grade_band":BANDS[topic],"topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
