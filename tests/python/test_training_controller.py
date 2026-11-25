@@ -64,6 +64,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "memory_budget_bytes": 2 * 1024 ** 3,
             "budget_covers_persistent_state": True,
             "dataset_manifest_sha256": "a" * 64,
+            "split_counts": {"train": 4, "validation": 1, "test": 1},
         }
         self.settings = TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                         max_seconds=60, write_memory=False)
@@ -249,7 +250,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             dataset_manifest_sha256="a" * 64)
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         saved = []
-        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+        report = dict(self.report)
+        report["split_counts"] = {"train": 8, "validation": 1, "test": 1}
+        result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                      max_seconds=60, write_memory=False),
             training_authorized=True, sampler=sampler,
@@ -282,9 +285,12 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         }
         metadata = {
             "format_version": 4, "rng_restored": True, "step": 6,
+            "seed": 0, "gradient_accumulation_steps": 2,
             "data_state": data_state, "dataset_manifest_sha256": "a" * 64,
         }
-        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+        report = dict(self.report)
+        report["split_counts"] = {"train": 8, "validation": 1, "test": 1}
+        result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                      max_seconds=60, write_memory=False),
             training_authorized=True, resume_metadata=metadata, sampler=sampler)
@@ -306,7 +312,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler = ResumableRandomSampler(dataset, seed=0,
             dataset_manifest_sha256="a" * 64)
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
-        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+        report = dict(self.report)
+        report["split_counts"] = {"train": 3, "validation": 1, "test": 1}
+        result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                      max_seconds=60, write_memory=False),
             training_authorized=True, sampler=sampler)
@@ -329,8 +337,10 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler = ResumableRandomSampler(dataset, seed=0,
             dataset_manifest_sha256="a" * 64)
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        report = dict(self.report)
+        report["split_counts"] = {"train": 8, "validation": 1, "test": 1}
         with self.assertRaisesRegex(ValueError, "non-zero initial cursor"):
-            run_training_steps(self.model, loader, self.optimizer, self.report,
+            run_training_steps(self.model, loader, self.optimizer, report,
                 settings=self.settings, training_authorized=True, sampler=sampler,
                 initial_data_state={"epoch": 0, "next_batch_index": 5})
         self.assertEqual(self.optimizer.steps, 0)
