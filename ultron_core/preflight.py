@@ -10,7 +10,7 @@ from .data_generation import MathExample, validate_example_text
 from .math_tokenizer import MathVocabulary
 
 _REQUIRED_SPLITS = ("train", "validation", "test")
-_MINIMUM_PARAMETERS = 40_000_000
+_MINIMUM_PARAMETERS = 60_000_001
 
 def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256,
                             gradient_accumulation_steps=1, memory_budget_gib=None, dataset_manifest_sha256=None):
@@ -37,7 +37,7 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
     if parameter_count < _MINIMUM_PARAMETERS:
-        raise ValueError(f"model has {parameter_count} trainable parameters; minimum is {_MINIMUM_PARAMETERS}")
+        raise ValueError(f"model has {parameter_count} trainable parameters; minimum is {_MINIMUM_PARAMETERS} (>60M target)")
     if not isinstance(splits, Mapping) or set(splits) != set(_REQUIRED_SPLITS):
         raise ValueError("splits must contain exactly train, validation, and test")
     seen_prompts, seen_ids = set(), set()
@@ -73,6 +73,7 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
         "optimizer_steps": 0, "remote_execution_enabled": False,
         "parameter_count": parameter_count, "trainable_parameter_count": parameter_count,
         "total_parameter_count": total_parameter_count, "minimum_parameter_count": _MINIMUM_PARAMETERS,
+        "minimum_trainable_parameter_count": _MINIMUM_PARAMETERS,
         "vocabulary_size": len(vocab), "split_counts": split_counts, "prompt_disjoint": True,
         "batch_size": batch_size, "sequence_length": sequence_length,
         "gradient_accumulation_steps": gradient_accumulation_steps,
