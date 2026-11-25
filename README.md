@@ -49,6 +49,8 @@ Official provider terms have been reviewed and documented. Colab remains the pla
 
 Phase 6 also now provides explicit Python/Torch/CUDA seeding and a dedicated seeded DataLoader generator. Reproducibility is tested independently; deterministic algorithms may still depend on supported hardware/operators and must be recorded.
 
+Phase 8 now binds a resumable data cursor to a validated dataset-manifest SHA-256 in checkpoint format v4. A cursor cannot be saved without the manifest hash; older checkpoint formats remain loadable.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
