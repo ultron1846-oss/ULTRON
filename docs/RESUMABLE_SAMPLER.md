@@ -22,4 +22,4 @@ sampler.load_state_dict(state)
 
 **Exact-resume constraint:** use `num_workers=0` with this sampler unless the training loop separately records the number of samples actually consumed. Worker prefetch can advance a sampler beyond the last completed training batch.
 
-This is sampler infrastructure, not complete training resume. The notebook must persist sampler state with each checkpoint, restore it before iteration, and verify clean-runtime equivalence before training readiness can be approved. No model training is performed by the sampler.
+The bounded trainer can now accept this sampler through its `sampler=` argument. It restores `data_state['sampler_state']` before the DataLoader iterator is created and includes the current sampler state in checkpoint callback metadata. The notebook callback must persist the provided `data_state` with `save_checkpoint`. This is not yet clean-runtime equivalence: the owner must test checkpoint save/reload/resume using `num_workers=0` before training readiness can be approved. No model training is performed by the sampler.
