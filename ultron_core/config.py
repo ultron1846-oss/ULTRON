@@ -63,6 +63,6 @@ def count_parameters(config: NeuroSparseConfig) -> int:
     if not isinstance(config, NeuroSparseConfig):
         raise TypeError("config must be a NeuroSparseConfig")
     h, e, m = config.hidden_size, config.num_experts, config.expert_multiplier
-    block = (15 + 2 * m * e) * h * h + (17 + e * (m + 1)) * h + e + 1
+    block = (15 + 2 * m * e) * h * h + (17 + e * (m + 2)) * h + 1
     # The output head is tied to the token embedding and counted only once.
     return config.vocab_size * h + config.max_sequence_length * h + 2 * h + config.num_layers * block
