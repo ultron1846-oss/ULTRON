@@ -3,7 +3,7 @@ import unittest
 
 from ultron_core.math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
 from ultron_core.polynomial import PolynomialLimits
-from ultron_core.rational import RationalDomainError
+from ultron_core.rational import RationalDomainError, RationalFunction
 from ultron_core.rational_verifier import (
     validate_rational_identity_certificate,
     verify_rational_identity,
@@ -49,8 +49,9 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
         self.assertEqual(result.difference_terms, ())
         self.assertEqual(len(result.domain_constraints), 1)
+        self.assertEqual(result.domain_constraints[0].evaluate({"x": 0}), 0)
         with self.assertRaises(RationalDomainError):
-            result.domain_constraints[0].evaluate({"x": 0})
+            RationalFunction.from_expr(divide(x, x)).evaluate({"x": 0})
         self.assertIn("where both expressions are defined", result.note)
         self.assertTrue(validate_rational_identity_certificate(candidate, result.certificate_json))
 
@@ -75,8 +76,9 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         result = verify_rational_identity(equal(expression, expression))
         self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
         self.assertEqual(len(result.domain_constraints), 1)
+        self.assertEqual(result.domain_constraints[0].evaluate({"x": 1}), 0)
         with self.assertRaises(RationalDomainError):
-            result.domain_constraints[0].evaluate({"x": 1})
+            RationalFunction.from_expr(expression).evaluate({"x": 1})
 
     def test_candidate_domains_assumptions_and_functions_are_unresolved(self):
         x = symbol("x")
