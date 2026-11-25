@@ -1,4 +1,5 @@
 import math
+import random
 import time
 from dataclasses import dataclass
 
@@ -175,3 +176,30 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     return {"steps_completed": steps, "microbatches_seen": len(losses),
             "discarded_incomplete_microbatches": accumulated, "mean_loss": sum(losses) / len(losses) if losses else None,
             "stop_reason": stop_reason, "training_authorized": True}
+
+
+
+def seed_training_rng(seed: int, *, deterministic: bool = False) -> dict:
+    """Seed Python, Torch CPU/CUDA and deterministic backend settings."""
+    if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**63:
+        raise ValueError("seed must be an integer in [0, 2**63)")
+    if not isinstance(deterministic, bool):
+        raise TypeError("deterministic must be boolean")
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(deterministic)
+    if hasattr(torch.backends, "cudnn"):
+        torch.backends.cudnn.deterministic = deterministic
+        torch.backends.cudnn.benchmark = not deterministic
+    return {"seed": seed, "deterministic_algorithms": deterministic}
+
+
+def make_seeded_generator(seed: int) -> torch.Generator:
+    """Return a dedicated CPU generator for deterministic DataLoader shuffling."""
+    if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**63:
+        raise ValueError("seed must be an integer in [0, 2**63)")
+    generator = torch.Generator(device="cpu")
+    generator.manual_seed(seed)
+    return generator
