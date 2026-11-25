@@ -265,7 +265,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
         class TinyDataset(Dataset):
             def __len__(self):
-                return 4
+                return 3
             def __getitem__(self, index):
                 return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
 
