@@ -9,7 +9,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 The latest code review found and fixed shared fast-memory contamination risk: training-time writes reject batch sizes greater than one, and the model now exposes `reset_memory()`. The future trainer must call it between independent examples. This safeguard is merged; no training was run.
 
-Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: expand Phase 7 with independently verified university-math tasks and proof metrics; Phase 8 still needs dataset-hash cursor and resume-equivalence tests; then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
+Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: Phase 8 still needs caller-side sampler restoration and uninterrupted-versus-resumed equivalence (only after separate tiny-run authorization); expand the math curriculum beyond the five exact synthetic topics; then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
 
 ## Pre-training readiness — Phase 1 specification
 
@@ -37,7 +37,7 @@ The code review identified that fast/episodic memory is mutable and shared by th
 
 ## Phase 8 — checkpoint recovery hardening
 
-Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata, retains the last verified checkpoint as a backup, falls back to that backup if the current file fails integrity verification, and rolls back live model/optimizer/scheduler state if restoration fails. Tests cover RNG replay and backup recovery. This is infrastructure validation only; no optimizer step or training run occurred.
+Checkpoint format v4 records Python/Torch RNG state and optional data cursor bound to a dataset manifest SHA-256, retains the last verified backup, and rolls back model/optimizer/scheduler/RNG state on restore failure. The loader rejects a mismatched expected dataset hash before mutation. The trainer carries global step and next-batch cursor through checkpoint callback metadata; the caller must restore the sampler/iterator from that cursor. This is infrastructure validation only; no real-weight optimizer step or training run occurred.
 
 ## Phase 7 — exact-answer evaluation
 
