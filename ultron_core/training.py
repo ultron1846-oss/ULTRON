@@ -238,9 +238,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             sampler.load_state_dict(sampler_state)
         live_sampler_state = sampler.state_dict()
         if (live_sampler_state.get("dataset_manifest_sha256") != dataset_hash
+                or live_sampler_state.get("dataset_size") != dataset_size
                 or live_sampler_state.get("seed") != settings.seed
-                or live_sampler_state.get("epoch") != epoch):
-            raise ValueError("sampler state does not match training dataset, seed, or epoch")
+                or live_sampler_state.get("epoch") != epoch
+                or live_sampler_state.get("next_index") != next_sample_index):
+            raise ValueError("sampler state does not match training dataset, seed, epoch, or sample cursor")
         committed_sampler_state = copy.deepcopy(live_sampler_state)
 
     budget = preflight_report.get("memory_budget_bytes")
