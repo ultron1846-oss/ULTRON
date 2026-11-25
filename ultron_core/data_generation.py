@@ -344,6 +344,11 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
             }
             split_id_counts.update(item.example_id for item in rows)
         unknown_split_ids = set(split_id_counts) - set(ids)
+        corpus_by_id = {item.example_id: item for item in items}
+        mismatched_split_rows = sum(
+            item != corpus_by_id.get(item.example_id)
+            for rows in splits.values() for item in rows
+        )
         repeated_split_ids = sum(count - 1 for count in split_id_counts.values() if count > 1)
         names = ("train", "validation", "test")
         leakage = []
@@ -357,7 +362,10 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
         result["splits_prompt_disjoint"] = not leakage
         result["unknown_split_example_id_count"] = len(unknown_split_ids)
         result["repeated_split_example_id_count"] = repeated_split_ids
-        result["split_membership_valid"] = not unknown_split_ids and repeated_split_ids == 0
+        result["mismatched_split_row_count"] = mismatched_split_rows
+        result["split_membership_valid"] = (
+            not unknown_split_ids and repeated_split_ids == 0 and mismatched_split_rows == 0
+        )
     return result
 
 
