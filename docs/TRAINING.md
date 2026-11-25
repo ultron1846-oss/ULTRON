@@ -32,3 +32,10 @@ Complete [PRETRAINING_READINESS.md](PRETRAINING_READINESS.md), including model/v
 `causal_language_model_loss(..., loss_chunk_size=1024)` computes FP32 cross-entropy in token chunks per batch row. The chunk size bounds the temporary FP32 logits tensor; the loss is normalized by the total count of non-padding next-token targets, so padding and uneven final chunks do not change the mean. Use a smaller chunk to reduce peak loss memory (at the cost of more kernel launches) or a larger chunk for fewer launches when memory permits. Regression tests compare scalar loss and gradients with the original full-tensor reference.
 
 `make_optimizer(..., fused=None)` automatically requests fused AdamW only when all trainable parameters are on one CUDA device. Automatic mode falls back to ordinary AdamW if the installed build rejects fused mode. `fused=False` forces the portable implementation; `fused=True` requires one CUDA device. Benchmark on target hardware before claiming a throughput improvement. The default learning rate and weight decay are unchanged.
+
+
+## Training-loop host synchronization
+
+The controller retains detached scalar losses on-device instead of converting each microbatch loss to a Python float. At the optimizer boundary it checks accumulated loss scalars and the clipped global gradient norm with one small device-to-host transfer. A non-finite gradient makes the global norm non-finite, so separate per-parameter host checks are unnecessary. Checkpoint loss values are transferred only when requested, and the overall mean is materialized at finalization.
+
+Non-finite loss or gradients still prevent the optimizer step. The regression test counts explicit host transfers and expects one per optimizer step rather than one per microbatch. Benchmark on target hardware before quantifying performance impact.

@@ -865,3 +865,10 @@ The Math Agent now includes a bounded English word-problem parser (`word-problem
 ## Training and AI optimization — Phase 1
 
 The training loss now computes next-token cross-entropy in bounded per-row token chunks, avoiding a full flattened FP32 logits copy for mixed-precision outputs while preserving the global valid-token mean. The AdamW factory automatically selects fused AdamW on a single CUDA device when supported and falls back to the portable implementation in automatic mode; `fused=False` forces the reference path. CPU parity tests compare loss and gradients against full-batch cross-entropy. These are memory/optimizer implementation improvements, not evidence of improved model intelligence or measured training speed. No training was launched.
+
+
+## Training-loop synchronization optimization — 2026-11-25
+
+The bounded training controller now keeps detached loss scalars on-device while processing microbatches. It validates accumulated losses and the global gradient norm together at the optimizer boundary, reducing metric-related device-to-host synchronization from once per microbatch to once per optimizer step. Checkpoint loss metrics are transferred only when a checkpoint callback needs them; the session mean is transferred once at finalization.
+
+This preserves loss values and fail-closed behavior for non-finite loss/gradients. It does not remove the synchronization required to decide whether an optimizer step is safe. Regression coverage checks that four microbatches with accumulation=2 cause two explicit CPU transfers for controller validation, and confirms the returned mean loss remains finite. This is a code-path optimization; no device benchmark has been run and no speedup is claimed.

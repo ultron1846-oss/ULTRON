@@ -423,8 +423,6 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     loss = causal_language_model_loss(
                         output["logits"], ids, load_balance=output.get("load_balance_loss"),
                         prediction_error=output.get("prediction_error"))
-                if not bool(torch.isfinite(loss)):
-                    raise FloatingPointError("training loss is non-finite")
                 if time_expired():
                     stop_reason = "time_limit"
                     break
@@ -433,18 +431,37 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     torch.cuda.synchronize(ids.device)
                 accumulated += 1
                 microbatches_seen += 1
-                losses.append(float(loss.detach().cpu()))
+                # Keep scalar metrics on-device. Copying every microbatch loss to
+                # Python forces a CUDA synchronization; defer it to the optimizer
+                # boundary (and final summary) instead.
+                losses.append(loss.detach())
             finally:
                 reset_memory()
 
             if accumulated == settings.gradient_accumulation_steps:
                 parameters = [p for p in model.parameters() if p.grad is not None]
+                norm = None
                 if parameters:
-                    norm = torch.nn.utils.clip_grad_norm_(parameters, settings.gradient_clip_norm)
-                    if not bool(torch.isfinite(norm)):
+                    norm = torch.nn.utils.clip_grad_norm_(
+                        parameters, settings.gradient_clip_norm
+                    )
+
+                # Validate losses and the global gradient norm together. A
+                # single small device-to-host transfer replaces separate
+                # per-loss and per-parameter synchronization points.
+                loss_finite = torch.stack([
+                    torch.isfinite(value) for value in losses[-settings.gradient_accumulation_steps:]
+                ]).all()
+                if norm is None:
+                    checks = [bool(loss_finite.detach().cpu().item())]
+                    if not checks[0]:
+                        raise FloatingPointError("training loss is non-finite")
+                else:
+                    checks = torch.stack((loss_finite, torch.isfinite(norm))).detach().cpu().tolist()
+                    if not checks[0]:
+                        raise FloatingPointError("training loss is non-finite")
+                    if not checks[1]:
                         raise FloatingPointError("gradient norm is non-finite")
-                    if any(not bool(torch.isfinite(p.grad).all()) for p in parameters):
-                        raise FloatingPointError("gradient contains non-finite values")
                 if cancellation_check is not None and cancellation_check():
                     stop_reason = "cancelled"
                     break
@@ -473,7 +490,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 if sampler is not None:
                     committed_sampler_state = copy.deepcopy(sampler.state_dict())
                 if checkpoint_callback is not None:
-                    mean_loss = sum(losses[-settings.gradient_accumulation_steps:]) / settings.gradient_accumulation_steps
+                    mean_loss = torch.stack(
+                        losses[-settings.gradient_accumulation_steps:]
+                    ).mean().item()
                     checkpoint_data_state = dict(cursor)
                     checkpoint_training_settings = {
                         "precision": settings.precision,
@@ -545,7 +564,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "global_step": global_step,
         "microbatches_seen": microbatches_seen,
         "discarded_microbatches": accumulated,
-        "mean_loss": sum(losses) / len(losses) if losses else None,
+        "mean_loss": torch.stack(losses).mean().item() if losses else None,
         "stop_reason": stop_reason,
         "data_state": final_data_state,
         "dataset_manifest_sha256": dataset_hash,

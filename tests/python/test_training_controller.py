@@ -122,6 +122,23 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
+    def test_training_metrics_sync_once_per_optimizer_step(self):
+        original_cpu = torch.Tensor.cpu
+        cpu_calls = []
+        def counted_cpu(tensor, *args, **kwargs):
+            cpu_calls.append(tensor)
+            return original_cpu(tensor, *args, **kwargs)
+        with patch.object(torch.Tensor, "cpu", new=counted_cpu):
+            result = run_training_steps(
+                self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+            )
+        # Four microbatches are grouped into two optimizer steps. Scalar loss
+        # validation should transfer once per step, not once per microbatch.
+        self.assertEqual(len(cpu_calls), 2)
+        self.assertIsInstance(result["mean_loss"], float)
+        self.assertTrue(torch.isfinite(torch.tensor(result["mean_loss"])))
+
     def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=1,
                                    max_seconds=60, write_memory=True)
