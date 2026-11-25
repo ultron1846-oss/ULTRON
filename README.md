@@ -739,3 +739,25 @@ See [rational identity verification](docs/RATIONAL_IDENTITY_VERIFICATION.md). No
 2. Complete manual iPad Safari frontend acceptance before training work, and record actual device/browser results.
 3. Keep actual training and remote execution disabled until the frontend release gate is complete and separate explicit authorization is given.
 4. Update this README at each meaningful milestone.
+
+
+
+## First callable agent tool: exact math solver — 2026-11-25
+
+Added a local allow-listed function tool named `math_solver` in `ultron_core/agent_tools.py`, backed by `ultron_core/math_solver_tool.py`.
+
+- **Evaluate:** exact integer/rational scalar arithmetic with exact variable bindings.
+- **Simplify:** conservative exact simplification using ULTRON's typed expression IR.
+- **Solve:** bounded linear equations in one variable, returning exact rational answers and a short algebraic trace.
+- **Agent interface:** `get_tool_specs()` returns the function-call schema; `execute_tool(name, arguments)` dispatches only registered local tools. Unknown tool names and extra arguments are rejected.
+- **Safety:** uses the existing parser and exact evaluator; no `eval`, `exec`, shell, network, or arbitrary code execution. Input size, token count, nesting, variable count, and exponent magnitude are bounded.
+- **Limitations:** nonlinear equations, calculus, and exact evaluation of transcendental functions are not supported by this tool. Unsupported inputs fail explicitly. This is a deterministic symbolic/exact tool, not proof that the untrained neural model can solve these tasks unaided.
+
+Regression tests: `python -m unittest tests.python.test_math_solver_tool -v`.
+
+### Next handoff
+
+1. Run the new solver tests plus the full Python/Node CI and CPU model smoke checks.
+2. Review the tool schema and ensure the future inference orchestrator can call `execute_tool` from model-generated structured tool calls without permitting arbitrary names or code.
+3. Add domain-aware equation solving and more mathematical operation families only with exact validation and explicit limits.
+4. Keep training and remote execution disabled; finish frontend/iPad acceptance before training, and update this README at every milestone.
