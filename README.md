@@ -10,7 +10,11 @@ The latest frontend PR removes owner login and account-specific access UI. The p
 
 The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
-The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
+## Frontend release gate
+
+The account-free interface, required root assets and deployment-path cleanup are covered by automated regression tests. Before calling the frontend fully complete, perform the real iPad Safari acceptance pass: open every page, exercise mobile navigation and contrast, run supported/unsupported Math Agent inputs, verify IndexedDB history and backup/restore, and check the workload slider. Do not start training or connect a cloud runtime during this pass.
+
+The frontend uses the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
 ### Current pages
 - **Supabase backend:** refreshable, bounded-time read-only status check with visible last-checked time, plus an audit of deployed Edge Function contracts and backend security findings. It never calls owner-only services from the public site.
@@ -19,7 +23,6 @@ The frontend is being redesigned around the supplied ULTRON control-room referen
 - **Math Agent:** browser interface to the deterministic arithmetic parser and limited linear-equation solver; unsupported requests are rejected rather than guessed.
 - **Memory vault:** IndexedDB stores existing experiences and mistakes locally, with JSON export/import for manual device-to-device transfer. This is not cloud sync.
 - **Servers & Colab:** reads `servers.json`, handles missing/malformed directory data and never starts remote jobs.
-- **Supabase backend:** checks only the public read-only status endpoint; private owner records remain protected.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
 
 The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training. The Math Agent currently supports only its documented deterministic arithmetic and limited linear-equation operations.
@@ -54,7 +57,11 @@ node --test
 Automated tests do not replace live browser testing. iPad Safari testing must only be reported after it has actually been performed.
 
 ## GitHub Pages
-Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The Pages workflow must stage every runtime asset required by the frontend, including `math-engine.js`, `supabase-integration.js`, `memory-store.js` and `servers.json`. A successful Actions deployment is not by itself proof of every page interaction.
+
+Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The repository uses GitHub's built-in Pages branch deployment, which successfully published the account-free frontend. The redundant custom `.github/workflows/pages.yml` workflow was removed because it repeatedly uploaded an artifact that the subsequent deploy step could not find, while the built-in `pages build and deployment` workflow succeeded for the same main commit.
+
+Keep the required runtime assets in the repository root: `index.html`, `styles.css`, `app.js`, `math-engine.js`, `supabase-integration.js`, `memory-store.js` and `servers.json`. Regression tests verify they exist and are non-empty. Do not reintroduce a second deployment workflow unless its artifact handoff is independently validated.
+
 
 ## Supabase integration audit
 
@@ -78,11 +85,11 @@ The live project was re-inspected while aligning the backend page with the rebui
 
 The deployed `training-control` function is version 8 with platform JWT verification disabled so the no-login public status request can reach its handler. The handler returns only generic status for `public_status`; its other actions continue to validate a signed-in owner session and configured owner ID. The deployed `device-control` function is still listed as active/version 4, but its handler is fail-closed and returns HTTP 410 for every request. It is retired, not physically removed.
 
-All nine inspected public tables had RLS enabled. The security advisor reported three RLS-enabled retired device/pairing tables with no policies, and warned that leaked-password protection is disabled. Those findings are documented for backend hardening; this frontend PR does not alter database schema, policies, Auth settings, Edge Functions, secrets, or records. The public website does not access any of those tables.
+All nine inspected public tables had RLS enabled. The security advisor reported three RLS-enabled retired device/pairing tables with no policies, and warned that leaked-password protection is disabled. Those findings are documented for backend hardening; this frontend PR does not alter database schema, policies, Auth settings, Edge Functions, secrets, or records. The website does not access any of those tables.
 
 ## Backend handoff / remaining work
 
-The backend owner (Codex) should:
+Next implementation work should:
 1. Maintain and test the deterministic math engine API without breaking the frontend imports.
 2. Maintain the documented `servers.json` provider schema and verify Colab terms and quotas before any future runtime integration.
 3. Keep all training entry points hard-disabled and add backend regression tests preventing accidental execution.
@@ -157,14 +164,14 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 
 The latest frontend commit `932fcf005d414fdd1338d4d58265afd9b8ed64c4` was checked against both Pages workflows. The repository's custom `Deploy static site to GitHub Pages` workflow successfully staged and uploaded the `github-pages` artifact, but its deploy step failed because GitHub could not resolve the artifact for that concurrent deployment. The built-in `pages build and deployment` workflow then completed its build, artifact upload and deploy jobs successfully for the same commit. Therefore the latest commit has a successful Pages deployment through the built-in workflow; do not interpret the custom workflow's failed run as proof that the site is offline.
 
-The repository currently has two deployment paths targeting the same Pages environment. This is a workflow-coordination issue to monitor; avoid changing the Pages source or deleting either workflow without validating the repository's Pages configuration and confirming the replacement deploy path. The custom workflow's artifact contains the explicitly staged runtime files, while the built-in Jekyll workflow independently built and deployed the repository content.
+The redundant custom deployment workflow has been removed in the frontend release PR. The built-in GitHub Pages deployment remains the single deployment path and has completed successfully for the merged account-free frontend.
 
 ## Next-chat handoff — post-removal release
 
 - Latest merged change: PR #9, removing the fixed exercise interface and retaining the Mathematics Topics roadmap and existing local Memory Vault records.
-- The latest commit's built-in GitHub Pages deployment completed successfully. Custom deployment run failed at its deploy step after artifact upload; see the deployment verification section above.
+- The latest main commit's GitHub Pages retry completed successfully. A first custom workflow attempt had a transient artifact lookup failure; the retry succeeded
 - README content has been aligned to the current page structure and the removal of the fixed exercise interface.
-- Perform the real iPad Safari page-by-page interaction test before declaring frontend completion.
+- Perform the real iPad Safari page-by-page interaction test before declaring frontend completion. Automated checks do not simulate Safari's UI or IndexedDB behavior.
 - Do not connect Google Colab, start a server, submit remote jobs or train the model. The user explicitly deferred server connection until the AI is ready.
 - Preserve Supabase RLS, server-side authorization, credentials and private records. Do not change Auth settings or secrets during frontend QA.
 - Update this README at every meaningful milestone and leave a precise next-chat handoff.

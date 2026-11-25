@@ -2,16 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-test('Pages deployment is restricted to main and has bounded permissions', async () => {
-  const workflow = await readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
-  assert.match(workflow, /branches: \[main\]/);
-  assert.match(workflow, /if: github\.ref == 'refs\/heads\/main'/);
-  assert.match(workflow, /pages: write/);
-  assert.match(workflow, /id-token: write/);
-  assert.match(workflow, /path: _site/);
-  assert.doesNotMatch(workflow, /pull_request:/);
+test('redundant custom Pages deployment workflow is removed and root assets remain', async () => {
+  await assert.rejects(readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8'), { code: 'ENOENT' });
+  for (const path of ['index.html', 'styles.css', 'app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json']) {
+    const content = await readFile(new URL('../' + path, import.meta.url), 'utf8');
+    assert.ok(content.trim().length > 0, `missing or empty Pages asset: ${path}`);
+  }
 });
-
 test('test workflow runs the built-in suite on PRs and main pushes', async () => {
   const workflow = await readFile(new URL('../.github/workflows/test.yml', import.meta.url), 'utf8');
   assert.match(workflow, /pull_request:/);
