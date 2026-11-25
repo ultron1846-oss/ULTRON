@@ -3,7 +3,7 @@ import unittest
 import torch
 
 from ultron_core.precision import training_autocast, validate_training_precision
-from ultron_core.training import causal_language_model_loss
+from ultron_core.training import TrainingSettings, causal_language_model_loss
 
 
 class TrainingPrecisionTests(unittest.TestCase):
@@ -21,6 +21,12 @@ class TrainingPrecisionTests(unittest.TestCase):
         result.float().sum().backward()
         self.assertIsNotNone(value.grad)
         self.assertTrue(torch.isfinite(value.grad).all())
+
+    def test_training_settings_precision_defaults_to_fp32_and_accepts_bf16(self):
+        self.assertEqual(TrainingSettings().precision, "fp32")
+        self.assertEqual(TrainingSettings(precision="bf16").precision, "bf16")
+        with self.assertRaisesRegex(ValueError, "precision must"):
+            TrainingSettings(precision="fp16")
 
     def test_precision_rejects_unknown_values(self):
         for value in ("fp16", "auto", "BF16", "", None, True):
