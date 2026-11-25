@@ -25,6 +25,10 @@ The foundation config now binds to the canonical 240-token math vocabulary inste
 
 Added `ultron_core/preflight.py` to validate the 40M floor, canonical tokenizer size, non-empty prompt-disjoint splits, sequence/batch settings, and FP32 persistent-state estimate. The report explicitly says `PREFLIGHT_ONLY`, training unauthorized, zero optimizer steps, and remote execution disabled. It does not instantiate a model or optimizer.
 
+## Model review — fast-memory isolation
+
+The code review identified that fast/episodic memory is mutable and shared by the model. Training-time memory writes now reject batches containing multiple independent examples, and `NeuroSparseModel.reset_memory()` clears every block's memory between examples. This prevents accidental cross-example contamination when the future trainer uses memory writes. The trainer is not implemented yet and must call the reset boundary explicitly; no training was run.
+
 ## Phase 8 — checkpoint recovery hardening
 
 Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata, retains the last verified checkpoint as a backup, falls back to that backup if the current file fails integrity verification, and rolls back live model/optimizer/scheduler state if restoration fails. Tests cover RNG replay and backup recovery. This is infrastructure validation only; no optimizer step or training run occurred.

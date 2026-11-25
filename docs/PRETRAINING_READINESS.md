@@ -68,7 +68,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add no-allocation preflight for parameter floor, tokenizer, splits, and workload bounds.
 - [ ] Implement bounded orchestration only after architecture/data gates.
 - [ ] Include gradient accumulation, clipping, finite loss/gradient checks, deterministic seeds, cancellation, and step/time/resource caps.
-- [ ] Reset/isolate mutable memory across examples, batches, and validation.
+- [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
+- [ ] Implement and test trainer-level isolation across examples, batches, and validation.
 - [ ] Keep remote dispatch disabled; require explicit owner authorization for any run.
 - [x] Add preflight report that performs no optimizer steps and never authorizes training.
 

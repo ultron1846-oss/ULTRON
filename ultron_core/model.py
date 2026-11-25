@@ -102,6 +102,11 @@ class NeuroSparseModel(nn.Module):
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.lm_head.weight = self.embedding.weight
 
+    def reset_memory(self) -> None:
+        """Clear mutable fast/episodic memory before processing a new independent example."""
+        for block in self.blocks:
+            block.memory.reset_memory()
+
     def forward(self, input_ids: torch.Tensor, write_memory: bool = False, attention_mask: torch.Tensor | None = None):
         if input_ids.ndim != 2:
             raise ValueError("input_ids must be [batch, sequence]")
@@ -110,6 +115,11 @@ class NeuroSparseModel(nn.Module):
         if input_ids.dtype not in (torch.int32, torch.int64):
             raise TypeError("input_ids must be integer")
         sequence_length = input_ids.shape[1]
+        if write_memory and self.training and input_ids.shape[0] != 1:
+            raise ValueError(
+                "training-time memory writes require batch_size=1 because memory state "
+                "is shared; reset_memory() between independent examples"
+            )
         if sequence_length > self.config.max_sequence_length:
             raise ValueError("sequence length exceeds max_sequence_length")
         if attention_mask is not None:
