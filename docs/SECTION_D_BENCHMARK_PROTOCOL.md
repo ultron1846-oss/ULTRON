@@ -17,9 +17,14 @@ A lower selected-expert ratio alone is not evidence of lower end-to-end FLOPs, e
 Run from the repository root:
 
 ```bash
-python -m ultron_core.benchmark --device cpu --batch 2 --sequence 16 --warmup 10 --iterations 50
-python -m ultron_core.benchmark --device cuda --batch 2 --sequence 128 --warmup 20 --iterations 100
-python -m ultron_core.benchmark --device cpu --iterations 50 --output benchmark-results/cpu-smoke.json
+# Small CI/smoke model (default; suitable for CPU regression checks)
+python -m ultron_core.benchmark --device cpu --model-config smoke --batch 2 --sequence 16 --warmup 10 --iterations 50
+
+# Proposed foundation model (>60M trainable; explicitly opt in and use a device with enough memory)
+python -m ultron_core.benchmark --device cuda --model-config foundation --batch 1 --sequence 32 --warmup 10 --iterations 50
+
+# Save a reproducible JSON record (the directory must already exist)
+python -m ultron_core.benchmark --device cpu --model-config smoke --iterations 50 --output benchmark-results/cpu-smoke.json
 ```
 
 The harness:
@@ -28,8 +33,10 @@ The harness:
 - performs warm-up separately from timed iterations;
 - synchronizes CUDA around each measured call;
 - reports every latency sample, median, mean, sample standard deviation, min/max and a seeded percentile-bootstrap 95% interval for the median;
-- reports throughput, total/shared/expert parameter counts, CUDA peak allocated memory when applicable, and the exact environment/configuration;
+- reports throughput, total/shared/expert parameter counts, CUDA peak allocated memory when applicable, the selected model configuration, config-formula parameter counts, and the exact environment;
 - explicitly records that no training or optimizer step occurred.
+
+The CLI supports `--model-config smoke|foundation`. The default remains `smoke` so CI and CPU checks do not unexpectedly allocate the foundation model. The foundation option uses the documented 63,400,451-total / 61,826,048-trainable configuration. Before constructing the model, the harness computes the exact config parameter count and rejects configurations exceeding `--max-parameters` (default 100,000,000); raise that cap explicitly only when intentionally benchmarking a larger config. It then checks the instantiated model's total/trainable counts against the config formula. This guard is a parameter-count ceiling, not a complete RAM/VRAM estimate or an OOM guarantee.
 
 The harness uses random token IDs only to exercise tensor shapes. They are not a language corpus, math curriculum or quality-evaluation dataset. CPU and CUDA results must be stored separately and must never be compared as if they were the same hardware.
 
