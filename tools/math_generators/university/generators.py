@@ -42,7 +42,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         steps=[f"det(A)={a}×{e}−{b}×{c}={det}.",f"Av=({a}×{u}+{b}×{v},{c}×{u}+{e}×{v})=({out[0]},{out[1]})."]
         exact=lambda:det==a*e-b*c and out==(a*u+b*v,c*u+e*v)
     elif topic == "multivariable_calculus":
-        a,b,c,x,y=[n(-5*d,5*d) for _ in range(6)]
+        a,b,c,x,y=[n(-5*d,5*d) for _ in range(5)]
         dx=2*a*x+b*y; dy=b*x+2*c*y
         data.update(coefficients=[a,b,c],point=[x,y],partial_x=dx,partial_y=dy)
         problem=f"For f(x,y)={a}x²+({b})xy+({c})y², compute both partial derivatives at ({x},{y})."
