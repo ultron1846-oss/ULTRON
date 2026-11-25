@@ -904,3 +904,8 @@ The benchmark still uses synthetic random token IDs solely for tensor-shape timi
 ULTRON will use a **measured hybrid stack** rather than force every language into the core. Python/PyTorch remains the canonical model and training implementation; JavaScript powers the current browser frontend; C++/CUDA is reserved for profiled native hot paths with a tested Python fallback. Rust may be considered for a safe inference/runtime service once interfaces stabilize. Java/C# and Julia/R remain optional integrations or research tools, not duplicate model implementations. See [hybrid language architecture](docs/MULTI_LANGUAGE_ARCHITECTURE.md) for responsibilities, interoperability boundaries and the performance decision gate.
 
 No training, dataset generation, cloud execution or remote job was started for this documentation milestone.
+
+
+## Bounded training loss metrics — 2026-11-25
+
+The training controller now retains only the current gradient-accumulation group's detached losses for validation/checkpoint metrics. A running scalar sum and count produce the session mean at finalization, avoiding per-microbatch GPU scalar retention and a full-session tensor stack. The mean still includes all processed microbatches, including an incomplete final group that is discarded from optimizer updates. Regression coverage simulates 20 microbatches and checks bounded stack size. No training or device benchmark was run.
