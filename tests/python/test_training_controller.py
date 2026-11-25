@@ -13,6 +13,12 @@ class MockModel(torch.nn.Module):
         self.config = NeuroSparseConfig.foundation()
         self.reset_calls = 0
         self.non_finite = non_finite
+        self.activation_checkpointing = False
+
+    def set_activation_checkpointing(self, enabled):
+        if not isinstance(enabled, bool):
+            raise TypeError("activation_checkpointing must be boolean")
+        self.activation_checkpointing = enabled
 
     def reset_memory(self):
         self.reset_calls += 1
@@ -139,6 +145,14 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             run_training_steps(self.model, [oversized], self.optimizer, self.report,
                                settings=self.settings, training_authorized=True)
         self.assertEqual(self.optimizer.steps, 0)
+
+    def test_controller_enables_and_restores_activation_checkpointing(self):
+        settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+            max_seconds=60, activation_checkpointing=True)
+        result = run_training_steps(self.model, self.batches, self.optimizer,
+            self.report, settings=settings, training_authorized=True)
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertFalse(self.model.activation_checkpointing)
 
     def test_opt_in_performance_metrics_report_tokens_and_cpu_timing(self):
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
