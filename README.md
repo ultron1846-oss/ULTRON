@@ -979,3 +979,12 @@ The new `tools/math_generators/university/` package adds nine deterministic univ
 The scope is intentionally a **foundation starter batch**, not full university mathematics and not general natural-language solving. The Bayes generator constrains positive-event counts to valid population counts. Tests cover 300 seeds per topic, determinism, variation, registry parity, and tampering. CI must still run before merge. No training corpus was generated and no model training or remote execution was started.
 
 **Next:** Review CI and correct failures before merge. After this batch, add proof-oriented foundations and broader university topics (vector spaces, eigenvalues, multivariable integration, ODE systems, combinatorics/probability, and rigorous analysis) with exact verifiers and benchmark gates. Keep training disabled.
+
+
+## Expanded university curriculum map — 2026-11-25
+
+The university topic catalog now lists 197 topics across foundations and logic, linear algebra, calculus, real and complex analysis, abstract algebra, number theory, topology, discrete mathematics/combinatorics, probability, statistics, differential equations, optimization, numerical/computational mathematics, geometry, applied mathematics/mathematical physics, and advanced/interdisciplinary topics.
+
+**Status is explicit:** nine topics currently have deterministic generator implementations; the remaining catalog entries are marked `catalogued_not_implemented`. This is a broad undergraduate curriculum map, not literally every university course or specialty. Do not present catalog entries as trained capability. The earlier CI failure in multivariable calculus (six values unpacked into five variables) has been fixed; the full suite must pass on the updated head before PR #129 can merge.
+
+No training, corpus generation, or remote execution has started. Continue by implementing catalogued topics in tested batches with exact verifiers and benchmark gates. README updated for this handoff.
