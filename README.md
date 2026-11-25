@@ -33,6 +33,10 @@ Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata
 
 Added an exact-rational evaluation function for caller-supplied predictions on the current generator topics. It reports exact accuracy, coverage, abstentions, invalid outputs, and per-topic metrics. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
 
+## Phase 9 — free runtime review
+
+Colab remains the planned primary notebook, but free GPU availability and session limits are dynamic. Lightning AI is excluded under the current phone-verification constraint; Hugging Face Spaces is auxiliary, not a dependable persistent GPU host. No runtime has been connected or tested. See [free runtime review](docs/FREE_RUNTIME_REVIEW.md).
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
