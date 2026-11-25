@@ -11,7 +11,7 @@ def _make(topic,r,d):
   a,b=n(10,200*d),n(1,99*d); op=r.choice(["+","-","×"])
   if op=="-" and b>a:a,b=b,a
   val=Fraction(a+b,100) if op=="+" else Fraction(a-b,100) if op=="-" else Fraction(a*b,10000)
-  ans=f"{float(val):.2f}"; q=f"Calculate {a/100:.2f} {op} {b/100:.2f}."
+  ans=format(float(val),".4f").rstrip("0").rstrip("."); q=f"Calculate {a/100:.2f} {op} {b/100:.2f}."
   steps=[f"Work in hundredths: {a} {op} {b}.",f"Result: {ans}."]
   check=lambda:Fraction(ans)==val
  elif topic=="fraction_operations":
