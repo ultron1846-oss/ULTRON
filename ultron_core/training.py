@@ -241,6 +241,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             raise ValueError("resumable sampler requires DataLoader num_workers=0")
         if getattr(batches, "drop_last", False) is True:
             raise ValueError("resumable sampler requires DataLoader drop_last=False")
+        loader_dataset = getattr(batches, "dataset", None)
+        if loader_dataset is None or len(loader_dataset) != dataset_size:
+            raise ValueError("DataLoader dataset size does not match preflight training dataset_size")
         sampler_state = cursor.get("sampler_state")
         if resume_metadata is not None and not isinstance(sampler_state, dict):
             raise ValueError("resume checkpoint is missing sampler_state")
