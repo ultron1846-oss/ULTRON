@@ -1,6 +1,7 @@
 """Deterministic, verified original-template Grade 1-4 math generators."""
 from __future__ import annotations
 import random
+import re
 from fractions import Fraction
 
 BANDS = {
@@ -34,6 +35,27 @@ PHRASES = {
     "fractions_basics":["Add and simplify: {a}/{d} + {b}/{d}.","You have {a}/{d} and receive {b}/{d} more. What fraction is that?"],
 }
 PLACES = ["ones","tens","hundreds","thousands","ten-thousands","hundred-thousands","millions"]
+
+def semantic_check(topic: str, answer: str, problem: str) -> bool:
+    """Check elementary quantity domains after the exact topic verifier."""
+    try:
+        if topic in {"counting", "addition", "subtraction", "place_value",
+                     "multiplication", "division", "simple_word_problems"}:
+            return int(answer) >= 0
+        if topic == "fractions_basics":
+            return Fraction(answer) >= 0
+        if topic == "time_and_money":
+            if answer.startswith("$"):
+                return bool(re.fullmatch(r"\\$\\d+\\.\\d{2}", answer))
+            match = re.fullmatch(r"(\\d+) hours? (\\d+) minutes?", answer)
+            return bool(match and int(match.group(2)) < 60 and int(match.group(1)) >= 0)
+        if topic == "perimeter_and_area":
+            match = re.fullmatch(r"perimeter=(\\d+); area=(\\d+)", answer)
+            return bool(match and int(match.group(1)) > 0 and int(match.group(2)) > 0)
+        return False
+    except (ValueError, ZeroDivisionError):
+        return False
+
 
 def _build(topic, rng, d):
     n=lambda lo,hi:rng.randint(lo,hi)
@@ -119,6 +141,8 @@ def generate(seed:int,difficulty:int=1,topic:str="addition")->dict:
     fields,check=_build(topic,random.Random(seed),difficulty)
     fields.update(id=f"g1-4-{topic}-{seed}-{difficulty}",seed=seed)
     if not check(fields["answer"]): raise ArithmeticError("answer verification failed")
+    if not semantic_check(topic, fields["answer"], fields["problem"]):
+        raise ArithmeticError("semantic verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!= {k:v for k,v in fields.items() if k not in ("id","seed")}:
         raise ArithmeticError("deterministic replay failed")
