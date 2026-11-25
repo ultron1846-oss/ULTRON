@@ -5,7 +5,6 @@ It never invokes a model, generates a corpus, or performs training.
 """
 from __future__ import annotations
 
-from collections import Counter
 import math
 from typing import Mapping
 
@@ -95,7 +94,6 @@ def compare_predictions(
     topics = sorted({item.topic for item in items})
     topic_rows = {}
     raw_p = {}
-    paired_counts = {}
 
     for topic in topics:
         topic_items = [item for item in items if item.topic == topic]
@@ -119,7 +117,6 @@ def compare_predictions(
         b_metrics = baseline_report["per_topic"][topic]
         p_value = exact_mcnemar_p_value(wins, losses)
         raw_p[topic] = p_value
-        paired_counts[topic] = (wins, losses)
         topic_rows[topic] = {
             "examples": n,
             "ultron_correct": ultron_correct,
