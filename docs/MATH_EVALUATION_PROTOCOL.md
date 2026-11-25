@@ -11,7 +11,7 @@
 - exact correct count and incorrect-but-valid count;
 - exact accuracy over all references and among valid answers;
 - coverage (attempted / total), valid-answer rate (valid / total), and abstentions (only `None` outputs);
-- invalid predictions separately, so malformed outputs are not incorrectly counted as abstentions;
+- invalid predictions separately, including non-string outputs, so malformed outputs are not incorrectly counted as abstentions;
 - per-topic counts, coverage, validity, and accuracy.
 
 The evaluator does not instantiate or run a neural model. Its output sets `model_evaluated=false`, `training_performed=false`, and `proof_verified=false`.
@@ -46,4 +46,4 @@ Before any trained-model quality claim:
 - pre-register primary metrics and keep a separate untouched test split;
 - compare against deterministic baselines and report multiple seeds.
 
-No model evaluation or training run has been performed as part of this protocol.
+No model evaluation or training run has been performed as part of this protocol. The evaluator is still limited to the current four generated topics and exact-answer validation; broader university mathematics, symbolic equivalence, derivation scoring, and formal proof verification are not implemented.
