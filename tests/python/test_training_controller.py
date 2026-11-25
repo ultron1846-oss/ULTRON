@@ -220,14 +220,18 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler = ResumableRandomSampler(dataset, seed=0,
             dataset_manifest_sha256="a" * 64)
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        report = dict(self.report)
+        report["dataset_size"] = 8
         saved = []
-        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+        result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                      max_seconds=60, write_memory=False),
             training_authorized=True, sampler=sampler,
             checkpoint_callback=lambda step, metrics: saved.append((step, metrics)))
         self.assertEqual(saved[0][1]["data_state"]["sampler_state"]["next_index"], 2)
+        self.assertEqual(saved[0][1]["data_state"]["next_sample_index"], 2)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 2)
+        self.assertEqual(result["data_state"]["next_sample_index"], 2)
         self.assertEqual(sampler.next_index, 2)
 
     def test_trainer_restores_sampler_before_dataloader_iteration(self):
@@ -248,21 +252,25 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         saved_sampler_state = sampler.state_dict()
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         data_state = {
-            "epoch": 0, "next_batch_index": 2, "seed": 0,
-            "gradient_accumulation_steps": 2,
+            "epoch": 0, "next_batch_index": 2, "next_sample_index": 2,
+            "dataset_size": 8, "dataset_manifest_sha256": "a" * 64,
+            "seed": 0, "gradient_accumulation_steps": 2,
             "sampler_state": saved_sampler_state,
         }
         metadata = {
-            "format_version": 4, "rng_restored": True, "step": 6,
-            "data_state": data_state, "dataset_manifest_sha256": "a" * 64,
+            "format_version": 4, "rng_restored": True, "dataset_hash_verified": True,
+            "step": 6, "data_state": data_state, "dataset_manifest_sha256": "a" * 64,
         }
-        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+        report = dict(self.report)
+        report["dataset_size"] = 8
+        result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                      max_seconds=60, write_memory=False),
             training_authorized=True, resume_metadata=metadata, sampler=sampler)
         self.assertEqual(result["global_step"], 7)
         self.assertEqual(result["data_state"]["next_batch_index"], 4)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+        self.assertEqual(result["data_state"]["next_sample_index"], 4)
 
     def test_trainer_rewinds_sampler_after_discarded_accumulation(self):
         from torch.utils.data import DataLoader, Dataset
@@ -278,7 +286,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler = ResumableRandomSampler(dataset, seed=0,
             dataset_manifest_sha256="a" * 64)
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
-        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+        report = dict(self.report)
+        report["dataset_size"] = 3
+        result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                      max_seconds=60, write_memory=False),
             training_authorized=True, sampler=sampler)
@@ -321,8 +331,10 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler = ResumableRandomSampler(dataset, seed=0,
             dataset_manifest_sha256="a" * 64)
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=1)
+        report = dict(self.report)
+        report["dataset_size"] = 4
         with self.assertRaisesRegex(ValueError, "num_workers=0"):
-            run_training_steps(self.model, loader, self.optimizer, self.report,
+            run_training_steps(self.model, loader, self.optimizer, report,
                 settings=self.settings, training_authorized=True, sampler=sampler)
         self.assertEqual(self.optimizer.steps, 0)
 
