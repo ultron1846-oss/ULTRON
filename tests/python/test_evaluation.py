@@ -39,6 +39,16 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertAlmostEqual(report["coverage"], 29 / 30)
         self.assertAlmostEqual(report["valid_answer_rate"], 28 / 30)
 
+
+    def test_scores_exact_polynomial_definite_integral_predictions(self):
+        examples = generate_examples(39, 25, topics=("polynomial_definite_integral",))
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["correct"], 25)
+        self.assertEqual(report["exact_accuracy_all"], 1.0)
+        self.assertEqual(report["per_topic"]["polynomial_definite_integral"]["exact_accuracy_all"], 1.0)
+
+
     def test_scores_exact_polynomial_derivative_predictions(self):
         examples = generate_examples(29, 25, topics=("polynomial_derivative",))
         predictions = {item.example_id: item.exact_answer for item in examples}
