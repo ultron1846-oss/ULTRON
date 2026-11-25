@@ -21,7 +21,7 @@ class StageCStepVerifierTests(unittest.TestCase):
   r=verify_rational_steps([{"name":"x","expression":"1/0","claimed_value":"0"}],"0","0")
   self.assertFalse(r["trace_valid"])
  def test_final_answer_must_match_exact_reference(self):
-  r=verify_rational_steps([{"name":"x","expression":"1/3+1/3","claimed_value":"2/3"}],"x*3","2")
+  r=verify_rational_steps([{"name":"x","expression":"1/3+1/3","claimed_value":"2/3"}],"x*3","3")
   self.assertFalse(r["final_answer_correct"]); self.assertFalse(r["trace_valid"])
  def test_rejects_complexity_and_bad_values(self):
   r=verify_rational_steps([{"name":"x","expression":"1+"+"1+"*200+"1","claimed_value":"1"}],"1","1")
