@@ -4,14 +4,15 @@
 
 ## Current evaluator
 
-`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact targets. It reports:
+`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact targets. Schema version 2 reports:
 
-- exact correct count;
-- exact accuracy over all references;
-- exact accuracy among answered items;
-- coverage and abstentions;
-- invalid/non-rational prediction count;
-- per-topic counts, coverage, and accuracy.
+- attempted predictions (any non-`None` output);
+- valid parsed answers (`answered`);
+- exact correct count and incorrect-but-valid count;
+- exact accuracy over all references and among valid answers;
+- coverage (attempted / total), valid-answer rate (valid / total), and abstentions (only `None` outputs);
+- invalid predictions separately, so malformed outputs are not incorrectly counted as abstentions;
+- per-topic counts, coverage, validity, and accuracy.
 
 The evaluator does not instantiate or run a neural model. Its output sets `model_evaluated=false`, `training_performed=false`, and `proof_verified=false`.
 
