@@ -205,4 +205,5 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             _restore_rng(rng_before)
         raise
     return {"step": step, "config": saved_config, "sha256": _digest(source),
-            "source_path": str(source), "data_state": data_state, "format_version": version}
+            "source_path": str(source), "data_state": data_state,
+            "dataset_manifest_sha256": dataset_hash, "format_version": version}
