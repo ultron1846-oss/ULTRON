@@ -82,23 +82,19 @@ def _linear_coefficients(expr: Expr, variable: str) -> tuple[Fraction, Fraction]
         a2, b2 = _linear_coefficients(expr.args[1], variable)
         return a1 - a2, b1 - b2
     if expr.kind == ExprKind.MUL:
-        coefficient = Fraction(1)
-        constant = Fraction(1)
-        has_variable = False
+        variable_factor: tuple[Fraction, Fraction] | None = None
+        scale = Fraction(1)
         for child in expr.args:
             a, b = _linear_coefficients(child, variable)
             if a:
-                if has_variable:
+                if variable_factor is not None:
                     raise ValueError("only linear equations are supported; variable products are nonlinear")
-                has_variable = True
-                coefficient *= a
-                if b:
-                    raise ValueError("nonlinear expression is unsupported")
+                variable_factor = (a, b)
             else:
-                constant *= b
-        if has_variable:
-            return coefficient * constant, Fraction(0)
-        return Fraction(0), constant
+                scale *= b
+        if variable_factor is None:
+            return Fraction(0), scale
+        return variable_factor[0] * scale, variable_factor[1] * scale
     if expr.kind == ExprKind.POW:
         raise ValueError("nonlinear powers are unsupported by the linear solver")
     if expr.kind == ExprKind.DIV:
