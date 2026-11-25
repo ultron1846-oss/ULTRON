@@ -73,13 +73,16 @@ class ResumableRandomSampler(Sampler[int]):
         }
 
     def load_state_dict(self, state: dict) -> None:
-        if not isinstance(state, dict) or state.get("schema_version") != 1:
+        version = state.get("schema_version") if isinstance(state, dict) else None
+        if isinstance(version, bool) or not isinstance(version, int) or version != 1:
             raise ValueError("sampler state schema is invalid")
-        if state.get("dataset_size") != len(self.data_source):
+        size = state.get("dataset_size")
+        if isinstance(size, bool) or not isinstance(size, int) or size != len(self.data_source):
             raise ValueError("sampler state dataset size does not match")
         if state.get("dataset_manifest_sha256") != self.dataset_manifest_sha256:
             raise ValueError("sampler state dataset manifest hash does not match")
-        if state.get("seed") != self.seed:
+        saved_seed = state.get("seed")
+        if isinstance(saved_seed, bool) or not isinstance(saved_seed, int) or saved_seed != self.seed:
             raise ValueError("sampler state seed does not match")
         epoch, next_index = state.get("epoch"), state.get("next_index")
         if (isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 0
