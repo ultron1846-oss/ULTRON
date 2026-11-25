@@ -148,11 +148,12 @@ def _build(topic: str, rng: random.Random, difficulty: int):
             value=p != q
         else:
             value=(not p) or q
+        expected={"AND":p and q,"OR":p or q,"XOR":p != q,"IMPLIES":(not p) or q}[operator]
         data.update(p=p,q=q,operator=operator,value=value)
         problem=f"Evaluate p {operator} q when p={str(p).lower()} and q={str(q).lower()}."
         answer=str(value).lower()
         steps=[f"Apply the truth rule for {operator}.",f"The result is {str(value).lower()}."]
-        exact=lambda:value==((p and q) if operator=="AND" else (p or q) if operator=="OR" else (p != q) if operator=="XOR" else ((not p) or q)
+        exact=lambda:value==expected
     elif topic == "mathematical_induction":
         k=n(1,25*d)
         base_sum=1
