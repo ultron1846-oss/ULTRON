@@ -9,6 +9,21 @@ BANDS = {
     "simple_word_problems":"G3-4", "time_and_money":"G3-4", "perimeter_and_area":"G3-4",
 }
 TOPICS = tuple(BANDS)
+
+# Contextual template declarations drive the generated coverage registry.
+GENERATOR_METADATA = {
+    "counting": {"grade_band": "G1-2", "word_templates": []},
+    "addition": {"grade_band": "G1-2", "word_templates": []},
+    "subtraction": {"grade_band": "G1-2", "word_templates": []},
+    "place_value": {"grade_band": "G1-2", "word_templates": []},
+    "multiplication": {"grade_band": "G3-4", "word_templates": ["equal_groups"]},
+    "division": {"grade_band": "G3-4", "word_templates": ["sharing_items"]},
+    "fractions_basics": {"grade_band": "G3-4", "word_templates": ["fraction_story"]},
+    "simple_word_problems": {"grade_band": "G3-4", "word_templates": ["cards", "fruit", "bags", "tables"]},
+    "time_and_money": {"grade_band": "G3-4", "word_templates": ["journey_time", "pencil_price"]},
+    "perimeter_and_area": {"grade_band": "G3-4", "word_templates": ["rectangle_context"]},
+}
+WORD_TOPICS = {topic for topic, spec in GENERATOR_METADATA.items() if spec["word_templates"]}
 PHRASES = {
     "counting":["Count by {s}: {a}, {b}, ... What is term {k}?","Start at {a}; count forward by {s}. What is term {k}?"],
     "addition":["Calculate {expr}.","Find the total: {expr}."],
