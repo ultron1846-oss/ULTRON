@@ -276,6 +276,29 @@ class DeterministicDataGenerationTests(unittest.TestCase):
 
 
 
+    def test_exact_two_by_two_matrix_determinants(self):
+        examples = generate_examples(722, 80, topics=("matrix_determinant_2x2",))
+        self.assertTrue(all(item.validation_status == "semantically_checked" for item in examples))
+        self.assertTrue(all(validate_example_text(item.input_text, item.exact_answer, item.topic)
+                            for item in examples))
+        self.assertTrue(validate_example_text("determinant: [[1, 2], [3, 4]]", "-2",
+                                              "matrix_determinant_2x2"))
+        self.assertFalse(validate_example_text("determinant: [[1, 2], [3, 4]]", "2",
+                                               "matrix_determinant_2x2"))
+
+    def test_exact_two_by_two_linear_systems(self):
+        examples = generate_examples(723, 80, topics=("linear_system_2x2",))
+        self.assertTrue(all(item.validation_status == "semantically_checked" for item in examples))
+        self.assertTrue(all(validate_example_text(item.input_text, item.exact_answer, item.topic)
+                            for item in examples))
+        prompt = "solve: 2*x + 3*y = 13; 1*x - 1*y = -1"
+        self.assertTrue(validate_example_text(prompt, "x=2, y=3", "linear_system_2x2"))
+        self.assertFalse(validate_example_text(prompt, "x=3, y=2", "linear_system_2x2"))
+        rational_prompt = "solve: 2*x + 1*y = 1; 1*x - 1*y = 0"
+        self.assertTrue(validate_example_text(rational_prompt, "x=1/3, y=1/3", "linear_system_2x2"))
+        self.assertFalse(validate_example_text("solve: 1*x + 2*y = 3; 2*x + 4*y = 6",
+                                              "x=1, y=1", "linear_system_2x2"))
+
     def test_polynomial_definite_integrals_are_exactly_validated(self):
         examples = generate_examples(812, 70, topics=("polynomial_definite_integral",))
         self.assertTrue(all(validate_example_text(item.input_text, item.exact_answer, item.topic)
