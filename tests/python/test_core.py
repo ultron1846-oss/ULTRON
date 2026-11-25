@@ -110,6 +110,8 @@ class CoreTests(unittest.TestCase):
 
         flat.grad = None
         weights.grad = None
+        for parameter in experts.parameters():
+            parameter.grad = None
         actual = _dispatch_sparse_experts(flat, weights, indices, experts)
         actual_loss = actual.square().sum()
         actual_loss.backward()
