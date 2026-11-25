@@ -96,7 +96,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
-- [ ] Add symbolic equivalence, proof-checker acceptance, and richer error classes.
+- [x] Add exact semantic equivalence for the supported polynomial derivative grammar and rational/fraction equality for rational/integral answers; schema-v3 error classes.
+- [ ] Add general symbolic equivalence, independent proof-checker acceptance, and richer error classes for broader task families.
 - [ ] Benchmark baseline and foundation configs only on an approved runtime.
 - [ ] Record actual latency, peak memory, profiler FLOPs where supported, and hardware/software metadata.
 - [ ] Do not infer mathematical capability from random-token smoke tests.
