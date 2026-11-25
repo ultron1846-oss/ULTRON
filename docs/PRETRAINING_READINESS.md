@@ -92,6 +92,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [ ] Keep validation and final test sets separate from training data.
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational, polynomial-derivative, and definite-integral tasks.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
+- [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
 - [ ] Add symbolic equivalence, proof-checker acceptance, and richer error classes.
 - [ ] Benchmark baseline and foundation configs only on an approved runtime.
