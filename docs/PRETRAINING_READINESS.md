@@ -89,6 +89,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational and polynomial-derivative tasks.
+- [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
+- [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
 - [ ] Add symbolic equivalence, proof-checker acceptance, and richer error classes.
 - [ ] Benchmark baseline and foundation configs only on an approved runtime.
 - [ ] Record actual latency, peak memory, profiler FLOPs where supported, and hardware/software metadata.
