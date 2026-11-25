@@ -1,9 +1,8 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
-import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261124-4';
 import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory } from './memory-store.js?v=20261124-5';
 
-const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
+const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings' };
 const topics = [
   {name:'Arithmetic',symbol:'＋',level:'AVAILABLE',desc:'Numbers, operations, fractions and ratios.',intro:'Arithmetic studies number systems and the operations used to calculate with them.',formula:'a + b · a − b · a × b · a ÷ b',example:'18 × 7 = 126',prereq:'Whole numbers'},
   {name:'Algebra',symbol:'x',level:'PLANNED',desc:'Expressions, equations and relationships.',intro:'Algebra represents unknown values with symbols and studies relationships between quantities.',formula:'ax + b = c',example:'2x + 3 = 11 → x = 4',prereq:'Arithmetic'},
@@ -114,11 +113,6 @@ function renderMemory(){
  ${card('<div class="eyebrow">PRIVACY BOUNDARY</div><h2>Local memory vs. Supabase</h2><p class="muted">The current Supabase memory tables are owner-protected. The public website does not read or write those private tables; the owner sign-in is limited to server-verified owner operations. The vault uses IndexedDB locally instead; no public RLS policy has been weakened.</p><span class="status-pill">NO LOGIN · NO CLOUD SYNC</span>')}`;
 }
 
-function renderOwner(){
- return heading('OWNER ACCESS / PRIVATE CONTROLS','Owner sign in','Sign in with the existing owner email and password. Public learning pages remain available without an account.')
- + card('<div class="eyebrow">SUPABASE AUTH / EXISTING ACCOUNT ONLY</div><h2>Owner session</h2><p class="muted">There is no public registration. Signing in does not grant owner privileges unless the backend verifies the configured owner identity.</p><div id="owner-auth-state" class="status-pill">CHECKING SESSION</div><form id="owner-signin-form" class="owner-form"><label class="field-label" for="owner-email">Owner email</label><div id="owner-credentials"><input class="text-input" id="owner-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Email address"><label class="field-label" for="owner-password">Password</label><input class="text-input" id="owner-password" name="password" type="password" autocomplete="current-password" required maxlength="256" placeholder="Password"><button class="primary-button" id="owner-signin" type="submit">Sign in</button></div><div class="agent-actions"><button class="outline-button" id="owner-check" type="button">Check connection</button><button class="outline-button" id="owner-signout" type="button" hidden>Sign out</button></div></form><p id="owner-auth-feedback" class="practice-feedback" role="status" aria-live="polite">Owner-only access is protected by server-side identity verification.</p><p class="muted small">Do not share your password. This website never creates accounts and never stores your password.</p>')
- + card('<div class="eyebrow">ACCESS BOUNDARY</div><h2>Public and owner areas</h2><ul class="feature-list"><li>Overview, learning, Math Agent and local memory remain public.</li><li>Owner identity is checked against the server-side owner configuration.</li><li>Non-owner accounts are denied even if they can authenticate.</li><li>Training and remote execution remain disabled unless separately authorized.</li></ul>');
-}
 function render(page){return ({owner:renderOwner,overview:renderOverview,learning:renderLearning,agent:renderAgent,memory:renderMemory,servers:renderServers,backend:renderBackend,settings:renderSettings})[page]();}
 function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}document.querySelector('#chat-log').append(node);}
 function answerAgent(){
@@ -203,16 +197,7 @@ async function loadServers(){
   list.innerHTML=entries.length?entries.map((item,i)=>{const url=typeof item.url==='string'&&/^https:\/\//i.test(item.url)?item.url:'';const label=String(item.status||'NOT VERIFIED');return `<div class="server-row"><span class="server-number">${i+1}</span><div><b>${esc(item.name||'Unnamed provider')}</b><p>${esc(item.description||item.capabilities||'No capability description supplied.')}</p><p>${esc(item.role||'Informational directory entry')}</p>${url?`<a class="server-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Official provider site ↗</a>`:''}</div><span class="tag planned">${esc(label)}</span></div>`;}).join(''):'<div class="empty-state"><span>—</span><b>No providers listed</b><p>The directory contains no providers.</p></div>';
  }catch(error){alert.textContent=`Provider directory unavailable: ${error.message}. Provider terms metadata unavailable; verify current terms directly before using a provider.`;list.innerHTML='<div class="empty-state"><span>!</span><b>Provider directory unavailable</b><p>Check the deployed servers.json path and refresh. No provider is assumed available.</p></div>';}
 }
-async function bindOwner(){
- const form=document.querySelector('#owner-signin-form'),credentials=document.querySelector('#owner-credentials'),feedback=document.querySelector('#owner-auth-feedback'),state=document.querySelector('#owner-auth-state'),signin=document.querySelector('#owner-signin'),check=document.querySelector('#owner-check'),signout=document.querySelector('#owner-signout');
- const show=async()=>{try{const result=await verifyOwner();if(result.isOwner){state.textContent='OWNER VERIFIED';feedback.textContent='Signed in as '+(result.email||'owner')+'. Server-side owner verification succeeded.';credentials.hidden=true;signout.hidden=false;}else if(result.signedIn){state.textContent='NOT OWNER';feedback.textContent=result.message||'This account does not have owner access.';credentials.hidden=false;signout.hidden=false;}else{state.textContent='SIGNED OUT';feedback.textContent='Sign in with the existing owner email and password.';credentials.hidden=false;signout.hidden=true;}}catch(error){state.textContent='UNVERIFIED';feedback.textContent=error.message||'Could not verify owner session.';credentials.hidden=false;}};
- await show();
- form.addEventListener('submit',async event=>{event.preventDefault();signin.disabled=true;feedback.textContent='Signing in and verifying owner identity…';try{await signInOwner(document.querySelector('#owner-email').value,document.querySelector('#owner-password').value);document.querySelector('#owner-password').value='';await show();}catch(error){feedback.textContent=error.message||'Sign-in failed.';state.textContent='SIGN-IN FAILED';}finally{signin.disabled=false;}});
- check.addEventListener('click',show);
- signout.addEventListener('click',async()=>{signout.disabled=true;try{await signOutOwner();await show();}catch(error){feedback.textContent=error.message;}finally{signout.disabled=false;}});
-}
-function bind(page){
- if(page==='owner')bindOwner();
+async function bind(page){
  if(page==='learning')bindLearning();
  if(page==='memory')loadMemoryPage();
  content.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.page)));
