@@ -4,7 +4,13 @@ import { readFile } from 'node:fs/promises';
 import { evaluateExpression, solveLinearEquation, tokenize } from '../math-engine.js';
 
 test('TypeScript source declares explicit token and equation result types', async () => {
-  const source = await readFile(new URL('../src/math-engine.ts', import.meta.url), 'utf8');
+  const [source, packageJson] = await Promise.all([
+    readFile(new URL('../src/math-engine.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../package.json', import.meta.url), 'utf8'),
+  ]);
+  const scripts = JSON.parse(packageJson).scripts;
+  assert.match(scripts['build:math'], /typescript@5\.8\.3/);
+  assert.match(scripts.test, /build:math/);
   assert.match(source, /export type LinearEquationSolution/);
   assert.match(source, /export function tokenize\(source: string\): string\[\]/);
   assert.match(source, /export function evaluateExpression\(source: string\): number/);
