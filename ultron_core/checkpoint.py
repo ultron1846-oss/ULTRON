@@ -205,8 +205,6 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     if training_settings is None and isinstance(data_state, dict):
         training_settings = data_state.get("training_settings")
     training_settings = _validate_training_settings(training_settings)
-    if version >= 5 and training_settings is None and data_state is not None:
-        raise ValueError("version 5 training checkpoint is missing training_settings")
     dataset_hash = payload.get("dataset_manifest_sha256")
     if dataset_hash is not None and (
             not isinstance(dataset_hash, str) or len(dataset_hash) != 64
