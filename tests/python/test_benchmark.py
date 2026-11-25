@@ -26,6 +26,20 @@ class BenchmarkStatisticsTests(unittest.TestCase):
                          report["parameters_shared_trainable"] + report["estimated_selected_expert_parameters_per_token"])
 
 
+    def test_cpu_inference_benchmark_smoke_is_non_training(self):
+        import math
+        from ultron_core.benchmark import run_benchmark
+        report = run_benchmark(device="cpu", batch=1, sequence=4,
+                              warmup=0, iterations=2, seed=19, num_threads=1)
+        self.assertEqual(report["benchmark_kind"], "inference_only_synthetic_smoke")
+        self.assertFalse(report["training_performed"])
+        self.assertEqual(report["optimizer_steps"], 0)
+        self.assertEqual(report["measured_iterations"], 2)
+        self.assertEqual(len(report["latency_seconds"]["samples"]), 2)
+        self.assertTrue(math.isfinite(report["latency_seconds"]["median"]))
+        self.assertGreater(report["latency_seconds"]["median"], 0.0)
+        self.assertGreater(report["parameter_accounting"]["parameters_total"], 0)
+
     def test_benchmark_runtime_restores_rng_and_thread_count(self):
         import torch
         from ultron_core.benchmark import _preserve_benchmark_runtime
