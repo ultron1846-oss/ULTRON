@@ -124,17 +124,18 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_training_metrics_sync_once_per_optimizer_step(self):
         original_cpu = torch.Tensor.cpu
-        with patch.object(
-            torch.Tensor, "cpu", autospec=True,
-            side_effect=lambda tensor, *args, **kwargs: original_cpu(tensor, *args, **kwargs),
-        ) as cpu_calls:
+        cpu_calls = []
+        def counted_cpu(tensor, *args, **kwargs):
+            cpu_calls.append(tensor)
+            return original_cpu(tensor, *args, **kwargs)
+        with patch.object(torch.Tensor, "cpu", new=counted_cpu):
             result = run_training_steps(
                 self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True,
             )
         # Four microbatches are grouped into two optimizer steps. Scalar loss
         # validation should transfer once per step, not once per microbatch.
-        self.assertEqual(cpu_calls.call_count, 2)
+        self.assertEqual(len(cpu_calls), 2)
         self.assertIsInstance(result["mean_loss"], float)
         self.assertTrue(torch.isfinite(torch.tensor(result["mean_loss"])))
 
