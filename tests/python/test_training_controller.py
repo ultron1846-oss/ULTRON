@@ -189,6 +189,16 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 settings=self.settings, training_authorized=True, resume_metadata=metadata)
         self.assertEqual(self.optimizer.steps, 0)
 
+    def test_incomplete_accumulation_cursor_rewinds_to_last_committed_step(self):
+        result = run_training_steps(self.model, self.batches[:3], self.optimizer,
+            self.report, settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
+            max_seconds=60), training_authorized=True)
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["microbatches_seen"], 3)
+        self.assertEqual(result["discarded_microbatches"], 1)
+        self.assertEqual(result["global_step"], 1)
+        self.assertEqual(result["data_state"]["next_batch_index"], 2)
+
     def test_initial_cursor_is_preserved_and_advanced(self):
         result = run_training_steps(self.model, self.batches[:2], self.optimizer,
             self.report, settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
