@@ -15,6 +15,10 @@ The frontend retains the optional Owner Sign-in page. Public browsing still load
 
 The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
+## Frontend hardening milestone — workload preference validation
+
+The settings and overview now normalize the stored workload preference to the supported 2–10 GB range and fall back to 6 GB when browser storage contains an invalid, non-finite, or empty value. This remains a local preference only, not a RAM allocator. Unit tests cover valid, fractional, out-of-range, and malformed values. Manual iPad Safari acceptance is still required before declaring the frontend fully complete.
+
 ## Frontend release gate
 
 The public frontend, optional owner sign-in, required root assets and deployment-path cleanup are covered by automated regression tests. Before calling the frontend fully complete, perform the real iPad Safari acceptance pass: open every page, test owner sign-in/sign-out and server-side owner verification, exercise mobile navigation and contrast, run supported/unsupported Math Agent inputs, verify IndexedDB history and backup/restore, and check the workload slider. Do not start training or connect a cloud runtime during this pass.
