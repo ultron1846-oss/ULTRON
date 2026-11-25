@@ -1,54 +1,61 @@
 # Phase 9 — Free runtime and operations review
 
-**Review date:** 2026-11-25
-**Budget target:** $0
-**Training status:** not authorized; no provider connected and no job launched.
-**Owner constraints:** iPad-first workflow; avoid providers requiring phone-number verification; no Kaggle.
+**Research snapshot:** 2026-11-25 UTC
+**Budget target:** $0; no payment activation or purchased credits
+**Training status:** not authorized; no provider connected and no job launched
+**Owner constraints:** iPad-first; avoid phone-number verification; no Kaggle
 
-## Provider findings
+This is a provider-terms review, not proof that an account currently has compute access. Recheck the official pages and the actual account/runtime before use.
 
-### Google Colab — planned primary, availability not guaranteed
+## Google Colab — planned primary notebook, conditional on acceptance
 
-Official Colab FAQ states that free-tier compute limits and hardware availability are dynamic and not guaranteed. It does not publish fixed GPU/VM lifetime limits; the FAQ says free notebooks may run for at most 12 hours depending on availability and usage, and idle timeouts apply. GPU type and access can change between sessions.
+Colab's official FAQ says free-tier usage limits, idle timeout, maximum VM lifetime, GPU type, and availability vary. It does not publish fixed free-tier usage limits. Free notebooks can run for at most 12 hours, depending on availability and usage patterns, and idle runtimes time out.
 
 Source: [Colab FAQ — Resource Limits](https://research.google.com/colaboratory/faq.html)
 
-Operational decision: keep Colab as the selected notebook option, but treat GPU availability, memory, and runtime lifetime as values to inspect at session start. The ULTRON website must not display a GPU as available until a live, user-authorized runtime check reports it.
+**Decision:** keep Colab as the planned notebook, not a guaranteed server. At session start, inspect actual runtime type, CPU/RAM, GPU/VRAM, disk, session lifetime, and any verification/payment prompt. No job may launch from the website automatically.
 
-### Lightning AI — excluded under current no-phone constraint
+## Lightning AI — excluded unless the owner changes the phone constraint
 
-Lightning AI currently advertises up to 80 free GPU hours / up to 30 promotional credits, with one free CPU Studio that restarts every four hours. Its official pricing/support page also states that phone number verification is required to prevent abuse.
+Current official pricing/support pages describe a free tier with one free active CPU Studio that restarts every four hours and promotional credits that may provide up to 80 GPU hours (credit amount and GPU-hour conversion vary). The official Studio onboarding says phone verification is required to receive the free GPU hours. Credits are promotional, may change, and are not a permanent $0 compute guarantee.
 
 Sources:
 - [Lightning AI pricing](https://lightning.ai/pricing)
-- [Lightning AI pricing/support FAQ](https://support.lightning.ai/pricing/)
+- [Lightning AI free GPU hours and pricing FAQ](https://support.lightning.ai/pricing/)
+- [Lightning AI Studio onboarding and phone verification](https://platform.lightning.ai/studio)
 
-Operational decision: do not use unless the owner explicitly changes the no-phone constraint and confirms the current free-credit terms. Promotional credits are not a permanent $0 training guarantee.
+**Decision:** do not use under the current no-phone constraint. Do not add it as a usable training server unless the owner explicitly changes that constraint and confirms the account's current terms.
 
-### Hugging Face Spaces — auxiliary only
+## Hugging Face Spaces — short auxiliary GPU checks only
 
-Official Spaces documentation lists a default CPU Basic environment with 2 vCPU, 16 GB RAM, and 50 GB non-persistent disk; free GPU availability is not a guaranteed default. The documentation also notes that compute-backed Gradio/Docker Spaces may require a paid plan.
+Official Spaces documentation describes:
+- Static Spaces as free.
+- Default CPU Basic resources as 2 vCPU, 16 GB RAM, and 50 GB non-persistent disk; creating a new compute-backed Gradio/Docker Space generally requires a paid plan, with a free-account ZeroGPU exception.
+- Eligible free personal accounts in good standing (verified email and account older than 30 days) may host up to two ZeroGPU Spaces.
+- ZeroGPU is shared/dynamic GPU allocation, Gradio-only, with a free-account quota of approximately **5 GPU minutes per day**. Its current large/xlarge configurations advertise 48/96 GB GPU memory, but quota and queue availability are limiting factors.
 
-Source: [Hugging Face Spaces overview](https://huggingface.co/docs/hub/spaces-overview)
+Sources:
+- [Spaces overview](https://huggingface.co/docs/hub/spaces-overview)
+- [ZeroGPU documentation and daily quotas](https://huggingface.co/docs/hub/spaces-zerogpu)
 
-Operational decision: not a dependable persistent training host. Could be considered for static demos or auxiliary CPU checks only after verifying current account and storage terms.
+**Decision:** ZeroGPU may be useful for a brief GPU compatibility or inference smoke test after verifying account eligibility. It is not a dependable long-running training host. Dedicated GPU Spaces are billed and must not be selected under the $0 requirement.
 
-## Feasibility assessment
+## Model resource feasibility
 
-The current foundation configuration has 63,400,451 trainable parameters. The theoretical FP32 weights + gradients + two AdamW moment tensors require about 967.4 MiB before activations, attention workspace, temporary tensors, allocator overhead, input data, and checkpoint transfer. This does not prove that a free GPU/CPU session can train it.
+The proposed foundation configuration has **63,400,451 trainable parameters**. FP32 weights require 253,601,804 bytes (about 241.9 MiB). Weights, gradients, and two AdamW moment tensors require about 967.4 MiB before activations, attention workspace, temporary tensors, allocator overhead, batches, and checkpoint transfer.
 
-The current project has no distributed trainer, multi-host gradient synchronization, or runtime scheduler. Several free accounts/runtimes cannot simply be combined into one larger training device. The near-term design is **single-runtime, checkpoint-resumable work**, not multi-server distributed training.
+This is an arithmetic floor, not a benchmark or guarantee that any free runtime can train ULTRON. A single runtime must be evaluated independently. The repository does not implement distributed gradient synchronization or a multi-host trainer; multiple free accounts/runtimes cannot simply be pooled into one larger device.
 
-## Runtime acceptance checklist
+## Runtime acceptance checklist — still pending
 
-- [ ] Start a clean Colab session from iPad browser and verify no phone-number step is required for the user's account.
-- [ ] Record actual runtime type, CPU count, RAM, GPU name/VRAM, free disk, and current session limits.
-- [ ] Confirm all required packages install from approved sources and no pretrained weights/API are downloaded.
-- [ ] Confirm the checkpoint save/restore path survives runtime reset and file transfer.
-- [ ] Run only environment/preflight checks until separate training authorization.
-- [ ] Verify zero charges and no billing/credit-card activation.
-- [ ] Recheck provider terms and limits at time of use; this review is a dated snapshot.
+- [ ] Owner opens a clean Colab session from iPad and confirms whether access works without phone verification or payment activation.
+- [ ] Record actual runtime type, CPU count, RAM, GPU/VRAM, free disk, and observed session limits.
+- [ ] Confirm installation uses approved packages only; no pretrained weights or external AI APIs.
+- [ ] Confirm checkpoint save, download/transfer, and restore survive runtime reset.
+- [ ] Verify no charges, billing activation, or paid credits are used.
+- [ ] Run environment and preflight checks only; no optimizer steps.
+- [ ] Recheck provider terms at the time of use.
 
 ## Phase 9 exit status
 
-Provider constraints have been researched and the operating strategy documented. Phase 9 remains **incomplete** until a clean, owner-authorized runtime acceptance test confirms actual free resources, no phone verification, zero cost, and checkpoint transfer. No training is approved.
+**Research/documentation complete; operational acceptance incomplete.** No provider has been connected, no training job has been launched, and training is not approved.

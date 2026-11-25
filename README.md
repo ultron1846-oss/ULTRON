@@ -5,6 +5,12 @@
 ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current website is a static frontend and deterministic foundation prototype—not a trained AI model.
 
 
+## Current continuation handoff — pre-training readiness
+
+The latest code review found and fixed shared fast-memory contamination risk: training-time writes reject batch sizes greater than one, and the model now exposes `reset_memory()`. The future trainer must call it between independent examples. This safeguard is merged; no training was run.
+
+Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. Next engineering work: finish bounded training-loop implementation without executing optimizer steps, add strict trainer-level memory reset/validation isolation, then prove checkpoint resume equivalence with non-training state tests before any authorized tiny run. Keep training and remote execution disabled.
+
 ## Pre-training readiness — Phase 1 specification
 
 The current model specification sets a **minimum of 40,000,000 trainable parameters**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
@@ -39,7 +45,7 @@ Added an exact-rational evaluation function for caller-supplied predictions on t
 
 ## Phase 9 — free runtime review
 
-Colab remains the planned primary notebook, but free GPU availability and session limits are dynamic. Lightning AI is excluded under the current phone-verification constraint; Hugging Face Spaces is auxiliary, not a dependable persistent GPU host. No runtime has been connected or tested. See [free runtime review](docs/FREE_RUNTIME_REVIEW.md).
+Official provider terms have been reviewed and documented. Colab remains the planned primary notebook with dynamic, unguaranteed free resources; Lightning AI is excluded under the current phone-verification constraint; Hugging Face ZeroGPU offers only short shared free quota and is auxiliary for brief checks, not dependable training. Actual iPad account/runtime acceptance remains owner-side and incomplete. See [free runtime review](docs/FREE_RUNTIME_REVIEW.md).
 
 ## Frontend status
 
