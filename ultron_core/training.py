@@ -1,3 +1,4 @@
+import copy
 import math
 import random
 import re
@@ -107,12 +108,12 @@ class TrainingSettings:
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                        training_authorized=False, scheduler=None,
                        checkpoint_callback=None, cancellation_check=None,
-                       resume_metadata=None, initial_data_state=None):
+                       resume_metadata=None, initial_data_state=None, sampler=None):
     """Run bounded local training after explicit authorization.
 
-    For resume, the caller must restore/position the batch iterator from the
-    checkpoint data_state before passing it here. Checkpoint callbacks receive
-    the next-batch cursor and dataset hash needed to save a resumable checkpoint.
+    If a resumable sampler is supplied, it must be attached to a DataLoader
+    with num_workers=0. The controller restores sampler state before creating
+    the DataLoader iterator and saves sampler state with checkpoint metadata.
     """
     if training_authorized is not True:
         raise PermissionError("explicit training authorization is required")
@@ -198,6 +199,27 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise ValueError("data cursor epoch/next_batch_index must be non-negative integers")
     cursor["epoch"] = epoch
     cursor["next_batch_index"] = next_batch_index
+
+    committed_sampler_state = None
+    if sampler is not None:
+        if not callable(getattr(sampler, "state_dict", None)) or not callable(getattr(sampler, "load_state_dict", None)):
+            raise TypeError("sampler must provide state_dict() and load_state_dict()")
+        if getattr(batches, "sampler", None) is not sampler:
+            raise ValueError("sampler must be the DataLoader sampler used by batches")
+        workers = getattr(batches, "num_workers", None)
+        if isinstance(workers, bool) or not isinstance(workers, int) or workers != 0:
+            raise ValueError("resumable sampler requires DataLoader num_workers=0")
+        sampler_state = cursor.get("sampler_state")
+        if resume_metadata is not None and not isinstance(sampler_state, dict):
+            raise ValueError("resume checkpoint is missing sampler_state")
+        if isinstance(sampler_state, dict):
+            sampler.load_state_dict(sampler_state)
+        live_sampler_state = sampler.state_dict()
+        if (live_sampler_state.get("dataset_manifest_sha256") != dataset_hash
+                or live_sampler_state.get("seed") != settings.seed
+                or live_sampler_state.get("epoch") != epoch):
+            raise ValueError("sampler state does not match training dataset, seed, or epoch")
+        committed_sampler_state = copy.deepcopy(live_sampler_state)
 
     budget = preflight_report.get("memory_budget_bytes")
     if isinstance(budget, bool) or not isinstance(budget, int) or budget <= 0:
@@ -305,11 +327,15 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                     })
+                    if sampler is not None:
+                        checkpoint_data_state["sampler_state"] = copy.deepcopy(sampler.state_dict())
                     checkpoint_callback(global_step, {
                         "mean_loss": mean_loss,
                         "data_state": checkpoint_data_state,
                         "dataset_manifest_sha256": dataset_hash,
                     })
+                    if sampler is not None:
+                        committed_sampler_state = copy.deepcopy(sampler.state_dict())
                 if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
                     break
@@ -322,6 +348,12 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     # Only batches included in completed optimizer steps are committed. If the
     # final accumulation group is discarded, rewind the cursor so resume replays it.
     committed_microbatches = microbatches_seen - accumulated
+    if sampler is not None:
+        if accumulated and committed_sampler_state is not None:
+            sampler.load_state_dict(committed_sampler_state)
+        final_sampler_state = copy.deepcopy(sampler.state_dict())
+    else:
+        final_sampler_state = None
     final_data_state = dict(cursor)
     final_data_state.update({
         "epoch": epoch,
@@ -329,6 +361,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
+    if final_sampler_state is not None:
+        final_data_state["sampler_state"] = final_sampler_state
     return {
         "steps_completed": session_steps,
         "global_step": global_step,
