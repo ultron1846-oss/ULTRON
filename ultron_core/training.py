@@ -112,6 +112,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise PermissionError("explicit training authorization is required")
     if not isinstance(settings, TrainingSettings):
         raise TypeError("settings must be TrainingSettings")
+    if settings.write_memory:
+        raise NotImplementedError(
+            "memory-writing training requires sequential chunk semantics; "
+            "the current controller treats each batch as independent and resets memory"
+        )
     if not isinstance(preflight_report, dict) or preflight_report.get("validated") is not True:
         raise ValueError("a successful preflight report is required")
     if preflight_report.get("status") != "PREFLIGHT_ONLY":
@@ -193,12 +198,10 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 raise ValueError("input_ids must be a non-empty [batch, sequence] tensor with sequence >= 2")
             if ids.shape[0] > planned_batch or ids.shape[1] > planned_sequence:
                 raise ValueError("batch exceeds the preflight batch/sequence resource plan")
-            if settings.write_memory and ids.shape[0] != 1:
-                raise ValueError("memory-writing training requires batch_size=1 for isolation")
 
             reset_memory()
             try:
-                output = model(ids, write_memory=settings.write_memory, attention_mask=mask)
+                output = model(ids, write_memory=False, attention_mask=mask)
                 if not isinstance(output, dict) or not isinstance(output.get("logits"), torch.Tensor):
                     raise ValueError("model output must contain logits")
                 loss = causal_language_model_loss(
