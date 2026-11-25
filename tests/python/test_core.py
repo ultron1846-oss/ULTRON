@@ -297,6 +297,7 @@ class CoreTests(unittest.TestCase):
             metadata = load_checkpoint(path, restored, expected_dataset_manifest_sha256="a" * 64)
             self.assertEqual(metadata["format_version"], 4)
             self.assertTrue(metadata["rng_restored"])
+            self.assertTrue(metadata["dataset_hash_verified"])
             self.assertEqual(metadata["data_state"], {"epoch": 2, "batch": 9})
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
             torch.testing.assert_close(torch.rand(4), expected_torch)
@@ -327,6 +328,19 @@ class CoreTests(unittest.TestCase):
                 self.assertTrue(torch.equal(value, first_state[name]), name)
 
 
+
+    def test_checkpoint_cursor_restore_requires_expected_dataset_hash(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "verified-cursor.pt"
+            save_checkpoint(path, model, config, step=2, data_state={"cursor": 2},
+                           dataset_manifest_sha256="a" * 64)
+            target = NeuroSparseModel(config)
+            with self.assertRaisesRegex(ValueError, "expected dataset manifest hash is required"):
+                load_checkpoint(path, target)
+            metadata = load_checkpoint(path, target, expected_dataset_manifest_sha256="a" * 64)
+            self.assertTrue(metadata["dataset_hash_verified"])
 
     def test_checkpoint_rejects_dataset_hash_mismatch_before_mutating_model(self):
         config = self.config()
