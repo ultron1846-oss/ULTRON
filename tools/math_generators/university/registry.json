@@ -913,7 +913,7 @@
       "status": "generator_available_not_mastered",
       "generator_topic": "counting_principles",
       "grade_band": "University",
-      "includes_word_problems": false,
+      "includes_word_problems": true,
       "has_generator": true
     },
     {
@@ -1031,7 +1031,7 @@
       "status": "generator_available_not_mastered",
       "generator_topic": "conditional_probability",
       "grade_band": "University",
-      "includes_word_problems": false,
+      "includes_word_problems": true,
       "has_generator": true
     },
     {
