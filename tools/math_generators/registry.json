@@ -25,17 +25,17 @@
     {
       "topic": "multiplication",
       "grade_band": "G3-4",
-      "word_problems": false
+      "word_problems": true
     },
     {
       "topic": "division",
       "grade_band": "G3-4",
-      "word_problems": false
+      "word_problems": true
     },
     {
       "topic": "fractions_basics",
       "grade_band": "G3-4",
-      "word_problems": false
+      "word_problems": true
     },
     {
       "topic": "simple_word_problems",
