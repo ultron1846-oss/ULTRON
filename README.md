@@ -6,6 +6,8 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 ## Frontend status
 
+The latest frontend PR removes owner login and account-specific access UI. The public static website does not offer a public-read-only mode toggle; it simply loads without an account. The Supabase page is an informational generic status check only.
+
 The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
 The frontend is being redesigned around the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
@@ -103,7 +105,7 @@ The backend owner (Codex) should:
 
 ## Next verification steps
 1. Confirm the latest `main` commit is the deployed GitHub Pages version.
-2. On iPad Safari, test navigation and every page: Overview, Mathematics Topics, Math Agent, Memory Vault, Servers & Colab, Supabase Backend, Settings and Settings.
+2. On iPad Safari, test navigation and every page: Overview, Mathematics Topics, Math Agent, Memory Vault, Servers & Colab, Supabase Backend and Settings.
 3. Test supported Math Agent inputs and unsupported-input handling; the removed fixed exercise card must not reappear.
 4. Test Memory Vault history, JSON export/import and clear-all only after exporting any data you want to keep.
 5. Test the workload preference slider and verify it is clearly described as a saved preference, not actual memory allocation.
@@ -114,14 +116,9 @@ The backend owner (Codex) should:
 A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.
 
 
-## Next-chat handoff — owner authentication
+## Superseded handoff — account access removal
 
-- The frontend is account-free; no authentication module or owner-access page is deployed.
-- Verify all public pages work without login and no account-specific controls are rendered.
-- Confirm Supabase Auth email/password provider is already enabled and the existing owner user is active; do not create another account or change Auth settings without explicit approval.
-- Keep service-role keys and `ULTRON_OWNER_USER_ID` secret server-side.
-- Do not launch the CPU diagnostic workflow, training, Colab, or any remote job.
-- Update this README at the next meaningful milestone.
+The prior owner-login instructions are obsolete. The browser auth module and sign-in page have been removed. Do not restore login, sign-up, account-specific controls, pairing, or per-account training history/checkpoint UI. Backend authorization and private database protections remain server-side.
 
 
 ## Frontend completion hardening — 2026-11-24
@@ -153,7 +150,7 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 - Updated the Overview quick-access card to lead to Mathematics Topics instead of the removed practice exercise.
 - Removed the now-unused exercise fixtures, event handlers and practice-only imports from the browser entry module.
 - Existing IndexedDB experience/mistake history and backup tools remain intact; this UI change does not delete browser data. Existing local practice counters are left untouched rather than destructively clearing user preferences.
-- No backend, Supabase, owner authentication, Colab connection, remote execution or model-training behavior changed.
+- No backend, Supabase, Colab connection, remote execution or model-training behavior changed; owner authentication was removed from the frontend.
 
 
 ## GitHub Pages deployment verification — 2026-11-24
@@ -169,7 +166,7 @@ The repository currently has two deployment paths targeting the same Pages envir
 - README content has been aligned to the current page structure and the removal of the fixed exercise interface.
 - Perform the real iPad Safari page-by-page interaction test before declaring frontend completion.
 - Do not connect Google Colab, start a server, submit remote jobs or train the model. The user explicitly deferred server connection until the AI is ready.
-- Preserve Supabase RLS, owner-only checks, credentials and private records. Do not change Auth settings or secrets during frontend QA.
+- Preserve Supabase RLS, server-side authorization, credentials and private records. Do not change Auth settings or secrets during frontend QA.
 - Update this README at every meaningful milestone and leave a precise next-chat handoff.
 
 
