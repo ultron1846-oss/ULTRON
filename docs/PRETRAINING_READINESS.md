@@ -76,9 +76,11 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 7 — Evaluation and benchmark protocol
 
-- [ ] Add mathematically verified task suites.
+- [x] Add exact-rational answer scoring for the three current generator topics, including coverage/abstention and per-topic metrics.
+- [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
-- [ ] Report exact correctness, symbolic equivalence, verifier acceptance, abstention, and error classes.
+- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for exact rational tasks.
+- [ ] Add symbolic equivalence, proof-checker acceptance, and richer error classes.
 - [ ] Benchmark baseline and foundation configs only on an approved runtime.
 - [ ] Record actual latency, peak memory, profiler FLOPs where supported, and hardware/software metadata.
 - [ ] Do not infer mathematical capability from random-token smoke tests.
