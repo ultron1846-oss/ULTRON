@@ -58,6 +58,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "trainable_parameter_count": trainable,
             "total_parameter_count": count_total_parameters(self.model.config),
             "batch_size": 1,
+            "split_counts": {"train": 4, "validation": 1, "test": 1},
             "sequence_length": 3,
             "gradient_accumulation_steps": 2,
             "memory_budget_bytes": 2 * 1024 ** 3,
@@ -81,10 +82,23 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(self.optimizer.steps, 0)
 
     def test_mock_controller_respects_step_cap_and_resets_memory(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=self.settings.seed,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         saved = []
         result = run_training_steps(
-            self.model, self.batches, self.optimizer, self.report,
-            settings=self.settings, training_authorized=True,
+            self.model, loader, self.optimizer, self.report,
+            settings=self.settings, training_authorized=True, sampler=sampler,
             checkpoint_callback=lambda step, metrics: saved.append((step, metrics)),
         )
         self.assertEqual(result["steps_completed"], 2)
@@ -99,6 +113,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(saved[1][1]["dataset_manifest_sha256"], "a" * 64)
         self.assertEqual(result["global_step"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 4)
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
     def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
