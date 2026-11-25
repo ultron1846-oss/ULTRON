@@ -192,11 +192,12 @@ test('Supabase public status client bounds requests and reports timeouts clearly
   );
 });
 
-test('Supabase backend page exposes refresh, timestamp, and accurate owner-gated boundaries', async () => {
+test('Supabase backend page exposes generic status without account controls', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
   assert.match(app, /id="supabase-refresh"/);
   assert.match(app, /id="supabase-status-checked"/);
-  assert.match(app, /OWNER-GATED/);
+  assert.match(app, /PROTECTED/);
+  assert.doesNotMatch(app, /OWNER-GATED|owner sign in|owner-password|owner-email/);
   assert.match(app, /The browser calls only the training-control public_status action/);
   assert.match(app, /timeout/);
 });
