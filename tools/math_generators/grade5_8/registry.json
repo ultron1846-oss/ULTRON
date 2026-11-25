@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "batch": "Batch 2 - Grades 5-8",
+  "topics": [
+    {
+      "topic": "decimal_operations",
+      "grade_band": "G5-6",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "fraction_operations",
+      "grade_band": "G5-6",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "ratios",
+      "grade_band": "G5-6",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "percentages",
+      "grade_band": "G5-6",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "integers",
+      "grade_band": "G5-6",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "exponents",
+      "grade_band": "G5-6",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "order_of_operations",
+      "grade_band": "G5-6",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "linear_equations",
+      "grade_band": "G7-8",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "inequalities",
+      "grade_band": "G7-8",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "basic_geometry",
+      "grade_band": "G5-8",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "angles",
+      "grade_band": "G5-8",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "statistics_basics",
+      "grade_band": "G5-8",
+      "includes_word_problems": true
+    },
+    {
+      "topic": "simple_probability",
+      "grade_band": "G5-8",
+      "includes_word_problems": true
+    }
+  ]
+}
