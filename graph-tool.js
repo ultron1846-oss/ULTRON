@@ -77,6 +77,10 @@ function compile(source) {
   return fn;
 }
 
+export function compileGraphExpression(source) {
+  return compile(String(source).trim().replace(/^y\s*=\s*/i, ''));
+}
+
 function xmlEscape(value) {
   return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
 }
@@ -89,7 +93,7 @@ export function createGraphSvg(expression, options = {}) {
   if (!Number.isFinite(width) || width < 240 || width > 1000 || !Number.isFinite(height) || height < 180 || height > 800) throw new Error('Graph size must be between 240×180 and 1000×800.');
   if (!Number.isFinite(samples) || samples < 100 || samples > 2000) throw new Error('Graph sampling must be between 100 and 2,000 points.');
   const labelExpression = expression.trim().replace(/^y\s*=\s*/i, '');
-  const fn = compile(labelExpression);
+  const fn = compileGraphExpression(labelExpression);
   const pad = 34, plotW = width - pad * 2, plotH = height - pad * 2;
   const xs = Array.from({length: 11}, (_, i) => minX + (maxX - minX) * i / 10);
   const ys = [];

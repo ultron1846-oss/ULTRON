@@ -9,12 +9,13 @@ import math
 import random
 from fractions import Fraction
 
+from .extended_generators import EXTENDED_BANDS, build as build_extended
+
 BANDS = {
     "linear_algebra": "University",
     "multivariable_calculus": "University",
     "differential_equations": "University",
     "discrete_mathematics": "University",
-    "real_analysis": "University",
     "abstract_algebra": "University",
     "optimization": "University",
     "numerical_methods": "University",
@@ -51,6 +52,7 @@ BANDS = {
     "gradient_and_directional_derivatives": "University",
     "chain_rule_multivariable": "University",
 }
+BANDS.update(EXTENDED_BANDS)
 TOPICS = tuple(BANDS)
 WORD_TOPICS = {"conditional_probability", "counting_principles"}
 GENERATOR_METADATA = {
@@ -69,6 +71,8 @@ GENERATOR_METADATA = {
 
 
 def _build(topic: str, rng: random.Random, difficulty: int):
+    if topic in EXTENDED_BANDS:
+        return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
     d = difficulty
     data = {"topic": topic}

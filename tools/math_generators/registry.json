@@ -255,7 +255,7 @@
       "topic": "proof_methods",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "mathematical_induction",
@@ -279,13 +279,13 @@
       "topic": "countable_and_uncountable_sets",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "axiom_of_choice_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "vectors_and_vector_spaces",
@@ -369,19 +369,19 @@
       "topic": "spectral_theorem",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Jordan_form",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "bilinear_and_quadratic_forms",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "limits_and_continuity",
@@ -435,7 +435,7 @@
       "topic": "multivariable_limits",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "partial_derivatives",
@@ -459,31 +459,31 @@
       "topic": "multiple_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "change_of_variables",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "line_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "surface_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "vector_calculus",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Green_stokes_divergence_theorems",
@@ -495,7 +495,7 @@
       "topic": "metric_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "convergence_of_sequences",
@@ -507,31 +507,31 @@
       "topic": "Cauchy_sequences",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "pointwise_and_uniform_convergence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "compactness",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "connectedness",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "continuity_metric_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "differentiation_real_analysis",
@@ -543,7 +543,7 @@
       "topic": "measure_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Lebesgue_measure",
