@@ -15,8 +15,8 @@ class UniversityFoundationTests(unittest.TestCase):
     def test_replay_variation_and_tamper_detection(self):
         for topic in TOPICS:
             self.assertEqual(generate(100,3,topic),generate(100,3,topic))
-            answers={generate(seed,2,topic)["answer"] for seed in range(80)}
-            self.assertGreater(len(answers),10,topic)
+            problems={generate(seed,2,topic)["problem"] for seed in range(80)}
+            self.assertGreater(len(problems),10,topic)
         item=generate(8,2,"linear_algebra")
         item["answer"]="tampered"
         self.assertFalse(verify(item))
