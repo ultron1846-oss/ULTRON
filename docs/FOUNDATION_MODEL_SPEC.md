@@ -50,14 +50,14 @@ These are arithmetic estimates, not a claim that a free provider can train this 
 
 ## Dataset integrity milestone
 
-The generator now has deterministic prompt-disjoint train/validation/test partitioning, duplicate prompt collapse, strict manifest/row schema validation, checksum verification, and content-derived example-ID checks. This does not establish broad mathematical coverage; only the three documented generator topics are supported.
+The generator now has deterministic prompt-disjoint train/validation/test partitioning, duplicate prompt collapse, strict manifest/row schema validation, checksum verification, and content-derived example-ID checks. This does not establish broad mathematical coverage; only five narrow documented generator topics are supported.
 
 ## Required before training
 
-1. Audit tokenizer/vocabulary compatibility and special-token IDs.
+1. Tokenizer vocabulary/special IDs are aligned; freeze the complete task serialization and target-mask convention.
 2. Decide serialization for problem, derivation, answer, and verifier result.
-3. Create leakage-safe deterministic train/validation/test splits and evaluate generator coverage.
-4. Implement bounded training with gradient accumulation, finite-loss/gradient checks, cancellation, and explicit opt-in.
-5. Validate checkpoint resume equivalence, optimizer/scheduler/RNG restoration, and interrupted-save recovery.
+3. Leakage-safe deterministic train/validation/test splitting is implemented; complete corpus balance/coverage audit.
+4. Bounded training controller is implemented and mock-tested; do not execute it without separate authorization and live resource monitoring.
+5. Checkpoint state/RNG/hash/backup recovery is implemented; verify sampler cursor and uninterrupted-versus-resumed equivalence only after separate tiny-run authorization.
 6. Benchmark actual resource use on the selected free runtime and document quotas.
 7. Complete remaining readiness phases and obtain explicit training authorization.
