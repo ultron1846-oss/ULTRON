@@ -47,10 +47,11 @@
       "topic": "proof_methods",
       "title": "proof methods",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "proof_methods"
     },
     {
       "topic": "mathematical_induction",
@@ -86,19 +87,21 @@
       "topic": "countable_and_uncountable_sets",
       "title": "countable and uncountable sets",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "countable_and_uncountable_sets"
     },
     {
       "topic": "axiom_of_choice_intro",
       "title": "axiom of choice intro",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "axiom_of_choice_intro"
     },
     {
       "topic": "vectors_and_vector_spaces",
@@ -234,28 +237,31 @@
       "topic": "spectral_theorem",
       "title": "spectral theorem",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "spectral_theorem"
     },
     {
       "topic": "Jordan_form",
       "title": "Jordan form",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "Jordan_form"
     },
     {
       "topic": "bilinear_and_quadratic_forms",
       "title": "bilinear and quadratic forms",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "bilinear_and_quadratic_forms"
     },
     {
       "topic": "limits_and_continuity",
@@ -341,10 +347,11 @@
       "topic": "multivariable_limits",
       "title": "multivariable limits",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "multivariable_limits"
     },
     {
       "topic": "partial_derivatives",
@@ -380,46 +387,51 @@
       "topic": "multiple_integrals",
       "title": "multiple integrals",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "multiple_integrals"
     },
     {
       "topic": "change_of_variables",
       "title": "change of variables",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "change_of_variables"
     },
     {
       "topic": "line_integrals",
       "title": "line integrals",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "line_integrals"
     },
     {
       "topic": "surface_integrals",
       "title": "surface integrals",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "surface_integrals"
     },
     {
       "topic": "vector_calculus",
       "title": "vector calculus",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "vector_calculus"
     },
     {
       "topic": "Green_stokes_divergence_theorems",
@@ -434,17 +446,18 @@
       "topic": "metric_spaces",
       "title": "metric spaces",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "metric_spaces"
     },
     {
       "topic": "convergence_of_sequences",
       "title": "convergence of sequences",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
-      "generator_topic": "real_analysis",
+      "generator_topic": "convergence_of_sequences",
       "grade_band": "University",
       "includes_word_problems": false,
       "has_generator": true
@@ -453,46 +466,51 @@
       "topic": "Cauchy_sequences",
       "title": "Cauchy sequences",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "Cauchy_sequences"
     },
     {
       "topic": "pointwise_and_uniform_convergence",
       "title": "pointwise and uniform convergence",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "pointwise_and_uniform_convergence"
     },
     {
       "topic": "compactness",
       "title": "compactness",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "compactness"
     },
     {
       "topic": "connectedness",
       "title": "connectedness",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "connectedness"
     },
     {
       "topic": "continuity_metric_spaces",
       "title": "continuity metric spaces",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "continuity_metric_spaces"
     },
     {
       "topic": "differentiation_real_analysis",
@@ -507,10 +525,11 @@
       "topic": "measure_intro",
       "title": "measure intro",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "measure_intro"
     },
     {
       "topic": "Lebesgue_measure",
