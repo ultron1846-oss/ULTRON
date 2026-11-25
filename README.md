@@ -20,8 +20,8 @@ The frontend uses the supplied ULTRON control-room reference: near-black surface
 - **Supabase backend:** refreshable, bounded-time read-only status check with visible last-checked time, plus an audit of deployed Edge Function contracts and backend security findings. It never calls owner-only services from the public site.
 - **Overview:** honest system status, model/training state, capability summary, roadmap and quick links to current pages.
 - **Mathematics topics:** curriculum roadmap with descriptions, prerequisites, representative examples and explicit available/planned status. The former fixed exercise card and its answer/hint/next controls have been removed.
-- **Math Agent:** browser interface to the deterministic arithmetic parser and limited linear-equation solver; unsupported requests are rejected rather than guessed.
-- **Memory vault:** IndexedDB stores existing experiences and mistakes locally, with JSON export/import for manual device-to-device transfer. This is not cloud sync.
+- **Math Agent:** browser interface to the deterministic arithmetic parser and limited linear-equation solver; supported answers have an explicit Save to memory action, and unsupported requests are rejected rather than guessed.
+- **Memory vault:** IndexedDB stores saved Math Agent answers and existing experiences/mistakes locally, with JSON export/import for manual device-to-device transfer. Saves are user-triggered; this is not cloud sync.
 - **Servers & Colab:** reads `servers.json`, handles missing/malformed directory data and never starts remote jobs.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
 - **Owner sign in:** optional email/password sign-in for the existing owner account; no public registration.

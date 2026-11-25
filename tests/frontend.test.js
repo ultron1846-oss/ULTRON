@@ -25,6 +25,16 @@ test('provider directory handles a missing server file without inventing availab
   assert.match(app, /No provider is assumed available/);
 });
 
+test('Math Agent answers can be explicitly saved to local Memory Vault', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  const memory = await readFile(new URL('../memory-store.js', import.meta.url), 'utf8');
+  assert.match(app, /saveExperience/);
+  assert.match(app, /Save to memory/);
+  assert.match(app, /Saved locally/);
+  assert.match(app, /Retry save/);
+  assert.match(memory, /export async function saveExperience/);
+});
+
 test('math agent uses the existing deterministic math engine', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
   assert.match(app, /evaluateExpression/);
