@@ -21,6 +21,41 @@ class SparseExpert(nn.Module):
         return self.net(x)
 
 
+def _dispatch_sparse_experts(flat, weights, indices, experts):
+    """Dispatch fixed top-k assignments after one expert-id sort.
+
+    CUDA's one-argument torch.where/nonzero needs a dynamic output shape and
+    synchronizes with the host. Sorting the fixed-size top-k assignment list
+    lets the CUDA path replace one dynamic selection per expert with one
+    small counts transfer per block. The CPU path keeps the simpler reference
+    implementation because it does not pay device synchronization costs.
+    """
+    token_count, top_k = indices.shape
+    assignment_experts = indices.reshape(-1)
+    assignment_tokens = torch.arange(
+        token_count, device=flat.device
+    ).repeat_interleave(top_k)
+    assignment_weights = weights.reshape(-1)
+
+    order = torch.argsort(assignment_experts, stable=True)
+    sorted_experts = assignment_experts.index_select(0, order)
+    sorted_tokens = assignment_tokens.index_select(0, order)
+    sorted_weights = assignment_weights.index_select(0, order)
+    counts = torch.bincount(sorted_experts, minlength=len(experts)).cpu().tolist()
+
+    dispatched = torch.zeros_like(flat)
+    offset = 0
+    for expert, count in zip(experts, counts):
+        stop = offset + count
+        if count:
+            token_pos = sorted_tokens[offset:stop]
+            values = expert(flat.index_select(0, token_pos))
+            values = values * sorted_weights[offset:stop].unsqueeze(-1)
+            dispatched.index_add_(0, token_pos, values)
+        offset = stop
+    return dispatched
+
+
 class NeuroSparseBlock(nn.Module):
     def __init__(self, c: NeuroSparseConfig):
         super().__init__()
@@ -68,13 +103,18 @@ class NeuroSparseBlock(nn.Module):
         flat = normalized.reshape(-1, normalized.shape[-1])
         idx = indices.reshape(-1, indices.shape[-1])
         wt = weights.reshape(-1, weights.shape[-1])
-        dispatched = torch.zeros_like(flat)
-        for expert_id, expert in enumerate(self.experts):
-            token_pos, slot_pos = torch.where(idx == expert_id)
-            if token_pos.numel() == 0:
-                continue
-            values = expert(flat.index_select(0, token_pos)) * wt[token_pos, slot_pos].unsqueeze(-1)
-            dispatched.index_add_(0, token_pos, values)
+        if flat.device.type == "cuda":
+            dispatched = _dispatch_sparse_experts(flat, wt, idx, self.experts)
+        else:
+            # On CPU, retain the straightforward path; sorting assignments
+            # would add overhead without removing host/device synchronization.
+            dispatched = torch.zeros_like(flat)
+            for expert_id, expert in enumerate(self.experts):
+                token_pos, slot_pos = torch.where(idx == expert_id)
+                if token_pos.numel() == 0:
+                    continue
+                values = expert(flat.index_select(0, token_pos)) * wt[token_pos, slot_pos].unsqueeze(-1)
+                dispatched.index_add_(0, token_pos, values)
 
         mixed = dispatched.reshape_as(x) + self.memory(x, write=write_memory, write_mask=write_mask)
         refined, error, steps = self.refiner(mixed)
