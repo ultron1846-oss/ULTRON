@@ -923,3 +923,12 @@ ULTRON's current capability roadmap is [Path to Fable 5.2](docs/PATH_TO_FABLE_5_
 Progression is gated by measured topic-level results: Stage B broadens to geometry, trigonometry, probability, statistics, linear algebra and number theory; Stage C adds multi-step and competition-style reasoning, considering 1B+ parameters only when justified by results and resource estimates; Stage D adds formal proof checking with Lean. Each topic requires its own verifier, validated data generator, leakage-resistant benchmark and regression tests. Parameter count alone is not evidence of capability.
 
 This plan does not authorize data generation, training, optimizer steps or remote jobs. Training remains disabled until separate explicit authorization, and frontend/device acceptance remains a prerequisite.
+
+
+## Stage A implementation — paired benchmark gate (PR in review)
+
+Stage A now adds `ultron_core/benchmark_comparison.py`, a paired exact-answer comparison tool for caller-supplied ULTRON and baseline prediction files. It compares both systems on the same independently validated references, reports topic-level accuracy/coverage/valid-answer rate, paired wins/losses/ties, exact McNemar p-values, Holm correction, and explicit pass/fail gate conditions. Defaults require 200 examples per topic, a significant corrected paired win, and no more than a 2-percentage-point coverage or validity regression.
+
+This is evaluation infrastructure—not a measured ULTRON-vs-Fable result. It does not invoke either model, create training data, run training, or call an external AI API. Stage A remains in progress until actual matched prediction files are scored and every required topic passes. See [Math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
+
+**Next handoff:** run Python AI Core tests and Node tests; inspect the Stage A diff and CI; fix any failures; merge only after required checks pass. Then freeze the arithmetic/algebra/calculus benchmark task set and establish baseline predictions. Do not start training or data generation without separate authorization.
