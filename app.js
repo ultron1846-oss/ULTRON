@@ -165,7 +165,7 @@ function answerAgent(){
  if(runAgentCommand(raw))return;
  const wordProblem=parseWordProblem(raw);
  if(wordProblem.kind==='solved'){
-  const text=`Answer: ${wordProblem.result}.\\n\\nI identified ${wordProblem.operation} from the wording.\\n${wordProblem.expression} = ${wordProblem.result}.\\n${wordProblem.explanation}`;
+  const text=`Answer: ${wordProblem.result}.\n\nI identified ${wordProblem.operation} from the wording.\n${wordProblem.expression} = ${wordProblem.result}.\n${wordProblem.explanation}`;
   const node=addChat('assistant',text,'ENGLISH WORD-PROBLEM PARSER · TEMPLATE-BASED · VERIFIED ARITHMETIC');
   attachSaveButton(node,raw,text,'English word problem parsed into a supported arithmetic operation and evaluated by the structured parser.');
   return;
