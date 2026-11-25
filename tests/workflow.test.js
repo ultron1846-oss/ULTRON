@@ -13,5 +13,5 @@ test('test workflow runs the built-in suite on PRs and main pushes', async () =>
   const workflow = await readFile(new URL('../.github/workflows/test.yml', import.meta.url), 'utf8');
   assert.match(workflow, /pull_request:/);
   assert.match(workflow, /branches: \[main\]/);
-  assert.match(workflow, /run: node --test/);
+  assert.match(workflow, /run: npm test/);
 });

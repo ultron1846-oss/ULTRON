@@ -906,6 +906,11 @@ ULTRON will use a **measured hybrid stack** rather than force every language int
 No training, dataset generation, cloud execution or remote job was started for this documentation milestone.
 
 
+## Typed browser math engine — 2026-11-25
+
+The deterministic browser math engine now has a strict TypeScript source at `src/math-engine.ts`. Type contracts define token output and the discriminated linear-equation result (`unique`, `all-real`, or `none`). The static GitHub Pages runtime continues to load the compiled `math-engine.js`, so no browser compiler or server is required. CI compiles the TypeScript source before running Node regression tests, including expression precedence, equation outcomes and division-by-zero handling. This is a maintainability/type-safety change; no performance or AI-capability improvement is claimed. No training, data generation or remote execution was performed.
+
+
 ## Bounded training loss metrics — 2026-11-25
 
 The training controller now retains only the current gradient-accumulation group's detached losses for validation/checkpoint metrics. A running scalar sum and count produce the session mean at finalization, avoiding per-microbatch GPU scalar retention and a full-session tensor stack. The mean still includes all processed microbatches, including an incomplete final group that is discarded from optimizer updates. Regression coverage simulates 20 microbatches and checks bounded stack size. No training or device benchmark was run.
