@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 
 from .config import NeuroSparseConfig, count_parameters
+from .sampling import ResumableBatchSampler
 import torch
 from torch.nn import functional as F
 
@@ -107,7 +108,7 @@ class TrainingSettings:
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                        training_authorized=False, scheduler=None,
                        checkpoint_callback=None, cancellation_check=None,
-                       resume_metadata=None, initial_data_state=None):
+                       resume_metadata=None, initial_data_state=None, batch_sampler=None):
     """Run bounded local training after explicit authorization.
 
     For resume, the caller must restore/position the batch iterator from the
@@ -198,6 +199,23 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise ValueError("data cursor epoch/next_batch_index must be non-negative integers")
     cursor["epoch"] = epoch
     cursor["next_batch_index"] = next_batch_index
+    if batch_sampler is not None:
+        sampler_state = cursor.get("sampler_state")
+        if resume_metadata is not None or sampler_state is not None:
+            if not isinstance(sampler_state, dict):
+                raise ValueError("resume/initial data_state must include sampler_state")
+            batch_sampler.load_state_dict(sampler_state)
+            if (batch_sampler.epoch != epoch
+                    or batch_sampler.next_batch_index != next_batch_index):
+                raise ValueError("sampler_state cursor does not match data_state cursor")
+        else:
+            # Fresh run: honor an optional initial epoch/cursor.
+            state = batch_sampler.state_dict(next_batch_index=next_batch_index)
+            state["epoch"] = epoch
+            batch_sampler.load_state_dict(state)
+            cursor["sampler_state"] = batch_sampler.state_dict()
+    elif resume_metadata is not None:
+        raise ValueError("resume requires sampler_state and a ResumableBatchSampler")
 
     budget = preflight_report.get("memory_budget_bytes")
     if isinstance(budget, bool) or not isinstance(budget, int) or budget <= 0:
@@ -225,6 +243,21 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise TypeError("checkpoint_callback must be callable")
     if cancellation_check is not None and not callable(cancellation_check):
         raise TypeError("cancellation_check must be callable")
+    if batch_sampler is not None and not isinstance(batch_sampler, ResumableBatchSampler):
+        raise TypeError("batch_sampler must be ResumableBatchSampler")
+    if (checkpoint_callback is not None or resume_metadata is not None) and batch_sampler is None:
+        raise ValueError("checkpointing/resume requires a ResumableBatchSampler")
+    if batch_sampler is not None:
+        split_counts = preflight_report.get("split_counts")
+        if not isinstance(split_counts, dict) or not isinstance(split_counts.get("train"), int):
+            raise ValueError("preflight must include the training split size for sampler validation")
+        if batch_sampler.dataset_size != split_counts["train"]:
+            raise ValueError("batch sampler dataset_size does not match preflight train split")
+        if batch_sampler.batch_size != planned_batch:
+            raise ValueError("batch sampler batch_size does not match preflight")
+        loader_sampler = getattr(batches, "batch_sampler", None)
+        if loader_sampler is not None and loader_sampler is not batch_sampler:
+            raise ValueError("DataLoader must use the supplied resumable batch_sampler")
 
     if resume_metadata is None:
         seed_training_rng(settings.seed, deterministic=settings.deterministic)
@@ -305,6 +338,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                     })
+                    if batch_sampler is not None:
+                        checkpoint_data_state["sampler_state"] = batch_sampler.state_dict(
+                            next_batch_index=next_batch_index + microbatches_seen)
                     checkpoint_callback(global_step, {
                         "mean_loss": mean_loss,
                         "data_state": checkpoint_data_state,
@@ -323,12 +359,16 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     # final accumulation group is discarded, rewind the cursor so resume replays it.
     committed_microbatches = microbatches_seen - accumulated
     final_data_state = dict(cursor)
+    final_next_batch_index = next_batch_index + committed_microbatches
     final_data_state.update({
         "epoch": epoch,
-        "next_batch_index": next_batch_index + committed_microbatches,
+        "next_batch_index": final_next_batch_index,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
+    if batch_sampler is not None:
+        final_data_state["sampler_state"] = batch_sampler.state_dict(
+            next_batch_index=final_next_batch_index)
     return {
         "steps_completed": session_steps,
         "global_step": global_step,
