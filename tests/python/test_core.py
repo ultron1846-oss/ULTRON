@@ -82,7 +82,7 @@ class CoreTests(unittest.TestCase):
 
     def test_grouped_sparse_dispatch_matches_reference_output_and_gradients(self):
         torch.manual_seed(2026)
-        token_count, hidden, expert_count, top_k = 7, 8, 4, 2
+        token_count, hidden, expert_count, top_k = 7, 8, 5, 2
         flat = torch.randn(token_count, hidden, requires_grad=True)
         weights = torch.rand(token_count, top_k, requires_grad=True)
         indices = torch.tensor([
