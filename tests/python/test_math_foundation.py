@@ -154,6 +154,20 @@ class DeterministicDataGenerationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 verify_dataset(path)
 
+
+    def test_polynomial_derivative_examples_are_exactly_validated(self):
+        examples = generate_examples(717, 80, topics=("polynomial_derivative",))
+        self.assertTrue(all(item.validation_status == "semantically_checked" for item in examples))
+        self.assertTrue(all(validate_example_text(item.input_text, item.exact_answer, item.topic)
+                            for item in examples))
+        self.assertTrue(validate_example_text(
+            "differentiate: 3*x^3 - 2*x + 5", "9*x^2 - 2", "polynomial_derivative"))
+        self.assertFalse(validate_example_text(
+            "differentiate: 3*x^3 - 2*x + 5", "9*x^2 + 2", "polynomial_derivative"))
+        self.assertFalse(validate_example_text(
+            "differentiate: x^13", "13*x^12", "polynomial_derivative"))
+
+
     def test_split_examples_are_deterministic_deduplicated_and_prompt_disjoint(self):
         examples = generate_examples(4301, 500)
         first = split_examples(examples, validation_fraction=0.15, test_fraction=0.15, seed=99)
