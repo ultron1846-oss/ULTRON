@@ -24,6 +24,11 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertFalse(report["proof_verified"])
         self.assertFalse(report["model_evaluated"])
         self.assertFalse(report["training_performed"])
+        self.assertEqual(report["schema_version"], 3)
+        self.assertEqual(report["error_class_counts"], {
+            "abstention": 1, "correct_answer": 27, "incorrect_answer": 1,
+            "malformed_output": 1,
+        })
 
 
     def test_invalid_predictions_are_not_abstentions(self):
@@ -58,6 +63,18 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertEqual(report["answered"], 4)
         self.assertEqual(report["invalid_predictions"], 1)
         self.assertEqual(report["abstentions"], 0)
+
+    def test_polynomial_answers_are_scored_by_exact_symbolic_equivalence(self):
+        examples = generate_examples(29, 100, topics=("polynomial_derivative",))
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        item = next(item for item in examples if " + " in item.exact_answer or " - " in item.exact_answer)
+        target = item.exact_answer
+        equivalent = target.replace(" ", "")
+        self.assertNotEqual(equivalent, target)
+        predictions[item.example_id] = equivalent
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["correct"], 100)
+        self.assertEqual(report["error_class_counts"]["correct_answer"], 100)
 
     def test_scores_exact_polynomial_derivative_predictions(self):
         examples = generate_examples(29, 25, topics=("polynomial_derivative",))
