@@ -40,7 +40,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "proof_methods",
@@ -78,7 +78,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "countable_and_uncountable_sets",
@@ -145,7 +145,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "matrix_rank",
@@ -194,7 +194,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "inner_product_spaces",
@@ -203,7 +203,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "orthogonality_and_projection",
@@ -212,7 +212,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "least_squares",
@@ -221,7 +221,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "spectral_theorem",
@@ -277,7 +277,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Taylor_series",
@@ -296,7 +296,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "improper_integrals",
@@ -305,7 +305,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "sequences_and_series",
@@ -314,7 +314,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "power_series",
@@ -323,7 +323,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "multivariable_limits",
@@ -351,7 +351,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "chain_rule_multivariable",
@@ -360,7 +360,7 @@
       "status": "catalogued_not_implemented",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "multiple_integrals",
