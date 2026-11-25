@@ -64,7 +64,7 @@ def build_university_registry() -> dict:
             **topic,
             "grade_band": "University",
             "includes_word_problems": False,
-            "has_generator": topic["topic"] in implemented,
+            "has_generator": topic["topic"] in implemented or topic.get("generator_topic") in implemented,
         })
     return {
         "version": 1,
