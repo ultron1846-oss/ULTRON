@@ -169,6 +169,14 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
         if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
             raise ValueError("resume checkpoint dataset manifest does not match preflight")
+        saved_seed = resume_cursor.get("seed")
+        if (isinstance(saved_seed, bool) or not isinstance(saved_seed, int)
+                or saved_seed != settings.seed):
+            raise ValueError("resume checkpoint seed does not match training settings")
+        saved_accumulation = resume_cursor.get("gradient_accumulation_steps")
+        if (isinstance(saved_accumulation, bool) or not isinstance(saved_accumulation, int)
+                or saved_accumulation != settings.gradient_accumulation_steps):
+            raise ValueError("resume checkpoint accumulation does not match training settings")
         resume_step = resume_metadata.get("step")
         if isinstance(resume_step, bool) or not isinstance(resume_step, int) or resume_step < 0:
             raise ValueError("resume checkpoint global step is invalid")
