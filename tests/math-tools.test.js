@@ -26,7 +26,7 @@ test('table of values validates direction and bounds',()=>{
   ]);
   assert.throws(()=>tableOfValues('x',0,1000,1),/101 rows/);
   assert.throws(()=>tableOfValues('x',0,2,-1),/point from start/);
-  assert.match(executeMathToolCommand('/table x^2 -2 2 1').output,/4 \| 4/);
+  assert.match(executeMathToolCommand('/table x^2 -2 2 1').output,/2 \| 4/);
 });
 
 test('numerical derivative matches polynomial and trig reference values',()=>{
