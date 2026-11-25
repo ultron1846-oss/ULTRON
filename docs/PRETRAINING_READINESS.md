@@ -78,6 +78,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Require preflight memory budget to cover persistent state and enforce batch/sequence/accumulation limits.
 - [x] Preserve checkpoint-restored RNG on resume; require checkpoint/preflight dataset hash match.
 - [x] Check expected dataset hash inside checkpoint loader before mutating model/optimizer/scheduler/RNG state.
+- [x] Require the loader's dataset_hash_verified flag at trainer resume; fail closed if a checkpoint data cursor is loaded without an expected manifest hash.
 - [ ] Restore sampler/data-loader cursor and verify exact reproducibility across a clean runtime restart.
 - [ ] Add measured resource cap enforcement (current controller checks only the preflight budget; no live RAM/VRAM monitor).
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
@@ -136,8 +137,9 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Continue Phase 7: add symbolic equivalence, proof-checker acceptance, and broader independently validated mathematical suites.
-2. Phase 8 remaining: implement sampler/DataLoader cursor replay and prove resumed execution matches uninterrupted execution within tolerance.
-3. Add measured live RAM/VRAM resource cap enforcement and document storage/backup limits.
-4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
-5. Keep real-weight training and remote execution disabled until separate explicit authorization.
+1. Owner notebook: construct the train-split DataLoader with ResumableRandomSampler, persist callback data_state, and pass the expected dataset SHA-256 when loading checkpoints.
+2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
+3. Add measured live RAM/VRAM resource cap enforcement and document checkpoint storage/backup limits.
+4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
+5. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
+6. Keep real-weight training and remote execution disabled until separate explicit authorization.
