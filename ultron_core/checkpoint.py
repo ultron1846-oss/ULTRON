@@ -185,11 +185,15 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             or len(expected_dataset_manifest_sha256) != 64
             or any(char not in "0123456789abcdef" for char in expected_dataset_manifest_sha256)):
         raise ValueError("expected_dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
+    if data_state is not None and expected_dataset_manifest_sha256 is None:
+        raise ValueError("expected dataset manifest hash is required to restore a data cursor")
+    dataset_hash_verified = False
     if expected_dataset_manifest_sha256 is not None:
         if dataset_hash is None:
             raise ValueError("checkpoint has no dataset manifest hash for expected dataset")
         if not hmac.compare_digest(dataset_hash, expected_dataset_manifest_sha256):
             raise ValueError("checkpoint dataset manifest hash does not match expected dataset")
+        dataset_hash_verified = True
     rng_state = payload.get("rng")
     if restore_rng and version >= 3 and not isinstance(rng_state, dict):
         raise ValueError("checkpoint RNG state is missing")
@@ -217,4 +221,5 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     return {"step": step, "config": saved_config, "sha256": _digest(source),
             "source_path": str(source), "data_state": data_state,
             "dataset_manifest_sha256": dataset_hash, "format_version": version,
-            "rng_restored": bool(restore_rng and version >= 3)}
+            "rng_restored": bool(restore_rng and version >= 3),
+            "dataset_hash_verified": dataset_hash_verified}
