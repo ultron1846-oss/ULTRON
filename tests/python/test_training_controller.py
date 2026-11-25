@@ -194,10 +194,12 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         report = dict(self.report)
         report["split_counts"] = {"train": 8, "validation": 1, "test": 1}
         metadata = {"format_version": 4, "rng_restored": True,
+                    "dataset_hash_verified": True,
                     "step": 12, "seed": 0, "gradient_accumulation_steps": 2,
                     "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0,
                                    "gradient_accumulation_steps": 2,
-                                   "sampler_state": sampler_state},
+                                   "dataset_manifest_sha256": "a" * 64,
+                                   "dataset_size": 8, "sampler_state": sampler_state},
                     "dataset_manifest_sha256": "a" * 64}
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                    max_seconds=60, write_memory=False)
@@ -215,9 +217,12 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 5)
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
-        metadata = {"format_version": 4, "rng_restored": True, "step": 4,
+        metadata = {"format_version": 4, "rng_restored": True,
+                    "dataset_hash_verified": True, "step": 4,
                     "data_state": {"epoch": 0, "next_batch_index": 2, "seed": 0,
-                                   "gradient_accumulation_steps": 2},
+                                   "gradient_accumulation_steps": 2,
+                                   "dataset_manifest_sha256": "a" * 64,
+                                   "dataset_size": 4},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "seed does not match"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
@@ -282,10 +287,12 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler_state = sampler.state_dict()
         metadata = {
             "format_version": 4, "step": 0, "rng_restored": True,
+            "dataset_hash_verified": True,
             "seed": 0, "gradient_accumulation_steps": 2,
             "dataset_manifest_sha256": "a" * 64,
             "data_state": {"epoch": 0, "next_batch_index": 1, "seed": 0,
-                "gradient_accumulation_steps": 2, "sampler_state": sampler_state},
+                "gradient_accumulation_steps": 2, "dataset_manifest_sha256": "a" * 64,
+                "dataset_size": 4, "sampler_state": sampler_state},
         }
         with self.assertRaisesRegex(ValueError, "sample cursor does not match"):
             run_training_steps(self.model, loader, self.optimizer, self.report,
@@ -395,13 +402,14 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         saved_sampler_state = sampler.state_dict()
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         data_state = {
-            "epoch": 0, "next_batch_index": 2, "seed": 0,
-            "gradient_accumulation_steps": 2,
+            "epoch": 0, "next_batch_index": 2, "next_sample_index": 2,
+            "dataset_size": 8, "dataset_manifest_sha256": "a" * 64,
+            "seed": 0, "gradient_accumulation_steps": 2,
             "sampler_state": saved_sampler_state,
         }
         metadata = {
-            "format_version": 4, "rng_restored": True, "step": 6,
-            "seed": 0, "gradient_accumulation_steps": 2,
+            "format_version": 4, "rng_restored": True, "dataset_hash_verified": True,
+            "step": 6, "seed": 0, "gradient_accumulation_steps": 2,
             "data_state": data_state, "dataset_manifest_sha256": "a" * 64,
         }
         report = dict(self.report)
@@ -413,6 +421,34 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["global_step"], 7)
         self.assertEqual(result["data_state"]["next_batch_index"], 4)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+
+    def test_trainer_rewinds_sampler_on_cancellation_after_batch_fetch(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        report = dict(self.report)
+        report["split_counts"] = {"train": 4, "validation": 1, "test": 1}
+        report["gradient_accumulation_steps"] = 1
+        checks = iter((False, False, True))
+        result = run_training_steps(self.model, loader, self.optimizer, report,
+            settings=TrainingSettings(max_steps=3, gradient_accumulation_steps=1,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True, sampler=sampler,
+            cancellation_check=lambda: next(checks))
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["stop_reason"], "cancelled")
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 1)
+        self.assertEqual(sampler.next_index, 1)
 
     def test_trainer_rewinds_sampler_after_discarded_accumulation(self):
         from torch.utils.data import DataLoader, Dataset
@@ -482,6 +518,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
+                    "dataset_hash_verified": True,
                     "data_state": {"epoch": 1, "batch": 3},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "epoch and next_batch_index"):
@@ -546,7 +583,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
         base = {"format_version": 4, "rng_restored": True,
-                "data_state": {"epoch": 0, "next_batch_index": 1}, "dataset_manifest_sha256": "b" * 64}
+                "dataset_hash_verified": True,
+                "data_state": {"epoch": 0, "next_batch_index": 1},
+                "dataset_manifest_sha256": "b" * 64}
         with self.assertRaisesRegex(ValueError, "does not match preflight"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=base)

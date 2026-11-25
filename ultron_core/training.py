@@ -156,6 +156,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     dataset_hash = preflight_report.get("dataset_manifest_sha256")
     if not isinstance(dataset_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", dataset_hash):
         raise ValueError("training requires a verified dataset manifest SHA-256 in preflight")
+    split_counts = preflight_report.get("split_counts")
+    if (not isinstance(split_counts, dict) or isinstance(split_counts.get("train"), bool)
+            or not isinstance(split_counts.get("train"), int) or split_counts.get("train") <= 0):
+        raise ValueError("preflight must include a valid training split size")
+    train_size = split_counts["train"]
 
     if resume_metadata is not None:
         if not isinstance(resume_metadata, dict):
@@ -166,11 +171,17 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 or resume_metadata.get("rng_restored") is not True
                 or not isinstance(resume_metadata.get("data_state"), dict)):
             raise ValueError("resume checkpoint must include restored RNG and data cursor state")
+        if resume_metadata.get("dataset_hash_verified") is not True:
+            raise ValueError("resume checkpoint dataset manifest hash was not verified")
         resume_cursor = resume_metadata["data_state"]
         if "epoch" not in resume_cursor or "next_batch_index" not in resume_cursor:
             raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
         if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
             raise ValueError("resume checkpoint dataset manifest does not match preflight")
+        if resume_cursor.get("dataset_manifest_sha256") != dataset_hash:
+            raise ValueError("resume data cursor dataset manifest does not match preflight")
+        if resume_cursor.get("dataset_size") != train_size:
+            raise ValueError("resume data cursor dataset size does not match preflight train split")
         saved_seed = resume_cursor.get("seed")
         if (isinstance(saved_seed, bool) or not isinstance(saved_seed, int)
                 or saved_seed != settings.seed):
@@ -198,8 +209,14 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             or isinstance(next_batch_index, bool) or not isinstance(next_batch_index, int)
             or next_batch_index < 0):
         raise ValueError("data cursor epoch/next_batch_index must be non-negative integers")
+    if cursor.get("dataset_manifest_sha256", dataset_hash) != dataset_hash:
+        raise ValueError("data cursor dataset manifest hash does not match preflight")
+    if cursor.get("dataset_size", train_size) != train_size:
+        raise ValueError("data cursor dataset size does not match preflight train split")
     cursor["epoch"] = epoch
     cursor["next_batch_index"] = next_batch_index
+    cursor["dataset_manifest_sha256"] = dataset_hash
+    cursor["dataset_size"] = train_size
 
     committed_sampler_state = None
     if (checkpoint_callback is not None or resume_metadata is not None) and sampler is None:
@@ -218,12 +235,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             raise ValueError("DataLoader batch_size must match the preflight batch size")
         if getattr(batches, "drop_last", False) is not False:
             raise ValueError("resumable sampler requires DataLoader drop_last=False")
-        split_counts = preflight_report.get("split_counts")
-        if (not isinstance(split_counts, dict) or isinstance(split_counts.get("train"), bool)
-                or not isinstance(split_counts.get("train"), int) or split_counts.get("train") <= 0):
-            raise ValueError("preflight must include a valid training split size")
-        if len(sampler.data_source) != split_counts["train"]:
+        if len(sampler.data_source) != train_size:
             raise ValueError("sampler dataset size does not match preflight train split")
+        loader_dataset = getattr(batches, "dataset", None)
+        if loader_dataset is None or len(loader_dataset) != train_size:
+            raise ValueError("DataLoader dataset size does not match preflight train split")
         sampler_state = cursor.get("sampler_state")
         if resume_metadata is not None and not isinstance(sampler_state, dict):
             raise ValueError("resume checkpoint is missing sampler_state")
@@ -348,10 +364,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     checkpoint_data_state.update({
                         "epoch": epoch,
                         "next_batch_index": next_batch_index + microbatches_seen,
+                        "dataset_manifest_sha256": dataset_hash,
+                        "dataset_size": train_size,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                     })
                     if committed_sampler_state is not None:
+                        checkpoint_data_state["next_sample_index"] = committed_sampler_state["next_index"]
                         checkpoint_data_state["sampler_state"] = copy.deepcopy(committed_sampler_state)
                     checkpoint_callback(global_step, {
                         "mean_loss": mean_loss,
@@ -371,8 +390,10 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     # final accumulation group is discarded, rewind the cursor so resume replays it.
     committed_microbatches = microbatches_seen - accumulated
     if sampler is not None:
-        if accumulated and committed_sampler_state is not None:
-            sampler.load_state_dict(committed_sampler_state)
+        if committed_sampler_state is not None:
+            current_sampler_state = sampler.state_dict()
+            if current_sampler_state.get("next_index") != committed_sampler_state.get("next_index"):
+                sampler.load_state_dict(committed_sampler_state)
         final_sampler_state = copy.deepcopy(sampler.state_dict())
     else:
         final_sampler_state = None
@@ -380,10 +401,18 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     final_data_state.update({
         "epoch": epoch,
         "next_batch_index": next_batch_index + committed_microbatches,
+        "dataset_manifest_sha256": dataset_hash,
+        "dataset_size": train_size,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
     if final_sampler_state is not None:
+        expected_final_sample_cursor = min(
+            (next_batch_index + committed_microbatches) * planned_batch, train_size
+        )
+        if final_sampler_state.get("next_index") != expected_final_sample_cursor:
+            raise ValueError("final sampler cursor does not match committed batch cursor")
+        final_data_state["next_sample_index"] = final_sampler_state["next_index"]
         final_data_state["sampler_state"] = final_sampler_state
     return {
         "steps_completed": session_steps,
