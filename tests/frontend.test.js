@@ -200,6 +200,7 @@ test('Supabase backend page exposes generic status and retains owner sign-in', a
   assert.match(app, /OWNER-GATED/);
   assert.match(app, /renderOwner/);
   assert.match(app, /owner sign in/i);
-  assert.match(app, /The browser calls only the training-control public_status action/);
+  assert.match(app, /training-control public_status action/);
+  assert.match(app, /protected health action/);
   assert.match(app, /timeout/);
 });
