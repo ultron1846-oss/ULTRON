@@ -316,7 +316,7 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         answer = (f"x={_fraction_text(Fraction(c * e - b * f, determinant))}, "
                   f"y={_fraction_text(Fraction(a * f - c * d, determinant))}")
         params = {"a": a, "b": b, "c": c, "d": d, "e": e, "f": f,
-                  "determinant": determinant, "solution_x": x, "solution_y": y}
+                  "determinant": determinant}
         difficulty = 4
     else:
         raise ValueError(f"unsupported topic: {topic}")
