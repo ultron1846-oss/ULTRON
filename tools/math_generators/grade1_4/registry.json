@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "batch": "Batch 1 - Grades 1-4",
+  "topics": [
+    {
+      "topic": "counting",
+      "grade_band": "G1-2"
+    },
+    {
+      "topic": "addition",
+      "grade_band": "G1-2"
+    },
+    {
+      "topic": "subtraction",
+      "grade_band": "G1-2"
+    },
+    {
+      "topic": "place_value",
+      "grade_band": "G1-2"
+    },
+    {
+      "topic": "multiplication",
+      "grade_band": "G3-4"
+    },
+    {
+      "topic": "division",
+      "grade_band": "G3-4"
+    },
+    {
+      "topic": "fractions_basics",
+      "grade_band": "G3-4"
+    },
+    {
+      "topic": "simple_word_problems",
+      "grade_band": "G3-4"
+    },
+    {
+      "topic": "time_and_money",
+      "grade_band": "G3-4"
+    },
+    {
+      "topic": "perimeter_and_area",
+      "grade_band": "G3-4"
+    }
+  ]
+}
