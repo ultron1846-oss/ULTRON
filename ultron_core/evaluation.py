@@ -1,7 +1,6 @@
 """Exact-answer evaluation for ULTRON's supported generated math tasks."""
 from __future__ import annotations
 from collections import Counter
-import re
 from typing import Mapping, Iterable
 from .data_generation import MathExample, _parse_integer_polynomial, _parse_linear_system_answer, _parse_matrix_inverse_answer, validate_example_text
 
