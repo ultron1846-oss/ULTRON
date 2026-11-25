@@ -223,6 +223,7 @@ class TrainingPreflightTests(unittest.TestCase):
         report = preflight_training_plan(
             self.config, self.splits, batch_size=1, sequence_length=128,
             gradient_accumulation_steps=4, memory_budget_gib=0.5,
+            dataset_manifest_sha256="a" * 64,
         )
         self.assertEqual(report["status"], "PREFLIGHT_ONLY")
         self.assertTrue(report["validated"])
