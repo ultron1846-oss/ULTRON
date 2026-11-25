@@ -313,3 +313,12 @@ Public API:
 - Operators +, -, *, / accept another RealAlgebraicNumber.
 
 The implementation intentionally does not claim a minimal polynomial, irreducibility, general multivariate algebraic-number support, a complete computer algebra system, or a formally verified proof kernel. Regression tests include conjugate multiplicities, positive-root selection, reciprocal and quotient cases, rational operands, cancellation, zero division and resource exhaustion.
+
+
+## CUDA sparse expert dispatch synchronization reduction
+
+The CUDA path now flattens the fixed top-k assignments, stably sorts them by expert ID, and computes per-expert counts. It transfers the small count vector to the host once per block, then dispatches contiguous assignment ranges. This replaces the previous per-expert one-argument `torch.where` selection, which produces dynamic-size indices and can synchronize CUDA with the host. CPU execution retains the simpler reference loop because sorting has no host-synchronization benefit there.
+
+The grouped path preserves the same token-to-expert assignments, router weights, expert calls, and `index_add_` aggregation. Regression tests compare forward output and gradients for input tokens, routing weights, and expert parameters against the original reference loop. This is a synchronization-count optimization; actual throughput depends on token count, top-k, expert count, and device, and has not been benchmarked on target hardware.
+
+Reference: [PyTorch Performance Tuning Guide — Avoid unnecessary CPU-GPU synchronization](https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide).
