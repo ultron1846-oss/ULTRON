@@ -249,6 +249,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["discarded_microbatches"], 1)
         self.assertEqual(result["global_step"], 1)
         self.assertEqual(result["data_state"]["next_batch_index"], 2)
+        self.assertEqual(result["data_state"]["next_sample_index"], 2)
 
     def test_initial_cursor_is_preserved_and_advanced(self):
         result = run_training_steps(self.model, self.batches[:2], self.optimizer,
@@ -257,6 +258,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             initial_data_state={"epoch": 5, "next_batch_index": 10})
         self.assertEqual(result["data_state"]["epoch"], 5)
         self.assertEqual(result["data_state"]["next_batch_index"], 12)
+        self.assertEqual(result["data_state"]["next_sample_index"], 2)
         self.assertEqual(result["global_step"], 1)
 
     def test_checkpoint_callback_metadata_can_be_persisted_and_restored(self):
