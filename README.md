@@ -21,6 +21,10 @@ The original generator currently covers only arithmetic, rational arithmetic, an
 
 The foundation config now binds to the canonical 240-token math vocabulary instead of the initial 256-token placeholder. The revised exact count is **63,400,451**.
 
+## Phase 6 — training preflight (validation only)
+
+Added `ultron_core/preflight.py` to validate the 40M floor, canonical tokenizer size, non-empty prompt-disjoint splits, sequence/batch settings, and FP32 persistent-state estimate. The report explicitly says `PREFLIGHT_ONLY`, training unauthorized, zero optimizer steps, and remote execution disabled. It does not instantiate a model or optimizer.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
