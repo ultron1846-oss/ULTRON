@@ -2,7 +2,7 @@
 
 ## Current implementation (source-reviewed 2026-11-25)
 
-The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for seven narrow exact-synthetic topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and a bounded local training controller. This is not yet a complete end-to-end training pipeline or validated training run.
+The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for eight narrow exact-synthetic topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and a bounded local training controller. This is not yet a complete end-to-end training pipeline or validated training run.
 
 - `ultron_core/model.py`: experimental sparse-expert causal sequence model.
 - `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,400,451-total / 61,826,048-trainable configuration.

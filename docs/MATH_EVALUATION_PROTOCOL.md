@@ -21,14 +21,15 @@ The evaluator does not instantiate or run a neural model. Its output sets `model
 
 ## Supported scope
 
-Current generator topics (version 0.4.0) are:
+Current generator topics (version 0.5.0) are:
 - integer arithmetic;
 - rational arithmetic;
 - simple one-variable linear equations;
 - bounded polynomial derivatives with integer coefficients and degree 2–5;
-- exact definite integrals of integer-coefficient polynomials (degree 1–4, rational bounds).
+- exact definite integrals of integer-coefficient polynomials (degree 1–4, rational bounds);
+- exact 2×2 matrix inverses for non-singular integer matrices, with rational matrix outputs.
 
-For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded integer-polynomial grammar and are compared by exact coefficient maps rather than raw string equality. Definite-integral predictions use exact rational strings. It does not parse natural-language explanations, derivations, or proof steps.
+For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded integer-polynomial grammar and are compared by exact coefficient maps rather than raw string equality. Definite-integral predictions use exact rational strings. Matrix-inverse predictions use a 2×2 rational matrix grammar and are compared entrywise with exact Fraction values. It does not parse natural-language explanations, derivations, or proof steps.
 
 ## Held-out evaluation rules
 
