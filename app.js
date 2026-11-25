@@ -1,7 +1,7 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261125-1';
-import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory } from './memory-store.js?v=20261124-5';
+import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory, saveExperience } from './memory-store.js?v=20261124-5';
 
 const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
 const topics = [
@@ -120,15 +120,16 @@ function renderOwner(){
  + card('<div class="eyebrow">ACCESS BOUNDARY</div><h2>Public and owner areas</h2><ul class="feature-list"><li>Overview, learning, Math Agent and local memory remain public.</li><li>Owner identity is checked against the server-side owner configuration.</li><li>Non-owner accounts are denied even if they can authenticate.</li><li>Training and remote execution remain disabled unless separately authorized.</li></ul>');
 }
 function render(page){return ({owner:renderOwner,overview:renderOverview,learning:renderLearning,agent:renderAgent,memory:renderMemory,servers:renderServers,backend:renderBackend,settings:renderSettings})[page]();}
-function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}document.querySelector('#chat-log').append(node);}
+function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}const log=document.querySelector('#chat-log');log.append(node);log.scrollTop=log.scrollHeight;return node;}
+function attachSaveButton(node,prompt,answer,explanation){const button=document.createElement('button');button.type='button';button.className='outline-button memory-save-button';button.textContent='Save to memory';button.addEventListener('click',async()=>{button.disabled=true;button.textContent='Saving…';try{await saveExperience({prompt,answer,correct:true,topic:'Math Agent',explanation});button.textContent='Saved locally';button.title='Saved in this browser’s ULTRON Memory Vault';}catch(error){button.disabled=false;button.textContent='Retry save';button.title=error.message||'Local memory save failed';}});node.append(button);}
 function answerAgent(){
  const input=document.querySelector('#agent-input');const raw=input.value.trim();if(!raw)return;
  addChat('user',raw);input.value='';
  const equation=raw.match(/(?:solve\s+)?([0-9xX+*/().\s^=-]+=[0-9xX+*/().\s^=-]+)/i);
  const expression=raw.replace(/^(what is|calculate|compute)\s+/i,'').replace(/[?]$/,'').trim();
  try{
-  if(equation){const result=solveLinearEquation(equation[1].replace(/\s+/g,''));const text=result.kind==='unique'?`Solution: x = ${result.value}.`:result.kind==='none'?'This equation has no solution.':'Every real value of x is a solution.';addChat('assistant',text,'Solved by the deterministic linear-equation routine.');}
-  else if(/^[0-9+*/().\s^×÷−-]+$/.test(expression)){const value=evaluateExpression(expression);addChat('assistant',`Result: ${value}`,`Expression: ${expression}. Evaluated by the deterministic arithmetic parser.`);}
+  if(equation){const result=solveLinearEquation(equation[1].replace(/\s+/g,''));const text=result.kind==='unique'?`Solution: x = ${result.value}.`:result.kind==='none'?'This equation has no solution.':'Every real value of x is a solution.';const node=addChat('assistant',text,'Solved by the deterministic linear-equation routine.');attachSaveButton(node,raw,text,'Linear equation solved by the deterministic ULTRON engine.');}
+  else if(/^[0-9+*/().\s^×÷−-]+$/.test(expression)){const value=evaluateExpression(expression);const text=`Result: ${value}`;const node=addChat('assistant',text,`Expression: ${expression}. Evaluated by the deterministic arithmetic parser.`);attachSaveButton(node,raw,text,'Arithmetic expression evaluated by the deterministic ULTRON parser.');}
   else addChat('assistant','I cannot safely identify a supported arithmetic expression or linear equation in that message. Try an expression such as (12 + 8) / 4 or an equation such as 2x + 3 = 11.','Unsupported requests are not guessed.');
  }catch(error){addChat('assistant',`I could not solve that input: ${error.message}`,'Check the syntax and supported-operation limits.');}
 }
