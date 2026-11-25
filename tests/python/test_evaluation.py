@@ -45,6 +45,17 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertAlmostEqual(report["valid_answer_rate"], 28 / 30)
 
 
+    def test_scores_exact_linear_system_answer_pairs(self):
+        examples = generate_examples(724, 20, topics=("linear_system_2x2",))
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        first = examples[0]
+        predictions[first.example_id] = "x=999, y=-999"
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["answered"], 20)
+        self.assertEqual(report["correct"], 19)
+        self.assertEqual(report["incorrect_valid_predictions"], 1)
+        self.assertEqual(report["per_topic"]["linear_system_2x2"]["correct"], 19)
+
     def test_scores_exact_polynomial_definite_integral_predictions(self):
         examples = generate_examples(39, 25, topics=("polynomial_definite_integral",))
         predictions = {item.example_id: item.exact_answer for item in examples}
