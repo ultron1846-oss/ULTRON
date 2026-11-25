@@ -311,10 +311,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         if isinstance(previous_training_mode, bool):
             model.train(previous_training_mode)
 
+    # Only batches included in completed optimizer steps are committed. If the
+    # final accumulation group is discarded, rewind the cursor so resume replays it.
+    committed_microbatches = microbatches_seen - accumulated
     final_data_state = dict(cursor)
     final_data_state.update({
         "epoch": epoch,
-        "next_batch_index": next_batch_index + microbatches_seen,
+        "next_batch_index": next_batch_index + committed_microbatches,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
