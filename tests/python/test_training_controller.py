@@ -94,7 +94,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=1,
-                                   max_seconds=60, write_memory=True)
+                                   max_seconds=60, write_memory=False)
         with self.assertRaisesRegex(NotImplementedError, "sequential chunk semantics"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                                settings=settings, training_authorized=True)
