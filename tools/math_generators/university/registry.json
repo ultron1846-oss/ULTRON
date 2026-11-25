@@ -48,10 +48,10 @@
       "title": "proof methods",
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
+      "generator_topic": "proof_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "proof_methods"
+      "has_generator": true
     },
     {
       "topic": "mathematical_induction",
@@ -88,20 +88,20 @@
       "title": "countable and uncountable sets",
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
+      "generator_topic": "countable_and_uncountable_sets",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "countable_and_uncountable_sets"
+      "has_generator": true
     },
     {
       "topic": "axiom_of_choice_intro",
       "title": "axiom of choice intro",
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
+      "generator_topic": "axiom_of_choice_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "axiom_of_choice_intro"
+      "has_generator": true
     },
     {
       "topic": "vectors_and_vector_spaces",
@@ -238,30 +238,30 @@
       "title": "spectral theorem",
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
+      "generator_topic": "spectral_theorem",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "spectral_theorem"
+      "has_generator": true
     },
     {
       "topic": "Jordan_form",
       "title": "Jordan form",
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
+      "generator_topic": "Jordan_form",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "Jordan_form"
+      "has_generator": true
     },
     {
       "topic": "bilinear_and_quadratic_forms",
       "title": "bilinear and quadratic forms",
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
+      "generator_topic": "bilinear_and_quadratic_forms",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "bilinear_and_quadratic_forms"
+      "has_generator": true
     },
     {
       "topic": "limits_and_continuity",
@@ -348,10 +348,10 @@
       "title": "multivariable limits",
       "field": "Calculus",
       "status": "generator_available_not_mastered",
+      "generator_topic": "multivariable_limits",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "multivariable_limits"
+      "has_generator": true
     },
     {
       "topic": "partial_derivatives",
@@ -388,50 +388,50 @@
       "title": "multiple integrals",
       "field": "Calculus",
       "status": "generator_available_not_mastered",
+      "generator_topic": "multiple_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "multiple_integrals"
+      "has_generator": true
     },
     {
       "topic": "change_of_variables",
       "title": "change of variables",
       "field": "Calculus",
       "status": "generator_available_not_mastered",
+      "generator_topic": "change_of_variables",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "change_of_variables"
+      "has_generator": true
     },
     {
       "topic": "line_integrals",
       "title": "line integrals",
       "field": "Calculus",
       "status": "generator_available_not_mastered",
+      "generator_topic": "line_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "line_integrals"
+      "has_generator": true
     },
     {
       "topic": "surface_integrals",
       "title": "surface integrals",
       "field": "Calculus",
       "status": "generator_available_not_mastered",
+      "generator_topic": "surface_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "surface_integrals"
+      "has_generator": true
     },
     {
       "topic": "vector_calculus",
       "title": "vector calculus",
       "field": "Calculus",
       "status": "generator_available_not_mastered",
+      "generator_topic": "vector_calculus",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "vector_calculus"
+      "has_generator": true
     },
     {
       "topic": "Green_stokes_divergence_theorems",
@@ -447,10 +447,10 @@
       "title": "metric spaces",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "metric_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "metric_spaces"
+      "has_generator": true
     },
     {
       "topic": "convergence_of_sequences",
@@ -467,50 +467,50 @@
       "title": "Cauchy sequences",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "Cauchy_sequences",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "Cauchy_sequences"
+      "has_generator": true
     },
     {
       "topic": "pointwise_and_uniform_convergence",
       "title": "pointwise and uniform convergence",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "pointwise_and_uniform_convergence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "pointwise_and_uniform_convergence"
+      "has_generator": true
     },
     {
       "topic": "compactness",
       "title": "compactness",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "compactness",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "compactness"
+      "has_generator": true
     },
     {
       "topic": "connectedness",
       "title": "connectedness",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "connectedness",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "connectedness"
+      "has_generator": true
     },
     {
       "topic": "continuity_metric_spaces",
       "title": "continuity metric spaces",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "continuity_metric_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "continuity_metric_spaces"
+      "has_generator": true
     },
     {
       "topic": "differentiation_real_analysis",
@@ -526,10 +526,10 @@
       "title": "measure intro",
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
+      "generator_topic": "measure_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true,
-      "generator_topic": "measure_intro"
+      "has_generator": true
     },
     {
       "topic": "Lebesgue_measure",
