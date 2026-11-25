@@ -591,12 +591,12 @@ class CoreTests(unittest.TestCase):
             for projection in (block.memory.key, block.memory.value, block.memory.gate):
                 self.assertFalse(any(parameter.requires_grad for parameter in projection.parameters()))
 
-    def test_foundation_config_meets_40m_minimum_without_instantiating_large_model(self):
+    def test_foundation_config_exceeds_60m_trainable_target_without_instantiating_large_model(self):
         config = NeuroSparseConfig.foundation()
         self.assertEqual(config.vocab_size, 240)
         self.assertEqual(count_total_parameters(config), 63400451)
         self.assertEqual(count_parameters(config), 61826048)
-        self.assertGreaterEqual(count_parameters(config), 40000000)
+        self.assertGreater(count_parameters(config), 60000000)
 
 
 if __name__ == '__main__':

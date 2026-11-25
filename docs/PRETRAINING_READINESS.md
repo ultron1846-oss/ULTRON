@@ -1,7 +1,7 @@
 # ULTRON pre-training readiness plan
 
 **Status:** phased readiness checklist; not a training authorization.
-**Model size:** minimum **40,000,000 unique trainable parameters**. The earlier 3–5M target is retired.
+**Model size:** minimum **60,000,001 unique trainable parameters** (strictly more than 60 million). The earlier 3–5M target is retired.
 **Budget:** $0 planned compute; free-tier capacity and limits must be verified at time of use.
 **Workflow:** website-first, iPad-compatible; no actual training until the final gate is approved.
 
@@ -11,7 +11,7 @@
 - [ ] Distinguish deterministic math operations, learned outputs, conjectures, and verified proofs.
 - [ ] Preserve from-scratch constraints: no pretrained weights/models, external AI APIs, or externally generated training corpus.
 - [ ] Document initial curriculum and evaluation tasks.
-- [x] Establish 40M minimum and add a 63,400,451-total / 61,826,048-trainable candidate configuration.
+- [x] Establish >60M minimum and add a 63,400,451-total / 61,826,048-trainable candidate configuration.
 - [x] Add exact parameter-count formula and small-model cross-check.
 - [x] Add theoretical FP32/optimizer memory estimate.
 - [ ] Final architecture review and tokenizer-vocabulary compatibility audit.
@@ -134,7 +134,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Final training gate — blocked
 
-Training is **not approved**. It requires Phases 1–9 review, outstanding iPad acceptance and Supabase Auth setting, clean validation, resource-budget confirmation, and separate explicit authorization. A 40M parameter count alone is not readiness.
+Training is **not approved**. It requires Phases 1–9 review, outstanding iPad acceptance and Supabase Auth setting, clean validation, resource-budget confirmation, and separate explicit authorization. A >60M parameter count alone is not readiness.
 
 ## Next engineering handoff
 

@@ -13,11 +13,11 @@ Phase 9 provider research is updated with current official Colab, Lightning AI, 
 
 ## Pre-training readiness — Phase 1 specification
 
-The current model specification sets a **minimum of 40,000,000 trainable parameters**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
+The current model specification sets a **minimum of 60,000,001 trainable parameters (strictly greater than 60 million)**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
 
 ## Foundation model sizing — Phase 4
 
-The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the 40M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
+The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the >60M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
 
 Source review: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, checkpoint utilities, and a bounded local training controller. The controller has only been tested with a mock model/optimizer; no real weights have been updated and the full resume controller remains incomplete. Training remains disabled.
 
@@ -29,7 +29,7 @@ The foundation config now binds to the canonical 240-token math vocabulary inste
 
 ## Phase 6 — training preflight (validation only)
 
-Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a complete non-authorizing preflight report, a budget covering persistent state, matching batch/sequence/accumulation limits, the 40M trainable floor, memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and step/time caps. Memory writing defaults off. CI exercises only a mock model/optimizer; no real weights were updated. Live resource monitoring remains pending.
+Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a complete non-authorizing preflight report, a budget covering persistent state, matching batch/sequence/accumulation limits, the >60M trainable floor, memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and step/time caps. Memory writing defaults off. CI exercises only a mock model/optimizer; no real weights were updated. Live resource monitoring remains pending.
 
 ## Model review — fast-memory isolation
 
@@ -680,7 +680,7 @@ No model training, optimizer step, dataset generation, or remote execution was p
 ## Pre-training readiness update — 2026-11-25
 
 ### Current verified engineering state
-- Foundation architecture: **63,400,451 total parameters / 61,826,048 trainable parameters**, meeting the user's 40M minimum trainable-parameter target. This is a configuration/counting result, not a trained model.
+- Foundation architecture: **63,400,451 total parameters / 61,826,048 trainable parameters**, meeting the user's >60M trainable-parameter target. This is a configuration/counting result, not a trained model.
 - The deterministic original-data generator currently covers eight narrow families: arithmetic, rational arithmetic, one-variable linear equations, polynomial derivatives, polynomial definite integrals, 2×2 determinants, 2×2 linear systems, and exact 2×2 matrix inverses (generator v0.5.0). Coverage is not university-math breadth.
 - Phase 5 has a corpus coverage report for topic/difficulty balance, duplicate IDs/prompts, exact validation counts, split membership, and prompt leakage.
 - Phase 7 evaluator schema v3 reports mutually exclusive answer classes and exact equivalence for the currently supported grammar. It does not evaluate ULTRON itself or verify derivations/proofs.

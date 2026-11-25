@@ -1,7 +1,7 @@
 # Foundation model architecture and parameter budget
 
 **Status:** architecture proposal with reproducible parameter-count implementation. Not trained or performance-validated.
-**Minimum:** 40,000,000 unique trainable parameters.
+**Minimum:** 60,000,001 unique trainable parameters (strictly more than 60 million).
 **Selected configuration:** 63,400,451 total parameters, of which 61,826,048 are trainable.
 
 ## Proposed foundation configuration
@@ -23,13 +23,13 @@ The factory `NeuroSparseConfig.foundation()` defines:
 | Total parameter count | **63,400,451** |
 | Trainable parameter count | **61,826,048** |
 
-The config exceeds the 40M floor. The existing small default config remains the fast CI/CPU smoke config and is not the target model.
+The config exceeds the >60M trainable-parameter floor. The existing small default config remains the fast CI/CPU smoke config and is not the target model.
 
 ## Parameter accounting
 
 `count_total_parameters(config)` computes the exact total parameter count from module shapes without allocating the full model. `count_parameters(config)` counts parameters that receive gradients. The output embedding and language-model head share one weight matrix and are counted once. Fast-memory key/value/gate projections are used only in detached memory updates, so they are frozen and excluded from the trainable count; fast-memory and episodic buffers are non-parameter state and excluded from both counts.
 
-Both formulas are regression-tested against total and `requires_grad` parameter enumeration on a small instantiated model. The foundation config is locked to 63,400,451 total / 61,826,048 trainable and checked against the 40M trainable floor without instantiating the large model.
+Both formulas are regression-tested against total and `requires_grad` parameter enumeration on a small instantiated model. The foundation config is locked to 63,400,451 total / 61,826,048 trainable and checked against the >60M trainable floor without instantiating the large model.
 
 ## Resource estimate (FP32, theoretical minimum)
 
