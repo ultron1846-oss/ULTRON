@@ -455,6 +455,16 @@ class CoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "weight_decay"):
             make_optimizer(model, weight_decay=float("inf"))
 
+    def test_optimizer_factory_includes_only_trainable_parameters(self):
+        from ultron_core.training import make_optimizer
+        model = NeuroSparseModel(self.config())
+        optimizer = make_optimizer(model)
+        optimized = [p for group in optimizer.param_groups for p in group["params"]]
+        self.assertTrue(optimized)
+        self.assertTrue(all(parameter.requires_grad for parameter in optimized))
+        self.assertEqual(sum(parameter.numel() for parameter in optimized),
+                         sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad))
+
     def test_loss_rejects_negative_auxiliary_weight(self):
         logits = torch.randn(1, 3, 5)
         ids = torch.randint(0, 5, (1, 3))
