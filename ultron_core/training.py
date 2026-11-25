@@ -207,6 +207,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             or isinstance(next_sample_index, bool) or not isinstance(next_sample_index, int)
             or next_sample_index < 0 or next_sample_index > dataset_size):
         raise ValueError("data cursor epoch/batch/sample indices must be non-negative and sample index within dataset_size")
+    saved_dataset_size = cursor.get("dataset_size", dataset_size)
+    if (isinstance(saved_dataset_size, bool) or not isinstance(saved_dataset_size, int)
+            or saved_dataset_size != dataset_size):
+        raise ValueError("data cursor dataset_size does not match preflight")
+    saved_dataset_hash = cursor.get("dataset_manifest_sha256", dataset_hash)
+    if saved_dataset_hash != dataset_hash:
+        raise ValueError("data cursor dataset manifest hash does not match preflight")
     cursor["epoch"] = epoch
     cursor["next_batch_index"] = next_batch_index
     cursor["next_sample_index"] = next_sample_index
