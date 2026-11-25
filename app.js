@@ -45,7 +45,7 @@ function navigate(page){
 function renderOverview(){
  const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
  return `${heading('CONTROL ROOM / PROJECT STATUS','ULTRON overview','A live map of what works today, what is being built next, and what remains safely disabled.','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
- <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, a mathematics topic roadmap and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">PUBLIC BROWSER ACCESS <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
+ <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, a mathematics topic roadmap and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">ACCOUNT-FREE WORKSPACE <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
  <div class="status-grid">
  ${[['MATH ENGINE','AVAILABLE','Arithmetic parser and limited linear equation solver.'],['TOPIC LIBRARY','READY','Mathematics roadmap with topic descriptions and examples.'],['MEMORY VAULT','LOCAL','IndexedDB storage with manual JSON backup.'],['MODEL TRAINING','DISABLED','No model weights or training runs are active.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
  </div>
@@ -59,7 +59,7 @@ function renderOverview(){
  </div>
  <div class="grid two-col lower-grid">
  ${card(`<div class="eyebrow">DEVICE MEMORY / PREFERENCE</div><h2>Preferred workload budget</h2><div class="big-number">${level} GB</div><p class="muted">Saved browser preference only. It does not allocate physical RAM or change a future Colab runtime.</p><button class="outline-button" data-page="settings">Open settings →</button>`)}
- ${card('<div class="eyebrow">BACKEND / STATUS</div><h2>Supabase connection</h2><p class="muted">The backend page checks the public read-only status endpoint. Private owner data remains protected and is not exposed to this public site.</p><button class="outline-button" data-page="backend">Inspect backend status →</button>')}
+ ${card('<div class="eyebrow">BACKEND / STATUS</div><h2>Supabase connection</h2><p class="muted">The backend page checks the generic service-status endpoint. Private owner data remains protected and is not exposed to this public site.</p><button class="outline-button" data-page="backend">Inspect backend status →</button>')}
  </div>`;
 }
 function renderLearning(){
@@ -90,13 +90,13 @@ function renderBackend(){
  return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Live public status check, with private database records and protected server actions kept outside the browser interface.','<button class="outline-button" id="supabase-refresh" type="button">↻ Refresh status</button>')}
  <div class="status-grid">
  ${card('<div class="mini-label">PROJECT AUDIT</div><strong class="status-value">HEALTHY</strong><p>ultron-memory · ap-south-1 · inspected 24 Nov 2026.</p>','status-card')}
- ${card('<div class="mini-label">PUBLIC STATUS API</div><strong class="status-value" id="supabase-status">CHECKING</strong><p id="supabase-status-detail">Requesting generic read-only service state…</p><p class="muted small" id="supabase-status-checked">Last checked: pending</p>','status-card')}
+ ${card('<div class="mini-label">SERVICE STATUS API</div><strong class="status-value" id="supabase-status">CHECKING</strong><p id="supabase-status-detail">Requesting generic read-only service state…</p><p class="muted small" id="supabase-status-checked">Last checked: pending</p>','status-card')}
  ${card('<div class="mini-label">DEVICE CONTROL</div><strong class="status-value">RETIRED · 410</strong><p>The deployed handler rejects legacy pairing requests.</p>','status-card')}
  ${card('<div class="mini-label">TRAINING CONTROL</div><strong class="status-value">PROTECTED</strong><p>This site displays generic service status only; protected server actions are not exposed.</p>','status-card')}
  </div>
  ${card('<div class="eyebrow">DEPLOYED EDGE FUNCTIONS</div><h2>Service boundaries</h2>'+rows)}
  ${card('<div class="eyebrow">BACKEND SECURITY AUDIT</div><h2>Items kept outside the public frontend</h2>'+blockers)}
- ${card('<div class="eyebrow">PUBLIC WEBSITE CONTRACT</div><h2>No login. No private data. No execution.</h2><p class="muted">The browser calls only the training-control public_status action using the Supabase publishable key. The request is read-only and has a bounded timeout. It never queries database tables, sends an authenticated session, or invokes health, status, start or stop.</p><p class="muted small">The existing experiences, knowledge, mistakes, checkpoints and backup records are owner-linked. Their row-level security is not weakened to support this no-login website. The Memory Vault therefore remains browser-local.</p><span class="status-pill">TRAINING DISABLED · REMOTE EXECUTION DISABLED</span>')}`;
+ ${card('<div class="eyebrow">ACCOUNT-FREE WEBSITE CONTRACT</div><h2>No login. No private data. No execution.</h2><p class="muted">The browser calls only the training-control public_status action using the Supabase publishable key. The request is read-only and has a bounded timeout. It never queries database tables, sends an authenticated session, or invokes health, status, start or stop.</p><p class="muted small">The existing experiences, knowledge, mistakes, checkpoints and backup records are owner-linked. Their row-level security is not weakened to support this no-login website. The Memory Vault therefore remains browser-local.</p><span class="status-pill">TRAINING DISABLED · REMOTE EXECUTION DISABLED</span>')}`;
 }
 function renderSettings(){
  const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
