@@ -10,5 +10,6 @@ from .polynomial import Polynomial, PolynomialError, PolynomialLimits
 from .rational import RationalFunction, RationalExpressionError, RationalDomainError
 from .algebraic import RealAlgebraicNumber
 from .algebraic_arithmetic import resultant_polynomial
+from .polynomial_verifier import PolynomialIdentityResult, verify_polynomial_identity, validate_polynomial_identity_certificate
 
-__all__ = ["NeuroSparseConfig", "count_parameters", "count_total_parameters", "NeuroSparseModel", "Expr", "ExprKind", "FormulaCandidate", "VerificationStatus", "MathTokenizer", "MathVocabulary", "MathExample", "generate_examples", "MathParser", "MathParseError", "parse_math", "simplify", "Polynomial", "PolynomialError", "PolynomialLimits", "RationalFunction", "RationalExpressionError", "RationalDomainError", "RealAlgebraicNumber", "resultant_polynomial"]
+__all__ = ["NeuroSparseConfig", "count_parameters", "count_total_parameters", "NeuroSparseModel", "Expr", "ExprKind", "FormulaCandidate", "VerificationStatus", "MathTokenizer", "MathVocabulary", "MathExample", "generate_examples", "MathParser", "MathParseError", "parse_math", "simplify", "Polynomial", "PolynomialError", "PolynomialLimits", "RationalFunction", "RationalExpressionError", "RationalDomainError", "RealAlgebraicNumber", "resultant_polynomial", "PolynomialIdentityResult", "verify_polynomial_identity", "validate_polynomial_identity_certificate"]

@@ -9,7 +9,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 The latest code review fixed shared fast-memory contamination risk: training-time writes reject batches containing multiple independent examples, and the model exposes `reset_memory()`. The bounded trainer resets memory at batch boundaries and rejects memory-writing mode until sequential chunk semantics exist. Its checkpoint callback now carries global step and the next-batch cursor; the caller must restore the sampler/iterator from that cursor. CI uses only a mock optimizer; no real weights were updated.
 
-Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: add a formal proof-checker and broader university-math tasks; complete owner-side sampler restoration/clean-runtime resume acceptance and iPad/Colab checks. The CPU benchmark is only a small-model harness smoke, not a foundation baseline. The Phase 5 corpus coverage report is complete, but current generator coverage remains narrow. Keep real-weight training and remote execution disabled.
+Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: expand the restricted exact polynomial identity verifier and broader independently validated university-math tasks; complete owner-side sampler restoration/clean-runtime resume acceptance and iPad/Colab checks. The CPU benchmark is only a small-model harness smoke, not a foundation baseline. The Phase 5 corpus coverage report is complete, but current generator coverage remains narrow. Keep real-weight training and remote execution disabled.
 
 ## Pre-training readiness — Phase 1 specification
 
@@ -300,7 +300,7 @@ A focused review of the merged Section C/D Python core identified and corrected 
 ### Remaining architectural blockers (not silently represented as fixed)
 
 - Causal self-attention and learned positional embeddings are now implemented in the Python core. Remaining sequence-model gaps include padding key masks, tokenizer semantics, efficient decoding/KV caching, and long-context evaluation.
-- The model still has no tokenizer, original deterministic training-data generator, curriculum, tested ablation controls, dense-expert reference path, or formal proof kernel.
+- The model still has no tested ablation controls or dense-expert reference path. A bounded exact polynomial-identity verifier has been added separately; ULTRON still has no general formal proof kernel.
 - Memory writes are opt-in and sequential; ordinary forward calls do not update the memory. A future training controller must define safe, deterministic memory lifecycle semantics before relying on it.
 - The finite-domain evaluator supports only its explicitly implemented rational arithmetic operations. It does not interpret domains/assumptions, and it cannot establish a theorem or mathematical novelty.
 
@@ -375,9 +375,9 @@ A second review pass hardened API boundaries and benchmark reproducibility:
 ## Mathematical trust-boundary review — 2026-11-24
 
 - Closed a trust-boundary gap: a caller could previously construct a candidate with FORMALLY_VERIFIED status and have can_enter_trusted_knowledge() return true without any proof checker.
-- The method now fails closed for all candidates because this repository does not yet contain a formal proof kernel or verifiable proof-receipt type. A status label and free-form evidence text are not proof.
+- The method remains fail-closed for all candidates. A bounded exact polynomial-identity verifier now checks a narrow rational-polynomial grammar, but there is still no general proof kernel or trusted-knowledge receipt pathway. A status label or verifier result alone does not promote a candidate into trusted knowledge.
 - Added a regression test showing that a caller-supplied FORMALLY_VERIFIED label cannot promote a candidate into trusted knowledge.
-- Future trusted admission requires a structured proof receipt from an implemented backend and independent validation of that receipt; do not restore status-only trust.
+- Future trusted admission requires a structured proof receipt bound to the candidate and independently validated by the trust layer; do not restore status-only trust.
 
 
 ## Causal sequence architecture — 2026-11-24
@@ -510,7 +510,7 @@ The parser does not yet support function calls (including `sin(x)`), general LaT
 1. Expand the typed IR and parser one feature family at a time (function-call nodes and typed comparisons are likely next), with explicit domain semantics and independent tests.
 2. Build exact polynomial/rational normalization only after defining a grammar and preserving undefined-domain conditions.
 3. Add equation-solving algorithms only with derivation traces and independently checkable exact results; do not label finite probing as proof.
-4. Keep formal proof status fail-closed until a proof kernel and verifiable receipt exist.
+4. Keep trusted-knowledge admission fail-closed. Restricted polynomial identity results must not bypass candidate-bound receipt validation.
 5. No training, optimizer steps, external datasets/APIs, pretrained weights, cloud jobs, or website/frontend changes without separate authorization.
 6. Update this README and implementation notes at the next milestone.
 
@@ -696,5 +696,25 @@ No model training, optimizer step, dataset generation, or remote execution was p
 
 Keep real-weight training and remote execution disabled until separate explicit authorization.
 
-### Next-chat handoff
-Start with the owner notebook/DataLoader wiring and clean-runtime acceptance plan. Do not rerun merged code work, claim training readiness, or authorize a real-weight optimizer step without explicit approval. Update this README at each meaningful milestone.
+
+
+## Bounded exact polynomial identity verifier — 2026-11-25
+
+ULTRON now includes `ultron_core/polynomial_verifier.py`, a bounded exact checker for identities in the supported multivariate rational-polynomial grammar.
+
+- Converts both sides of an equality to canonical sparse polynomials over \(\mathbb{Q}\), then computes the exact difference.
+- Returns `FORMALLY_VERIFIED` only when the canonical difference is exactly zero; returns `REJECTED` for a non-zero polynomial difference; unsupported syntax or resource exhaustion returns `UNRESOLVED`.
+- Emits canonical JSON containing the expression hash, hard-capped resource limits, normalized sides and difference, plus a SHA-256 integrity digest.
+- Certificate validation re-runs the checker using the certificate's validated limits. Limits above the polynomial engine's hard caps are rejected.
+- Variable denominators, candidate domains/assumptions, function calls, inequalities and non-polynomial identities remain unresolved. This prevents silently discarding domain restrictions.
+- The public API is exported from `ultron_core`. `FormulaCandidate.can_enter_trusted_knowledge()` remains fail-closed; a verifier result does not grant trusted-knowledge admission.
+
+See [bounded polynomial identity verification](docs/POLYNOMIAL_IDENTITY_VERIFICATION.md). This is a restricted exact algebraic checker, not a universal theorem prover or proof of autonomous formula discovery. No training, optimizer step, dataset generation, remote execution, website, Supabase or authentication behavior changed.
+
+### Next implementation handoff
+
+1. Complete review and merge of this verifier only after the Python and Node.js checks pass.
+2. Keep expanding the exact mathematics core one independently validated grammar family at a time; preserve domain restrictions and treat unsupported inputs as unresolved.
+3. The next release gate remains manual iPad Safari frontend acceptance. Record the actual device/browser results; do not claim this pass has been completed by CI.
+4. Do not connect a cloud runtime or perform optimizer steps until the frontend release gate is complete and training is separately authorized.
+5. Update this README at every meaningful milestone.
