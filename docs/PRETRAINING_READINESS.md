@@ -65,11 +65,12 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 6 — Training-loop implementation (not execution)
 
+- [x] Add no-allocation preflight for parameter floor, tokenizer, splits, and workload bounds.
 - [ ] Implement bounded orchestration only after architecture/data gates.
 - [ ] Include gradient accumulation, clipping, finite loss/gradient checks, deterministic seeds, cancellation, and step/time/resource caps.
 - [ ] Reset/isolate mutable memory across examples, batches, and validation.
 - [ ] Keep remote dispatch disabled; require explicit owner authorization for any run.
-- [ ] Add dry-run that validates configuration/data without optimizer steps.
+- [x] Add preflight report that performs no optimizer steps and never authorizes training.
 
 **Exit criteria:** unit tests and dry-run pass; no training performed.
 

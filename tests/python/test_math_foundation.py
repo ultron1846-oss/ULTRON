@@ -15,6 +15,7 @@ from ultron_core.data_generation import (
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary
 from ultron_core.math_parser import MathParseError, MathParser, parse_math
 from ultron_core.symbolic import simplify
+from ultron_core.preflight import preflight_training_plan
 
 
 class MathTokenizerTests(unittest.TestCase):
@@ -194,6 +195,53 @@ class DeterministicDataGenerationTests(unittest.TestCase):
                                                separators=(",", ":")) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "example_id does not match"):
                 verify_dataset(path)
+
+
+
+class TrainingPreflightTests(unittest.TestCase):
+    def setUp(self):
+        self.vocabulary = MathVocabulary.default()
+        self.examples = generate_examples(602, 300)
+        self.splits = split_examples(self.examples, validation_fraction=0.15, test_fraction=0.15, seed=602)
+        self.config = NeuroSparseConfig.foundation()
+
+    def test_preflight_validates_plan_without_authorizing_or_training(self):
+        report = preflight_training_plan(
+            self.config, self.splits, batch_size=1, sequence_length=128,
+            gradient_accumulation_steps=4, memory_budget_gib=0.5,
+        )
+        self.assertEqual(report["status"], "PREFLIGHT_ONLY")
+        self.assertTrue(report["validated"])
+        self.assertFalse(report["training_authorized"])
+        self.assertEqual(report["optimizer_steps"], 0)
+        self.assertFalse(report["remote_execution_enabled"])
+        self.assertTrue(report["prompt_disjoint"])
+        self.assertFalse(report["budget_covers_persistent_state"])
+        self.assertEqual(report["parameter_count"], 63400451)
+
+    def test_preflight_rejects_small_model_and_vocab_mismatch(self):
+        small = NeuroSparseConfig(vocab_size=len(self.vocabulary), hidden_size=32,
+            num_layers=1, num_experts=4, top_k=2, max_refinements=2,
+            fast_memory_slots=8, num_attention_heads=4)
+        with self.assertRaisesRegex(ValueError, "minimum is 40000000"):
+            preflight_training_plan(small, self.splits)
+        wrong_vocab = self.config.to_dict()
+        wrong_vocab["vocab_size"] += 1
+        with self.assertRaisesRegex(ValueError, "does not match canonical tokenizer"):
+            preflight_training_plan(NeuroSparseConfig(**wrong_vocab), self.splits)
+
+    def test_preflight_rejects_prompt_overlap_across_splits(self):
+        invalid = dict(self.splits)
+        invalid["validation"] = invalid["validation"] + (invalid["train"][0],)
+        with self.assertRaisesRegex(ValueError, "overlap across"):
+            preflight_training_plan(self.config, invalid)
+
+    def test_preflight_rejects_invalid_batch_and_sequence_limits(self):
+        with self.assertRaisesRegex(ValueError, "batch_size"):
+            preflight_training_plan(self.config, self.splits, batch_size=0)
+        with self.assertRaisesRegex(ValueError, "sequence_length"):
+            preflight_training_plan(self.config, self.splits, sequence_length=2049)
+
 
 
 class ModelIntegrationTests(unittest.TestCase):
