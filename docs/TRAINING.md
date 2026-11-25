@@ -11,6 +11,7 @@ The repository contains an **experimental untrained PyTorch model**, an original
 - `ultron_core/preflight.py`: no-allocation validation of model-size floor, tokenizer compatibility, dataset split integrity, workload bounds, and FP32 persistent-state estimate. It always reports training unauthorized and zero optimizer steps.
 - `ultron_core/checkpoint.py`: versioned model/optimizer/scheduler checkpoint, Python/Torch RNG restoration, optional data cursor, SHA-256 manifest, backup fallback, and transactional restore rollback.
 - `ultron_core/benchmark.py`: synthetic-token inference timing, not mathematical quality evaluation.
+- `ultron_core/evaluation.py`: exact rational answer scoring for caller-supplied predictions; no model inference or training.
 
 The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,400,451 unique trainable parameters by formula; it has not been trained.
 
