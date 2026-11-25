@@ -4,13 +4,15 @@ import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 
-test('GitHub Pages stages every runtime module, including owner authentication', async () => {
-  const [workflow, app] = await Promise.all([read('.github/workflows/pages.yml'), read('app.js')]);
-  assert.match(workflow, /cp owner-auth\.js _site\//);
-  for (const module of ['math-engine.js', 'supabase-integration.js', 'owner-auth.js', 'memory-store.js']) {
+test('GitHub Pages stages required runtime modules and excludes account authentication', async () => {
+  const [workflow, app, html] = await Promise.all([read('.github/workflows/pages.yml'), read('app.js'), read('index.html')]);
+  for (const module of ['math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
     assert.ok(app.includes(module), `app entry must import ${module}`);
     assert.ok(workflow.includes(module), `Pages artifact must stage ${module}`);
   }
+  assert.doesNotMatch(app, /owner-auth|signInOwner|verifyOwner|signOutOwner|renderOwner|bindOwner/);
+  assert.doesNotMatch(html, /data-page="owner"|Owner sign in|owner-password|owner-email/);
+  assert.doesNotMatch(workflow, /owner-auth\.js/);
 });
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
@@ -38,7 +40,7 @@ test('Memory Vault supports mistake review, safe clear-all and committed transac
   assert.match(app, /setTimeout\(\(\)=>URL\.revokeObjectURL\(url\),1000\)/);
 });
 test('all browser modules pass syntax validation', async () => {
-  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'owner-auth.js']) {
+  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
     execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
   }
 });

@@ -31,7 +31,6 @@ jobs:
         run: |
           mkdir _site
           cp index.html styles.css app.js math-engine.js supabase-integration.js memory-store.js servers.json command-center.html _site/
-          cp owner-auth.js _site/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:

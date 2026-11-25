@@ -1,8 +1,12 @@
 # ULTRON — Mathematics Intelligence Workspace
 
+> **Current access model (2026-11-25):** The website is account-free. Owner sign-in and the browser auth module have been removed; there is no login, sign-up, account-specific dashboard, pairing UI or public-read-only mode. Supabase is used only for the optional generic service-status page. Private database records remain protected. Training and remote execution remain disabled.
+
 ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current website is a static frontend and deterministic foundation prototype—not a trained AI model.
 
 ## Frontend status
+
+The latest frontend PR removes owner login and account-specific access UI. The public static website does not offer a public-read-only mode toggle; it simply loads without an account. The Supabase page is an informational generic status check only.
 
 The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
@@ -16,7 +20,6 @@ The frontend is being redesigned around the supplied ULTRON control-room referen
 - **Memory vault:** IndexedDB stores existing experiences and mistakes locally, with JSON export/import for manual device-to-device transfer. This is not cloud sync.
 - **Servers & Colab:** reads `servers.json`, handles missing/malformed directory data and never starts remote jobs.
 - **Supabase backend:** checks only the public read-only status endpoint; private owner records remain protected.
-- **Owner sign in:** optional email/password sign-in for the existing owner account; there is no public sign-up.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
 
 The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training. The Math Agent currently supports only its documented deterministic arithmetic and limited linear-equation operations.
@@ -34,7 +37,7 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 
 ## Safety boundaries
 - No external AI APIs or pretrained model weights.
-- Public browsing requires no account. The optional owner sign-in uses the existing Supabase email/password account; public registration is not exposed.
+- Public browsing requires no account. No authentication is required; the website does not provide account-specific controls.
 - No provider job submission or background execution from the public frontend.
 - **Actual model training remains disabled** until separate explicit user authorization.
 - The RAM slider is a browser-local workload preference only; it does not control physical RAM, GPU VRAM or Colab runtime allocation.
@@ -67,7 +70,7 @@ The connected Supabase project `ultron-memory` was inspected directly. It was `A
 
 ## Owner authentication — 2026-11-24
 
-The frontend includes optional Supabase email/password sign-in for the existing owner account. No sign-up or account-creation flow is present. Public pages remain accessible while signed out. The browser stores only the Supabase access/refresh session, never the password; expiring access tokens are refreshed and sign-out clears the local session. Authentication alone does not grant owner privileges: the page calls the `training-control` `health` action with the bearer token, and the Edge Function verifies the authenticated user ID against the server-side `ULTRON_OWNER_USER_ID` secret. Non-owner users are rejected. The publishable key is the only key included in browser code. No Auth provider settings, user records, secrets, RLS policies or database data were changed. The owner sign-in page does not start training or remote jobs.
+**Retired frontend feature:** Owner sign-in and its `owner-auth.js` browser module were removed on 2026-11-25 to match the account-free website requirement. The public site has no login, sign-up, session handling, owner dashboard, pairing controls or account-specific training history/checkpoints. Server-side owner authorization remains a backend security boundary; private records and RLS are unchanged.
 
 ## Supabase frontend integration audit — 2026-11-24
 
@@ -102,42 +105,37 @@ The backend owner (Codex) should:
 
 ## Next verification steps
 1. Confirm the latest `main` commit is the deployed GitHub Pages version.
-2. On iPad Safari, test navigation and every page: Overview, Mathematics Topics, Math Agent, Memory Vault, Servers & Colab, Supabase Backend, Settings and Owner Sign-in.
+2. On iPad Safari, test navigation and every page: Overview, Mathematics Topics, Math Agent, Memory Vault, Servers & Colab, Supabase Backend and Settings.
 3. Test supported Math Agent inputs and unsupported-input handling; the removed fixed exercise card must not reappear.
 4. Test Memory Vault history, JSON export/import and clear-all only after exporting any data you want to keep.
 5. Test the workload preference slider and verify it is clearly described as a saved preference, not actual memory allocation.
-6. Verify the public Supabase status refresh and owner sign-in/sign-out without exposing private data.
+6. Verify the public Supabase status refresh and confirm no login, sign-up, pairing or account-specific controls are present.
 7. Keep actual model training, Colab connection and remote execution disabled until separately authorized.
 
 ## Project rule
 A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.
 
 
-## Next-chat handoff — owner authentication
+## Superseded handoff — account access removal
 
-- Optional owner email/password sign-in is implemented; public pages remain anonymous-accessible and there is no sign-up UI.
-- Verify the existing owner account can sign in from GitHub Pages and that a different Supabase account is rejected by server-side owner verification.
-- Confirm Supabase Auth email/password provider is already enabled and the existing owner user is active; do not create another account or change Auth settings without explicit approval.
-- Keep service-role keys and `ULTRON_OWNER_USER_ID` secret server-side.
-- Do not launch the CPU diagnostic workflow, training, Colab, or any remote job.
-- Update this README at the next meaningful milestone.
+The prior owner-login instructions are obsolete. The browser auth module and sign-in page have been removed. Do not restore login, sign-up, account-specific controls, pairing, or per-account training history/checkpoint UI. Backend authorization and private database protections remain server-side.
 
 
 ## Frontend completion hardening — 2026-11-24
 
 This release pass closes several frontend reliability gaps while preserving the no-training/no-server-connection boundary:
 
-- The GitHub Pages artifact now explicitly includes `owner-auth.js`, which is imported by the application entry module. This prevents the deployed site from omitting a required runtime module.
+- The GitHub Pages artifact contains only the frontend runtime modules that remain in use; the retired `owner-auth.js` module is not deployed.
 - Navigation exposes the active page to assistive technology. The mobile menu closes with Escape, after navigation, and when the user taps outside it. The contrast preference persists in the current browser.
 - The Memory Vault separates recent experiences from incorrect attempts, provides an explicit confirmed clear-all action, and reports storage failures honestly. Export URL cleanup is delayed so mobile browsers have time to start the download.
 - IndexedDB request helpers resolve only after the transaction commits. The local practice interface no longer hides a failed memory write behind a success message.
 - Tablet/mobile styles account for safe areas and reduced-motion preferences.
 
-Automated release checks cover the Pages runtime asset list, frontend module syntax, mobile navigation hooks, persisted contrast preference, and Memory Vault controls. These checks do not substitute for a live iPad Safari interaction test; that still requires a user-side browser test after deployment. Owner sign-in remains email/password for the existing owner account, with no public sign-up. No Supabase policies, secrets, Auth settings, provider connections, remote jobs or training behavior are changed.
+Automated release checks cover the Pages runtime asset list, frontend module syntax, mobile navigation hooks, persisted contrast preference, and Memory Vault controls. These checks do not substitute for a live iPad Safari interaction test; that still requires a user-side browser test after deployment. The website has no login or sign-up UI and does not store browser auth sessions. No Supabase policies, secrets, Auth settings, provider connections, remote jobs or training behavior are changed.
 
 ## Next-chat handoff — frontend release
 
-- Verify the deployed Pages build loads the owner sign-in page and all public pages. The Pages artifact must include `owner-auth.js` as well as the other imported modules.
+- Verify the deployed Pages build loads all remaining pages without authentication. Confirm the Pages artifact excludes `owner-auth.js`.
 - On iPad, test opening/closing navigation, switching pages, contrast preference persistence, practice answer checking, Memory Vault history/mistake lists, backup export/import and clear-all confirmation.
 - If local memory is important, export a backup before testing clear-all; clear-all permanently deletes all four local IndexedDB stores in the current browser profile.
 - Keep Google Colab disconnected. Do not create notebooks, connect runtimes, submit jobs, or start model training. Server connection is deferred until the AI model is ready.
@@ -152,7 +150,7 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 - Updated the Overview quick-access card to lead to Mathematics Topics instead of the removed practice exercise.
 - Removed the now-unused exercise fixtures, event handlers and practice-only imports from the browser entry module.
 - Existing IndexedDB experience/mistake history and backup tools remain intact; this UI change does not delete browser data. Existing local practice counters are left untouched rather than destructively clearing user preferences.
-- No backend, Supabase, owner authentication, Colab connection, remote execution or model-training behavior changed.
+- No backend, Supabase, Colab connection, remote execution or model-training behavior changed; owner authentication was removed from the frontend.
 
 
 ## GitHub Pages deployment verification — 2026-11-24
@@ -168,7 +166,7 @@ The repository currently has two deployment paths targeting the same Pages envir
 - README content has been aligned to the current page structure and the removal of the fixed exercise interface.
 - Perform the real iPad Safari page-by-page interaction test before declaring frontend completion.
 - Do not connect Google Colab, start a server, submit remote jobs or train the model. The user explicitly deferred server connection until the AI is ready.
-- Preserve Supabase RLS, owner-only checks, credentials and private records. Do not change Auth settings or secrets during frontend QA.
+- Preserve Supabase RLS, server-side authorization, credentials and private records. Do not change Auth settings or secrets during frontend QA.
 - Update this README at every meaningful milestone and leave a precise next-chat handoff.
 
 
