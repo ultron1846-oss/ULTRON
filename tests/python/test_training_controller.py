@@ -64,7 +64,6 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "memory_budget_bytes": 2 * 1024 ** 3,
             "budget_covers_persistent_state": True,
             "dataset_manifest_sha256": "a" * 64,
-            "split_counts": {"train": 4, "validation": 1, "test": 1},
         }
         self.settings = TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                         max_seconds=60, write_memory=False)
@@ -234,6 +233,79 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 training_authorized=True, resume_metadata=metadata)
         self.assertEqual(self.optimizer.steps, 0)
 
+
+    def test_checkpoint_callback_requires_resumable_sampler(self):
+        with self.assertRaisesRegex(ValueError, "requires a ResumableRandomSampler"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                checkpoint_callback=lambda step, metrics: None)
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_sampler_cursor_must_match_batch_cursor(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64, next_index=2)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        sampler_state = sampler.state_dict()
+        metadata = {
+            "format_version": 4, "step": 0, "rng_restored": True,
+            "seed": 0, "gradient_accumulation_steps": 2,
+            "dataset_manifest_sha256": "a" * 64,
+            "data_state": {"epoch": 0, "next_batch_index": 1, "seed": 0,
+                "gradient_accumulation_steps": 2, "sampler_state": sampler_state},
+        }
+        with self.assertRaisesRegex(ValueError, "sample cursor does not match"):
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                resume_metadata=metadata, sampler=sampler)
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_sampler_dataset_size_must_match_preflight(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 8
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        with self.assertRaisesRegex(ValueError, "dataset size does not match"):
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, sampler=sampler)
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_loader_batch_size_must_match_preflight(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=2, sampler=sampler, num_workers=0)
+        with self.assertRaisesRegex(ValueError, "batch_size must match"):
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, sampler=sampler)
+        self.assertEqual(self.optimizer.steps, 0)
 
     def test_trainer_saves_sampler_state_at_checkpoint_and_return(self):
         from torch.utils.data import DataLoader, Dataset
