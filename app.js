@@ -152,7 +152,7 @@ function runAgentCommand(raw){
  if(command==='/graph'){
   const expression=raw.trim().slice(command.length).trim();
   if(!expression){addChat('assistant','Usage: /graph <function>\nExamples: /graph y=x^2 · /graph sin(x) · /graph sqrt(abs(x))','LOCAL GRAPH TOOL');return true;}
-  try{const node=addChat('assistant','Graph generated for y='+expression,'LOCAL FUNCTION PLOT · 600 SAMPLE POINTS · NO API');node.insertAdjacentHTML('beforeend',createGraphSvg(expression));}
+  try{const node=addChat('assistant','Graph generated for '+expression,'LOCAL FUNCTION PLOT · 600 SAMPLE POINTS · NO API');node.insertAdjacentHTML('beforeend',createGraphSvg(expression));}
   catch(error){addChat('assistant','Graph error: '+error.message,'Check the function syntax and supported functions.');}
   return true;
  }
