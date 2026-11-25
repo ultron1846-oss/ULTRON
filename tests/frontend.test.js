@@ -214,3 +214,16 @@ test('Supabase backend page exposes generic status and retains owner sign-in', a
   assert.match(app, /protected health action/);
   // Request timeout behavior is asserted in the Supabase client test above.
 });
+
+import { normalizeMemoryPreference } from '../preferences.js';
+
+test('workload preference safely normalizes invalid and out-of-range browser storage', () => {
+  assert.equal(normalizeMemoryPreference('6'), 6);
+  assert.equal(normalizeMemoryPreference('4.6'), 5);
+  assert.equal(normalizeMemoryPreference('1'), 2);
+  assert.equal(normalizeMemoryPreference('99'), 10);
+  assert.equal(normalizeMemoryPreference('NaN'), 6);
+  assert.equal(normalizeMemoryPreference('Infinity'), 6);
+  assert.equal(normalizeMemoryPreference(''), 6);
+  assert.equal(normalizeMemoryPreference(null), 6);
+});
