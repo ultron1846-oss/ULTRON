@@ -140,7 +140,7 @@ def _make(topic,r,d):
   check=lambda:int(ans)==a+b*c
  elif topic=="linear_equations":
   a,x,b=n(2,5*d),n(-10*d,10*d),n(-20*d,20*d); c=a*x+b; ans=str(x)
-  contextual=x>=0 and r.choice([True,False])
+  contextual=x>=0 and b>=0 and c>=0 and r.choice([True,False])
   ingredients={"topic":topic,"values":[a,x,b,c],"contextual":contextual,"quantity_type":"count" if contextual else "signed_integer"}
   q=(f"A club sells {a} tickets per bundle and has a balance adjustment of {b}. The final total is {c}. Solve {a}x+({b})={c}." if contextual else f"Solve {a}x+({b})={c}.")
   steps=[f"Subtract {b}: {a}x={c-b}.",f"Divide by {a}: x={x}.",f"Check: {a}×{x}+({b})={c}."]
