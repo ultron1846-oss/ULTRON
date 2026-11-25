@@ -6,6 +6,7 @@ is exposed.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any, Callable
 
 from .math_solver_tool import run_math_solver
@@ -52,7 +53,7 @@ _TOOL_HANDLERS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
 
 def get_tool_specs() -> list[dict[str, Any]]:
     """Return tool descriptions in agent function-calling format."""
-    return [MATH_SOLVER_TOOL.copy()]
+    return [deepcopy(MATH_SOLVER_TOOL)]
 
 
 def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
