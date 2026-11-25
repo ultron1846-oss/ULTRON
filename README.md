@@ -681,11 +681,11 @@ No model training, optimizer step, dataset generation, or remote execution was p
 
 ### Current verified engineering state
 - Foundation architecture: **63,400,451 total parameters / 61,826,048 trainable parameters**, meeting the user's 40M minimum trainable-parameter target. This is a configuration/counting result, not a trained model.
-- The deterministic original-data generator currently covers seven narrow families: arithmetic, rational arithmetic, one-variable linear equations, polynomial derivatives, polynomial definite integrals, 2×2 determinants, and 2×2 linear systems. Coverage is not university-math breadth.
+- The deterministic original-data generator currently covers eight narrow families: arithmetic, rational arithmetic, one-variable linear equations, polynomial derivatives, polynomial definite integrals, 2×2 determinants, 2×2 linear systems, and exact 2×2 matrix inverses (generator v0.5.0). Coverage is not university-math breadth.
 - Phase 5 has a corpus coverage report for topic/difficulty balance, duplicate IDs/prompts, exact validation counts, split membership, and prompt leakage.
 - Phase 7 evaluator schema v3 reports mutually exclusive answer classes and exact equivalence for the currently supported grammar. It does not evaluate ULTRON itself or verify derivations/proofs.
 - Phase 8 now binds resumable sampler state to dataset SHA-256, checks dataset/sampler/batch cursor alignment, restores sampler before DataLoader iteration, rewinds to the last committed step on interruption, and requires a verified dataset hash before checkpoint cursor restore. Exact-resume DataLoader constraints: num_workers=0, drop_last=False.
-- PR #91 passed Node tests, Python regression tests, and the CPU forward/backward smoke check. No real ULTRON weights were updated; no training, dataset generation, or remote job was run.
+- PR #91 passed Node tests, Python regression tests, and the CPU forward/backward smoke check. PR #93 added exact matrix inverse generation/validation and passed Node/Python tests plus CPU smoke. No real ULTRON weights were updated; no corpus was generated or training/remote job run.
 
 ### Remaining pre-training blockers
 1. Owner notebook must create the train-split DataLoader with ResumableRandomSampler, save callback data_state in save_checkpoint, and pass expected_dataset_manifest_sha256 to load_checkpoint.
