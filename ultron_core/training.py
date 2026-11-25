@@ -140,7 +140,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             output = model(ids, write_memory=settings.write_memory, attention_mask=mask)
             if not isinstance(output, dict) or not isinstance(output.get("logits"), torch.Tensor):
                 raise ValueError("model output must contain logits")
-            loss = causal_language_model_loss(ids=ids) if False else causal_language_model_loss(
+            loss = causal_language_model_loss(
                 output["logits"], ids, load_balance=output.get("load_balance_loss"),
                 prediction_error=output.get("prediction_error"))
             if not bool(torch.isfinite(loss)):
