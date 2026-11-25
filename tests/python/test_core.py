@@ -295,7 +295,7 @@ class CoreTests(unittest.TestCase):
             random.seed(5)
             restored = NeuroSparseModel(config)
             metadata = load_checkpoint(path, restored, expected_dataset_manifest_sha256="a" * 64)
-            self.assertEqual(metadata["format_version"], 4)
+            self.assertEqual(metadata["format_version"], 5)
             self.assertTrue(metadata["rng_restored"])
             self.assertTrue(metadata["dataset_hash_verified"])
             self.assertTrue(metadata["dataset_hash_verified"])
@@ -404,6 +404,42 @@ class CoreTests(unittest.TestCase):
                 save_checkpoint(path, model, NeuroSparseConfig(vocab_size=65, hidden_size=32,
                     num_layers=1, num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8))
 
+    def test_checkpoint_persists_training_precision_settings(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        settings = {
+            "precision": "bf16",
+            "seed": 1846,
+            "gradient_accumulation_steps": 4,
+            "deterministic": True,
+            "profile_performance": False,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "precision.pt"
+            save_checkpoint(path, model, config, step=7,
+                data_state={"epoch": 0, "next_batch_index": 4,
+                    "training_settings": settings},
+                dataset_manifest_sha256="a" * 64)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            self.assertEqual(payload["training_settings"], settings)
+            target = NeuroSparseModel(config)
+            metadata = load_checkpoint(path, target,
+                expected_dataset_manifest_sha256="a" * 64)
+            self.assertEqual(metadata["training_settings"], settings)
+            self.assertEqual(metadata["step"], 7)
+
+    def test_checkpoint_rejects_invalid_training_precision_metadata(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-precision.pt"
+            with self.assertRaisesRegex(ValueError, "precision must"):
+                save_checkpoint(path, model, config,
+                    training_settings={"precision": "fp16"})
+            with self.assertRaisesRegex(TypeError, "deterministic"):
+                save_checkpoint(path, model, config,
+                    training_settings={"precision": "fp32", "deterministic": 1})
+
     def test_checkpoint_format_version_tracks_causal_architecture(self):
         config = self.config()
         model = NeuroSparseModel(config)
@@ -411,7 +447,7 @@ class CoreTests(unittest.TestCase):
             path = Path(directory) / "checkpoint.pt"
             save_checkpoint(path, model, config, step=0)
             payload = torch.load(path, map_location="cpu", weights_only=True)
-            self.assertEqual(payload["format_version"], 4)
+            self.assertEqual(payload["format_version"], 5)
 
     def test_checkpoint_rejects_bad_tensor_shapes_before_mutating_model(self):
         config = self.config()
