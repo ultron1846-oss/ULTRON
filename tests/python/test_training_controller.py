@@ -92,13 +92,12 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(len(saved), 2)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
-    def test_memory_writes_reject_multi_example_batches(self):
-        report = dict(self.report)
-        report["batch_size"] = 2
-        batch = {"input_ids": torch.tensor([[1, 2, 3], [1, 2, 3]], dtype=torch.long)}
-        with self.assertRaisesRegex(ValueError, "batch_size=1"):
-            run_training_steps(self.model, [batch], self.optimizer, report,
-                               settings=self.settings, training_authorized=True)
+    def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
+        settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=1,
+                                   max_seconds=60, write_memory=True)
+        with self.assertRaisesRegex(NotImplementedError, "sequential chunk semantics"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                               settings=settings, training_authorized=True)
         self.assertEqual(self.optimizer.steps, 0)
 
     def test_preflight_report_must_be_non_authorizing_and_local(self):
