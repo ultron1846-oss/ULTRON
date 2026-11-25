@@ -487,7 +487,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             "step_seconds_p95": (
                 sorted(performance_step_seconds)[min(
                     len(performance_step_seconds) - 1,
-                    int(0.95 * len(performance_step_seconds))
+                    max(0, math.ceil(0.95 * len(performance_step_seconds)) - 1)
                 )] if performance_step_seconds else None
             ),
             "peak_cuda_memory_bytes": performance_peak_cuda_memory_bytes,
