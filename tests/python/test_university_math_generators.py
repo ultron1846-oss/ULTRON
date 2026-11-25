@@ -1,4 +1,5 @@
 import unittest
+from fractions import Fraction
 from tools.math_generators.university import TOPICS, generate, verify
 from tools.math_generators.university.generators import GENERATOR_METADATA
 from tools.math_generators.build_registry import render_registries
@@ -20,6 +21,15 @@ class UniversityFoundationTests(unittest.TestCase):
         item=generate(8,2,"linear_algebra")
         item["answer"]="tampered"
         self.assertFalse(verify(item))
+
+    def test_bayes_posterior_matches_count_definition(self):
+        for seed in range(300):
+            item=generate(seed,1+seed%5,"probability_theory")
+            values=item["ingredients"]
+            positives=values["positive_given_case"]+values["positive_given_noncase"]
+            expected=Fraction(values["positive_given_case"],positives)
+            self.assertEqual(Fraction(item["answer"]),expected)
+            self.assertLessEqual(expected,1)
 
     def test_university_registry_declared(self):
         self.assertEqual(set(GENERATOR_METADATA),set(TOPICS))
