@@ -33,7 +33,9 @@ def semantic_check(ingredients,answer):
    quantity_type=ingredients["quantity_type"]
    if not 0<=pct<=100 or amount<=0:return False
    exact=Fraction(pct*amount,100)
-   if value!=exact or exact<0:return False
+   answer_text=str(answer)
+   if value!=exact or exact<0 or "/" in answer_text:return False
+   if "." in answer_text and len(answer_text.partition(".")[2])>2:return False
    if quantity_type=="count":
     divisor=100//__import__("math").gcd(pct,100)
     return amount%divisor==0 and exact.denominator==1 and value.denominator==1
