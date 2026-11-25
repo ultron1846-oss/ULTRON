@@ -80,7 +80,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add exact answer scoring for current rational and polynomial-derivative topics, including coverage/abstention and per-topic metrics.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
-- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for exact rational tasks.
+- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational and polynomial-derivative tasks.
 - [ ] Add symbolic equivalence, proof-checker acceptance, and richer error classes.
 - [ ] Benchmark baseline and foundation configs only on an approved runtime.
 - [ ] Record actual latency, peak memory, profiler FLOPs where supported, and hardware/software metadata.
