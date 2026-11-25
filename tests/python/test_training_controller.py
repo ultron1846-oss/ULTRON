@@ -96,9 +96,11 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(saved[0][1]["data_state"]["next_batch_index"], 2)
         self.assertEqual(saved[1][0], 2)
         self.assertEqual(saved[1][1]["data_state"]["next_batch_index"], 4)
+        self.assertEqual(saved[1][1]["data_state"]["next_sample_index"], 4)
         self.assertEqual(saved[1][1]["dataset_manifest_sha256"], "a" * 64)
         self.assertEqual(result["global_step"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 4)
+        self.assertEqual(result["data_state"]["next_sample_index"], 4)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
     def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
@@ -179,6 +181,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["global_step"], 13)
         self.assertEqual(result["data_state"]["epoch"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 5)
+        self.assertEqual(result["data_state"]["next_sample_index"], 5)
 
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
@@ -201,11 +204,38 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(self.optimizer.steps, 0)
 
 
+
+    def test_batch_and_sample_cursors_match_resumable_sampler(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        report = dict(self.report)
+        report["batch_size"] = 2
+        batches = [{"input_ids": torch.tensor([[1, 2, 3], [1, 2, 3]], dtype=torch.long)}
+                   for _ in range(4)]
+        saved = []
+        result = run_training_steps(
+            self.model, batches, self.optimizer, report,
+            settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True,
+            checkpoint_callback=lambda step, metadata: saved.append(metadata))
+        cursor = result["data_state"]
+        self.assertEqual(cursor["next_batch_index"], 2)
+        self.assertEqual(cursor["next_sample_index"], 4)
+        self.assertEqual(saved[0]["data_state"]["next_sample_index"], 4)
+        dataset = list(range(8))
+        full = list(ResumableRandomSampler(dataset, seed=0,
+                    dataset_manifest_sha256="a" * 64))
+        resumed = ResumableRandomSampler(dataset, seed=0,
+                    dataset_manifest_sha256="a" * 64,
+                    epoch=cursor["epoch"], next_index=cursor["next_sample_index"])
+        self.assertEqual(list(resumed), full[4:])
+
+
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
                     "data_state": {"epoch": 1, "batch": 3},
                     "dataset_manifest_sha256": "a" * 64}
-        with self.assertRaisesRegex(ValueError, "epoch and next_batch_index"):
+        with self.assertRaisesRegex(ValueError, "epoch, next_batch_index, and next_sample_index"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=metadata)
         self.assertEqual(self.optimizer.steps, 0)
