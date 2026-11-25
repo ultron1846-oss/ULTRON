@@ -122,6 +122,23 @@ def validate_example_text(input_text: str, expected_answer: str, topic: str) -> 
     """Independently parse generated text and validate exact rational/polynomial answers."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
         return False
+    if topic == "polynomial_definite_integral":
+        pattern = r"^\s*integrate\s*:\s*(.*?)\s+from\s*x\s*=\s*([+-]?\d+(?:/\d+)?)\s+to\s*x\s*=\s*([+-]?\d+(?:/\d+)?)\s*$"
+        match = re.fullmatch(pattern, input_text, flags=re.IGNORECASE)
+        if not match:
+            return False
+        try:
+            polynomial = _parse_integer_polynomial(match.group(1))
+            lower, upper = Fraction(match.group(2)), Fraction(match.group(3))
+            actual = sum(
+                (Fraction(coefficient, power + 1)
+                 * (upper ** (power + 1) - lower ** (power + 1))
+                 for power, coefficient in polynomial.items()),
+                Fraction(0),
+            )
+            return actual == Fraction(expected_answer)
+        except (ValueError, ZeroDivisionError, TypeError):
+            return False
     if topic == "polynomial_derivative":
         match = re.fullmatch(r"^\s*differentiate\s*:\s*(.*?)\s*$", input_text, flags=re.IGNORECASE)
         if not match:
