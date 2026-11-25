@@ -147,8 +147,9 @@ def _make(topic,r,d):
   check=lambda:a*int(ans)+b==c
  elif topic=="inequalities":
   a,bound,b=n(2,5*d),n(-10*d,10*d),n(-20*d,20*d); c=a*bound+b; sign=r.choice(["<",">"]); ans=f"x {sign} {bound}"
-  ingredients={"topic":topic,"values":[a,bound,b,c],"quantity_type":"signed_integer"}
-  q=r.choice([f"Solve {a}x+({b}) {sign} {c}.",f"A plan costs {a} per unit plus adjustment {b}; its total must be {sign} {c}. State the condition on x."])
+  contextual=bound>=0 and b>=0 and c>=0 and r.choice([True,False])
+  ingredients={"topic":topic,"values":[a,bound,b,c],"contextual":contextual,"quantity_type":"cost" if contextual else "signed_integer"}
+  q=(f"A plan costs {a} per unit plus adjustment {b}; its total must be {sign} {c}. State the condition on x." if contextual else f"Solve {a}x+({b}) {sign} {c}.")
   steps=[f"Subtract {b}: {a}x {sign} {c-b}.",f"Divide by positive {a}; sign stays the same: {ans}."]
   check=lambda:a*bound+b==c and (a*(bound-1)+b<c if sign=="<" else a*(bound+1)+b>c)
  elif topic=="basic_geometry":
