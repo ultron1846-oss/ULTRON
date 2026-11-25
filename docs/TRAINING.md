@@ -1,7 +1,24 @@
 # Training and Model Status
 
-No model, data generator, optimizer, training pipeline, checkpoint store, or evaluation suite exists in the current repository snapshot or open foundation PR. The interface's training page is informational only.
+## Current implementation (source-reviewed 2026-11-25)
 
-Actual model training must remain disabled until the user separately authorizes it. Before that point, any implementation work must be limited to researched, tested, reproducible infrastructure and must not start a training run. Do not claim parameter counts, accuracy, checkpoints, or training results without measured evidence.
+The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for three narrow topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and an inference-only benchmark harness. These are prototypes, not a complete training pipeline.
 
-Future training documentation must specify original data generation and verification, leakage-safe splits, model initialization, reproducibility, checkpoint integrity, recovery, resource limits, and held-out mathematical evaluation. GitHub Pages is only a static frontend host and must not be used for training.
+- `ultron_core/model.py`: experimental sparse-expert causal sequence model.
+- `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,408,643-parameter configuration.
+- `ultron_core/data_generation.py`: deterministic exact-rational examples for arithmetic, rational arithmetic, and simple linear equations.
+- `ultron_core/training.py`: loss and optimizer factory only; no epoch/step loop, batching, scheduler, gradient accumulation, or cancellation controller.
+- `ultron_core/checkpoint.py`: model/config/step/optional optimizer plus SHA-256 manifest; no complete RNG/data-cursor/scheduler resume.
+- `ultron_core/benchmark.py`: synthetic-token inference timing, not mathematical quality evaluation.
+
+The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,408,643 unique trainable parameters by formula; it has not been trained.
+
+## Safety and scope
+
+Actual model training remains disabled until the user separately authorizes it. Until then, implementation is limited to reproducible infrastructure, tests, data validation, resource planning, and dry-run checks that do not call `optimizer.step()`.
+
+No pretrained model/weights, external AI API, or externally generated training corpus may be introduced. GitHub Pages is static hosting only and must not run model training.
+
+## Before training
+
+Complete [PRETRAINING_READINESS.md](PRETRAINING_READINESS.md), including model/vocabulary audit, leakage-safe splits, robust checkpoint recovery, verified math evaluation, free-runtime measurements, manual iPad acceptance, and the outstanding Supabase Auth setting. Do not claim parameter counts, accuracy, training progress, or checkpoints unless actually measured/created.

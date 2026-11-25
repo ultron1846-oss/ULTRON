@@ -1,66 +1,108 @@
 # ULTRON pre-training readiness plan
 
-**Status:** planning and implementation checklist; not a training authorization.
-**Model size:** minimum **40,000,000 trainable parameters**. The earlier 3–5M target is retired.
-**Budget:** $0 planned compute; free-tier capacity must be verified at time of use.
+**Status:** phased readiness checklist; not a training authorization.
+**Model size:** minimum **40,000,000 unique trainable parameters**. The earlier 3–5M target is retired.
+**Budget:** $0 planned compute; free-tier capacity and limits must be verified at time of use.
 **Workflow:** website-first, iPad-compatible; no actual training until the final gate is approved.
 
 ## Phase 1 — Project specification
 
 - [ ] Define first-release mathematical capabilities and unsupported scope.
 - [ ] Distinguish deterministic math operations, learned outputs, conjectures, and verified proofs.
-- [ ] Preserve from-scratch constraints: no pretrained weights, pretrained models, external AI APIs, or externally generated training corpus.
-- [ ] Document the initial curriculum and evaluation tasks.
-- [ ] Specify model architecture before implementation; calculate the exact trainable parameter count and verify it is at least 40M.
-- [ ] Estimate weights, gradients, optimizer state, activations, batch memory, checkpoint size, and runtime requirements.
-- [ ] Specify data-generation, validation, checkpoint, and recovery interfaces.
-- [ ] Keep actual training and remote execution disabled until separate authorization.
+- [ ] Preserve from-scratch constraints: no pretrained weights/models, external AI APIs, or externally generated training corpus.
+- [ ] Document initial curriculum and evaluation tasks.
+- [x] Establish 40M minimum and add a 63,408,643-parameter candidate configuration.
+- [x] Add exact parameter-count formula and small-model cross-check.
+- [x] Add theoretical FP32/optimizer memory estimate.
+- [ ] Final architecture review and tokenizer-vocabulary compatibility audit.
 
-**Exit criteria:** a reviewed specification, architecture document, parameter-count calculation, resource estimate, and explicitly bounded capability list.
+**Exit criteria:** reviewed capability/curriculum specification, architecture, exact parameter count, resource estimate, and bounded scope.
 
 ## Phase 2 — Website completion and acceptance
 
-### Functional acceptance
-- [ ] Verify all navigation routes and fallback/error states.
-- [ ] Verify overview status is truthful and does not imply a trained model.
-- [ ] Test supported and unsupported Math Agent inputs, invalid expressions, zero division, and equation edge cases.
-- [ ] Verify user-triggered Save to memory, retry, Memory Vault display, JSON export/import, and local-only persistence.
-- [ ] Verify server directory failure states do not invent provider availability.
-- [ ] Verify settings persist and accurately describe the workload slider as a preference—not actual RAM allocation.
-- [ ] Verify owner sign-in, refresh, sign-out, and server-side owner rejection for non-owners.
-- [ ] Verify no public signup and no public training/remote execution controls.
+Automated frontend hardening is merged, but manual iPad acceptance is **not recorded**.
 
-### iPad/browser acceptance
-- [ ] Test Safari on iPad in portrait and landscape.
-- [ ] Test touch navigation, on-screen keyboard, focus, scrolling, and long math input.
-- [ ] Test page refresh, tab close/reopen, IndexedDB persistence, and backup/restore.
-- [ ] Test responsive layout, contrast control, and accessible status/error announcements.
-- [ ] Record manual test date, browser/device, pass/fail, and unresolved defects; do not mark untested items as passed.
-
-**Exit criteria:** automated tests pass, manual iPad acceptance is recorded, and no critical frontend defect remains. GitHub Pages CI alone is not evidence of manual Safari acceptance.
+- [ ] Verify navigation, fallback/error states, and honest untrained status.
+- [ ] Test supported/unsupported Math Agent inputs and equation edge cases.
+- [ ] Verify explicit memory save/retry, vault display, export/import, and local persistence.
+- [ ] Verify owner sign-in, refresh, sign-out, and server-side non-owner rejection.
+- [ ] Verify workload slider is a preference, not actual RAM allocation.
+- [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore.
+- [ ] Record device/browser/date/pass-fail; do not mark untested as passed.
 
 ## Phase 3 — Security audit
 
-- [ ] Review exposed Supabase tables, RLS policies, grants, and access paths.
-- [ ] Review every Edge Function's authentication, owner authorization, input validation, rate limits, timeouts, and error handling.
-- [ ] Verify owner identity is checked server-side; never trust a client flag or local storage as authorization.
-- [ ] Verify no service-role/secret key is shipped in static frontend assets or committed.
-- [ ] Verify public status endpoints are read-only and cannot invoke owner actions.
-- [ ] Test unauthenticated, non-owner, expired-session, malformed-input, oversized-request, and network-failure cases.
-- [ ] Review logs and responses for secret or personal-data leakage.
-- [ ] Ensure training endpoints/jobs remain disabled and cannot be started by page load, public users, or UI-only state.
-- [ ] Record findings by severity, fix blocking findings, and add regression tests.
+The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked and verified. See [Phase 3 audit](SECURITY_AUDIT_PHASE3.md).
 
-**Exit criteria:** no unresolved critical/high severity finding; authorization and fail-closed tests pass; security review is documented. This checklist does not replace a live review of deployed Supabase policies/functions.
+- [x] Inspect public table RLS and role grants.
+- [x] Review deployed Edge Function auth/owner checks and retired device-control endpoint.
+- [x] Revoke and verify TRUNCATE on six owner-linked tables.
+- [ ] Owner: enable Supabase Auth leaked-password protection and re-run advisors.
+- [ ] Final deployed-policy/endpoint review after dashboard change.
 
-## Training-readiness gate (not yet approved)
+## Phase 4 — Architecture and model sizing
 
-Training remains blocked until Phases 1–3 are completed and reviewed, then the model, independent data generator, training loop, benchmarks, checkpoint/recovery, and approved free runtime are separately implemented and validated. A 40M parameter count alone does not establish readiness. Start training only after an explicit authorization step.
+- [x] Add proposed foundation config with 63,408,643 unique trainable parameters.
+- [x] Add exact parameter-count formula and tests.
+- [x] Document FP32/AdamW memory floor and limitations.
+- [ ] Review tokenizer size/special IDs and task serialization.
+- [ ] Decide whether experimental memory/refinement remain based on ablations.
+
+**Exit criteria:** architecture reviewed, count independently reproduced, vocabulary/task format frozen.
+
+## Phase 5 — Data generation and dataset integrity
+
+- [ ] Audit generator topics, coverage, edge cases, and answer validator.
+- [ ] Separate train/validation/test by seed/problem family to prevent near-duplicate leakage.
+- [ ] Add corpus-level balance, duplicate, provenance, schema, and checksum verification.
+- [ ] Expand topics only with independent exact validators.
+- [ ] Ensure ULTRON-generated data only; no external generated corpus.
+
+**Exit criteria:** reproducible manifest, split audit, zero invalid examples, documented coverage.
+
+## Phase 6 — Training-loop implementation (not execution)
+
+- [ ] Implement bounded orchestration only after architecture/data gates.
+- [ ] Include gradient accumulation, clipping, finite loss/gradient checks, deterministic seeds, cancellation, and step/time/resource caps.
+- [ ] Reset/isolate mutable memory across examples, batches, and validation.
+- [ ] Keep remote dispatch disabled; require explicit owner authorization for any run.
+- [ ] Add dry-run that validates configuration/data without optimizer steps.
+
+**Exit criteria:** unit tests and dry-run pass; no training performed.
+
+## Phase 7 — Evaluation and benchmark protocol
+
+- [ ] Add mathematically verified task suites.
+- [ ] Keep validation and final test sets separate from training data.
+- [ ] Report exact correctness, symbolic equivalence, verifier acceptance, abstention, and error classes.
+- [ ] Benchmark baseline and foundation configs only on an approved runtime.
+- [ ] Record actual latency, peak memory, profiler FLOPs where supported, and hardware/software metadata.
+- [ ] Do not infer mathematical capability from random-token smoke tests.
+
+## Phase 8 — Checkpoint and recovery
+
+- [ ] Save model, optimizer, scheduler, global step, config, RNG states, data cursor, and dataset manifest hash.
+- [ ] Validate checkpoint and optimizer compatibility before mutating live state.
+- [ ] Test interrupted writes, stale manifests, corruption, and last-known-good recovery.
+- [ ] Prove resumed execution matches uninterrupted execution within tolerance.
+- [ ] Document storage and backup limits.
+
+## Phase 9 — Free runtime and operations
+
+- [ ] Verify current free-tier hardware, quotas, idle timeout, and persistence.
+- [ ] Test notebook setup from a clean session without assuming phone verification.
+- [ ] Validate checkpoint transfer and resume across sessions.
+- [ ] Keep website status read-only and never expose secrets.
+- [ ] Confirm zero-cost compute/storage/time limits before any run.
+
+## Final training gate — blocked
+
+Training is **not approved**. It requires Phases 1–9 review, outstanding iPad acceptance and Supabase Auth setting, clean validation, resource-budget confirmation, and separate explicit authorization. A 40M parameter count alone is not readiness.
 
 ## Next-chat handoff
 
-1. Complete Phase 1 specification and update the README whenever a milestone changes.
-2. Work on Phase 2 website issues in a dedicated PR; preserve owner sign-in and account-free public browsing.
-3. Perform Phase 3 security review without exposing secrets or changing production Supabase settings without a verified need.
-4. Run Node tests and Python core tests appropriate to changed files; report actual CI outcomes.
-5. Do not start training, optimizer steps, corpus generation, or remote jobs.
+1. Review PR 43 and CI.
+2. Continue Phase 5 generator and split-integrity review in its own PR.
+3. Then harden checkpoint/recovery and add a no-optimizer dry-run.
+4. Update README at every meaningful milestone.
+5. Do not enable training or remote training jobs without separate authorization.

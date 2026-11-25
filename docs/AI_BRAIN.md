@@ -2,11 +2,11 @@
 
 ## Current state
 
-There is no AI brain or neural model in the repository. The dashboard, arithmetic parser, and fixed practice item are ordinary deterministic application code. No pretrained model, pretrained weights, external AI API, or training dataset is used.
+ULTRON contains an **experimental untrained neural sequence-model prototype** in `ultron_core/model.py`, alongside deterministic mathematical parsing, exact arithmetic, symbolic/algebraic utilities, a narrow deterministic data generator, and finite-domain candidate probing.
 
-## Proposed future boundaries
+This is not a trained AI brain. The model has not demonstrated university-level mathematical reasoning, theorem proving, formula discovery, or general intelligence. Deterministic verified outputs and model-generated guesses must remain clearly separated.
 
-Keep these as separate components with explicit interfaces:
+## Required system boundaries
 
 1. Input normalization and problem classification.
 2. Mathematical operation planner.
@@ -14,7 +14,7 @@ Keep these as separate components with explicit interfaces:
 4. Structured knowledge retrieval with source and prerequisite fields.
 5. Explanation generation from verified steps.
 6. Learner adaptation based on recorded evidence.
-7. An original neural model as optional assistance, never as the authority for a verified result.
-8. A controller that records which component produced each answer and which checks passed.
+7. Original neural model as optional assistance, never the authority for verified results.
+8. Controller recording which component produced each answer and which checks passed.
 
-These are design directions, not implemented features. A model proposal requires a separate research note and measurable evaluation criteria. Actual training remains disabled absent explicit authorization.
+Actual training remains disabled absent separate explicit authorization.

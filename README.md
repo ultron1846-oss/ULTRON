@@ -9,6 +9,12 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 The current model specification sets a **minimum of 40,000,000 trainable parameters**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
 
+## Foundation model sizing — Phase 4
+
+The repository now defines a proposed foundation configuration of **63,408,643 unique trainable parameters**, exceeding the 40M minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
+
+Source review corrected stale training documentation: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, and checkpoint utilities, but no complete training loop or full resume controller. Training remains disabled.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.

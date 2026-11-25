@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 
-from ultron_core import NeuroSparseConfig, NeuroSparseModel
+from ultron_core import NeuroSparseConfig, NeuroSparseModel, count_parameters
 from ultron_core.checkpoint import load_checkpoint, save_checkpoint
 from ultron_core.discovery import polynomial_identity_candidates
 from ultron_core.math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
@@ -457,6 +457,16 @@ class CoreTests(unittest.TestCase):
     def test_config_requires_attention_head_divisibility(self):
         with self.assertRaisesRegex(ValueError, "divisible"):
             NeuroSparseConfig(hidden_size=30, num_attention_heads=4)
+
+    def test_parameter_count_formula_matches_instantiated_model(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        self.assertEqual(count_parameters(config), sum(p.numel() for p in model.parameters()))
+
+    def test_foundation_config_meets_40m_minimum_without_instantiating_large_model(self):
+        config = NeuroSparseConfig.foundation()
+        self.assertEqual(count_parameters(config), 63408643)
+        self.assertGreaterEqual(count_parameters(config), 40000000)
 
 
 if __name__ == '__main__':

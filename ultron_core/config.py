@@ -46,5 +46,23 @@ class NeuroSparseConfig:
         if not 0 <= self.pad_token_id < self.vocab_size:
             raise ValueError("pad_token_id outside vocabulary")
 
+    @classmethod
+    def foundation(cls) -> "NeuroSparseConfig":
+        """Return the proposed >=40M foundation configuration (not a training command)."""
+        return cls(vocab_size=256, hidden_size=512, num_layers=3, num_experts=8,
+                  top_k=2, expert_multiplier=4, max_refinements=3,
+                  fast_memory_slots=64, num_attention_heads=8,
+                  max_sequence_length=2048)
+
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def count_parameters(config: NeuroSparseConfig) -> int:
+    """Exact unique trainable parameter count from architecture shapes; no model allocation."""
+    if not isinstance(config, NeuroSparseConfig):
+        raise TypeError("config must be a NeuroSparseConfig")
+    h, e, m = config.hidden_size, config.num_experts, config.expert_multiplier
+    block = (15 + 2 * m * e) * h * h + (17 + e * (m + 2)) * h + 1
+    # The output head is tied to the token embedding and counted only once.
+    return config.vocab_size * h + config.max_sequence_length * h + 2 * h + config.num_layers * block
