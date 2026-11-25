@@ -4,6 +4,11 @@
 
 ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current website is a static frontend and deterministic foundation prototype—not a trained AI model.
 
+
+## Pre-training readiness — Phase 1 specification
+
+The current model specification sets a **minimum of 40,000,000 trainable parameters**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
