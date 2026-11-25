@@ -453,6 +453,7 @@ class CoreTests(unittest.TestCase):
             "gradient_accumulation_steps": 4,
             "deterministic": True,
             "profile_performance": False,
+            "activation_checkpointing": True,
         }
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "precision.pt"
