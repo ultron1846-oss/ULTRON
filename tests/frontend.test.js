@@ -3,11 +3,28 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 
-test('control-room shell exposes its seven primary destinations', async () => {
+test('control-room shell exposes its eight primary destinations', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  for (const page of ['overview','learning','agent','memory','servers','backend','settings']) assert.match(html, new RegExp(`data-page="${page}"`));
+  for (const page of ['overview','learning','agent','memory','servers','training','backend','settings']) assert.match(html, new RegExp(`data-page="${page}"`));
   assert.match(html, /viewport-fit=cover/);
   assert.match(html, /mobile-menu/);
+});
+
+test('training control page is generic, read-only and has disabled execution controls', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /data-page="training"/);
+  assert.match(app, /training:'Training control'/);
+  assert.match(app, /function renderTraining\(/);
+  assert.match(app, /function loadTrainingStatus\(/);
+  assert.match(app, /fetchSupabasePublicStatus\(\)/);
+  assert.match(app, /id="training-start"[^>]*disabled/);
+  assert.match(app, /id="training-pause"[^>]*disabled/);
+  assert.match(app, /id="training-stop"[^>]*disabled/);
+  assert.match(app, /id="training-resume"[^>]*disabled/);
+  assert.match(app, /id="training-save"[^>]*disabled/);
+  assert.match(app, /No training, bulk data generation, remote job submission or checkpoint mutation/);
+  assert.doesNotMatch(app, /training-start[^\n]*addEventListener/);
 });
 
 test('frontend clearly represents training as disabled and does not implement training execution', async () => {
