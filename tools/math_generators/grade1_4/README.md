@@ -18,3 +18,9 @@ python tools/math_generators/grade1_4/split_dataset.py --count-per-topic 100 --o
 ```
 
 Train and benchmark seeds use different ranges. The script also checks normalized prompt-answer fingerprints for overlap.
+
+## Context and semantic checks
+
+Grade 1–4 topics declare contextual template IDs in `GENERATOR_METADATA`. The shared registry builder uses those declarations to write contextual-coverage flags. The generator now applies `semantic_check(topic, answer, problem)` after its exact arithmetic check, rejecting negative counts, malformed cents, invalid hour/minute conversion, and non-positive rectangle perimeter/area.
+
+This remains deterministic question generation with exact replay checks; it does not demonstrate trained model ability.

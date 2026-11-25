@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "coverage_through": "G5-8",
+  "coverage_through": "G1-12 (overlapping topic batches)",
   "topics": [
     {
       "topic": "counting",
@@ -116,6 +116,116 @@
       "topic": "simple_probability",
       "grade_band": "G5-8",
       "word_problems": true
+    },
+    {
+      "topic": "linear_equations",
+      "grade_band": "G8-9",
+      "word_problems": true
+    },
+    {
+      "topic": "systems_of_equations",
+      "grade_band": "G8-10",
+      "word_problems": true
+    },
+    {
+      "topic": "quadratic_equations",
+      "grade_band": "G9-10",
+      "word_problems": false
+    },
+    {
+      "topic": "polynomial_operations",
+      "grade_band": "G9-10",
+      "word_problems": false
+    },
+    {
+      "topic": "polynomial_factoring",
+      "grade_band": "G9-10",
+      "word_problems": true
+    },
+    {
+      "topic": "functions",
+      "grade_band": "G8-10",
+      "word_problems": true
+    },
+    {
+      "topic": "coordinate_geometry",
+      "grade_band": "G8-10",
+      "word_problems": true
+    },
+    {
+      "topic": "triangle_geometry",
+      "grade_band": "G8-10",
+      "word_problems": true
+    },
+    {
+      "topic": "trigonometry",
+      "grade_band": "G10-12",
+      "word_problems": true
+    },
+    {
+      "topic": "sequences_series",
+      "grade_band": "G9-12",
+      "word_problems": true
+    },
+    {
+      "topic": "logarithms",
+      "grade_band": "G10-12",
+      "word_problems": false
+    },
+    {
+      "topic": "limits",
+      "grade_band": "G11-12",
+      "word_problems": false
+    },
+    {
+      "topic": "derivatives",
+      "grade_band": "G11-12",
+      "word_problems": true
+    },
+    {
+      "topic": "definite_integrals",
+      "grade_band": "G11-12",
+      "word_problems": true
+    },
+    {
+      "topic": "matrices",
+      "grade_band": "G10-12",
+      "word_problems": false
+    },
+    {
+      "topic": "combinatorics",
+      "grade_band": "G10-12",
+      "word_problems": true
+    },
+    {
+      "topic": "number_theory",
+      "grade_band": "G8-12",
+      "word_problems": true
+    },
+    {
+      "topic": "complex_numbers",
+      "grade_band": "G10-12",
+      "word_problems": false
+    },
+    {
+      "topic": "vectors",
+      "grade_band": "G10-12",
+      "word_problems": true
+    },
+    {
+      "topic": "statistics",
+      "grade_band": "G9-12",
+      "word_problems": true
+    },
+    {
+      "topic": "probability",
+      "grade_band": "G9-12",
+      "word_problems": true
+    },
+    {
+      "topic": "proof_logic",
+      "grade_band": "G8-12",
+      "word_problems": false
     }
   ]
 }
