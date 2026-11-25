@@ -294,7 +294,7 @@ class CoreTests(unittest.TestCase):
             torch.manual_seed(5)
             random.seed(5)
             restored = NeuroSparseModel(config)
-            metadata = load_checkpoint(path, restored)
+            metadata = load_checkpoint(path, restored, expected_dataset_manifest_sha256="a" * 64)
             self.assertEqual(metadata["format_version"], 4)
             self.assertEqual(metadata["data_state"], {"epoch": 2, "batch": 9})
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
@@ -315,7 +315,8 @@ class CoreTests(unittest.TestCase):
             with path.open("ab") as stream:
                 stream.write(b"corrupt-current")
             restored = NeuroSparseModel(config)
-            metadata = load_checkpoint(path, restored, restore_rng=False)
+            metadata = load_checkpoint(path, restored, restore_rng=False,
+                                      expected_dataset_manifest_sha256="a" * 64)
             self.assertEqual(metadata["step"], 4)
             self.assertEqual(metadata["data_state"], {"cursor": 4})
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
@@ -324,6 +325,30 @@ class CoreTests(unittest.TestCase):
                 self.assertTrue(torch.equal(value, first_state[name]), name)
 
 
+
+    def test_checkpoint_rejects_dataset_hash_mismatch_before_mutating_model(self):
+        config = self.config()
+        source = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "dataset-bound.pt"
+            save_checkpoint(path, source, config, step=3, data_state={"cursor": 3},
+                           dataset_manifest_sha256="a" * 64)
+            target = NeuroSparseModel(config)
+            target_before = {name: value.detach().clone() for name, value in target.state_dict().items()}
+            with self.assertRaisesRegex(ValueError, "does not match expected dataset"):
+                load_checkpoint(path, target, expected_dataset_manifest_sha256="b" * 64)
+            for name, value in target.state_dict().items():
+                self.assertTrue(torch.equal(value, target_before[name]), name)
+
+    def test_expected_dataset_hash_rejects_legacy_checkpoint_without_manifest(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "legacy.pt"
+            save_checkpoint(path, model, config, step=0)
+            target = NeuroSparseModel(config)
+            with self.assertRaisesRegex(ValueError, "no dataset manifest hash"):
+                load_checkpoint(path, target, expected_dataset_manifest_sha256="a" * 64)
 
     def test_checkpoint_requires_valid_dataset_hash_for_cursor(self):
         config = self.config()
