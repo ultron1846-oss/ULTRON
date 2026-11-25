@@ -241,6 +241,30 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 checkpoint_callback=lambda step, metrics: None)
         self.assertEqual(self.optimizer.steps, 0)
 
+    def test_sampler_cursor_alignment_supports_batch_size_two(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=2, sampler=sampler, num_workers=0)
+        report = dict(self.report)
+        report["batch_size"] = 2
+        result = run_training_steps(self.model, loader, self.optimizer, report,
+            settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True, sampler=sampler)
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["data_state"]["next_batch_index"], 2)
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+
     def test_sampler_cursor_must_match_batch_cursor(self):
         from torch.utils.data import DataLoader, Dataset
         from ultron_core.resumable_sampler import ResumableRandomSampler
