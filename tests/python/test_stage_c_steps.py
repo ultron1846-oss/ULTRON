@@ -20,6 +20,10 @@ class StageCStepVerifierTests(unittest.TestCase):
    verify_rational_steps([{"name":"x","expression":"1","claimed_value":"1"},{"name":"x","expression":"2","claimed_value":"2"}],"x","1")
   r=verify_rational_steps([{"name":"x","expression":"1/0","claimed_value":"0"}],"0","0")
   self.assertFalse(r["trace_valid"])
+ def test_final_answer_expression_length_is_checked_before_parsing(self):
+  r=verify_rational_steps([],"1"*513,"1")
+  self.assertFalse(r["trace_valid"])
+  self.assertTrue(any("complexity limit" in x for x in r["issues"]))
  def test_final_answer_must_match_exact_reference(self):
   r=verify_rational_steps([{"name":"x","expression":"1/3+1/3","claimed_value":"2/3"}],"x*3","3")
   self.assertFalse(r["final_answer_correct"]); self.assertFalse(r["trace_valid"])
