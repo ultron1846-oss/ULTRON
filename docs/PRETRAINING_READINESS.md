@@ -87,6 +87,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 ## Phase 7 — Evaluation and benchmark protocol
 
 - [x] Add exact answer scoring for current rational and polynomial-derivative topics, including coverage/abstention and per-topic metrics.
+- [x] Count malformed non-string predictions as invalid outputs instead of crashing or misclassifying them as abstentions.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational and polynomial-derivative tasks.
@@ -124,8 +125,8 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Review PR #60 and merge only after Node/Python checks pass.
+1. Review and merge the Phase 7 evaluation hardening PR only after Node/Python checks pass.
 2. Expand Phase 7 with symbolic-equivalence/proof-verifier metrics and broader independently validated mathematical suites.
-3. Phase 8: bind the dataset manifest hash into checkpoint cursor metadata and add restore/recovery tests that do not execute optimizer steps.
+3. Phase 8 remaining: prove resumed execution matches uninterrupted execution within tolerance; implement sampler/DataLoader cursor replay and measured resource monitoring.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
 5. Keep real-weight training and remote execution disabled until separate explicit authorization.
