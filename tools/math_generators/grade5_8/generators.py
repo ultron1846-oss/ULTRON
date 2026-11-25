@@ -163,10 +163,12 @@ def _make(topic,r,d):
   steps=[f"Supplementary angles total 180°.",f"180°−{a}°={val}°."]
   check=lambda:int(ans)+a==180 and 0<int(ans)<180
  elif topic=="statistics_basics":
-  vals=[n(1,20*d) for _ in range(5)]; ordered=sorted(vals); mean=Fraction(sum(vals),5); med=ordered[2]; ran=ordered[-1]-ordered[0]
-  ingredients={"topic":topic,"values":vals,"quantity_type":"score"}
+  context_type=r.choice(["quiz_scores","measurements"])
+  upper=100 if context_type=="quiz_scores" else 20*d
+  vals=[n(1,upper) for _ in range(5)]; ordered=sorted(vals); mean=Fraction(sum(vals),5); med=ordered[2]; ran=ordered[-1]-ordered[0]
+  ingredients={"topic":topic,"values":vals,"context_type":context_type,"quantity_type":"score" if context_type=="quiz_scores" else "continuous"}
   ans=f"mean={mean}; median={med}; range={ran}"
-  q=r.choice([f"Five quiz scores are {', '.join(map(str,vals))}. Find mean, median, and range.",f"Measurements are {', '.join(map(str,vals))}. Calculate mean, median, and range."])
+  q=(f"Five quiz scores are {', '.join(map(str,vals))}. Find mean, median, and range." if context_type=="quiz_scores" else f"Five measurements are {', '.join(map(str,vals))}. Calculate mean, median, and range.")
   steps=[f"Mean={sum(vals)}÷5={mean}.",f"Sorted data={ordered}; median={med}.",f"Range={ordered[-1]}−{ordered[0]}={ran}."]
   check=lambda:sum(vals)==mean*5 and ordered[2]==med and ordered[-1]-ordered[0]==ran
  elif topic=="simple_probability":
