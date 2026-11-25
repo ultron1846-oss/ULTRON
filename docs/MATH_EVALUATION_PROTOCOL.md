@@ -1,0 +1,47 @@
+# Mathematical evaluation protocol — current foundation
+
+**Status:** exact-answer scoring infrastructure for the current generated tasks; not a trained-model benchmark result.
+
+## Current evaluator
+
+`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact rational targets. It reports:
+
+- exact correct count;
+- exact accuracy over all references;
+- exact accuracy among answered items;
+- coverage and abstentions;
+- invalid/non-rational prediction count;
+- per-topic counts, coverage, and accuracy.
+
+The evaluator does not instantiate or run a neural model. Its output sets `model_evaluated=false`, `training_performed=false`, and `proof_verified=false`.
+
+## Supported scope
+
+Current generator topics are:
+- integer arithmetic;
+- rational arithmetic;
+- simple one-variable linear equations.
+
+The prediction format is an exact rational string such as `-7/3` or `4`. It does not parse natural-language explanations, symbolic expressions, derivations, or proof steps.
+
+## Held-out evaluation rules
+
+1. Generate only from ULTRON's own deterministic generator.
+2. Split by normalized prompt group using `split_examples`; duplicate prompts are collapsed before assignment.
+3. Use train for fitting, validation for configuration/early stopping, and final test only for one final report.
+4. Do not tune on the final test set or move failed examples between splits after inspecting model output.
+5. Report the seed, generator version, dataset manifest digest, tokenizer version, model config, and raw prediction file.
+6. Report per-topic accuracy and coverage; do not hide invalid outputs or abstentions.
+7. Correct numeric answers are not evidence that the model generated a valid derivation or formal proof.
+
+## Future evaluation prerequisites
+
+Before any trained-model quality claim:
+- freeze task serialization and tokenizer vocabulary;
+- add broader independently verified task sets (algebra, calculus, linear algebra, discrete math, probability, analysis, etc.);
+- add symbolic-equivalence checks where exact strings are too strict;
+- use an independent proof checker for proof claims;
+- pre-register primary metrics and keep a separate untouched test split;
+- compare against deterministic baselines and report multiple seeds.
+
+No model evaluation or training run has been performed as part of this protocol.
