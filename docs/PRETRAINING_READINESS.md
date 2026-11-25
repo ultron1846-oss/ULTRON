@@ -111,7 +111,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Test RNG replay and data cursor restoration.
 - [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
 - [x] Rewind cursor for uncommitted accumulation groups that are discarded.
-- [ ] Ensure caller restores/positions the DataLoader sampler from saved cursor.
+- [x] Add dataset-bound deterministic resumable random sampler with seed/epoch/sample cursor and permutation-tail tests.
+- [ ] Wire sampler state save/load into the notebook/DataLoader caller; use `num_workers=0` or consumed-cursor accounting to avoid prefetch drift.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
 
