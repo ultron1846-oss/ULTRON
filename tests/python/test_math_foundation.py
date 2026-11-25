@@ -111,6 +111,17 @@ class DeterministicDataGenerationTests(unittest.TestCase):
         self.assertFalse(report["splits_prompt_disjoint"])
         self.assertTrue(report["prompt_group_leakage"])
         self.assertEqual(report["split_counts"]["train"], 1)
+        self.assertEqual(report["repeated_split_example_id_count"], 1)
+        self.assertFalse(report["split_membership_valid"])
+
+    def test_corpus_summary_flags_split_rows_outside_corpus(self):
+        examples = generate_examples(814, 12)
+        outsider = generate_examples(815, 1)[0]
+        splits = {"train": (examples[0], outsider), "validation": tuple(examples[1:6]),
+                  "test": tuple(examples[6:])}
+        report = summarize_corpus(examples, splits=splits)
+        self.assertEqual(report["unknown_split_example_id_count"], 1)
+        self.assertFalse(report["split_membership_valid"])
 
     def test_same_seed_and_configuration_produce_identical_examples(self):
         first = generate_examples(712, 50)
