@@ -465,7 +465,8 @@ class CoreTests(unittest.TestCase):
 
     def test_foundation_config_meets_40m_minimum_without_instantiating_large_model(self):
         config = NeuroSparseConfig.foundation()
-        self.assertEqual(count_parameters(config), 63408643)
+        self.assertEqual(config.vocab_size, 240)
+        self.assertEqual(count_parameters(config), 63400451)
         self.assertGreaterEqual(count_parameters(config), 40000000)
 
 

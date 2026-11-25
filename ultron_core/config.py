@@ -49,7 +49,8 @@ class NeuroSparseConfig:
     @classmethod
     def foundation(cls) -> "NeuroSparseConfig":
         """Return the proposed >=40M foundation configuration (not a training command)."""
-        return cls(vocab_size=256, hidden_size=512, num_layers=3, num_experts=8,
+        from .math_tokenizer import MathVocabulary
+        return cls(vocab_size=len(MathVocabulary.default()), hidden_size=512, num_layers=3,
                   top_k=2, expert_multiplier=4, max_refinements=3,
                   fast_memory_slots=64, num_attention_heads=8,
                   max_sequence_length=2048)

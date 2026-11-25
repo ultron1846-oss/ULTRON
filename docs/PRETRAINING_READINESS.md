@@ -11,7 +11,7 @@
 - [ ] Distinguish deterministic math operations, learned outputs, conjectures, and verified proofs.
 - [ ] Preserve from-scratch constraints: no pretrained weights/models, external AI APIs, or externally generated training corpus.
 - [ ] Document initial curriculum and evaluation tasks.
-- [x] Establish 40M minimum and add a 63,408,643-parameter candidate configuration.
+- [x] Establish 40M minimum and add a 63,400,451-parameter candidate configuration.
 - [x] Add exact parameter-count formula and small-model cross-check.
 - [x] Add theoretical FP32/optimizer memory estimate.
 - [ ] Final architecture review and tokenizer-vocabulary compatibility audit.
@@ -42,10 +42,11 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 4 — Architecture and model sizing
 
-- [x] Add proposed foundation config with 63,408,643 unique trainable parameters.
+- [x] Add proposed foundation config with 63,400,451 unique trainable parameters.
 - [x] Add exact parameter-count formula and tests.
 - [x] Document FP32/AdamW memory floor and limitations.
-- [ ] Review tokenizer size/special IDs and task serialization.
+- [x] Bind foundation vocabulary to canonical tokenizer size (240) and reserved-token IDs.
+- [ ] Freeze task serialization for problem, derivation, answer, and verifier result.
 - [ ] Decide whether experimental memory/refinement remain based on ablations.
 
 **Exit criteria:** architecture reviewed, count independently reproduced, vocabulary/task format frozen.

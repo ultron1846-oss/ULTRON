@@ -11,13 +11,15 @@ The current model specification sets a **minimum of 40,000,000 trainable paramet
 
 ## Foundation model sizing — Phase 4
 
-The repository now defines a proposed foundation configuration of **63,408,643 unique trainable parameters**, exceeding the 40M minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
+The repository now defines a proposed foundation configuration of **63,400,451 unique trainable parameters**, exceeding the 40M minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
 
 Source review corrected stale training documentation: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, and checkpoint utilities, but no complete training loop or full resume controller. Training remains disabled.
 
 ## Phase 5 — data integrity hardening
 
 The original generator currently covers only arithmetic, rational arithmetic, and simple linear equations. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
+
+The foundation config now binds to the canonical 240-token math vocabulary instead of the initial 256-token placeholder. The revised exact count is **63,400,451**.
 
 ## Frontend status
 
