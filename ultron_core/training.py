@@ -155,6 +155,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     dataset_hash = preflight_report.get("dataset_manifest_sha256")
     if not isinstance(dataset_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", dataset_hash):
         raise ValueError("training requires a verified dataset manifest SHA-256 in preflight")
+    dataset_size = preflight_report.get("dataset_size")
+    if isinstance(dataset_size, bool) or not isinstance(dataset_size, int) or dataset_size <= 0:
+        raise ValueError("preflight dataset_size must be a positive integer")
 
     if resume_metadata is not None:
         if not isinstance(resume_metadata, dict):
@@ -166,10 +169,18 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 or not isinstance(resume_metadata.get("data_state"), dict)):
             raise ValueError("resume checkpoint must include restored RNG and data cursor state")
         resume_cursor = resume_metadata["data_state"]
-        if "epoch" not in resume_cursor or "next_batch_index" not in resume_cursor:
-            raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
-        if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
-            raise ValueError("resume checkpoint dataset manifest does not match preflight")
+        required_cursor_fields = {
+            "epoch", "next_batch_index", "next_sample_index", "dataset_size",
+            "dataset_manifest_sha256", "seed", "gradient_accumulation_steps",
+        }
+        if not required_cursor_fields <= set(resume_cursor):
+            raise ValueError("resume checkpoint data_state must include epoch, batch/sample cursors, dataset identity, seed, and accumulation")
+        if (resume_metadata.get("dataset_hash_verified") is not True
+                or resume_metadata.get("dataset_manifest_sha256") != dataset_hash
+                or resume_cursor.get("dataset_manifest_sha256") != dataset_hash):
+            raise ValueError("resume checkpoint dataset manifest must be verified and match preflight")
+        if resume_cursor.get("dataset_size") != dataset_size:
+            raise ValueError("resume checkpoint dataset size does not match preflight")
         saved_seed = resume_cursor.get("seed")
         if (isinstance(saved_seed, bool) or not isinstance(saved_seed, int)
                 or saved_seed != settings.seed):
@@ -193,12 +204,23 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
 
     epoch = cursor.get("epoch", 0)
     next_batch_index = cursor.get("next_batch_index", 0)
+    next_sample_index = cursor.get("next_sample_index", 0)
     if (isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 0
             or isinstance(next_batch_index, bool) or not isinstance(next_batch_index, int)
-            or next_batch_index < 0):
-        raise ValueError("data cursor epoch/next_batch_index must be non-negative integers")
+            or next_batch_index < 0
+            or isinstance(next_sample_index, bool) or not isinstance(next_sample_index, int)
+            or not 0 <= next_sample_index <= dataset_size):
+        raise ValueError("data cursor epoch/batch/sample indices must be non-negative and sample index within dataset_size")
+    if (isinstance(cursor.get("dataset_size", dataset_size), bool)
+            or cursor.get("dataset_size", dataset_size) != dataset_size):
+        raise ValueError("data cursor dataset_size does not match preflight")
+    if cursor.get("dataset_manifest_sha256", dataset_hash) != dataset_hash:
+        raise ValueError("data cursor dataset manifest hash does not match preflight")
     cursor["epoch"] = epoch
     cursor["next_batch_index"] = next_batch_index
+    cursor["next_sample_index"] = next_sample_index
+    cursor["dataset_size"] = dataset_size
+    cursor["dataset_manifest_sha256"] = dataset_hash
 
     committed_sampler_state = None
     if sampler is not None:
@@ -220,9 +242,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             sampler.load_state_dict(sampler_state)
         live_sampler_state = sampler.state_dict()
         if (live_sampler_state.get("dataset_manifest_sha256") != dataset_hash
+                or live_sampler_state.get("dataset_size") != dataset_size
                 or live_sampler_state.get("seed") != settings.seed
-                or live_sampler_state.get("epoch") != epoch):
-            raise ValueError("sampler state does not match training dataset, seed, or epoch")
+                or live_sampler_state.get("epoch") != epoch
+                or live_sampler_state.get("next_index") != next_sample_index):
+            raise ValueError("sampler state does not match training dataset, seed, epoch, or sample cursor")
         committed_sampler_state = copy.deepcopy(live_sampler_state)
 
     budget = preflight_report.get("memory_budget_bytes")
@@ -259,6 +283,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     optimizer.zero_grad(set_to_none=True)
     started = time.monotonic()
     session_steps, accumulated, microbatches_seen = 0, 0, 0
+    samples_seen = accumulated_samples = 0
     losses = []
     stop_reason = "dataset_exhausted"
 
@@ -297,6 +322,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 (loss / settings.gradient_accumulation_steps).backward()
                 accumulated += 1
                 microbatches_seen += 1
+                batch_sample_count = int(ids.shape[0])
+                samples_seen += batch_sample_count
+                accumulated_samples += batch_sample_count
                 losses.append(float(loss.detach().cpu()))
             finally:
                 reset_memory()
@@ -322,6 +350,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 global_step += 1
                 optimizer.zero_grad(set_to_none=True)
                 accumulated = 0
+                accumulated_samples = 0
                 if sampler is not None:
                     committed_sampler_state = copy.deepcopy(sampler.state_dict())
                 if checkpoint_callback is not None:
@@ -330,10 +359,15 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     checkpoint_data_state.update({
                         "epoch": epoch,
                         "next_batch_index": next_batch_index + microbatches_seen,
+                        "next_sample_index": next_sample_index + samples_seen,
+                        "dataset_size": dataset_size,
+                        "dataset_manifest_sha256": dataset_hash,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                     })
                     if committed_sampler_state is not None:
+                        if committed_sampler_state.get("next_index") != next_sample_index + samples_seen:
+                            raise ValueError("sampler sample cursor does not match consumed batch samples")
                         checkpoint_data_state["sampler_state"] = copy.deepcopy(committed_sampler_state)
                     checkpoint_callback(global_step, {
                         "mean_loss": mean_loss,
@@ -352,6 +386,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     # Only batches included in completed optimizer steps are committed. If the
     # final accumulation group is discarded, rewind the cursor so resume replays it.
     committed_microbatches = microbatches_seen - accumulated
+    committed_samples = samples_seen - accumulated_samples
     if sampler is not None:
         if accumulated and committed_sampler_state is not None:
             sampler.load_state_dict(committed_sampler_state)
@@ -362,6 +397,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     final_data_state.update({
         "epoch": epoch,
         "next_batch_index": next_batch_index + committed_microbatches,
+        "next_sample_index": next_sample_index + committed_samples,
+        "dataset_size": dataset_size,
+        "dataset_manifest_sha256": dataset_hash,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
