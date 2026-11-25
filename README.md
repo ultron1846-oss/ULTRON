@@ -7,9 +7,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 ## Current continuation handoff — pre-training readiness
 
-The latest code review found and fixed shared fast-memory contamination risk: training-time writes reject batch sizes greater than one, and the model now exposes `reset_memory()`. The future trainer must call it between independent examples. This safeguard is merged; no training was run.
-
-Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: expand Phase 7 with independently verified university-math tasks and proof metrics; Phase 8 still needs dataset-hash cursor and resume-equivalence tests; then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
+Phase 1–9 engineering infrastructure is substantially implemented and CI-tested: foundation sizing/tokenizer alignment, deterministic dataset integrity and exact calculus examples, a bounded authorization-gated controller, exact-answer evaluation, checkpoint recovery/RNG/dataset identity, and free-runtime research. The trainer has only been exercised with mock model/optimizer tests; no real weights have been updated. Remaining gates include broader university-math tasks and proof metrics, sampler-state/resume equivalence, live resource monitoring, iPad acceptance, Supabase Auth leaked-password protection, and clean Colab acceptance. Keep real-weight training and remote execution disabled.
 
 ## Pre-training readiness — Phase 1 specification
 
@@ -19,25 +17,25 @@ The current model specification sets a **minimum of 40,000,000 trainable paramet
 
 The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the 40M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
 
-Source review: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, checkpoint utilities, and a bounded local training controller. The controller has only been tested with a mock model/optimizer; no real weights have been updated and the full resume controller remains incomplete. Training remains disabled.
+Source review: ULTRON has an untrained model prototype, a deterministic generator, loss/optimizer helpers, a bounded authorization-gated controller, and checkpoint recovery. The controller has only been tested with a mock model/optimizer; no real weights have been updated. Training remains disabled.
 
 ## Phase 5 — data integrity hardening
 
-The deterministic generator now covers arithmetic, rational arithmetic, simple linear equations, and exactly validated polynomial derivatives (degree 2–5). It still does not cover calculus or university mathematics broadly. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
+Generator v0.3.0 covers five narrow topics: integer arithmetic, rational arithmetic, simple linear equations, polynomial derivatives (degree 2–5), and exact definite integrals of integer polynomials (degree 1–4 with rational bounds). The derivative and integral tasks use independent exact validators. It still does not cover university mathematics broadly. Phase 5 also includes prompt-disjoint splits, duplicate collapse, strict manifest/schema checks, content-derived IDs, and checksum validation. No training corpus was generated for a run.
 
 The foundation config now binds to the canonical 240-token math vocabulary instead of the initial 256-token placeholder. The revised exact count is **63,400,451 total / 61,826,048 trainable**. Fast-memory key/value/gate projections are frozen because their updates are detached and they receive no gradients.
 
 ## Phase 6 — training preflight (validation only)
 
-Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a complete non-authorizing preflight report, a budget covering persistent state, matching batch/sequence/accumulation limits, the 40M trainable floor, memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and step/time caps. Memory writing defaults off. CI exercises only a mock model/optimizer; no real weights were updated. Live resource monitoring remains pending.
+`ultron_core/preflight.py` validates the 40M trainable floor, tokenizer compatibility, splits, workload settings, and persistent-state budget. The bounded controller requires explicit authorization and a complete preflight report; it supports accumulation/clipping, finite checks, cancellation, callbacks, and step/time caps. Memory writes are blocked until sequential chunk semantics exist. CI uses a mock model/optimizer only; no real weights were updated. Live RAM/VRAM monitoring remains pending.
 
 ## Model review — fast-memory isolation
 
-The code review identified that fast/episodic memory is mutable and shared by the model. Training-time memory writes now reject batches containing multiple independent examples, and `NeuroSparseModel.reset_memory()` clears every block's memory between examples. This prevents accidental cross-example contamination when the future trainer uses memory writes. The trainer is not implemented yet and must call the reset boundary explicitly; no training was run.
+Fast/episodic memory is mutable and shared. `NeuroSparseModel.reset_memory()` clears every block, and the controller resets memory around each independent example. Training-time memory writes are currently disabled because sequential chunk semantics are not implemented; this avoids cross-example contamination. No training was run.
 
 ## Phase 8 — checkpoint recovery hardening
 
-Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata, retains the last verified checkpoint as a backup, falls back to that backup if the current file fails integrity verification, and rolls back live model/optimizer/scheduler state if restoration fails. Tests cover RNG replay and backup recovery. This is infrastructure validation only; no optimizer step or training run occurred.
+Checkpoint format v4 records Python/Torch RNG state, scheduler/optimizer/model state, optional data cursor, and dataset-manifest SHA-256. It retains the previous verified generation, falls back after integrity failure, validates the expected dataset hash before mutating state, and rolls back model/optimizer/scheduler/RNG if restore fails. Tests cover RNG replay and backup recovery. This is infrastructure validation only; no optimizer step or training run occurred.
 
 ## Phase 7 — exact-answer evaluation
 
@@ -49,7 +47,7 @@ Official provider terms have been reviewed and documented. Colab remains the pla
 
 Phase 6 also now provides explicit Python/Torch/CUDA seeding and a dedicated seeded DataLoader generator. Reproducibility is tested independently; deterministic algorithms may still depend on supported hardware/operators and must be recorded.
 
-Phase 8 binds resumable data cursors to a validated dataset-manifest SHA-256 in checkpoint format v4. The restore guard rejects a mismatched expected dataset hash before mutating model/optimizer/RNG state; older checkpoint formats remain loadable but cannot satisfy a dataset-bound resume.
+Phase 8 binds resumable data cursors to a dataset-manifest SHA-256 in checkpoint format v4. `load_checkpoint()` rejects an expected-dataset mismatch before mutating model/optimizer/scheduler/RNG state; legacy formats can be loaded for non-resume use but cannot satisfy a dataset-bound resume.
 
 Checkpoint resume now returns whether RNG restoration succeeded. The trainer refuses resume without restored RNG, data cursor, and a matching dataset-manifest SHA-256; it skips initial reseeding on resume so checkpoint RNG is preserved.
 
