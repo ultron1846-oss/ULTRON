@@ -761,3 +761,24 @@ Regression tests: `python -m unittest tests.python.test_math_solver_tool -v`.
 2. Review the tool schema and ensure the future inference orchestrator can call `execute_tool` from model-generated structured tool calls without permitting arbitrary names or code.
 3. Add domain-aware equation solving and more mathematical operation families only with exact validation and explicit limits.
 4. Keep training and remote execution disabled; finish frontend/iPad acceptance before training, and update this README at every milestone.
+
+
+## Agent knowledge bank — 2026-11-25
+
+Added `ultron_core/data/knowledge_bank.json` with **169 curated starter entries** across mathematics, science, computer science, language arts, social studies, and university-level foundations. The bank spans approximate Grade 1–12 bands and university topics. It is a starter knowledge set, not an exhaustive curriculum.
+
+- Entries have stable IDs, subject, approximate level, knowledge type, statement, prerequisites, and verification-status metadata.
+- The bank deliberately distinguishes mathematical axioms from definitions, facts, formulas, and principles. The entries are not all axioms.
+- Added `ultron_core/knowledge_bank.py` for schema/ID validation and bounded ranked retrieval.
+- Added the allow-listed `knowledge_search` agent tool. ULTRON can retrieve relevant entries as context; retrieval does not automatically make an entry a proof premise.
+- Regression tests check entry count, unique IDs, multi-subject/grade coverage, search filtering, and tool dispatch.
+
+Validation command: `python -m unittest tests.python.test_knowledge_bank -v`.
+
+### Next handoff
+
+1. Run dedicated knowledge-bank tests, all Python tests, Node tests, and CPU model smoke CI.
+2. Add source-level citations and formal axiom-system metadata before any entry can be treated as a proof premise.
+3. Expand subject coverage in reviewed, curriculum-aligned batches; keep the bank versioned and test for duplicates, conflicts, and incorrect statements.
+4. Connect retrieval to the agent's planning/answer loop with evidence tracking and explicit uncertainty.
+5. Do not start training or remote execution. Finish and verify the frontend/iPad release gate first; update README at each milestone.
