@@ -205,6 +205,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     epoch = cursor.get("epoch", 0)
     next_batch_index = cursor.get("next_batch_index", 0)
     next_sample_index = cursor.get("next_sample_index", 0)
+    if (resume_metadata is None and initial_data_state is not None
+            and next_batch_index > 0 and "next_sample_index" not in cursor):
+        raise ValueError("non-zero initial batch cursor requires next_sample_index")
     if (isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 0
             or isinstance(next_batch_index, bool) or not isinstance(next_batch_index, int)
             or next_batch_index < 0
@@ -231,6 +234,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         workers = getattr(batches, "num_workers", None)
         if isinstance(workers, bool) or not isinstance(workers, int) or workers != 0:
             raise ValueError("resumable sampler requires DataLoader num_workers=0")
+        if getattr(batches, "drop_last", False) is True:
+            raise ValueError("resumable sampler requires DataLoader drop_last=False")
         sampler_state = cursor.get("sampler_state")
         if resume_metadata is not None and not isinstance(sampler_state, dict):
             raise ValueError("resume checkpoint is missing sampler_state")
@@ -323,6 +328,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 accumulated += 1
                 microbatches_seen += 1
                 batch_sample_count = int(ids.shape[0])
+                if next_sample_index + samples_seen + batch_sample_count > dataset_size:
+                    raise ValueError("consumed sample cursor exceeds preflight dataset_size")
                 samples_seen += batch_sample_count
                 accumulated_samples += batch_sample_count
                 losses.append(float(loss.detach().cpu()))
