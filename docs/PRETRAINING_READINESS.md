@@ -53,12 +53,13 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 5 — Data generation and dataset integrity
 
-- [x] Audit generator scope: three narrow topics only; no calculus/university curriculum coverage claim.
+- [x] Audit generator scope: four narrow topics including polynomial derivatives; no broad calculus/university curriculum claim.
 - [x] Add deterministic prompt-group split and duplicate prompt collapse.
 - [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
 - [ ] Add corpus-level balance/coverage reports and independent validators for broader topics.
-- [ ] Expand topics only with independent exact validators.
+- [x] Add bounded polynomial derivative generation with an independent exact polynomial parser/validator.
+- [ ] Expand further topics only with independent exact validators.
 - [ ] Ensure ULTRON-generated data only; no external generated corpus.
 
 **Exit criteria:** reproducible manifest, split audit, zero invalid examples, documented coverage.
@@ -76,7 +77,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 7 — Evaluation and benchmark protocol
 
-- [x] Add exact-rational answer scoring for the three current generator topics, including coverage/abstention and per-topic metrics.
+- [x] Add exact answer scoring for current rational and polynomial-derivative topics, including coverage/abstention and per-topic metrics.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for exact rational tasks.
