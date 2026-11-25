@@ -872,3 +872,8 @@ The training loss now computes next-token cross-entropy in bounded per-row token
 The bounded training controller now keeps detached loss scalars on-device while processing microbatches. It validates accumulated losses and the global gradient norm together at the optimizer boundary, reducing metric-related device-to-host synchronization from once per microbatch to once per optimizer step. Checkpoint loss metrics are transferred only when a checkpoint callback needs them; the session mean is transferred once at finalization.
 
 This preserves loss values and fail-closed behavior for non-finite loss/gradients. It does not remove the synchronization required to decide whether an optimizer step is safe. Regression coverage checks that four microbatches with accumulation=2 cause two explicit CPU transfers for controller validation, and confirms the returned mean loss remains finite. This is a code-path optimization; no device benchmark has been run and no speedup is claimed.
+
+
+## CUDA expert dispatch optimization — 2026-11-25
+
+ULTRON's sparse-expert block now uses a CUDA-specific grouped dispatch path: flatten the top-k routes, stably sort by expert, count assignments, and transfer the compact count vector once per block. It avoids one dynamic `torch.where`/nonzero selection per expert. CPU keeps the original loop. Regression tests compare outputs and gradients against the reference dispatch. This reduces a known synchronization source by design; no target-GPU throughput benchmark has been run and no speedup is claimed. See [NeuroSparse implementation notes](docs/NEUROSPARSE_IMPLEMENTATION.md).

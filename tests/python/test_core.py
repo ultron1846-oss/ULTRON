@@ -8,6 +8,7 @@ import torch
 from torch.nn import functional as F
 
 from ultron_core import NeuroSparseConfig, NeuroSparseModel, count_parameters, count_total_parameters
+from ultron_core.model import SparseExpert, _dispatch_sparse_experts
 from ultron_core.checkpoint import load_checkpoint, save_checkpoint
 from ultron_core.discovery import polynomial_identity_candidates
 from ultron_core.math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
@@ -78,6 +79,52 @@ class CoreTests(unittest.TestCase):
         for field in ("halt_threshold", "dropout"):
             with self.subTest(field=field), self.assertRaises(ValueError):
                 NeuroSparseConfig(**{field: float("nan")})
+
+    def test_grouped_sparse_dispatch_matches_reference_output_and_gradients(self):
+        torch.manual_seed(2026)
+        token_count, hidden, expert_count, top_k = 7, 8, 5, 2
+        flat = torch.randn(token_count, hidden, requires_grad=True)
+        weights = torch.rand(token_count, top_k, requires_grad=True)
+        indices = torch.tensor([
+            [0, 2], [1, 3], [0, 1], [2, 3], [1, 2], [0, 3], [2, 1],
+        ], dtype=torch.long)
+        experts = torch.nn.ModuleList([
+            SparseExpert(hidden, multiplier=2, dropout=0.0)
+            for _ in range(expert_count)
+        ])
+
+        reference = torch.zeros_like(flat)
+        for expert_id, expert in enumerate(experts):
+            token_pos, slot_pos = torch.where(indices == expert_id)
+            if token_pos.numel():
+                values = expert(flat.index_select(0, token_pos))
+                values = values * weights[token_pos, slot_pos].unsqueeze(-1)
+                reference.index_add_(0, token_pos, values)
+        reference_loss = reference.square().sum()
+        reference_loss.backward()
+        expected_flat_grad = flat.grad.detach().clone()
+        expected_weight_grad = weights.grad.detach().clone()
+        expected_expert_grads = [
+            None if parameter.grad is None else parameter.grad.detach().clone()
+            for parameter in experts.parameters()
+        ]
+
+        flat.grad = None
+        weights.grad = None
+        for parameter in experts.parameters():
+            parameter.grad = None
+        actual = _dispatch_sparse_experts(flat, weights, indices, experts)
+        actual_loss = actual.square().sum()
+        actual_loss.backward()
+
+        torch.testing.assert_close(actual, reference.detach(), rtol=1e-6, atol=1e-7)
+        torch.testing.assert_close(flat.grad, expected_flat_grad, rtol=1e-6, atol=1e-7)
+        torch.testing.assert_close(weights.grad, expected_weight_grad, rtol=1e-6, atol=1e-7)
+        for parameter, expected in zip(experts.parameters(), expected_expert_grads):
+            if expected is None:
+                self.assertIsNone(parameter.grad)
+            else:
+                torch.testing.assert_close(parameter.grad, expected, rtol=1e-6, atol=1e-7)
 
     def test_forward_shapes_and_finite_values(self):
         model = NeuroSparseModel(self.config())
