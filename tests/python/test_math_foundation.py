@@ -220,6 +220,9 @@ class TrainingPreflightTests(unittest.TestCase):
         self.assertEqual(report["parameter_count"], 61826048)
         self.assertEqual(report["total_parameter_count"], 63400451)
         self.assertEqual(report["model_weights_fp32_bytes"], 253601804)
+        self.assertEqual(report["model_gradients_fp32_bytes"], 247304192)
+        self.assertEqual(report["model_adamw_moments_fp32_bytes"], 494608384)
+        self.assertEqual(report["model_persistent_state_fp32_bytes"], 995514380)
         self.assertEqual(report["model_grad_and_adamw_state_fp32_bytes"], 995514380)
 
     def test_preflight_rejects_small_model_and_vocab_mismatch(self):
