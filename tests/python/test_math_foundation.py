@@ -134,7 +134,7 @@ class DeterministicDataGenerationTests(unittest.TestCase):
             generate_examples(True, 1)
 
     def test_jsonl_and_manifest_are_reproducible_and_checksummed(self):
-        examples = generate_examples(101, 12)
+        examples = generate_examples(101, 12, topics=("arithmetic", "rational_arithmetic", "linear_equations"))
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "fixture.jsonl"
             manifest = write_dataset(path, examples, seed=101, topics=("arithmetic", "rational_arithmetic", "linear_equations"))
