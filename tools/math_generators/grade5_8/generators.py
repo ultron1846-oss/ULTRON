@@ -27,8 +27,8 @@ def semantic_check(ingredients,answer):
  """Optional semantic validation hook, called after exact arithmetic verification."""
  try:
   topic=ingredients["topic"]
-  value=Fraction(str(answer))
   if topic=="percentages":
+   value=Fraction(str(answer))
    pct=int(ingredients["percent"]); amount=int(ingredients["amount"])
    quantity_type=ingredients["quantity_type"]
    if not 0<=pct<=100 or amount<=0:return False
@@ -44,11 +44,14 @@ def semantic_check(ingredients,answer):
    x,y,scale=map(int,ingredients["values"])
    return x>0 and y>0 and scale>0 and x*scale>=0 and y*scale>=0
   if topic=="integers":
+   value=Fraction(str(answer))
    return value.denominator==1
   if topic=="order_of_operations":
+   value=Fraction(str(answer))
    a,b,c=map(int,ingredients["values"])
    return a>=0 and b>=0 and c>=0 and value.denominator==1 and value>=0
   if topic=="linear_equations":
+   value=Fraction(str(answer))
    a,x,b,c=map(int,ingredients["values"])
    return a>0 and a*x+b==c and (not ingredients.get("contextual",False) or x>=0)
   if topic=="inequalities":
@@ -58,15 +61,17 @@ def semantic_check(ingredients,answer):
    w,h=map(int,ingredients["values"])
    return w>=0 and h>=0 and w*h>=0 and 2*(w+h)>=0
   if topic=="angles":
+   value=Fraction(str(answer))
    angle=int(ingredients["angle"])
-   return 0<=angle<=180 and 0<=180-angle<=180
+   return value==180-angle and 0<=angle<=180 and 0<=180-angle<=180
   if topic=="statistics_basics":
    values=list(map(int,ingredients["values"]))
    return bool(values) and all(0<=v<=100 for v in values) and 0<=sum(values)/len(values)<=100
   if topic=="simple_probability":
+   value=Fraction(str(answer))
    red,blue,green=map(int,ingredients["values"])
    total=red+blue+green
-   return red>=0 and blue>=0 and green>=0 and total>0 and 0<=Fraction(red,total)<=1
+   return red>=0 and blue>=0 and green>=0 and total>0 and value==Fraction(red,total) and 0<=value<=1
   return True
  except (KeyError,TypeError,ValueError,ZeroDivisionError):
   return False
