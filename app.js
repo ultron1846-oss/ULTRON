@@ -1,5 +1,6 @@
 import { normalizeMemoryPreference } from './preferences.js?v=20261125-1';
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
+import { parseWordProblem } from './word-problems.js?v=20261125-1';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261125-1';
 import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory, saveExperience } from './memory-store.js?v=20261124-5';
@@ -75,7 +76,7 @@ function renderLearning(){
 }
 function renderAgent(){
  return `${heading('MATHEMATICAL WORKSPACE / STAGE 1','Math Agent','ULTRON independently solves supported foundation questions, shows working and checks the answer through the deterministic math engine.','<span class="status-pill">LOCAL · DETERMINISTIC</span>')}
- ${card('<div class="eyebrow">CONVERSATIONAL MATHEMATICS / STAGE 1</div><h2>Talk through a maths question</h2><p class="muted">Enter a supported arithmetic expression or a one-variable linear equation. Unsupported requests are reported honestly; this is not a general-purpose AI model.</p><div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-message system-message">Start with a simple arithmetic question, such as <b>12 + 5</b>, or an equation such as <b>2x + 3 = 11</b>.</div></div><label class="field-label" for="agent-input">Your message</label><textarea id="agent-input" rows="3" maxlength="240" placeholder="Example: What is 12 + 5? Or solve 2x + 3 = 11"></textarea><div class="agent-actions"><button class="primary-button" id="agent-send">Send</button><button class="outline-button" id="agent-reset">Reset conversation</button></div><div class="examples"><span>TRY:</span><button data-example="12 + 5">12 + 5</button><button data-example="(1/3) + (1/6)">(1/3) + (1/6)</button><button data-example="2x + 3 = 11">2x + 3 = 11</button></div>')}
+ ${card('<div class="eyebrow">CONVERSATIONAL MATHEMATICS / STAGE 1</div><h2>Talk through a maths question</h2><p class="muted">ULTRON can parse a bounded set of English arithmetic word problems, arithmetic expressions and one-variable linear equations. It explains its operation choice and rejects ambiguous wording instead of guessing.</p><div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-message system-message">Try a word problem: <b>Mia has three apples and gets five more. How many altogether?</b> Or enter 12 + 5 or 2x + 3 = 11.</div></div><label class="field-label" for="agent-input">Your message</label><textarea id="agent-input" rows="3" maxlength="240" placeholder="Example: Mia has three apples and gets five more. How many altogether?"></textarea><div class="agent-actions"><button class="primary-button" id="agent-send">Send</button><button class="outline-button" id="agent-reset">Reset conversation</button></div><div class="examples"><span>TRY:</span><button data-example="12 + 5">12 + 5</button><button data-example="(1/3) + (1/6)">(1/3) + (1/6)</button><button data-example="2x + 3 = 11">2x + 3 = 11</button><button data-example="Mia has three apples and gets five more. How many altogether?">Word problem: addition</button><button data-example="24 stickers are shared equally among 6 children. How many each?">Word problem: division</button></div>')}
  ${card(`<div class="eyebrow">TOPIC COMMANDS</div><h2>Open a topic reference</h2><p class="muted">Use a command to view a topic outline. Planned topics are not yet supported by the deterministic solver.</p><div class="examples topic-command-list"><button type="button" data-topic-command="/help">/help</button><button type="button" data-topic-command="/topics">/topics</button>${topics.map(topic=>`<button type="button" data-topic-command="${topic.command}">${topic.command}</button>`).join('')}</div>`)}
  ${card('<div class="eyebrow">SUPPORTED OPERATIONS</div><h2>Current engine boundaries</h2><div class="capability-list"><div><b>Arithmetic</b><span class="tag available">SUPPORTED</span></div><div><b>Linear equations in x</b><span class="tag available">LIMITED</span></div><div><b>Symbolic algebra</b><span class="tag planned">NOT SUPPORTED</span></div><div><b>Calculus and proofs</b><span class="tag planned">NOT SUPPORTED</span></div></div>','compact-panel')}`;
 }
@@ -162,6 +163,13 @@ function answerAgent(){
  const input=document.querySelector('#agent-input');const raw=input.value.trim();if(!raw)return;
  addChat('user',raw);input.value='';
  if(runAgentCommand(raw))return;
+ const wordProblem=parseWordProblem(raw);
+ if(wordProblem.kind==='solved'){
+  const text=`Answer: ${wordProblem.result}.\n\nI identified ${wordProblem.operation} from the wording.\n${wordProblem.expression} = ${wordProblem.result}.\n${wordProblem.explanation}`;
+  const node=addChat('assistant',text,'ENGLISH WORD-PROBLEM PARSER · TEMPLATE-BASED · VERIFIED ARITHMETIC');
+  attachSaveButton(node,raw,text,'English word problem parsed into a supported arithmetic operation and evaluated by the structured parser.');
+  return;
+ }
  const equation=raw.match(/(?:solve\s+)?([0-9xX+*/().\s^=-]+=[0-9xX+*/().\s^=-]+)/i);
  const expression=raw.replace(/^(what is|calculate|compute)\s+/i,'').replace(/[?]$/,'').trim();
  try{

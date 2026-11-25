@@ -855,3 +855,8 @@ The browser Math Agent now exposes slash commands for the ten mathematics roadma
 Use `/help` to display the command directory or `/topics` to list topics with their current status. Topic commands return the topic's scope, core idea/formula, example and prerequisite. The Math Agent page also displays tappable command chips.
 
 These commands are **curriculum references**, not new mathematical solvers. Only the existing deterministic arithmetic and limited linear-equation operations are supported; roadmap topics remain marked planned. No model training, data generation, remote execution, or backend/authentication behavior was changed.
+
+
+## English word-problem understanding — Phase 1
+
+The Math Agent now includes a bounded English word-problem parser (`word-problems.js`). It recognizes tested templates for addition (altogether/total), subtraction (left/remaining), multiplication (equal groups/each), division (shared equally/per person), and direct operation phrases. It accepts common number words (including compound forms such as twenty-one), returns a structured operation/expression/result, and explains the operation choice. Ambiguous or unsupported wording is rejected rather than guessed. This is a deterministic template parser—not general English comprehension or a trained language model. Unit conversion, multi-step stories, pronoun/coreference resolution, complex number phrases, and broad vocabulary remain future work. Regression tests are in `tests/word-problems.test.js`. No training data was generated and no model training was started.
