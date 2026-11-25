@@ -319,11 +319,11 @@ def verify_dataset(path: str | Path) -> dict:
     digest_expected = manifest["sha256"]
     if not isinstance(digest_expected, str) or not re.fullmatch(r"[0-9a-f]{64}", digest_expected):
         raise ValueError("dataset manifest SHA-256 is invalid")
-    if not content.endswith(b"\n"):
-        raise ValueError("dataset JSONL must end with a newline")
     digest = hashlib.sha256(content).hexdigest()
     if digest != digest_expected:
         raise ValueError("dataset SHA-256 mismatch")
+    if not content.endswith(b"\n"):
+        raise ValueError("dataset JSONL must end with a newline")
     try:
         decoded = content.decode("utf-8")
         lines = decoded.splitlines()
