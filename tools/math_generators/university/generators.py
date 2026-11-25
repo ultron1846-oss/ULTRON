@@ -101,13 +101,13 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         positive_disease,positive_nondisease=n(0,disease),n(0,nondisease)
         if positive_disease+positive_nondisease==0:
             positive_disease=1
-        numerator=disease*positive_disease
-        denominator=numerator+nondisease*positive_nondisease
+        numerator=positive_disease
+        denominator=positive_disease+positive_nondisease
         posterior=Fraction(numerator,denominator)
         data.update(prior_cases=disease,prior_non_cases=nondisease,positive_given_case=positive_disease,positive_given_noncase=positive_nondisease,posterior=str(posterior))
         problem=f"Bayes count model: {disease} cases with positive rate {positive_disease}/{disease} and {nondisease} non-cases with positive rate {positive_nondisease}/{nondisease}. Find P(case|positive)."
         answer=f"{posterior.numerator}/{posterior.denominator}"
-        steps=[f"Positive cases={disease}×{positive_disease}={numerator}.",f"All positives={numerator}+{nondisease}×{positive_nondisease}={denominator}.",f"Posterior={numerator}/{denominator}={answer}."]
+        steps=[f"Positive cases={positive_disease} (the generated count among cases).",f"All positives={positive_disease}+{positive_nondisease}={denominator}.",f"Posterior={numerator}/{denominator}={answer}."]
         exact=lambda:denominator>0 and posterior==Fraction(numerator,denominator) and 0<=posterior<=1
     else:
         raise ValueError("unknown topic: "+str(topic))
