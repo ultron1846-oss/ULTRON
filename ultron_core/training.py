@@ -60,7 +60,10 @@ def make_optimizer(model: torch.nn.Module, learning_rate: float = 3e-4,
     if (isinstance(weight_decay, bool) or not isinstance(weight_decay, (int, float))
             or not math.isfinite(weight_decay) or weight_decay < 0):
         raise ValueError('weight_decay must be a finite non-negative number')
-    return torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    trainable_parameters = [parameter for parameter in model.parameters() if parameter.requires_grad]
+    if not trainable_parameters:
+        raise ValueError("model has no trainable parameters")
+    return torch.optim.AdamW(trainable_parameters, lr=learning_rate, weight_decay=weight_decay)
 
 
 
@@ -173,6 +176,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise TypeError("cancellation_check must be callable")
 
     seed_training_rng(settings.seed, deterministic=settings.deterministic)
+    previous_training_mode = getattr(model, "training", None)
     model.train()
     optimizer.zero_grad(set_to_none=True)
     started = time.monotonic()
@@ -247,6 +251,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     finally:
         reset_memory()
         optimizer.zero_grad(set_to_none=True)
+        if isinstance(previous_training_mode, bool):
+            model.train(previous_training_mode)
 
     return {
         "steps_completed": steps,
