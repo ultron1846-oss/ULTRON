@@ -66,7 +66,7 @@ def build_university_registry() -> dict:
     }
 
 
-def build_combined_registry() -> dict
+def build_combined_registry() -> dict:
     topics = []
     for metadata in (GRADE1_4, GRADE5_8, GRADE8_12):
         topics.extend(_topic_rows(metadata, "word_problems"))
