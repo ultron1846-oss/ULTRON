@@ -47,6 +47,8 @@ Added an exact-answer evaluation function for caller-supplied predictions on the
 
 Official provider terms have been reviewed and documented. Colab remains the planned primary notebook with dynamic, unguaranteed free resources; Lightning AI is excluded under the current phone-verification constraint; Hugging Face ZeroGPU offers only short shared free quota and is auxiliary for brief checks, not dependable training. Actual iPad account/runtime acceptance remains owner-side and incomplete. See [free runtime review](docs/FREE_RUNTIME_REVIEW.md).
 
+Phase 6 also now provides explicit Python/Torch/CUDA seeding and a dedicated seeded DataLoader generator. Reproducibility is tested independently; deterministic algorithms may still depend on supported hardware/operators and must be recorded.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
