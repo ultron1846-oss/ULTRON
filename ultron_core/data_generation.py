@@ -15,8 +15,8 @@ import re
 import tempfile
 from typing import Iterable
 
-GENERATOR_VERSION = "0.3.0"
-SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral")
+GENERATOR_VERSION = "0.4.0"
+SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral", "matrix_determinant_2x2", "linear_system_2x2")
 _MAX_EXAMPLES = 100_000
 
 
@@ -118,6 +118,19 @@ def _format_integer_polynomial(coefficients: dict[int, int]) -> str:
     return "".join(terms) if terms else "0"
 
 
+def _parse_linear_system_answer(text: str) -> tuple[Fraction, Fraction]:
+    """Parse an exact x/y solution pair for the bounded 2x2 system topic."""
+    if not isinstance(text, str):
+        raise ValueError("linear-system answer must be text")
+    match = re.fullmatch(
+        r"\s*x\s*=\s*([+-]?\d+(?:/\d+)?)\s*,\s*y\s*=\s*([+-]?\d+(?:/\d+)?)\s*",
+        text, flags=re.IGNORECASE,
+    )
+    if not match:
+        raise ValueError("linear-system answer must be 'x=<rational>, y=<rational>'")
+    return Fraction(match.group(1)), Fraction(match.group(2))
+
+
 def validate_example_text(input_text: str, expected_answer: str, topic: str) -> bool:
     """Independently parse generated text and validate exact rational/polynomial answers."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
@@ -151,6 +164,43 @@ def validate_example_text(input_text: str, expected_answer: str, topic: str) -> 
             derivative = {power: coefficient for power, coefficient in derivative.items() if coefficient}
             return derivative == expected_poly
         except (ValueError, TypeError):
+            return False
+    if topic == "matrix_determinant_2x2":
+        match = re.fullmatch(
+            r"^\s*determinant\s*:\s*\[\[\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\]\s*,\s*\[\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\]\s*\]\s*$",
+            input_text, flags=re.IGNORECASE,
+        )
+        if not match:
+            return False
+        try:
+            a, b, c, d = map(int, match.groups())
+            return Fraction(a * d - b * c) == Fraction(expected_answer)
+        except (ValueError, ZeroDivisionError, TypeError):
+            return False
+    if topic == "linear_system_2x2":
+        match = re.fullmatch(
+            r"^\s*solve\s*:\s*([+-]?\d+)\s*\*\s*x\s*([+-])\s*(\d+)\s*\*\s*y\s*=\s*([+-]?\d+)\s*;\s*([+-]?\d+)\s*\*\s*x\s*([+-])\s*(\d+)\s*\*\s*y\s*=\s*([+-]?\d+)\s*$",
+            input_text, flags=re.IGNORECASE,
+        )
+        if not match:
+            return False
+        try:
+            a_text, sign_b, b_text, c_text, d_text, sign_e, e_text, f_text = match.groups()
+            a, b, c, d, e, f = (
+                int(a_text),
+                int(b_text) * (1 if sign_b == "+" else -1),
+                int(c_text), int(d_text),
+                int(e_text) * (1 if sign_e == "+" else -1),
+                int(f_text),
+            )
+            determinant = a * e - b * d
+            if determinant == 0:
+                return False
+            expected_x, expected_y = _parse_linear_system_answer(expected_answer)
+            actual_x = Fraction(c * e - b * f, determinant)
+            actual_y = Fraction(a * f - c * d, determinant)
+            return (actual_x, actual_y) == (expected_x, expected_y)
+        except (ValueError, ZeroDivisionError, TypeError):
             return False
     try:
         expected = Fraction(expected_answer)
@@ -247,10 +297,31 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items())),
                   "lower": _fraction_text(lower), "upper": _fraction_text(upper)}
         difficulty = degree + 1
+    elif topic == "matrix_determinant_2x2":
+        a, b, c, d = (rng.randint(-9, 9) for _ in range(4))
+        answer = a * d - b * c
+        prompt = f"determinant: [[{a}, {b}], [{c}, {d}]]"
+        params = {"a": a, "b": b, "c": c, "d": d}
+        difficulty = 3
+    elif topic == "linear_system_2x2":
+        while True:
+            a, b, d, e = (rng.randint(-5, 5) for _ in range(4))
+            determinant = a * e - b * d
+            if determinant != 0:
+                break
+        x, y = rng.randint(-5, 5), rng.randint(-5, 5)
+        c, f = a * x + b * y, d * x + e * y
+        prompt = (f"solve: {a}*x {'+' if b >= 0 else '-'} {abs(b)}*y = {c}; "
+                  f"{d}*x {'+' if e >= 0 else '-'} {abs(e)}*y = {f}")
+        answer = (f"x={_fraction_text(Fraction(c * e - b * f, determinant))}, "
+                  f"y={_fraction_text(Fraction(a * f - c * d, determinant))}")
+        params = {"a": a, "b": b, "c": c, "d": d, "e": e, "f": f,
+                  "determinant": determinant}
+        difficulty = 4
     else:
         raise ValueError(f"unsupported topic: {topic}")
 
-    answer_text = answer if topic == "polynomial_derivative" else _fraction_text(answer)
+    answer_text = answer if topic in ("polynomial_derivative", "linear_system_2x2") else _fraction_text(answer)
     valid = validate_example_text(prompt, answer_text, topic)
     payload = {
         "generator_version": GENERATOR_VERSION, "seed": seed, "index": index,

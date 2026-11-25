@@ -2,7 +2,7 @@
 
 ## Current implementation (source-reviewed 2026-11-25)
 
-The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for five narrow exact-synthetic topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and a bounded local training controller. This is not yet a complete end-to-end training pipeline or validated training run.
+The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for seven narrow exact-synthetic topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and a bounded local training controller. This is not yet a complete end-to-end training pipeline or validated training run.
 
 - `ultron_core/model.py`: experimental sparse-expert causal sequence model.
 - `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,400,451-total / 61,826,048-trainable configuration.
@@ -14,7 +14,7 @@ The repository contains an **experimental untrained PyTorch model**, an original
 - `ultron_core/benchmark.py`: synthetic-token inference timing; CI now runs a tiny CPU smoke benchmark, not a foundation-model or mathematical-quality baseline.
 - `ultron_core/evaluation.py`: schema-v3 exact-answer scoring for caller-supplied predictions, exact supported polynomial equivalence, and mutually exclusive answer-error classes; no model inference or training.
 
-The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,400,451 total parameters and 61,826,048 trainable parameters by formula; it has not been trained.
+The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,400,451 total parameters and 61,826,048 trainable parameters by formula; it has not been trained. The generator's matrix tasks are exact synthetic exercises, not broad linear algebra or university-level competence.
 
 ## Safety and scope
 
