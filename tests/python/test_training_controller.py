@@ -465,7 +465,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["epoch"], 5)
         self.assertEqual(result["data_state"]["next_batch_index"], 12)
         self.assertEqual(result["data_state"]["next_sample_index"], 12)
-        self.assertEqual(result["data_state"]["next_sample_index"], 2)
+        self.assertEqual(result["data_state"]["next_sample_index"], 12)
         self.assertEqual(result["global_step"], 1)
 
     def test_checkpoint_callback_metadata_can_be_persisted_and_restored(self):
