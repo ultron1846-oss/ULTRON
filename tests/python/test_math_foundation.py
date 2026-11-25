@@ -217,7 +217,10 @@ class TrainingPreflightTests(unittest.TestCase):
         self.assertFalse(report["remote_execution_enabled"])
         self.assertTrue(report["prompt_disjoint"])
         self.assertFalse(report["budget_covers_persistent_state"])
-        self.assertEqual(report["parameter_count"], 63400451)
+        self.assertEqual(report["parameter_count"], 61826048)
+        self.assertEqual(report["total_parameter_count"], 63400451)
+        self.assertEqual(report["model_weights_fp32_bytes"], 253601804)
+        self.assertEqual(report["model_grad_and_adamw_state_fp32_bytes"], 995514380)
 
     def test_preflight_rejects_small_model_and_vocab_mismatch(self):
         small = NeuroSparseConfig(vocab_size=len(self.vocabulary), hidden_size=32,
