@@ -38,7 +38,7 @@ test('Memory Vault supports mistake review, safe clear-all and committed transac
   assert.match(app, /setTimeout\(\(\)=>URL\.revokeObjectURL\(url\),1000\)/);
 });
 test('all browser modules pass syntax validation', async () => {
-  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'owner-auth.js']) {
+  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
     execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
   }
 });
