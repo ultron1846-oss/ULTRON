@@ -119,9 +119,22 @@ def _format_integer_polynomial(coefficients: dict[int, int]) -> str:
 
 
 def validate_example_text(input_text: str, expected_answer: str, topic: str) -> bool:
-    """Independently parse the emitted text and check it using exact Fractions."""
+    """Independently parse generated text and validate exact rational/polynomial answers."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
         return False
+    if topic == "polynomial_derivative":
+        match = re.fullmatch(r"^\s*differentiate\s*:\s*(.*?)\s*$", input_text, flags=re.IGNORECASE)
+        if not match:
+            return False
+        try:
+            source = _parse_integer_polynomial(match.group(1))
+            expected_poly = _parse_integer_polynomial(expected_answer)
+            derivative = {power - 1: coefficient * power
+                          for power, coefficient in source.items() if power > 0}
+            derivative = {power: coefficient for power, coefficient in derivative.items() if coefficient}
+            return derivative == expected_poly
+        except (ValueError, TypeError):
+            return False
     try:
         expected = Fraction(expected_answer)
         if topic in ("arithmetic", "rational_arithmetic"):
