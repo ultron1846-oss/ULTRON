@@ -27,9 +27,7 @@ class ResumableRandomSamplerTests(unittest.TestCase):
         uninterrupted = ResumableRandomSampler(dataset, **kwargs)
         expected = list(iter(uninterrupted))
         partial = ResumableRandomSampler(dataset, **kwargs)
-        first = [next(iter(partial)) for _ in range(1)]
         # Consume a deterministic prefix using one iterator.
-        partial = ResumableRandomSampler(dataset, **kwargs)
         iterator = iter(partial)
         prefix = [next(iterator) for _ in range(11)]
         state = partial.state_dict()
@@ -64,11 +62,21 @@ class ResumableRandomSamplerTests(unittest.TestCase):
             ResumableRandomSampler([0, 1, 2], seed=8,
                 dataset_manifest_sha256="c" * 64).load_state_dict(state)
 
-    def test_sampler_rejects_invalid_cursor(self):
+    def test_sampler_rejects_invalid_cursor_and_boolean_state_fields(self):
         from ultron_core.resumable_sampler import ResumableRandomSampler
         with self.assertRaisesRegex(ValueError, "next_index"):
             ResumableRandomSampler([1, 2], seed=1,
                 dataset_manifest_sha256="e" * 64, next_index=3)
+        sampler = ResumableRandomSampler([1, 2], seed=1,
+            dataset_manifest_sha256="e" * 64)
+        state = sampler.state_dict()
+        state["schema_version"] = True
+        with self.assertRaisesRegex(ValueError, "schema"):
+            sampler.load_state_dict(state)
+        state = sampler.state_dict()
+        state["seed"] = True
+        with self.assertRaisesRegex(ValueError, "seed"):
+            sampler.load_state_dict(state)
 
 
 class MathTokenizerTests(unittest.TestCase):
