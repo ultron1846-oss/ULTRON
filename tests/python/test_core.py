@@ -1,4 +1,5 @@
 import hashlib
+import random
 import tempfile
 import unittest
 from pathlib import Path
@@ -279,6 +280,48 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(result.status, VerificationStatus.EXPERIMENTALLY_SUPPORTED)
         self.assertIn('not a proof', result.note)
 
+
+    def test_checkpoint_restores_rng_and_data_cursor(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        random.seed(731)
+        torch.manual_seed(731)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "resume.pt"
+            save_checkpoint(path, model, config, step=12, data_state={"epoch": 2, "batch": 9})
+            expected_torch = torch.rand(4)
+            expected_python = random.random()
+            torch.manual_seed(5)
+            random.seed(5)
+            restored = NeuroSparseModel(config)
+            metadata = load_checkpoint(path, restored)
+            self.assertEqual(metadata["format_version"], 3)
+            self.assertEqual(metadata["data_state"], {"epoch": 2, "batch": 9})
+            torch.testing.assert_close(torch.rand(4), expected_torch)
+            self.assertEqual(random.random(), expected_python)
+
+    def test_checkpoint_recovers_previous_verified_generation(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "recover.pt"
+            save_checkpoint(path, model, config, step=4, data_state={"cursor": 4})
+            first_state = {name: value.detach().clone() for name, value in model.state_dict().items()}
+            with torch.no_grad():
+                for parameter in model.parameters():
+                    parameter.add_(0.25)
+            save_checkpoint(path, model, config, step=5, data_state={"cursor": 5})
+            with path.open("ab") as stream:
+                stream.write(b"corrupt-current")
+            restored = NeuroSparseModel(config)
+            metadata = load_checkpoint(path, restored, restore_rng=False)
+            self.assertEqual(metadata["step"], 4)
+            self.assertEqual(metadata["data_state"], {"cursor": 4})
+            self.assertTrue(metadata["source_path"].endswith(".bak"))
+            for name, value in restored.state_dict().items():
+                self.assertTrue(torch.equal(value, first_state[name]), name)
+
+
     def test_checkpoint_rejects_invalid_step_and_config_mismatch(self):
         config = self.config()
         model = NeuroSparseModel(config)
@@ -297,7 +340,7 @@ class CoreTests(unittest.TestCase):
             path = Path(directory) / "checkpoint.pt"
             save_checkpoint(path, model, config, step=0)
             payload = torch.load(path, map_location="cpu", weights_only=True)
-            self.assertEqual(payload["format_version"], 2)
+            self.assertEqual(payload["format_version"], 3)
 
     def test_checkpoint_rejects_bad_tensor_shapes_before_mutating_model(self):
         config = self.config()
