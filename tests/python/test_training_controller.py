@@ -2,7 +2,8 @@ import unittest
 import torch
 
 from ultron_core.config import NeuroSparseConfig, count_parameters
-from ultron_core.training import TrainingSettings, run_training_steps
+from ultron_core.training import (TrainingSettings, run_training_steps, seed_training_rng, make_seeded_generator)
+import random
 
 
 class MockModel(torch.nn.Module):
@@ -86,6 +87,25 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             run_training_steps(model, self.batches, self.optimizer, self.report,
                               settings=self.settings, training_authorized=True)
         self.assertEqual(self.optimizer.steps, 0)
+
+
+    def test_python_torch_and_dataloader_rng_are_reproducible(self):
+        seed_training_rng(1846, deterministic=True)
+        python_first = random.random()
+        torch_first = torch.rand(5)
+        generator_first = torch.rand(5, generator=make_seeded_generator(1846))
+        seed_training_rng(1846, deterministic=True)
+        self.assertEqual(random.random(), python_first)
+        torch.testing.assert_close(torch.rand(5), torch_first)
+        torch.testing.assert_close(torch.rand(5, generator=make_seeded_generator(1846)), generator_first)
+        seed_training_rng(1846, deterministic=False)
+
+    def test_seed_helpers_reject_boolean_and_negative_seed(self):
+        with self.assertRaisesRegex(ValueError, "seed must be"):
+            seed_training_rng(True)
+        with self.assertRaisesRegex(ValueError, "seed must be"):
+            make_seeded_generator(-1)
+
 
     def test_settings_enforce_step_and_time_caps(self):
         with self.assertRaisesRegex(ValueError, "max_steps"):
