@@ -14,7 +14,7 @@ The repository contains an **experimental untrained PyTorch model**, an original
 - `ultron_core/benchmark.py`: synthetic-token inference timing; CI now runs a tiny CPU smoke benchmark, not a foundation-model or mathematical-quality baseline.
 - `ultron_core/evaluation.py`: schema-v3 exact-answer scoring for caller-supplied predictions, exact supported polynomial equivalence, and mutually exclusive answer-error classes; no model inference or training.
 
-The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,400,451 total parameters and 61,826,048 trainable parameters by formula; it has not been trained. The generator's matrix tasks are exact synthetic exercises, not broad linear algebra or university-level competence.
+The small default config is a CI/CPU smoke model, not the >60M trainable target. The foundation config is exactly 63,400,451 total parameters and 61,826,048 trainable parameters by formula; it has not been trained. The generator's matrix tasks are exact synthetic exercises, not broad linear algebra or university-level competence.
 
 ## Safety and scope
 
