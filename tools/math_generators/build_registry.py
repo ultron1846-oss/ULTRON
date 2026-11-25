@@ -69,7 +69,7 @@ def build_university_registry() -> dict:
     return {
         "version": 1,
         "batch": "University mathematics curriculum map",
-        "scope": "Broad undergraduate topic catalog; not an exhaustive list of every specialty.",
+        "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
         "topics": rows,
     }
 
