@@ -285,9 +285,11 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
-        base = {"format_version": 4, "rng_restored": True,
-                "data_state": {"epoch": 0, "next_batch_index": 1}, "dataset_manifest_sha256": "b" * 64}
-        with self.assertRaisesRegex(ValueError, "does not match preflight"):
+        base = {"format_version": 4, "rng_restored": True, "dataset_hash_verified": True,
+                "data_state": {"epoch": 0, "next_batch_index": 1, "next_sample_index": 1,
+                    "seed": 0, "gradient_accumulation_steps": 2, "dataset_size": 100,
+                    "dataset_manifest_sha256": "a" * 64}, "dataset_manifest_sha256": "b" * 64}
+        with self.assertRaisesRegex(ValueError, "must be verified and match preflight"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=base)
         base["dataset_manifest_sha256"] = "a" * 64
