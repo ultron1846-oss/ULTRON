@@ -182,6 +182,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["global_step"], 13)
         self.assertEqual(result["data_state"]["epoch"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 5)
+        self.assertEqual(result["data_state"]["next_sample_index"], 5)
 
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
@@ -205,6 +206,25 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 training_authorized=True, resume_metadata=metadata)
         self.assertEqual(self.optimizer.steps, 0)
 
+
+    def test_batch_and_sample_cursors_are_distinct_for_multi_example_batches(self):
+        report = dict(self.report)
+        report["batch_size"] = 2
+        batches = [{"input_ids": torch.tensor([[1, 2, 3], [1, 2, 3]], dtype=torch.long)}
+                   for _ in range(4)]
+        saved = []
+        result = run_training_steps(
+            self.model, batches, self.optimizer, report,
+            settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True,
+            checkpoint_callback=lambda step, metrics: saved.append(metrics))
+        cursor = result["data_state"]
+        self.assertEqual(cursor["next_batch_index"], 2)
+        self.assertEqual(cursor["next_sample_index"], 4)
+        self.assertEqual(saved[0]["data_state"]["next_sample_index"], 4)
+        self.assertEqual(cursor["dataset_size"], 100)
+        self.assertEqual(cursor["dataset_manifest_sha256"], "a" * 64)
 
     def test_trainer_saves_sampler_state_at_checkpoint_and_return(self):
         from torch.utils.data import DataLoader, Dataset
@@ -365,6 +385,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             initial_data_state={"epoch": 5, "next_batch_index": 10})
         self.assertEqual(result["data_state"]["epoch"], 5)
         self.assertEqual(result["data_state"]["next_batch_index"], 12)
+        self.assertEqual(result["data_state"]["next_sample_index"], 2)
         self.assertEqual(result["global_step"], 1)
 
     def test_checkpoint_callback_metadata_can_be_persisted_and_restored(self):
