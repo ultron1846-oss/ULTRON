@@ -129,7 +129,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         r,s=n(-6*d,6*d),n(-6*d,6*d)
         b=r+s;c=r*s
         ingredients.update(r=r,s=s,b=b,c=c)
-        problem=(f"A rectangle has side lengths (x+({r})) and (x+({s})). Expand its area polynomial."
+        problem=(f"For x greater than {max(-r,-s)+1}, a rectangle has side lengths (x+({r})) and (x+({s})). Expand its area polynomial."
                  if rng.choice([True,False]) else f"Factor x^2+({b})x+({c}).")
         answer=_poly(1,b,c) if "rectangle" in problem else f"(x+({r}))(x+({s}))"
         steps=[f"Use (x+{r})(x+{s})=x²+({r+s})x+({r*s}).",f"Answer: {answer}."]
@@ -138,8 +138,9 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         a,b,c,x=n(1,4*d),n(-5*d,5*d),n(-10*d,10*d),n(-5*d,5*d)
         value=a*x*x+b*x+c
         ingredients.update(a=a,b=b,c=c,x=x,value=value)
-        contextual=rng.choice([True,False])
-        problem=(f"A distance model is f(t)={a}t²+({b})t+({c}). Find f({x})."
+        contextual=value>=0 and c>=0 and rng.choice([True,False])
+        ingredients["contextual"]=contextual
+        problem=(f"A non-negative distance model is f(t)={a}t²+({b})t+({c}). Find f({x})."
                  if contextual else f"For f(x)={a}x²+({b})x+({c}), evaluate f({x}).")
         answer=str(value)
         steps=[f"Substitute {x}: {a}({x})²+({b})({x})+({c}).",f"Evaluate to {value}."]
@@ -162,24 +163,32 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         steps=[f"Triangle angles sum to 180°.",f"180°−{a}°−{b}°={third}°."]
         exact=lambda:0<third<180 and a+b+third==180
     elif topic == "trigonometry":
-        table=[(0,"0"),(30,"1/2"),(45,"√2/2"),(60,"√3/2"),(90,"1")]
-        angle,cosval=rng.choice(table)
-        fn=r.choice(["sin","cos"])
-        val=dict(table)[angle] if fn=="sin" else dict(table)[90-angle] if 90-angle in dict(table) else "√3/2"
-        # Exact special-angle values are selected from the canonical table.
-        values={"sin":{0:"0",30:"1/2",45:"√2/2",60:"√3/2",90:"1"},
-                "cos":{0:"1",30:"√3/2",45:"√2/2",60:"1/2",90:"0"}}
-        val=values[fn][angle]
-        ingredients.update(angle=angle,function=fn,value=val)
-        problem=f"Evaluate {fn}({angle}°) exactly."
-        answer=val
-        steps=[f"Use the exact special-angle value for {angle}°.",f"{fn}({angle}°)={val}."]
-        exact=lambda:val==values[fn][angle]
+        contextual=rng.choice([True,False])
+        if contextual:
+            angle=30
+            hypotenuse=2*n(1,10*d)
+            height=hypotenuse//2
+            ingredients.update(angle=angle,hypotenuse=hypotenuse,height=height,contextual=True)
+            problem=f"A ramp is {hypotenuse} meters long and makes a 30° angle with level ground. Find its vertical rise exactly."
+            answer=str(height)
+            steps=["sin(30°)=1/2.",f"Vertical rise={hypotenuse}×1/2={height} meters."]
+            exact=lambda:hypotenuse>0 and hypotenuse%2==0 and height==hypotenuse//2
+        else:
+            angle=rng.choice([0,30,45,60,90])
+            fn=rng.choice(["sin","cos"])
+            values={"sin":{0:"0",30:"1/2",45:"√2/2",60:"√3/2",90:"1"},
+                    "cos":{0:"1",30:"√3/2",45:"√2/2",60:"1/2",90:"0"}}
+            val=values[fn][angle]
+            ingredients.update(angle=angle,function=fn,value=val,contextual=False)
+            problem=f"Evaluate {fn}({angle}°) exactly."
+            answer=val
+            steps=[f"Use the exact special-angle value for {angle}°.",f"{fn}({angle}°)={val}."]
+            exact=lambda:val==values[fn][angle]
     elif topic == "sequences_series":
         first,step,index=n(1,10*d),n(1,8*d),n(5,20*d)
         value=first+(index-1)*step
         ingredients.update(first=first,step=step,index=index,value=value)
-        problem=f"A savings plan starts at {first} dollars and increases by {step} dollars each week. How much is added in week {index}?"
+        problem=f"A savings plan starts at {first} dollars and increases by {step} dollars each week. What is the total in week {index}?"
         answer=str(value)
         steps=[f"Arithmetic sequence: a_n=a_1+(n−1)d.",f"a_{index}={first}+({index}−1)×{step}={value}."]
         exact=lambda:first+(index-1)*step==value
@@ -211,7 +220,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         power=n(0,3); lo=n(0,4); hi=n(lo+1,lo+5)
         value=Fraction(hi**(power+1)-lo**(power+1),power+1)
         ingredients.update(power=power,lo=lo,hi=hi,value=str(value))
-        problem=f"Evaluate the definite integral from {lo} to {hi} of x^{power} dx."
+        problem=f"A rate is t^{power} units per minute. How much accumulates from minute {lo} to minute {hi}?"
         answer=str(value.numerator) if value.denominator==1 else f"{value.numerator}/{value.denominator}"
         steps=[f"Antiderivative: x^{power+1}/({power+1}).",f"Evaluate at the bounds to get {answer}."]
         exact=lambda:Fraction(hi**(power+1)-lo**(power+1),power+1)==value
@@ -250,7 +259,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         a,b,c,e=n(-10*d,10*d),n(-10*d,10*d),n(-10*d,10*d),n(-10*d,10*d)
         value=a*c+b*e
         ingredients.update(vectors=[[a,b],[c,e]],value=value)
-        problem=f"Find the dot product of vectors ({a},{b}) and ({c},{e})."
+        problem=f"A force vector is ({a},{b}) newtons and a displacement vector is ({c},{e}) meters. Find the work using their dot product."
         answer=str(value)
         steps=[f"Dot product = {a}×{c}+{b}×{e}={value}."]
         exact=lambda:a*c+b*e==value
@@ -274,9 +283,9 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         k,nval=n(2,10*d),n(1,20*d)
         multiple=k*nval
         ingredients.update(k=k,n=nval,multiple=multiple)
-        problem=f"Show the divisibility claim: if k divides n, then k divides n². Check the generated example k={k}, n={multiple}."
+        problem=f"Use the divisibility definition to justify: if k divides n, then k divides n². Example values: k={k}, n={multiple}."
         answer="True"
-        steps=[f"Since n={k}×{nval}, n²={k}×({k}×{nval}²).",f"Thus k divides n² for this example. This is a template illustration, not a general proof checker."]
+        steps=["Let n=k m for some integer m.", "Then n²=(k m)²=k(k m²), so n² is a multiple of k.", f"Example check: {multiple}² is divisible by {k}."]
         exact=lambda:multiple%k==0 and multiple*multiple%k==0
     else:
         raise ValueError("unknown topic: "+str(topic))
@@ -300,7 +309,11 @@ def semantic_check(ingredients: dict, answer: str) -> bool:
         if topic=="triangle_geometry":
             return all(0<v<180 for v in (ingredients["a"],ingredients["b"],ingredients["third"])) and sum((ingredients["a"],ingredients["b"],ingredients["third"]))==180
         if topic=="trigonometry":
+            if ingredients.get("contextual",False):
+                return ingredients["angle"]==30 and ingredients["hypotenuse"]>0 and ingredients["height"]>=0 and ingredients["height"]*2==ingredients["hypotenuse"]
             return 0<=ingredients["angle"]<=90
+        if topic=="functions":
+            return not ingredients.get("contextual",False) or (ingredients["value"]>=0 and ingredients["c"]>=0)
         if topic=="coordinate_geometry":
             return ingredients["distance"]>=0
         if topic=="definite_integrals":
