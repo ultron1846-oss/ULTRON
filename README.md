@@ -25,6 +25,10 @@ The foundation config now binds to the canonical 240-token math vocabulary inste
 
 Added `ultron_core/preflight.py` to validate the 40M floor, canonical tokenizer size, non-empty prompt-disjoint splits, sequence/batch settings, and FP32 persistent-state estimate. The report explicitly says `PREFLIGHT_ONLY`, training unauthorized, zero optimizer steps, and remote execution disabled. It does not instantiate a model or optimizer.
 
+## Phase 8 — checkpoint recovery hardening
+
+Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata, retains the last verified checkpoint as a backup, falls back to that backup if the current file fails integrity verification, and rolls back live model/optimizer/scheduler state if restoration fails. Tests cover RNG replay and backup recovery. This is infrastructure validation only; no optimizer step or training run occurred.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
