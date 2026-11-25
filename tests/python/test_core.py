@@ -8,7 +8,7 @@ import torch
 from torch.nn import functional as F
 
 from ultron_core import NeuroSparseConfig, NeuroSparseModel, count_parameters, count_total_parameters
-from ultron_core.model import SparseExpert, _dispatch_sparse_experts
+from ultron_core.model import SparseExpert, _dispatch_sparse_experts, _causal_attention_with_mha_weights
 from ultron_core.checkpoint import load_checkpoint, save_checkpoint
 from ultron_core.discovery import polynomial_identity_candidates
 from ultron_core.math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
@@ -125,6 +125,30 @@ class CoreTests(unittest.TestCase):
                 self.assertIsNone(parameter.grad)
             else:
                 torch.testing.assert_close(parameter.grad, expected, rtol=1e-6, atol=1e-7)
+
+    def test_sdpa_causal_fast_path_matches_multihead_attention_output_and_gradients(self):
+        torch.manual_seed(441)
+        attention = torch.nn.MultiheadAttention(embed_dim=16, num_heads=4, dropout=0.0, batch_first=True).eval()
+        x_ref = torch.randn(2, 6, 16, requires_grad=True)
+        x_fast = x_ref.detach().clone().requires_grad_(True)
+        causal = torch.ones(6, 6, dtype=torch.bool).triu(diagonal=1)
+        reference, _ = attention(x_ref, x_ref, x_ref, attn_mask=causal, need_weights=False)
+        fast = _causal_attention_with_mha_weights(attention, x_fast)
+        torch.testing.assert_close(fast, reference, rtol=1e-5, atol=1e-6)
+        reference.square().sum().backward()
+        fast.square().sum().backward()
+        torch.testing.assert_close(x_fast.grad, x_ref.grad, rtol=1e-5, atol=1e-6)
+
+    def test_sdpa_padding_mask_matches_multihead_attention(self):
+        torch.manual_seed(442)
+        attention = torch.nn.MultiheadAttention(embed_dim=16, num_heads=4, dropout=0.0, batch_first=True).eval()
+        x = torch.randn(2, 5, 16)
+        valid = torch.tensor([[True, True, True, True, True], [False, False, True, True, True]])
+        padding = ~valid
+        causal = torch.ones(5, 5, dtype=torch.bool).triu(diagonal=1)
+        reference, _ = attention(x, x, x, attn_mask=causal, key_padding_mask=padding, need_weights=False)
+        fast = _causal_attention_with_mha_weights(attention, x, causal_mask=causal, key_padding_mask=padding)
+        torch.testing.assert_close(fast[valid], reference[valid], rtol=1e-5, atol=1e-6)
 
     def test_forward_shapes_and_finite_values(self):
         model = NeuroSparseModel(self.config())
