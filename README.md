@@ -675,3 +675,26 @@ No model training, optimizer step, external dataset ingestion, or remote executi
 The exact math core now includes bounded evaluation of a univariate rational polynomial at a selected real algebraic number using Horner's rule and the existing exact resultant arithmetic. It enforces the algebraic value's resource limits, rejects multivariate or mismatched-variable inputs, evaluates rational inputs directly, and normalizes exact cancellation to zero. The result is not claimed to have a minimal or irreducible defining polynomial. See [polynomial evaluation](docs/ALGEBRAIC_POLYNOMIAL_EVALUATION.md).
 
 No model training, optimizer step, dataset generation, or remote execution was performed for this milestone.
+
+
+## Pre-training readiness update — 2026-11-25
+
+### Current verified engineering state
+- Foundation architecture: **63,400,451 total parameters / 61,826,048 trainable parameters**, meeting the user's 40M minimum trainable-parameter target. This is a configuration/counting result, not a trained model.
+- The deterministic original-data generator currently covers seven narrow families: arithmetic, rational arithmetic, one-variable linear equations, polynomial derivatives, polynomial definite integrals, 2×2 determinants, and 2×2 linear systems. Coverage is not university-math breadth.
+- Phase 5 has a corpus coverage report for topic/difficulty balance, duplicate IDs/prompts, exact validation counts, split membership, and prompt leakage.
+- Phase 7 evaluator schema v3 reports mutually exclusive answer classes and exact equivalence for the currently supported grammar. It does not evaluate ULTRON itself or verify derivations/proofs.
+- Phase 8 now binds resumable sampler state to dataset SHA-256, checks dataset/sampler/batch cursor alignment, restores sampler before DataLoader iteration, rewinds to the last committed step on interruption, and requires a verified dataset hash before checkpoint cursor restore. Exact-resume DataLoader constraints: num_workers=0, drop_last=False.
+- PR #91 passed Node tests, Python regression tests, and the CPU forward/backward smoke check. No real ULTRON weights were updated; no training, dataset generation, or remote job was run.
+
+### Remaining pre-training blockers
+1. Owner notebook must create the train-split DataLoader with ResumableRandomSampler, save callback data_state in save_checkpoint, and pass expected_dataset_manifest_sha256 to load_checkpoint.
+2. Verify a clean-runtime checkpoint restore/resume against an uninterrupted run. This requires separate explicit authorization for a tiny training/optimizer-step test; it has not been performed.
+3. Implement measured live RAM/VRAM enforcement; the current controller relies on preflight budget checks.
+4. Complete owner-side iPad Safari acceptance, enable Supabase leaked-password protection, and validate the free-cloud runtime/session workflow.
+5. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
+
+Keep real-weight training and remote execution disabled until separate explicit authorization.
+
+### Next-chat handoff
+Start with the owner notebook/DataLoader wiring and clean-runtime acceptance plan. Do not rerun merged code work, claim training readiness, or authorize a real-weight optimizer step without explicit approval. Update this README at each meaningful milestone.
