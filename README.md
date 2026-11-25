@@ -835,3 +835,23 @@ Added block-level activation recomputation for the transformer model.
 - Tests compare forward outputs and gradients against the ordinary path on a small deterministic CPU model.
 
 No full-model training or remote job was started.
+
+
+## Math Agent topic commands — 2026-11-25
+
+The browser Math Agent now exposes slash commands for the ten mathematics roadmap topics:
+
+- `/arithmetic`
+- `/algebra`
+- `/geometry`
+- `/trigonometry`
+- `/calculus`
+- `/linear-algebra`
+- `/probability`
+- `/statistics`
+- `/number-theory`
+- `/logic-proofs`
+
+Use `/help` to display the command directory or `/topics` to list topics with their current status. Topic commands return the topic's scope, core idea/formula, example and prerequisite. The Math Agent page also displays tappable command chips.
+
+These commands are **curriculum references**, not new mathematical solvers. Only the existing deterministic arithmetic and limited linear-equation operations are supported; roadmap topics remain marked planned. No model training, data generation, remote execution, or backend/authentication behavior was changed.
