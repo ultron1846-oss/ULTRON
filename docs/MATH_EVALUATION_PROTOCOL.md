@@ -4,7 +4,7 @@
 
 ## Current evaluator
 
-`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact targets. Schema version 2 reports:
+`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact targets. Schema version 3 reports:
 
 - attempted predictions (any non-`None` output);
 - valid parsed answers (`answered`);
@@ -12,6 +12,9 @@
 - exact accuracy over all references and among valid answers;
 - coverage (attempted / total), valid-answer rate (valid / total), and abstentions (only `None` outputs);
 - invalid predictions separately, including non-string outputs, so malformed outputs are not incorrectly counted as abstentions;
+- mutually exclusive error classes: abstention, malformed output, incorrect valid answer, and correct answer;
+- per-topic error-class counts;
+- exact semantic equivalence for supported polynomial derivatives (coefficient-map comparison) and rational/integral answers (exact fractions), even when output formatting differs;
 - per-topic counts, coverage, validity, and accuracy.
 
 The evaluator does not instantiate or run a neural model. Its output sets `model_evaluated=false`, `training_performed=false`, and `proof_verified=false`.
@@ -25,7 +28,7 @@ Current generator topics are:
 - bounded polynomial derivatives with integer coefficients and degree 2–5;
 - exact definite integrals of integer-coefficient polynomials (degree 1–4, rational bounds).
 
-For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded canonical polynomial grammar. Definite-integral predictions use exact rational strings. It does not parse natural-language explanations, derivations, or proof steps.
+For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded integer-polynomial grammar and are compared by exact coefficient maps rather than raw string equality. Definite-integral predictions use exact rational strings. It does not parse natural-language explanations, derivations, or proof steps.
 
 ## Held-out evaluation rules
 
