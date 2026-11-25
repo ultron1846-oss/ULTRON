@@ -141,8 +141,8 @@ function attachSaveButton(node,prompt,answer,explanation){const button=document.
 function runAgentCommand(raw){
  if(!raw.startsWith('/'))return false;
  const command=raw.trim().split(/\s+/)[0].toLowerCase();
- if(command==='/help'){
-  const list=['/help — show command help','/topics — list mathematics topics and status','/graph <function> — plot a function locally (e.g. /graph y=x^2)','Graph functions: sin, cos, tan, sqrt, abs, ln, log, exp; constants pi and e',...topics.map(topic=>topic.command+' — '+topic.name)];
+ if(command==='/help'||command==='/menu'||command==='/commands'){
+  const list=['/help — show command help','/menu — open command directory','/commands — list registered commands','/topics — list mathematics topics and status','/graph <function> — plot a function locally (e.g. /graph y=x^2)',...mathToolHelp().split('\n'),...topics.map(topic=>topic.command+' — '+topic.name)];
   addChat('assistant','ULTRON Math Agent commands:\n'+list.join('\n')+'\n\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
   return true;
  }
@@ -157,7 +157,9 @@ function runAgentCommand(raw){
   catch(error){addChat('assistant','Graph error: '+error.message,'Check the function syntax and supported functions.');}
   return true;
  }
-\n const mathTool=executeMathToolCommand(raw);\n if(mathTool.handled){addChat('assistant',mathTool.output,mathTool.detail);return true;}\n const topic=topics.find(item=>item.command===command);
+\n const mathTool=executeMathToolCommand(raw);
+ if(mathTool.handled){addChat('assistant',mathTool.output,mathTool.detail);return true;}
+ const topic=topics.find(item=>item.command===command);
  if(topic){
   const availability=topic.level==='AVAILABLE'?'AVAILABLE FOUNDATION':'PLANNED · NOT SOLVER-SUPPORTED';
   const reply=topic.name+' ['+availability+']\n\n'+topic.intro+'\n\nCore idea: '+topic.formula+'\nExample: '+topic.example+'\nPrerequisite: '+topic.prereq+'\n\nThis is a topic reference, not a claim that ULTRON can solve every problem in this topic.';
