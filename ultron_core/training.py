@@ -89,6 +89,7 @@ class TrainingSettings:
     deterministic: bool = False
     precision: str = "fp32"
     profile_performance: bool = False
+    activation_checkpointing: bool = False
 
     def __post_init__(self):
         if isinstance(self.max_steps, bool) or not isinstance(self.max_steps, int) or not 1 <= self.max_steps <= 1000:
@@ -112,6 +113,8 @@ class TrainingSettings:
         validate_training_precision(self.precision)
         if not isinstance(self.profile_performance, bool):
             raise TypeError("profile_performance must be boolean")
+        if not isinstance(self.activation_checkpointing, bool):
+            raise TypeError("activation_checkpointing must be boolean")
 
 
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
@@ -309,6 +312,12 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     if resume_metadata is None:
         seed_training_rng(settings.seed, deterministic=settings.deterministic)
     previous_training_mode = getattr(model, "training", None)
+    checkpointing_setter = getattr(model, "set_activation_checkpointing", None)
+    previous_activation_checkpointing = getattr(model, "activation_checkpointing", None)
+    if callable(checkpointing_setter):
+        checkpointing_setter(settings.activation_checkpointing)
+    elif settings.activation_checkpointing:
+        raise NotImplementedError("model does not support activation checkpointing")
     model.train()
     optimizer.zero_grad(set_to_none=True)
     started = time.monotonic()
@@ -425,6 +434,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                         "deterministic": settings.deterministic,
                         "profile_performance": settings.profile_performance,
+                        "activation_checkpointing": settings.activation_checkpointing,
                     }
                     checkpoint_data_state.update({
                         "epoch": epoch,
@@ -450,6 +460,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     finally:
         reset_memory()
         optimizer.zero_grad(set_to_none=True)
+        if callable(checkpointing_setter) and isinstance(previous_activation_checkpointing, bool):
+            checkpointing_setter(previous_activation_checkpointing)
         if isinstance(previous_training_mode, bool):
             model.train(previous_training_mode)
 
