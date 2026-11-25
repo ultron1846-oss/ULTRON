@@ -76,6 +76,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Require preflight memory budget to cover persistent state and enforce batch/sequence/accumulation limits.
 - [x] Preserve checkpoint-restored RNG on resume; require checkpoint/preflight dataset hash match.
 - [x] Check expected dataset hash inside checkpoint loader before mutating model/optimizer/scheduler/RNG state.
+- [x] Expose checkpoint next-batch cursor and global step in trainer callback metadata.
 - [ ] Restore sampler/data-loader cursor and verify exact reproducibility across a clean runtime restart.
 - [ ] Add measured resource cap enforcement (current controller checks only the preflight budget; no live RAM/VRAM monitor).
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
@@ -107,7 +108,9 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
-- [ ] Prove resumed execution matches uninterrupted execution within tolerance.
+- [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
+- [ ] Ensure caller restores/positions the DataLoader sampler from saved cursor.
+- [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
 
 ## Phase 9 — Free runtime and operations
