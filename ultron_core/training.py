@@ -1,5 +1,6 @@
 import math
 import random
+import re
 import time
 from dataclasses import dataclass
 
@@ -105,7 +106,7 @@ class TrainingSettings:
 
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                        training_authorized=False, scheduler=None,
-                       checkpoint_callback=None, cancellation_check=None):
+                       checkpoint_callback=None, cancellation_check=None, resume_metadata=None):
     """Run bounded local training only after explicit authorization.
 
     A complete no-allocation preflight report and a budget covering persistent
@@ -148,6 +149,19 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     if planned_sequence < 2 or settings.gradient_accumulation_steps != planned_accumulation:
         raise ValueError("training accumulation/sequence plan does not match preflight")
 
+    dataset_hash = preflight_report.get("dataset_manifest_sha256")
+    if not isinstance(dataset_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", dataset_hash):
+        raise ValueError("training requires a verified dataset manifest SHA-256 in preflight")
+    if resume_metadata is not None:
+        if not isinstance(resume_metadata, dict):
+            raise TypeError("resume_metadata must be checkpoint load metadata")
+        if (resume_metadata.get("format_version", 0) < 3
+                or resume_metadata.get("rng_restored") is not True
+                or not isinstance(resume_metadata.get("data_state"), dict)):
+            raise ValueError("resume checkpoint must include restored RNG and data cursor state")
+        if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
+            raise ValueError("resume checkpoint dataset manifest does not match preflight")
+
     budget = preflight_report.get("memory_budget_bytes")
     if isinstance(budget, bool) or not isinstance(budget, int) or budget <= 0:
         raise ValueError("training requires a positive preflight memory budget")
@@ -175,7 +189,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     if cancellation_check is not None and not callable(cancellation_check):
         raise TypeError("cancellation_check must be callable")
 
-    seed_training_rng(settings.seed, deterministic=settings.deterministic)
+    if resume_metadata is None:
+        seed_training_rng(settings.seed, deterministic=settings.deterministic)
     previous_training_mode = getattr(model, "training", None)
     model.train()
     optimizer.zero_grad(set_to_none=True)
@@ -263,6 +278,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "training_authorized": True,
         "remote_execution_enabled": False,
         "resource_monitoring": "preflight_budget_only",
+        "resumed_from_checkpoint": resume_metadata is not None,
     }
 
 def seed_training_rng(seed: int, *, deterministic: bool = False) -> dict:
