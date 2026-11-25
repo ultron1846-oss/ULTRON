@@ -162,8 +162,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 or not isinstance(resume_metadata.get("format_version"), int)
                 or resume_metadata.get("format_version") < 3)
                 or resume_metadata.get("rng_restored") is not True
+                or resume_metadata.get("dataset_hash_verified") is not True
                 or not isinstance(resume_metadata.get("data_state"), dict)):
-            raise ValueError("resume checkpoint must include restored RNG and data cursor state")
+            raise ValueError("resume checkpoint must include verified dataset hash, restored RNG, and data cursor state")
         resume_cursor = resume_metadata["data_state"]
         if "epoch" not in resume_cursor or "next_batch_index" not in resume_cursor:
             raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
