@@ -42,7 +42,7 @@ Sources:
 
 ## Model resource feasibility
 
-The proposed foundation configuration has **63,400,451 trainable parameters**. FP32 weights require 253,601,804 bytes (about 241.9 MiB). Weights, gradients, and two AdamW moment tensors require about 967.4 MiB before activations, attention workspace, temporary tensors, allocator overhead, batches, and checkpoint transfer.
+The proposed foundation configuration has **63,400,451 total parameters, of which 61,826,048 are trainable**. FP32 weights require 253,601,804 bytes (about 241.9 MiB). Gradients plus two AdamW moments for trainable parameters require 741,912,576 bytes (about 707.5 MiB); combined persistent state is about 949.4 MiB before activations, attention workspace, temporary tensors, allocator overhead, batches, and checkpoint transfer.
 
 This is an arithmetic floor, not a benchmark or guarantee that any free runtime can train ULTRON. A single runtime must be evaluated independently. The repository does not implement distributed gradient synchronization or a multi-host trainer; multiple free accounts/runtimes cannot simply be pooled into one larger device.
 

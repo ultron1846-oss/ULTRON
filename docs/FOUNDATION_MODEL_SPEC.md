@@ -2,7 +2,7 @@
 
 **Status:** architecture proposal with reproducible parameter-count implementation. Not trained or performance-validated.
 **Minimum:** 40,000,000 unique trainable parameters.
-**Selected configuration:** 63,400,451 unique trainable parameters.
+**Selected configuration:** 63,400,451 total parameters, of which 61,826,048 are trainable.
 
 ## Proposed foundation configuration
 
@@ -20,20 +20,22 @@ The factory `NeuroSparseConfig.foundation()` defines:
 | Predictive refinement steps (max) | 3 |
 | Fast-memory slots | 64 |
 | Learned position table | 2,048 positions |
-| Parameter count | **63,400,451** |
+| Total parameter count | **63,400,451** |
+| Trainable parameter count | **61,826,048** |
 
 The config exceeds the 40M floor. The existing small default config remains the fast CI/CPU smoke config and is not the target model.
 
 ## Parameter accounting
 
-`count_parameters(config)` computes the exact unique trainable parameter count from module shapes without allocating the full model. The output embedding and language-model head share one weight matrix and are counted once. Non-trainable fast-memory and episodic buffers are excluded.
+`count_total_parameters(config)` computes the exact total parameter count from module shapes without allocating the full model. `count_parameters(config)` counts parameters that receive gradients. The output embedding and language-model head share one weight matrix and are counted once. Fast-memory key/value/gate projections are used only in detached memory updates, so they are frozen and excluded from the trainable count; fast-memory and episodic buffers are non-parameter state and excluded from both counts.
 
-The formula is regression-tested against actual parameter enumeration on a small instantiated model. A separate test locks the foundation config to 63,400,451 and checks the 40M floor without instantiating the large model.
+Both formulas are regression-tested against total and `requires_grad` parameter enumeration on a small instantiated model. The foundation config is locked to 63,400,451 total / 61,826,048 trainable and checked against the 40M trainable floor without instantiating the large model.
 
 ## Resource estimate (FP32, theoretical minimum)
 
-- Model weights: 253,601,804 bytes (about 241.9 MiB).
-- Weights + gradients + two AdamW moment tensors: about 967.4 MiB, before activations, temporary tensors, runtime overhead, allocator fragmentation, input batches, or checkpoint serialization.
+- All model weights (including frozen projections): 253,601,804 bytes (about 241.9 MiB).
+- Gradients + two AdamW moment tensors for 61,826,048 trainable parameters: 741,912,576 bytes (about 707.5 MiB).
+- Combined FP32 persistent state: 995,514,380 bytes (about 949.4 MiB), before activations, temporary tensors, runtime overhead, allocator fragmentation, input batches, or checkpoint serialization.
 - Full 2,048-token attention can be memory- and compute-intensive. A separately measured microbatch/sequence-length plan and gradient accumulation may be required.
 - A checkpoint with optimizer state may approach or exceed 1 GiB depending on serialization and state contents.
 
@@ -43,7 +45,7 @@ These are arithmetic estimates, not a claim that a free provider can train this 
 
 - Sparse top-k expert selection is not proof of lower end-to-end latency or FLOPs; Python dispatch overhead and dense attention remain.
 - Memory/refinement/router components are experimental and not validated as brain-like, mathematically superior, or more efficient.
-- The foundation factory now binds its vocabulary size to the canonical version-1 math tokenizer (240 tokens, including reserved IDs). Regression tests assert the exact vocabulary size and matching parameter count.
+- The foundation factory now binds its vocabulary size to the canonical version-1 math tokenizer (240 tokens, including reserved IDs). Regression tests assert the exact vocabulary size, total parameter count, and trainable parameter count.
 - This is a next-token sequence prototype. It does not establish university-level mathematics, theorem proving, or novel formula discovery.
 
 ## Dataset integrity milestone

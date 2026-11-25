@@ -11,7 +11,7 @@
 - [ ] Distinguish deterministic math operations, learned outputs, conjectures, and verified proofs.
 - [ ] Preserve from-scratch constraints: no pretrained weights/models, external AI APIs, or externally generated training corpus.
 - [ ] Document initial curriculum and evaluation tasks.
-- [x] Establish 40M minimum and add a 63,400,451-parameter candidate configuration.
+- [x] Establish 40M minimum and add a 63,400,451-total / 61,826,048-trainable candidate configuration.
 - [x] Add exact parameter-count formula and small-model cross-check.
 - [x] Add theoretical FP32/optimizer memory estimate.
 - [ ] Final architecture review and tokenizer-vocabulary compatibility audit.
@@ -42,7 +42,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 4 — Architecture and model sizing
 
-- [x] Add proposed foundation config with 63,400,451 unique trainable parameters.
+- [x] Add proposed foundation config with 63,400,451 total and 61,826,048 trainable parameters.
 - [x] Add exact parameter-count formula and tests.
 - [x] Document FP32/AdamW memory floor and limitations.
 - [x] Bind foundation vocabulary to canonical tokenizer size (240) and reserved-token IDs.
@@ -66,7 +66,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 6 — Training-loop implementation (not execution)
 
-- [x] Add no-allocation preflight for parameter floor, tokenizer, splits, and workload bounds.
+- [x] Add no-allocation preflight for trainable parameter floor, tokenizer, splits, and workload bounds.
+- [x] Preflight memory estimate distinguishes all weights from gradients/optimizer state for trainable parameters.
 - [x] Implement bounded orchestration with explicit authorization, accumulation, clipping, finite checks, cancellation, and step/time caps.
 - [x] Include gradient accumulation, clipping, finite loss/gradient checks, cancellation, and step/time caps.
 - [x] Add Python/Torch/CUDA RNG seeding and dedicated deterministic DataLoader generator.

@@ -19,6 +19,11 @@ class FastWeightMemory(nn.Module):
         self.value = nn.Linear(hidden_size, hidden_size, bias=False)
         self.query = nn.Linear(hidden_size, hidden_size, bias=False)
         self.gate = nn.Linear(hidden_size, 1)
+        # These projections only produce detached, non-differentiable memory writes.
+        # Freeze them so "trainable parameter" counts and optimizer state are honest.
+        for projection in (self.key, self.value, self.gate):
+            for parameter in projection.parameters():
+                parameter.requires_grad_(False)
         self.register_buffer("fast_weights", torch.zeros(hidden_size, hidden_size))
         self.register_buffer("episodic_keys", torch.zeros(slots, hidden_size))
         self.register_buffer("episodic_values", torch.zeros(slots, hidden_size))
