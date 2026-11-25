@@ -9,7 +9,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 The latest code review found and fixed shared fast-memory contamination risk: training-time writes reject batch sizes greater than one, and the model now exposes `reset_memory()`. The future trainer must call it between independent examples. This safeguard is merged; no training was run.
 
-Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: expand Phase 7 with independently verified university-math tasks and proof metrics; Phase 8 still needs dataset-hash cursor and resume-equivalence tests; then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
+Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: Phase 7 needs independently verified university-math tasks, symbolic equivalence, and proof metrics; Phase 8 needs sampler/DataLoader cursor replay and uninterrupted-vs-resumed equivalence tests; then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
 
 ## Pre-training readiness — Phase 1 specification
 
@@ -41,7 +41,7 @@ Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata
 
 ## Phase 7 — exact-answer evaluation
 
-Added an exact-answer evaluation function for caller-supplied predictions on the current generator topics. It reports exact accuracy, coverage, abstentions, invalid outputs, and per-topic metrics. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
+Added an exact-answer evaluation function for caller-supplied predictions on the current generator topics. It reports attempted coverage, valid-answer rate, abstentions, malformed outputs (including non-string values), incorrect valid answers, and per-topic metrics. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
 
 ## Phase 9 — free runtime review
 
