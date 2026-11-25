@@ -11,6 +11,7 @@ from pathlib import Path
 from tools.math_generators.grade1_4.generators import GENERATOR_METADATA as GRADE1_4
 from tools.math_generators.grade5_8.generators import GENERATOR_METADATA as GRADE5_8
 from tools.math_generators.grade8_12.generators import GENERATOR_METADATA as GRADE8_12
+from tools.math_generators.university.generators import GENERATOR_METADATA as UNIVERSITY
 
 ROOT = Path(__file__).resolve().parent
 
@@ -50,13 +51,40 @@ def build_grade8_12_registry() -> dict:
     }
 
 
+def _university_curriculum() -> list[dict]:
+    curriculum_path = ROOT / "university" / "curriculum.json"
+    return json.loads(curriculum_path.read_text(encoding="utf-8"))["topics"]
+
+
+def build_university_registry() -> dict:
+    implemented = set(UNIVERSITY)
+    rows = []
+    for topic in _university_curriculum():
+        rows.append({
+            **topic,
+            "grade_band": "University",
+            "includes_word_problems": False,
+            "has_generator": topic["topic"] in implemented or topic.get("generator_topic") in implemented,
+        })
+    return {
+        "version": 1,
+        "batch": "University mathematics curriculum map",
+        "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
+        "topics": rows,
+    }
+
 def build_combined_registry() -> dict:
     topics = []
     for metadata in (GRADE1_4, GRADE5_8, GRADE8_12):
         topics.extend(_topic_rows(metadata, "word_problems"))
+    topics.extend([
+        {"topic": row["topic"], "grade_band": "University",
+         "word_problems": False, "status": row["status"]}
+        for row in _university_curriculum()
+    ])
     return {
         "version": 1,
-        "coverage_through": "G1-12 (overlapping topic batches)",
+        "coverage_through": "G1-12 + university mathematics curriculum catalog (generator status explicit)",
         "topics": topics,
     }
 
@@ -66,6 +94,7 @@ def render_registries() -> dict[str, str]:
         "grade1_4/registry.json": json.dumps(build_grade1_4_registry(), indent=2) + "\n",
         "grade5_8/registry.json": json.dumps(build_grade5_8_registry(), indent=2) + "\n",
         "grade8_12/registry.json": json.dumps(build_grade8_12_registry(), indent=2) + "\n",
+        "university/registry.json": json.dumps(build_university_registry(), indent=2) + "\n",
         "registry.json": json.dumps(build_combined_registry(), indent=2) + "\n",
     }
 

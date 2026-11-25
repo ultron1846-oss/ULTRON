@@ -970,3 +970,26 @@ Batch 3 adds 22 deterministic Grade 8–12 topics: linear equations, systems, qu
 **Important limits:** These are original deterministic practice-item generators, not trained-model capability. Difficulty is heuristic. The proof topic is a narrow divisibility proof template, not a general proof checker. No training, corpus generation, or remote execution was started.
 
 **Next handoff:** Grade 1–4 semantic validation is hardened, and Grade 8–12 Batch 3 has 22 topics. Continue expanding topic coverage and curriculum-calibrated difficulty while keeping training disabled. Always update this README at the next milestone.
+
+
+## University mathematics foundation batch — 2026-11-25 (PR in review)
+
+The new `tools/math_generators/university/` package adds nine deterministic university-foundation exercise templates: 2×2 linear algebra, partial derivatives of quadratic functions, first-order separable differential equations, modular exponentiation, a sequence-limit proof for c/n, element order in cyclic groups, quadratic optimization, one Newton iteration, and a count-based Bayes calculation. Items include a problem, exact/recomputable answer, worked steps, ingredients, seed replay, and tamper-resistant verification. The university registry is generated alongside the combined registry.
+
+The scope is intentionally a **foundation starter batch**, not full university mathematics and not general natural-language solving. The Bayes generator constrains positive-event counts to valid population counts. Tests cover 300 seeds per topic, determinism, variation, registry parity, and tampering. CI must still run before merge. No training corpus was generated and no model training or remote execution was started.
+
+**Next:** Review CI and correct failures before merge. After this batch, add proof-oriented foundations and broader university topics (vector spaces, eigenvalues, multivariable integration, ODE systems, combinatorics/probability, and rigorous analysis) with exact verifiers and benchmark gates. Keep training disabled.
+
+
+## Expanded university curriculum map — 2026-11-25
+
+The university topic catalog now lists 197 topics across foundations and logic, linear algebra, calculus, real and complex analysis, abstract algebra, number theory, topology, discrete mathematics/combinatorics, probability, statistics, differential equations, optimization, numerical/computational mathematics, geometry, applied mathematics/mathematical physics, and advanced/interdisciplinary topics.
+
+**Status is explicit:** nine topics currently have deterministic generator implementations; the remaining catalog entries are marked `catalogued_not_implemented`. This is a broad undergraduate curriculum map, not literally every university course or specialty. Do not present catalog entries as trained capability. The earlier CI failure in multivariable calculus (six values unpacked into five variables) has been fixed; the full suite must pass on the updated head before PR #129 can merge.
+
+No training, corpus generation, or remote execution has started. Continue by implementing catalogued topics in tested batches with exact verifiers and benchmark gates. README updated for this handoff.
+
+
+### University generator registry correction — 2026-11-25
+
+CI exposed a mismatch between nine implemented university generator identifiers and the curriculum topic IDs. The curriculum now maps each generator to a canonical topic (`determinants`, `partial_derivatives`, `first_order_ODEs`, `congruences`, `convergence_of_sequences`, `cyclic_groups`, `unconstrained_optimization`, `Newton_and_secant_methods`, and `Bayes_theorem`). Registry generation reports these as `generator_available_not_mastered`; this means a deterministic exercise template exists, not that ULTRON has learned or mastered the topic. The remaining catalog entries stay `catalogued_not_implemented`. Regression tests now verify all nine mappings. Training remains disabled.
