@@ -970,3 +970,12 @@ Batch 3 adds 22 deterministic Grade 8–12 topics: linear equations, systems, qu
 **Important limits:** These are original deterministic practice-item generators, not trained-model capability. Difficulty is heuristic. The proof topic is a narrow divisibility proof template, not a general proof checker. No training, corpus generation, or remote execution was started.
 
 **Next handoff:** Grade 1–4 semantic validation is hardened, and Grade 8–12 Batch 3 has 22 topics. Continue expanding topic coverage and curriculum-calibrated difficulty while keeping training disabled. Always update this README at the next milestone.
+
+
+## University mathematics foundation batch — 2026-11-25 (PR in review)
+
+The new `tools/math_generators/university/` package adds nine deterministic university-foundation exercise templates: 2×2 linear algebra, partial derivatives of quadratic functions, first-order separable differential equations, modular exponentiation, a sequence-limit proof for c/n, element order in cyclic groups, quadratic optimization, one Newton iteration, and a count-based Bayes calculation. Items include a problem, exact/recomputable answer, worked steps, ingredients, seed replay, and tamper-resistant verification. The university registry is generated alongside the combined registry.
+
+The scope is intentionally a **foundation starter batch**, not full university mathematics and not general natural-language solving. The Bayes generator constrains positive-event counts to valid population counts. Tests cover 300 seeds per topic, determinism, variation, registry parity, and tampering. CI must still run before merge. No training corpus was generated and no model training or remote execution was started.
+
+**Next:** Review CI and correct failures before merge. After this batch, add proof-oriented foundations and broader university topics (vector spaces, eigenvalues, multivariable integration, ODE systems, combinatorics/probability, and rigorous analysis) with exact verifiers and benchmark gates. Keep training disabled.
