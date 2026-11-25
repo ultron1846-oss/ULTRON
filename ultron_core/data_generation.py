@@ -333,6 +333,7 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
             raise ValueError("splits must contain exactly train, validation, and test")
         split_prompt_groups = {}
         split_counts = {}
+        split_id_counts = Counter()
         for name, rows in splits.items():
             rows = tuple(rows)
             if any(not isinstance(item, MathExample) for item in rows):
@@ -341,6 +342,9 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
             split_prompt_groups[name] = {
                 re.sub(r"\s+", " ", item.input_text).strip().casefold() for item in rows
             }
+            split_id_counts.update(item.example_id for item in rows)
+        unknown_split_ids = set(split_id_counts) - set(ids)
+        repeated_split_ids = sum(count - 1 for count in split_id_counts.values() if count > 1)
         names = ("train", "validation", "test")
         leakage = []
         for i, left in enumerate(names):
@@ -351,6 +355,9 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
         result["split_counts"] = split_counts
         result["prompt_group_leakage"] = leakage
         result["splits_prompt_disjoint"] = not leakage
+        result["unknown_split_example_id_count"] = len(unknown_split_ids)
+        result["repeated_split_example_id_count"] = repeated_split_ids
+        result["split_membership_valid"] = not unknown_split_ids and repeated_split_ids == 0
     return result
 
 
