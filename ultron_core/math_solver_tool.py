@@ -99,6 +99,8 @@ def _linear_coefficients(expr: Expr, variable: str) -> tuple[Fraction, Fraction]
         if has_variable:
             return coefficient * constant, Fraction(0)
         return Fraction(0), constant
+    if expr.kind == ExprKind.POW:
+        raise ValueError("nonlinear powers are unsupported by the linear solver")
     if expr.kind == ExprKind.DIV:
         numerator_a, numerator_b = _linear_coefficients(expr.args[0], variable)
         denominator_a, denominator_b = _linear_coefficients(expr.args[1], variable)
