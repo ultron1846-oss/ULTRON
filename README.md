@@ -19,6 +19,10 @@ The frontend includes startup/navigation resilience, visible render-error recove
 
 The settings and overview now normalize the stored workload preference to the supported 2–10 GB range and fall back to 6 GB when browser storage contains an invalid, non-finite, or empty value. This remains a local preference only, not a RAM allocator. Unit tests cover valid, fractional, out-of-range, and malformed values. Manual iPad Safari acceptance is still required before declaring the frontend fully complete.
 
+## Phase 3 security audit — 2026-11-25
+
+A live Supabase review found authenticated-role `TRUNCATE` privileges on six owner-linked tables, which bypass RLS. The privilege was revoked and verified false for authenticated/anon on all six tables; no data was changed. The audit and repeatable safeguard are documented in [Phase 3 security audit](docs/SECURITY_AUDIT_PHASE3.md). Supabase Auth leaked-password protection remains disabled and requires an owner dashboard setting change.
+
 ## Frontend release gate
 
 The public frontend, optional owner sign-in, required root assets and deployment-path cleanup are covered by automated regression tests. Before calling the frontend fully complete, perform the real iPad Safari acceptance pass: open every page, test owner sign-in/sign-out and server-side owner verification, exercise mobile navigation and contrast, run supported/unsupported Math Agent inputs, verify IndexedDB history and backup/restore, and check the workload slider. Do not start training or connect a cloud runtime during this pass.
