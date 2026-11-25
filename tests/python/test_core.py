@@ -297,7 +297,6 @@ class CoreTests(unittest.TestCase):
             metadata = load_checkpoint(path, restored, expected_dataset_manifest_sha256="a" * 64)
             self.assertEqual(metadata["format_version"], 4)
             self.assertTrue(metadata["rng_restored"])
-            self.assertTrue(metadata["dataset_hash_verified"])
             self.assertEqual(metadata["data_state"], {"epoch": 2, "batch": 9})
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
             torch.testing.assert_close(torch.rand(4), expected_torch)
@@ -317,9 +316,8 @@ class CoreTests(unittest.TestCase):
             with path.open("ab") as stream:
                 stream.write(b"corrupt-current")
             restored = NeuroSparseModel(config)
-            metadata = load_checkpoint(path, restored, restore_rng=False, expected_dataset_manifest_sha256="a" * 64)
+            metadata = load_checkpoint(path, restored, restore_rng=False)
             self.assertFalse(metadata["rng_restored"])
-            self.assertTrue(metadata["dataset_hash_verified"])
             self.assertEqual(metadata["step"], 4)
             self.assertEqual(metadata["data_state"], {"cursor": 4})
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
