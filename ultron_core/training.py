@@ -17,13 +17,21 @@ from .precision import training_autocast, validate_training_precision
 def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         load_balance: torch.Tensor | None = None, prediction_error: torch.Tensor | None = None,
         balance_weight: float = 0.01, prediction_weight: float = 0.01,
-        ignore_index: int | None = 0) -> torch.Tensor:
+        ignore_index: int | None = 0, loss_chunk_size: int = 1024) -> torch.Tensor:
+    """Causal next-token loss with chunked FP32 CE to bound temporary memory.
+
+    Logits are processed per batch row and token chunk. This avoids creating a
+    full flattened FP32 copy of [B,T,V] when logits were produced in BF16/FP16.
+    Chunked reductions preserve the global token mean, including padding masks.
+    """
     if logits.ndim != 3 or input_ids.ndim != 2:
         raise ValueError('expected logits [B,T,V] and input_ids [B,T]')
     if logits.shape[:2] != input_ids.shape:
         raise ValueError('logits/input_ids sequence dimensions must match')
     if input_ids.shape[0] == 0 or input_ids.shape[1] < 2:
         raise ValueError('batch must be non-empty and sequence length must be at least 2')
+    if isinstance(loss_chunk_size, bool) or not isinstance(loss_chunk_size, int) or loss_chunk_size < 1:
+        raise ValueError('loss_chunk_size must be a positive integer')
     for name, weight in (("balance_weight", balance_weight), ("prediction_weight", prediction_weight)):
         if isinstance(weight, bool) or not isinstance(weight, (int, float)) or not math.isfinite(weight) or weight < 0:
             raise ValueError(f"{name} must be a finite non-negative number")
@@ -43,14 +51,31 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
                 raise ValueError(f"{name} must be a scalar tensor")
             if not auxiliary.is_floating_point() or auxiliary.device != logits.device:
                 raise ValueError(f"{name} must be a floating-point scalar on the logits device")
-    targets = input_ids[:, 1:].reshape(-1).long()
-    flat_logits = logits[:, :-1].reshape(-1, logits.shape[-1]).float()
-    if ignore_index is not None:
-        if not bool((targets != ignore_index).any()):
-            raise ValueError('all next-token targets are padding; loss is undefined')
-        loss = F.cross_entropy(flat_logits, targets, ignore_index=ignore_index)
+
+    targets = input_ids[:, 1:].long()
+    if ignore_index is None:
+        valid_count = targets.numel()
     else:
-        loss = F.cross_entropy(flat_logits, targets)
+        valid_targets = targets.ne(ignore_index)
+        if not bool(valid_targets.any()):
+            raise ValueError('all next-token targets are padding; loss is undefined')
+        valid_count = valid_targets.sum().clamp_min(1)
+
+    loss_sum = None
+    time_steps = targets.shape[1]
+    for batch_index in range(input_ids.shape[0]):
+        for start in range(0, time_steps, loss_chunk_size):
+            end = min(start + loss_chunk_size, time_steps)
+            chunk_logits = logits[batch_index, start:end, :].float()
+            chunk_targets = targets[batch_index, start:end]
+            if ignore_index is None:
+                chunk_sum = F.cross_entropy(chunk_logits, chunk_targets, reduction='sum')
+            else:
+                chunk_sum = F.cross_entropy(
+                    chunk_logits, chunk_targets, ignore_index=ignore_index, reduction='sum'
+                )
+            loss_sum = chunk_sum if loss_sum is None else loss_sum + chunk_sum
+    loss = loss_sum / valid_count
     if load_balance is not None:
         loss = loss + balance_weight * load_balance
     if prediction_error is not None:
@@ -59,16 +84,38 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
 
 
 def make_optimizer(model: torch.nn.Module, learning_rate: float = 3e-4,
-                   weight_decay: float = 0.01):
+                   weight_decay: float = 0.01, fused: bool | None = None):
+    """Create AdamW; automatically use its fused CUDA implementation when safe.
+
+    Set fused=False for a portable reference optimizer. fused=True requires all
+    trainable parameters on one CUDA device. Automatic mode falls back to the
+    standard implementation if the installed PyTorch build rejects fused mode.
+    """
     if (isinstance(learning_rate, bool) or not isinstance(learning_rate, (int, float))
             or not math.isfinite(learning_rate) or learning_rate <= 0):
         raise ValueError('learning_rate must be a finite positive number')
     if (isinstance(weight_decay, bool) or not isinstance(weight_decay, (int, float))
             or not math.isfinite(weight_decay) or weight_decay < 0):
         raise ValueError('weight_decay must be a finite non-negative number')
+    if fused is not None and not isinstance(fused, bool):
+        raise TypeError('fused must be boolean or None')
     trainable_parameters = [parameter for parameter in model.parameters() if parameter.requires_grad]
     if not trainable_parameters:
         raise ValueError("model has no trainable parameters")
+    devices = {parameter.device for parameter in trainable_parameters}
+    one_cuda_device = len(devices) == 1 and next(iter(devices)).type == 'cuda'
+    use_fused = one_cuda_device if fused is None else fused
+    if use_fused and not one_cuda_device:
+        raise ValueError('fused AdamW requires trainable parameters on one CUDA device')
+    if use_fused:
+        try:
+            return torch.optim.AdamW(
+                trainable_parameters, lr=learning_rate, weight_decay=weight_decay, fused=True
+            )
+        except (TypeError, RuntimeError, ValueError):
+            if fused is True:
+                raise
+            # Keep automatic mode portable across older/custom PyTorch builds.
     return torch.optim.AdamW(trainable_parameters, lr=learning_rate, weight_decay=weight_decay)
 
 

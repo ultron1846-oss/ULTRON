@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 import torch
+from torch.nn import functional as F
 
 from ultron_core import NeuroSparseConfig, NeuroSparseModel, count_parameters, count_total_parameters
 from ultron_core.checkpoint import load_checkpoint, save_checkpoint
@@ -18,6 +19,43 @@ from ultron_core.verification import evaluate, probe_candidate
 
 
 class CoreTests(unittest.TestCase):
+    def test_chunked_causal_loss_matches_full_reference_and_gradients(self):
+        torch.manual_seed(91)
+        ids = torch.tensor([[1, 2, 0, 4, 5], [3, 4, 5, 0, 0]], dtype=torch.long)
+        base = torch.randn(2, 5, 17, dtype=torch.float32, requires_grad=True)
+        reference = F.cross_entropy(
+            base[:, :-1, :].reshape(-1, 17), ids[:, 1:].reshape(-1), ignore_index=0
+        )
+        reference.backward()
+        expected_grad = base.grad.detach().clone()
+        chunked_logits = base.detach().clone().requires_grad_(True)
+        chunked = causal_language_model_loss(chunked_logits, ids, loss_chunk_size=2)
+        chunked.backward()
+        torch.testing.assert_close(chunked, reference.detach(), rtol=1e-6, atol=1e-7)
+        torch.testing.assert_close(chunked_logits.grad, expected_grad, rtol=1e-6, atol=1e-7)
+
+    def test_chunked_causal_loss_without_padding_and_optimizer_factory(self):
+        from torch import nn
+        from ultron_core.training import make_optimizer
+        ids = torch.tensor([[1, 2, 3], [4, 5, 6]], dtype=torch.long)
+        logits = torch.randn(2, 3, 11, requires_grad=True)
+        reference = F.cross_entropy(logits[:, :-1, :].reshape(-1, 11), ids[:, 1:].reshape(-1))
+        actual = causal_language_model_loss(logits, ids, ignore_index=None, loss_chunk_size=1)
+        torch.testing.assert_close(actual, reference, rtol=1e-6, atol=1e-7)
+        model = nn.Linear(4, 3)
+        optimizer = make_optimizer(model, fused=False)
+        self.assertIsInstance(optimizer, torch.optim.AdamW)
+        with self.assertRaisesRegex(ValueError, "one CUDA device"):
+            make_optimizer(model, fused=True)
+
+    def test_chunked_loss_rejects_invalid_chunk_size(self):
+        logits = torch.randn(1, 3, 5)
+        ids = torch.tensor([[1, 2, 3]])
+        for invalid in (0, -1, True, 1.5):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, "loss_chunk_size"):
+                causal_language_model_loss(logits, ids, loss_chunk_size=invalid)
+
+
     def config(self):
         return NeuroSparseConfig(vocab_size=64, hidden_size=32, num_layers=1,
             num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8)

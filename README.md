@@ -860,3 +860,8 @@ These commands are **curriculum references**, not new mathematical solvers. Only
 ## English word-problem understanding — Phase 1
 
 The Math Agent now includes a bounded English word-problem parser (`word-problems.js`). It recognizes tested templates for addition (altogether/total), subtraction (left/remaining), multiplication (equal groups/each), division (shared equally/per person), and direct operation phrases. It accepts common number words (including compound forms such as twenty-one), returns a structured operation/expression/result, and explains the operation choice. Ambiguous or unsupported wording is rejected rather than guessed. This is a deterministic template parser—not general English comprehension or a trained language model. Unit conversion, multi-step stories, pronoun/coreference resolution, complex number phrases, and broad vocabulary remain future work. Regression tests are in `tests/word-problems.test.js`. No training data was generated and no model training was started.
+
+
+## Training and AI optimization — Phase 1
+
+The training loss now computes next-token cross-entropy in bounded per-row token chunks, avoiding a full flattened FP32 logits copy for mixed-precision outputs while preserving the global valid-token mean. The AdamW factory automatically selects fused AdamW on a single CUDA device when supported and falls back to the portable implementation in automatic mode; `fused=False` forces the reference path. CPU parity tests compare loss and gradients against full-batch cross-entropy. These are memory/optimizer implementation improvements, not evidence of improved model intelligence or measured training speed. No training was launched.
