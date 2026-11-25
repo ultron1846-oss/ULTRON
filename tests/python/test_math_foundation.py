@@ -1,4 +1,5 @@
 import hashlib
+from dataclasses import replace
 import json
 from pathlib import Path
 import tempfile
@@ -113,6 +114,17 @@ class DeterministicDataGenerationTests(unittest.TestCase):
         self.assertEqual(report["split_counts"]["train"], 1)
         self.assertEqual(report["repeated_split_example_id_count"], 1)
         self.assertFalse(report["split_membership_valid"])
+
+
+    def test_corpus_summary_detects_split_row_content_changed_under_same_id(self):
+        examples = generate_examples(816, 12)
+        altered = replace(examples[0], input_text=examples[0].input_text + " altered")
+        splits = {"train": (altered,), "validation": tuple(examples[1:6]),
+                  "test": tuple(examples[6:])}
+        report = summarize_corpus(examples, splits=splits)
+        self.assertEqual(report["mismatched_split_row_count"], 1)
+        self.assertFalse(report["split_membership_valid"])
+
 
     def test_corpus_summary_flags_split_rows_outside_corpus(self):
         examples = generate_examples(814, 12)
