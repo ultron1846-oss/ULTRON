@@ -4,7 +4,7 @@
 
 ## Current evaluator
 
-`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact validated targets. It reports:
+`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact targets. It reports:
 
 - exact correct count;
 - exact accuracy over all references;
