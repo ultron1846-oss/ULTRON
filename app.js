@@ -1,7 +1,8 @@
 import { normalizeMemoryPreference } from './preferences.js?v=20261125-1';
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { parseWordProblem } from './word-problems.js?v=20261125-1';
-import { createGraphSvg } from './graph-tool.js?v=20261125-1';
+import { createGraphSvg } from './graph-tool.js?v=20261125-2';
+import { executeMathToolCommand, mathToolHelp } from './math-tools.js?v=20261125-1';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261125-1';
 import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory, saveExperience } from './memory-store.js?v=20261124-5';
@@ -156,7 +157,7 @@ function runAgentCommand(raw){
   catch(error){addChat('assistant','Graph error: '+error.message,'Check the function syntax and supported functions.');}
   return true;
  }
- const topic=topics.find(item=>item.command===command);
+\n const mathTool=executeMathToolCommand(raw);\n if(mathTool.handled){addChat('assistant',mathTool.output,mathTool.detail);return true;}\n const topic=topics.find(item=>item.command===command);
  if(topic){
   const availability=topic.level==='AVAILABLE'?'AVAILABLE FOUNDATION':'PLANNED · NOT SOLVER-SUPPORTED';
   const reply=topic.name+' ['+availability+']\n\n'+topic.intro+'\n\nCore idea: '+topic.formula+'\nExample: '+topic.example+'\nPrerequisite: '+topic.prereq+'\n\nThis is a topic reference, not a claim that ULTRON can solve every problem in this topic.';
