@@ -369,7 +369,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     optimizer.zero_grad(set_to_none=True)
     started = time.monotonic()
     session_steps, accumulated, microbatches_seen = 0, 0, 0
-    losses = []
+    loss_sum = None
+    loss_count = 0
+    recent_losses = []
     stop_reason = "dataset_exhausted"
     performance_tokens = 0
     performance_elapsed = 0.0
@@ -434,7 +436,10 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 # Keep scalar metrics on-device. Copying every microbatch loss to
                 # Python forces a CUDA synchronization; defer it to the optimizer
                 # boundary (and final summary) instead.
-                losses.append(loss.detach())
+                detached_loss = loss.detach()
+                recent_losses.append(detached_loss)
+                loss_sum = detached_loss if loss_sum is None else loss_sum + detached_loss
+                loss_count += 1
             finally:
                 reset_memory()
 
@@ -450,7 +455,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 # single small device-to-host transfer replaces separate
                 # per-loss and per-parameter synchronization points.
                 loss_finite = torch.stack([
-                    torch.isfinite(value) for value in losses[-settings.gradient_accumulation_steps:]
+                    torch.isfinite(value) for value in recent_losses
                 ]).all()
                 if norm is None:
                     checks = [bool(loss_finite.detach().cpu().item())]
@@ -490,9 +495,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 if sampler is not None:
                     committed_sampler_state = copy.deepcopy(sampler.state_dict())
                 if checkpoint_callback is not None:
-                    mean_loss = torch.stack(
-                        losses[-settings.gradient_accumulation_steps:]
-                    ).mean().item()
+                    mean_loss = torch.stack(recent_losses).mean().item()
                     checkpoint_data_state = dict(cursor)
                     checkpoint_training_settings = {
                         "precision": settings.precision,
@@ -520,6 +523,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "dataset_manifest_sha256": dataset_hash,
                         "training_settings": checkpoint_training_settings,
                     })
+                recent_losses.clear()
                 if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
                     break
@@ -564,7 +568,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "global_step": global_step,
         "microbatches_seen": microbatches_seen,
         "discarded_microbatches": accumulated,
-        "mean_loss": torch.stack(losses).mean().item() if losses else None,
+        "mean_loss": loss_sum.item() / loss_count if loss_count else None,
         "stop_reason": stop_reason,
         "data_state": final_data_state,
         "dataset_manifest_sha256": dataset_hash,

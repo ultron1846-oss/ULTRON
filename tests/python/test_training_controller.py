@@ -122,6 +122,30 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
+    def test_loss_metric_storage_stays_bounded_over_long_session(self):
+        settings = TrainingSettings(
+            max_steps=10, gradient_accumulation_steps=2,
+            max_seconds=60, write_memory=False,
+        )
+        stack_sizes = []
+        original_stack = torch.stack
+
+        def tracked_stack(tensors, *args, **kwargs):
+            stack_sizes.append(len(tensors))
+            return original_stack(tensors, *args, **kwargs)
+
+        with patch("torch.stack", side_effect=tracked_stack):
+            result = run_training_steps(
+                self.model, self.batches * 5, self.optimizer, self.report,
+                settings=settings, training_authorized=True,
+            )
+
+        self.assertEqual(result["steps_completed"], 10)
+        self.assertEqual(result["microbatches_seen"], 20)
+        self.assertTrue(stack_sizes)
+        self.assertLessEqual(max(stack_sizes), settings.gradient_accumulation_steps)
+        self.assertTrue(torch.isfinite(torch.tensor(result["mean_loss"])))
+
     def test_training_metrics_sync_once_per_optimizer_step(self):
         original_cpu = torch.Tensor.cpu
         cpu_calls = []
