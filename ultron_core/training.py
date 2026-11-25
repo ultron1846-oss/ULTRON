@@ -106,11 +106,13 @@ class TrainingSettings:
 
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                        training_authorized=False, scheduler=None,
-                       checkpoint_callback=None, cancellation_check=None, resume_metadata=None):
-    """Run bounded local training only after explicit authorization.
+                       checkpoint_callback=None, cancellation_check=None,
+                       resume_metadata=None, initial_data_state=None):
+    """Run bounded local training after explicit authorization.
 
-    A complete no-allocation preflight report and a budget covering persistent
-    state are required. Remote dispatch is intentionally not supported.
+    For resume, the caller must restore/position the batch iterator from the
+    checkpoint data_state before passing it here. Checkpoint callbacks receive
+    the next-batch cursor and dataset hash needed to save a resumable checkpoint.
     """
     if training_authorized is not True:
         raise PermissionError("explicit training authorization is required")
@@ -152,6 +154,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     dataset_hash = preflight_report.get("dataset_manifest_sha256")
     if not isinstance(dataset_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", dataset_hash):
         raise ValueError("training requires a verified dataset manifest SHA-256 in preflight")
+
     if resume_metadata is not None:
         if not isinstance(resume_metadata, dict):
             raise TypeError("resume_metadata must be checkpoint load metadata")
@@ -161,6 +164,27 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             raise ValueError("resume checkpoint must include restored RNG and data cursor state")
         if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
             raise ValueError("resume checkpoint dataset manifest does not match preflight")
+        resume_step = resume_metadata.get("step")
+        if isinstance(resume_step, bool) or not isinstance(resume_step, int) or resume_step < 0:
+            raise ValueError("resume checkpoint global step is invalid")
+        if initial_data_state is not None and initial_data_state != resume_metadata["data_state"]:
+            raise ValueError("initial_data_state must match checkpoint resume cursor")
+        cursor = dict(resume_metadata["data_state"])
+        global_step = resume_step
+    else:
+        if initial_data_state is not None and not isinstance(initial_data_state, dict):
+            raise TypeError("initial_data_state must be a dictionary or None")
+        cursor = dict(initial_data_state or {})
+        global_step = 0
+
+    epoch = cursor.get("epoch", 0)
+    next_batch_index = cursor.get("next_batch_index", 0)
+    if (isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 0
+            or isinstance(next_batch_index, bool) or not isinstance(next_batch_index, int)
+            or next_batch_index < 0):
+        raise ValueError("data cursor epoch/next_batch_index must be non-negative integers")
+    cursor["epoch"] = epoch
+    cursor["next_batch_index"] = next_batch_index
 
     budget = preflight_report.get("memory_budget_bytes")
     if isinstance(budget, bool) or not isinstance(budget, int) or budget <= 0:
@@ -195,7 +219,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     model.train()
     optimizer.zero_grad(set_to_none=True)
     started = time.monotonic()
-    steps, accumulated = 0, 0
+    session_steps, accumulated, microbatches_seen = 0, 0, 0
     losses = []
     stop_reason = "dataset_exhausted"
 
@@ -233,6 +257,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     break
                 (loss / settings.gradient_accumulation_steps).backward()
                 accumulated += 1
+                microbatches_seen += 1
                 losses.append(float(loss.detach().cpu()))
             finally:
                 reset_memory()
@@ -254,13 +279,25 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
-                steps += 1
+                session_steps += 1
+                global_step += 1
                 optimizer.zero_grad(set_to_none=True)
                 accumulated = 0
                 if checkpoint_callback is not None:
                     mean_loss = sum(losses[-settings.gradient_accumulation_steps:]) / settings.gradient_accumulation_steps
-                    checkpoint_callback(steps, {"mean_loss": mean_loss})
-                if steps >= settings.max_steps:
+                    checkpoint_data_state = dict(cursor)
+                    checkpoint_data_state.update({
+                        "epoch": epoch,
+                        "next_batch_index": next_batch_index + microbatches_seen,
+                        "seed": settings.seed,
+                        "gradient_accumulation_steps": settings.gradient_accumulation_steps,
+                    })
+                    checkpoint_callback(global_step, {
+                        "mean_loss": mean_loss,
+                        "data_state": checkpoint_data_state,
+                        "dataset_manifest_sha256": dataset_hash,
+                    })
+                if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
                     break
     finally:
@@ -269,12 +306,22 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         if isinstance(previous_training_mode, bool):
             model.train(previous_training_mode)
 
+    final_data_state = dict(cursor)
+    final_data_state.update({
+        "epoch": epoch,
+        "next_batch_index": next_batch_index + microbatches_seen,
+        "seed": settings.seed,
+        "gradient_accumulation_steps": settings.gradient_accumulation_steps,
+    })
     return {
-        "steps_completed": steps,
-        "microbatches_seen": len(losses),
+        "steps_completed": session_steps,
+        "global_step": global_step,
+        "microbatches_seen": microbatches_seen,
         "discarded_microbatches": accumulated,
         "mean_loss": sum(losses) / len(losses) if losses else None,
         "stop_reason": stop_reason,
+        "data_state": final_data_state,
+        "dataset_manifest_sha256": dataset_hash,
         "training_authorized": True,
         "remote_execution_enabled": False,
         "resource_monitoring": "preflight_budget_only",
