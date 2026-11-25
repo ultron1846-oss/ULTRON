@@ -49,7 +49,7 @@ Official provider terms have been reviewed and documented. Colab remains the pla
 
 Phase 6 also now provides explicit Python/Torch/CUDA seeding and a dedicated seeded DataLoader generator. Reproducibility is tested independently; deterministic algorithms may still depend on supported hardware/operators and must be recorded.
 
-Phase 8 binds resumable data cursors to a validated dataset-manifest SHA-256 in checkpoint format v4. The restore guard rejects a mismatched expected dataset hash before mutating model/optimizer/RNG state; older checkpoint formats remain loadable but cannot satisfy a dataset-bound resume.
+Phase 8 binds resumable data cursors to a validated dataset-manifest SHA-256 in checkpoint format v4. The restore guard rejects a mismatched expected dataset hash before mutating model/optimizer/RNG state. Trainer checkpoint callbacks now carry global step, epoch, next-batch index, seed, accumulation, and dataset hash; the caller must restore/position the sampler or iterator from that cursor. Older checkpoint formats remain loadable but cannot satisfy a dataset-bound resume.
 
 Checkpoint resume now returns whether RNG restoration succeeded. The trainer refuses resume without restored RNG, data cursor, and a matching dataset-manifest SHA-256; it skips initial reseeding on resume so checkpoint RNG is preserved.
 
