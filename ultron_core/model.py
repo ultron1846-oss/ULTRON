@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint as activation_checkpoint
 from .config import NeuroSparseConfig
 from .routing import SparseRouter, load_balance_loss
@@ -56,6 +57,43 @@ def _dispatch_sparse_experts(flat, weights, indices, experts):
     return dispatched
 
 
+
+def _causal_attention_with_mha_weights(attention, x, *, causal_mask=None, key_padding_mask=None):
+    """Run existing MHA projection weights through SDPA's causal fast path.
+
+    Unpadded batches avoid allocating an S×S triangular mask. With padding,
+    combine causal and key-validity masks; SDPA uses True=allowed, unlike MHA.
+    Parameter names remain MultiheadAttention-compatible for existing checkpoints.
+    """
+    batch, sequence, embed_dim = x.shape
+    if attention.in_proj_weight is None:
+        raise RuntimeError("ULTRON attention requires fused Q/K/V projection weights")
+    qkv = F.linear(x, attention.in_proj_weight, attention.in_proj_bias)
+    query, key, value = qkv.chunk(3, dim=-1)
+    head_dim = embed_dim // attention.num_heads
+
+    def split_heads(tensor):
+        return tensor.reshape(batch, sequence, attention.num_heads, head_dim).transpose(1, 2)
+
+    query, key, value = split_heads(query), split_heads(key), split_heads(value)
+    if key_padding_mask is None:
+        sdpa_mask = None
+        is_causal = True
+    else:
+        if causal_mask is None:
+            causal_mask = torch.ones((sequence, sequence), dtype=torch.bool, device=x.device).triu(diagonal=1)
+        sdpa_mask = (~key_padding_mask)[:, None, None, :] & (~causal_mask)[None, None, :, :]
+        is_causal = False
+
+    attended = F.scaled_dot_product_attention(
+        query, key, value,
+        attn_mask=sdpa_mask,
+        dropout_p=attention.dropout if attention.training else 0.0,
+        is_causal=is_causal,
+    )
+    attended = attended.transpose(1, 2).contiguous().reshape(batch, sequence, embed_dim)
+    return F.linear(attended, attention.out_proj.weight, attention.out_proj.bias)
+
 class NeuroSparseBlock(nn.Module):
     def __init__(self, c: NeuroSparseConfig):
         super().__init__()
@@ -81,13 +119,9 @@ class NeuroSparseBlock(nn.Module):
         # Pre-normalized causal self-attention is the sequence-mixing path.
         # True entries in PyTorch's boolean attention mask are disallowed.
         attention_input = self.attention_norm(x)
-        attention_output, _ = self.attention(
-            attention_input,
-            attention_input,
-            attention_input,
-            attn_mask=causal_mask,
-            key_padding_mask=key_padding_mask,
-            need_weights=False,
+        attention_output = _causal_attention_with_mha_weights(
+            self.attention, attention_input,
+            causal_mask=causal_mask, key_padding_mask=key_padding_mask,
         )
         # Left-padded query rows can have no causally visible valid key. PyTorch
         # may return NaNs for those padded queries; they are never model targets.
@@ -194,11 +228,14 @@ class NeuroSparseModel(nn.Module):
 
         positions = torch.arange(sequence_length, device=input_ids.device)
         x = self.embedding(input_ids.long()) + self.position_embedding(positions).unsqueeze(0)
-        causal_mask = torch.ones(
-            (sequence_length, sequence_length),
-            dtype=torch.bool,
-            device=input_ids.device,
-        ).triu(diagonal=1)
+        # Unpadded batches use SDPA's causal flag and need no dense mask.
+        causal_mask = None
+        if key_padding_mask is not None:
+            causal_mask = torch.ones(
+                (sequence_length, sequence_length),
+                dtype=torch.bool,
+                device=input_ids.device,
+            ).triu(diagonal=1)
 
         balances, errors, steps = [], [], []
         for block in self.blocks:

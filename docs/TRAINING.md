@@ -39,3 +39,8 @@ Complete [PRETRAINING_READINESS.md](PRETRAINING_READINESS.md), including model/v
 The controller retains detached scalar losses on-device instead of converting each microbatch loss to a Python float. At the optimizer boundary it checks accumulated loss scalars and the clipped global gradient norm with one small device-to-host transfer. A non-finite gradient makes the global norm non-finite, so separate per-parameter host checks are unnecessary. Checkpoint loss values are transferred only when requested, and the overall mean is materialized at finalization.
 
 Non-finite loss or gradients still prevent the optimizer step. The regression test counts explicit host transfers and expects one per optimizer step rather than one per microbatch. Benchmark on target hardware before quantifying performance impact.
+
+
+## Causal attention memory optimization
+
+The model routes its existing fused Q/K/V and output-projection parameters through PyTorch scaled-dot-product attention. For unpadded batches, it uses the built-in causal flag instead of allocating an explicit boolean sequence-by-sequence mask. This preserves the MultiheadAttention parameter names and checkpoint layout. Padded batches use a combined causal/key-validity mask with SDPA's True-means-allowed convention. Regression tests compare outputs and input gradients against the previous MultiheadAttention reference path. The fast path removes one explicit quadratic mask allocation; measured throughput and device-specific peak-memory improvement remain unverified until benchmarked on target hardware.
