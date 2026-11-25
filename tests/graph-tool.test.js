@@ -6,7 +6,7 @@ test('plots a polynomial and returns a responsive SVG path', () => {
   const svg = createGraphSvg('y=x^2');
   assert.match(svg, /<svg class="ultron-graph"/);
   assert.match(svg, /class="graph-curve"/);
-  assert.match(svg, /aria-label="Graph of y=x\^2"/);
+  assert.ok(svg.includes('aria-label="Graph of y=x^2"'));
   assert.match(svg, /M[0-9.]+ [0-9.]+/);
 });
 
