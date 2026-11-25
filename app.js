@@ -140,17 +140,17 @@ function runAgentCommand(raw){
  const command=raw.trim().split(/\s+/)[0].toLowerCase();
  if(command==='/help'){
   const list=['/help — show command help','/topics — list mathematics topics and status',...topics.map(topic=>topic.command+' — '+topic.name)];
-  addChat('assistant','ULTRON Math Agent commands:\\n'+list.join('\\n')+'\\n\\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
+  addChat('assistant','ULTRON Math Agent commands:\n'+list.join('\n')+'\n\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
   return true;
  }
  if(command==='/topics'){
-  addChat('assistant','Mathematics topic commands:\\n'+topics.map(topic=>topic.command+' — '+topic.name+' ['+topic.level+']').join('\\n'),'Topic status reflects the current roadmap.');
+  addChat('assistant','Mathematics topic commands:\n'+topics.map(topic=>topic.command+' — '+topic.name+' ['+topic.level+']').join('\n'),'Topic status reflects the current roadmap.');
   return true;
  }
  const topic=topics.find(item=>item.command===command);
  if(topic){
   const availability=topic.level==='AVAILABLE'?'AVAILABLE FOUNDATION':'PLANNED · NOT SOLVER-SUPPORTED';
-  const reply=topic.name+' ['+availability+']\\n\\n'+topic.intro+'\\n\\nCore idea: '+topic.formula+'\\nExample: '+topic.example+'\\nPrerequisite: '+topic.prereq+'\\n\\nThis is a topic reference, not a claim that ULTRON can solve every problem in this topic.';
+  const reply=topic.name+' ['+availability+']\n\n'+topic.intro+'\n\nCore idea: '+topic.formula+'\nExample: '+topic.example+'\nPrerequisite: '+topic.prereq+'\n\nThis is a topic reference, not a claim that ULTRON can solve every problem in this topic.';
   addChat('assistant',reply,'TOPIC REFERENCE · '+topic.command);
   return true;
  }
