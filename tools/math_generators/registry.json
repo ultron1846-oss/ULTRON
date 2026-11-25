@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "coverage_through": "G1-12 + university foundations (generator coverage)",
+  "coverage_through": "G1-12 + university mathematics curriculum catalog (generator status explicit)",
   "topics": [
     {
       "topic": "counting",
@@ -228,49 +228,1186 @@
       "word_problems": false
     },
     {
-      "topic": "linear_algebra",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "sets_and_functions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "multivariable_calculus",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "propositional_logic",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "differential_equations",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "predicate_logic",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "discrete_mathematics",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "quantifiers",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "real_analysis",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "proof_methods",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "abstract_algebra",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "mathematical_induction",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "optimization",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "relations_and_equivalence",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "numerical_methods",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "cardinality",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     },
     {
-      "topic": "probability_theory",
-      "grade_band": "University Foundation",
-      "word_problems": false
+      "topic": "countable_and_uncountable_sets",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "axiom_of_choice_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "vectors_and_vector_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "subspaces_and_span",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_independence",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "basis_and_dimension",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_transformations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "matrix_rank",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "systems_linear_equations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "determinants",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "eigenvalues_and_eigenvectors",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "diagonalization",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "inner_product_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "orthogonality_and_projection",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "least_squares",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "spectral_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Jordan_form",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "bilinear_and_quadratic_forms",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "limits_and_continuity",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "derivative_theory",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mean_value_theorems",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Taylor_series",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Riemann_integral",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "improper_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "sequences_and_series",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "power_series",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "multivariable_limits",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "partial_derivatives",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "gradient_and_directional_derivatives",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "chain_rule_multivariable",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "multiple_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "change_of_variables",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "line_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "surface_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "vector_calculus",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Green_stokes_divergence_theorems",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "metric_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "convergence_of_sequences",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Cauchy_sequences",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "pointwise_and_uniform_convergence",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "compactness",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "connectedness",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continuity_metric_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "differentiation_real_analysis",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "measure_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lebesgue_measure",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lebesgue_integral",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lp_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "functional_sequences",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "complex_numbers_and_topology",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "holomorphic_functions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Cauchy_Riemann_equations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "contour_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Cauchy_integral_formula",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Taylor_and_Laurent_series",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "residues",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "singularities",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "conformal_maps",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "maximum_modulus_principle",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "groups_and_subgroups",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cyclic_groups",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "permutation_groups",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cosets_and_Lagrange_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "normal_subgroups_and_quotients",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "group_homomorphisms",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "rings_and_ideals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "integral_domains",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "fields_and_extensions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "polynomial_rings",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "modules_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Galois_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "divisibility_and_gcd",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Euclidean_algorithm",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "congruences",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Chinese_remainder_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Fermat_and_Euler_theorems",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "multiplicative_order",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Diophantine_equations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "quadratic_residues",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continued_fractions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "analytic_number_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "topological_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "open_and_closed_sets",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "basis_for_topology",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continuity_topological_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "homeomorphisms",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "compact_topological_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "connected_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "product_and_quotient_topology",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "fundamental_group_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "covering_spaces_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "counting_principles",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "permutations_and_combinations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "pigeonhole_principle",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "inclusion_exclusion",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "recurrence_relations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "generating_functions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "graph_theory_basics",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "trees_and_spanning_trees",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "planar_graphs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "matching_and_networks",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "extremal_combinatorics",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "designs_and_codes_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "probability_spaces",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "conditional_probability",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Bayes_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "random_variables",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "discrete_distributions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continuous_distributions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "expectation_and_variance",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "joint_distributions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "law_of_large_numbers",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "central_limit_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Markov_chains",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "martingales_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "stochastic_processes_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "descriptive_statistics",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "sampling_and_estimators",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "confidence_intervals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "hypothesis_testing",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_regression",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "generalized_linear_models_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "ANOVA",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Bayesian_statistics_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "statistical_learning_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "second_order_linear_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "systems_of_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "phase_portraits",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laplace_transform",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "series_solutions_ODE",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "boundary_value_problems",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Fourier_methods_PDE",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "heat_equation",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "wave_equation",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laplace_equation",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "characteristics_PDE",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "convex_sets_and_functions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "unconstrained_optimization",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lagrange_multipliers",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "KKT_conditions",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_programming",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "simplex_method",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "dualities",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "integer_programming_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "dynamic_programming",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "network_optimization",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "stochastic_optimization_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "floating_point_error",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "conditioning_and_stability",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "root_finding",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Newton_and_secant_methods",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "numerical_linear_algebra",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "interpolation",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "numerical_differentiation",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "numerical_integration",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "ODE_numerical_methods",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "iterative_methods",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Monte_Carlo_methods",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Euclidean_geometry_proofs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "analytic_geometry",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "affine_geometry",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "projective_geometry_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "differential_geometry_curves",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "surfaces_and_curvature",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "manifolds_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Riemannian_geometry_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "tensor_calculus_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "dimensional_analysis",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Fourier_series_and_transforms",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laplace_transforms_applications",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "calculus_of_variations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Hamiltonian_and_Lagrangian_mechanics",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mathematical_modeling",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "fluid_dynamics_math_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "elasticity_math_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "control_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "information_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cryptography_math_foundations",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "category_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "order_and_lattice_theory",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "representation_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "algebraic_topology_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "homological_algebra_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "functional_analysis_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "operator_theory_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "harmonic_analysis_intro",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "partial_order_and_fixed_points",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mathematical_logic_advanced",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented"
     }
   ]
 }
