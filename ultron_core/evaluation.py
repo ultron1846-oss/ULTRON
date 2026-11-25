@@ -5,7 +5,7 @@ from typing import Mapping, Iterable
 from .data_generation import MathExample, _parse_integer_polynomial, validate_example_text
 
 def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[str, str | None]) -> dict:
-    """Score exact rational and supported polynomial-derivative answers; no model is run."""
+    """Score exact rational and supported polynomial answers; no model is run."""
     if not isinstance(predictions, Mapping):
         raise TypeError("predictions must map example IDs to strings or None")
     items = tuple(examples)
@@ -21,19 +21,26 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
     totals, attempts, answers, rights, invalid_by_topic = (
         Counter(), Counter(), Counter(), Counter(), Counter()
     )
+    error_classes = Counter()
+    topic_error_classes = {}
     for item in items:
         if (item.validation_status != "semantically_checked" or item.target_text != item.exact_answer
                 or not validate_example_text(item.input_text, item.exact_answer, item.topic)):
             raise ValueError("evaluation contains an unverified reference example")
         totals[item.topic] += 1
+        topic_errors = topic_error_classes.setdefault(item.topic, Counter())
         raw = predictions.get(item.example_id)
         if raw is None:
+            error_classes["abstention"] += 1
+            topic_errors["abstention"] += 1
             continue
         attempted += 1
         attempts[item.topic] += 1
         if not isinstance(raw, str):
             invalid += 1
             invalid_by_topic[item.topic] += 1
+            error_classes["malformed_output"] += 1
+            topic_errors["malformed_output"] += 1
             continue
         try:
             if item.topic == "polynomial_derivative":
@@ -44,12 +51,19 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
         except (ValueError, ZeroDivisionError, TypeError):
             invalid += 1
             invalid_by_topic[item.topic] += 1
+            error_classes["malformed_output"] += 1
+            topic_errors["malformed_output"] += 1
             continue
         answered += 1
         answers[item.topic] += 1
         if validate_example_text(item.input_text, raw, item.topic):
             correct += 1
             rights[item.topic] += 1
+            error_classes["correct_answer"] += 1
+            topic_errors["correct_answer"] += 1
+        else:
+            error_classes["incorrect_answer"] += 1
+            topic_errors["incorrect_answer"] += 1
 
     per_topic = {}
     for topic, count in sorted(totals.items()):
@@ -66,9 +80,10 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
             "valid_answer_rate": n_answered / count,
             "exact_accuracy_all": n_correct / count,
             "exact_accuracy_answered": n_correct / n_answered if n_answered else None,
+            "error_class_counts": dict(sorted(topic_error_classes[topic].items())),
         }
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "evaluation_kind": "exact_answer",
         "total_examples": total,
         "attempted": attempted,
@@ -82,6 +97,7 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
         "exact_accuracy_all": correct / total,
         "exact_accuracy_answered": correct / answered if answered else None,
         "per_topic": per_topic,
+        "error_class_counts": dict(sorted(error_classes.items())),
         "proof_verified": False,
         "model_evaluated": False,
         "training_performed": False,
