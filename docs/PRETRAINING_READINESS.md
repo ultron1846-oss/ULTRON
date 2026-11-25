@@ -58,7 +58,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add deterministic prompt-group split and duplicate prompt collapse.
 - [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
-- [ ] Add corpus-level balance/coverage reports and independent validators for broader topics.
+- [x] Add deterministic corpus-level topic/difficulty balance, duplicate prompt/ID, validation, and split leakage/membership report.
+- [ ] Add independent validators for broader topics.
 - [x] Add bounded polynomial derivative generation with an independent exact polynomial parser/validator.
 - [x] Add exact definite polynomial-integral generation and independent rational antiderivative evaluation.
 - [ ] Expand further topics only with independent exact validators.
@@ -127,8 +128,8 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Review PR #60 and merge only after Node/Python checks pass.
-2. Expand Phase 7 with symbolic-equivalence/proof-verifier metrics and broader independently validated mathematical suites.
-3. Phase 8: add uninterrupted-versus-resumed equivalence tests only after separate tiny-run authorization; current restore/hash/RNG checks do not prove optimizer-step equivalence.
+1. Continue Phase 7: add symbolic equivalence, proof-checker acceptance, and broader independently validated mathematical suites.
+2. Phase 8 remaining: implement sampler/DataLoader cursor replay and prove resumed execution matches uninterrupted execution within tolerance.
+3. Add measured live RAM/VRAM resource cap enforcement and document storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
 5. Keep real-weight training and remote execution disabled until separate explicit authorization.
