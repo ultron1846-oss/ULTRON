@@ -220,7 +220,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         metadata = {"format_version": 4, "rng_restored": True,
                     "dataset_hash_verified": True, "step": 4,
                     "data_state": {"epoch": 0, "next_batch_index": 2, "seed": 0,
-                                   "gradient_accumulation_steps": 2},
+                                   "gradient_accumulation_steps": 2,
+                                   "dataset_manifest_sha256": "a" * 64,
+                                   "dataset_size": 4},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "seed does not match"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
@@ -436,6 +438,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         report = dict(self.report)
         report["split_counts"] = {"train": 4, "validation": 1, "test": 1}
+        report["gradient_accumulation_steps"] = 1
         checks = iter((False, False, True))
         result = run_training_steps(self.model, loader, self.optimizer, report,
             settings=TrainingSettings(max_steps=3, gradient_accumulation_steps=1,
@@ -515,6 +518,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
+                    "dataset_hash_verified": True,
                     "data_state": {"epoch": 1, "batch": 3},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "epoch and next_batch_index"):
