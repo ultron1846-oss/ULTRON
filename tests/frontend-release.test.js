@@ -72,3 +72,23 @@ test('practice exercise handlers and fixtures are removed without deleting exist
   assert.match(app, /listExperiences\(50\)/);
   assert.match(app, /listRecords\('mistakes',30\)/);
 });
+
+test('Pages deployment validates all required assets and rejects retired auth artifacts', async () => {
+  const workflow = await read('.github/workflows/pages.yml');
+  assert.match(workflow, /Validate static site inputs/);
+  assert.match(workflow, /set -eu/);
+  assert.match(workflow, /test -s/);
+  assert.match(workflow, /if \[ -e owner-auth\.js \]/);
+  assert.match(workflow, /mkdir -p _site/);
+});
+test('static shell does not present a public access mode', async () => {
+  const html = await read('index.html');
+  assert.doesNotMatch(html, /public-pill|PUBLIC BROWSER ACCESS|PUBLIC MATHEMATICS WORKSPACE|PUBLIC DASHBOARD/i);
+  assert.match(html, /No account required/);
+});
+test('all required Pages runtime assets exist and are non-empty', async () => {
+  for (const path of ['index.html', 'styles.css', 'app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json', 'command-center.html']) {
+    const content = await read(path);
+    assert.ok(content.trim().length > 0, `required static asset is empty: ${path}`);
+  }
+});
