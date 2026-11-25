@@ -31,7 +31,10 @@ class BenchmarkStatisticsTests(unittest.TestCase):
         from ultron_core.benchmark import run_benchmark
         report = run_benchmark(device="cpu", batch=1, sequence=4,
                               warmup=0, iterations=2, seed=19, num_threads=1)
-        self.assertEqual(report["benchmark_kind"], "inference_only_synthetic_smoke")
+        self.assertEqual(report["benchmark_kind"], "inference_only_synthetic_token_timing")
+        self.assertEqual(report["model_config_name"], "smoke")
+        self.assertEqual(report["parameter_count_formula"]["total"], report["parameter_accounting"]["parameters_total"])
+        self.assertEqual(report["parameter_count_formula"]["trainable"], report["parameter_accounting"]["parameters_trainable"])
         self.assertFalse(report["training_performed"])
         self.assertEqual(report["optimizer_steps"], 0)
         self.assertEqual(report["measured_iterations"], 2)
@@ -39,6 +42,28 @@ class BenchmarkStatisticsTests(unittest.TestCase):
         self.assertTrue(math.isfinite(report["latency_seconds"]["median"]))
         self.assertGreater(report["latency_seconds"]["median"], 0.0)
         self.assertGreater(report["parameter_accounting"]["parameters_total"], 0)
+
+    def test_foundation_parameter_floor_and_cap_rejects_before_allocation(self):
+        from unittest.mock import patch
+        from ultron_core.config import NeuroSparseConfig, count_parameters, count_total_parameters
+        from ultron_core.benchmark import run_benchmark
+
+        config = NeuroSparseConfig.foundation()
+        self.assertGreater(count_parameters(config), 60_000_000)
+        self.assertEqual(count_total_parameters(config), 63_400_451)
+        self.assertEqual(count_parameters(config), 61_826_048)
+        with patch("ultron_core.benchmark.NeuroSparseModel") as model_constructor:
+            with self.assertRaisesRegex(ValueError, "exceeding the configured max_parameters cap"):
+                run_benchmark(model_config="foundation", max_parameters=1, iterations=2)
+            model_constructor.assert_not_called()
+
+    def test_benchmark_rejects_invalid_model_config_and_parameter_cap(self):
+        from ultron_core.benchmark import run_benchmark
+
+        with self.assertRaisesRegex(ValueError, "model_config"):
+            run_benchmark(model_config="unknown", iterations=2)
+        with self.assertRaisesRegex(ValueError, "max_parameters"):
+            run_benchmark(max_parameters=0, iterations=2)
 
     def test_benchmark_runtime_restores_rng_and_thread_count(self):
         import torch

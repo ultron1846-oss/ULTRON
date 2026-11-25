@@ -881,3 +881,19 @@ This preserves loss values and fail-closed behavior for non-finite loss/gradient
 ## CUDA expert dispatch optimization — 2026-11-25
 
 ULTRON's sparse-expert block now uses a CUDA-specific grouped dispatch path: flatten the top-k routes, stably sort by expert, count assignments, and transfer the compact count vector once per block. It avoids one dynamic `torch.where`/nonzero selection per expert. CPU keeps the original loop. Regression tests compare outputs and gradients against the reference dispatch. This reduces a known synchronization source by design; no target-GPU throughput benchmark has been run and no speedup is claimed. See [NeuroSparse implementation notes](docs/NEUROSPARSE_IMPLEMENTATION.md).
+
+
+
+## Benchmark milestone — foundation configuration support (2026-11-25)
+
+The inference-only benchmark now accepts `--model-config smoke|foundation`. The default remains the small CI model. The explicit foundation option selects the proposed **63,400,451 total / 61,826,048 trainable** configuration, allowing a future baseline measurement at the intended model size.
+
+Before allocating model weights, the harness computes the exact parameter count and enforces `--max-parameters` (default 100,000,000). After construction, it checks actual total/trainable counts against the configuration formula. The cap is a parameter-count guard—not a complete RAM/VRAM estimate or guarantee against out-of-memory.
+
+Example (run only on a device with adequate memory):
+
+```bash
+python -m ultron_core.benchmark --device cuda --model-config foundation --batch 1 --sequence 32 --warmup 10 --iterations 50
+```
+
+The benchmark still uses synthetic random token IDs solely for tensor-shape timing. It is not a math-quality test, and this code change does not report measured speed or memory gains. No training, optimizer step, corpus generation, cloud execution, or remote job was started. Next: CI validation, then a foundation-model inference baseline on suitable hardware before claiming any performance improvement.
