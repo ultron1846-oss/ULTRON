@@ -781,3 +781,17 @@ Validation: `python -m unittest tests.python.test_knowledge_bank -v`.
 3. Expand subjects in reviewed, curriculum-aligned batches; test for duplicates, conflicts, and incorrect statements.
 4. Connect retrieval to the agent planning/answer loop with evidence tracking and uncertainty.
 5. Do not start training or remote execution. Finish and verify the frontend/iPad release gate first; update README at each milestone.
+
+
+## Training optimization implementation — 2026-11-25
+
+The first research-guided training optimization is implemented as an **opt-in BF16 autocast path** in `ultron_core/precision.py` and the bounded controller.
+
+- FP32 remains the default (`TrainingSettings.precision="fp32"`).
+- BF16 is selectable with `TrainingSettings(precision="bf16")`; CPU and supported CUDA devices are accepted, and unsupported device/dtype combinations fail clearly.
+- The causal language-model loss converts logits to FP32 before cross-entropy accumulation to improve numerical stability.
+- FP16 is intentionally not enabled yet: the controller must first save and restore GradScaler state as part of the checkpoint/resume contract.
+- This change adds no training command, dataset generation, optimizer step, remote execution, or frontend behavior. Tests exercise precision utilities only; CI validates integration.
+- Speed and memory improvements are hardware-dependent and remain unclaimed until measured against the same model, batch, sequence, and device.
+
+Next: run CI, review BF16 support on the intended runtime, then implement optional profiling/AMP measurements and checkpoint-safe scaler handling before considering FP16.
