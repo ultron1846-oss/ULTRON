@@ -106,7 +106,9 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
-- [ ] Prove resumed execution matches uninterrupted execution within tolerance.
+- [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
+- [ ] Ensure caller restores/positions the DataLoader sampler from saved cursor.
+- [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
 
 ## Phase 9 — Free runtime and operations
