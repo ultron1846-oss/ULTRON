@@ -1,3 +1,4 @@
+import { normalizeMemoryPreference } from './preferences.js?v=20261125-1';
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261125-1';
@@ -44,7 +45,7 @@ function navigate(page){
  }
 }
 function renderOverview(){
- const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
+ const level=normalizeMemoryPreference(safeGet('ultron-memory-level','6'));
  return `${heading('CONTROL ROOM / PROJECT STATUS','ULTRON overview','A live map of what works today, what is being built next, and what remains safely disabled.','<button class="outline-button" data-page="agent">Open Math Agent →</button>')}
  <div class="hero-panel"><div><div class="eyebrow">CURRENT DEVELOPMENT STAGE</div><h2>Foundation workspace online</h2><p>ULTRON is an independent mathematics project. The browser currently provides a deterministic math engine, a mathematics topic roadmap and device-local memory. The neural model is not trained and no remote jobs are running.</p><div class="hero-meta">ACCOUNT-FREE WORKSPACE <i></i> MODEL UNTRAINED <i></i> TRAINING DISABLED</div></div><div class="hero-orbit" aria-hidden="true">◎</div></div>
  <div class="status-grid">
@@ -100,7 +101,7 @@ function renderBackend(){
  ${card('<div class="eyebrow">ACCOUNT-FREE WEBSITE CONTRACT</div><h2>Public browsing; optional owner sign-in</h2><p class="muted">The browser calls the training-control public_status action for generic status. The optional Owner Sign-in page uses Supabase email/password authentication and calls the protected health action with the session token. The Edge Function verifies the configured owner identity server-side before returning owner status. No public registration is available.</p><p class="muted small">The existing experiences, knowledge, mistakes, checkpoints and backup records are owner-linked. Their row-level security is not weakened to support this no-login website. The Memory Vault therefore remains browser-local.</p><span class="status-pill">TRAINING DISABLED · REMOTE EXECUTION DISABLED</span>')}`;
 }
 function renderSettings(){
- const level=Math.min(10,Math.max(2,Number(safeGet('ultron-memory-level','6'))));
+ const level=normalizeMemoryPreference(safeGet('ultron-memory-level','6'));
  return `${heading('DEVICE MEMORY SETTINGS','Settings','Local interface preferences. No account is required.')}
  ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Training RAM preference</h2><p class="muted">Choose a preferred memory budget for future approved remote workloads. This preference is saved in this browser only; it does not allocate device RAM or change hosted-runner memory.</p><div class="memory-box"><div class="memory-heading"><b>Preferred training memory</b><strong id="memory-value">'+level+' GB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Preferred memory budget"><div class="slider-labels"><span>2 GB · Light</span><span>10 GB · High</span></div></div><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
  ${card('<div class="eyebrow">LOCAL DATA</div><h2>Browser storage</h2><p class="muted">Interface preferences and a legacy practice counter are stored locally on this device when browser storage is available.</p><button class="outline-button" id="clear-local">Clear local preferences and legacy counter</button><p id="settings-result" class="muted" role="status"></p>')}`;
