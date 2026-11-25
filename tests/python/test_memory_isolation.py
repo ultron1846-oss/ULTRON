@@ -14,7 +14,7 @@ class MemoryIsolationTests(unittest.TestCase):
             num_experts=4,
             top_k=2,
             max_refinements=1,
-            fast_memory_slots=4,
+            fast_memory_slots=6,
             num_attention_heads=4,
             max_sequence_length=16,
         ))
