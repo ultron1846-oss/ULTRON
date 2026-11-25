@@ -421,6 +421,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
     if final_sampler_state is not None:
+        if final_sampler_state.get("next_index") != next_sample_index + committed_samples:
+            raise ValueError("final sampler cursor does not match committed sample cursor")
         final_data_state["sampler_state"] = final_sampler_state
     return {
         "steps_completed": session_steps,
