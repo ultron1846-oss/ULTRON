@@ -81,7 +81,7 @@ def _build(topic, rng, d):
             steps=[f"{mins}÷60={h} hours with {m} minutes left."]
             check=lambda x:x==ans and h*60+m==mins and 0<=m<60
         else:
-            cents=n(20,500*d); dollars,rem=divmod(cents,100); ans=f"\${dollars}.{rem:02d}"
+            cents=n(20,500*d); dollars,rem=divmod(cents,100); ans=f"${dollars}.{rem:02d}"
             q=rng.choice([f"A pencil costs {cents} cents. Write the price in dollars.",f"Convert {cents} cents into dollars and cents."])
             steps=[f"100 cents = $1, so {cents} cents = {ans}."]
             check=lambda x:x==ans and dollars*100+rem==cents and 0<=rem<100
