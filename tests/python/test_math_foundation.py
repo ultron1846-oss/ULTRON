@@ -286,6 +286,21 @@ class DeterministicDataGenerationTests(unittest.TestCase):
         self.assertFalse(validate_example_text("determinant: [[1, 2], [3, 4]]", "2",
                                                "matrix_determinant_2x2"))
 
+    def test_exact_two_by_two_matrix_inverses(self):
+        examples = generate_examples(724, 100, topics=("matrix_inverse_2x2",))
+        self.assertTrue(all(item.validation_status == "semantically_checked" for item in examples))
+        self.assertTrue(all(validate_example_text(item.input_text, item.exact_answer, item.topic)
+                            for item in examples))
+        prompt = "inverse: [[1, 2], [3, 4]]"
+        expected = "[[-2, 1], [3/2, -1/2]]"
+        self.assertTrue(validate_example_text(prompt, expected, "matrix_inverse_2x2"))
+        self.assertTrue(validate_example_text(prompt, "[[-4/2, 2/2], [6/4, -2/4]]",
+                                             "matrix_inverse_2x2"))
+        self.assertFalse(validate_example_text(prompt, "[[-2, 1], [1/2, -3/2]]",
+                                              "matrix_inverse_2x2"))
+        self.assertFalse(validate_example_text("inverse: [[1, 2], [2, 4]]",
+                                              "[[1, 0], [0, 1]]", "matrix_inverse_2x2"))
+
     def test_exact_two_by_two_linear_systems(self):
         examples = generate_examples(723, 80, topics=("linear_system_2x2",))
         self.assertTrue(all(item.validation_status == "semantically_checked" for item in examples))
