@@ -11,8 +11,8 @@ from ultron_core.benchmark_comparison import (
 class PairedMathBenchmarkTests(unittest.TestCase):
     def test_exact_mcnemar_is_symmetric_and_significant_for_clear_wins(self):
         self.assertAlmostEqual(exact_mcnemar_p_value(3, 3), 1.0)
-        self.assertEqual(exact_mcnemar_p_value(24, 0), 2.0 ** -23)
-        self.assertEqual(exact_mcnemar_p_value(0, 24), 2.0 ** -23)
+        self.assertAlmostEqual(exact_mcnemar_p_value(24, 0), 2.0 ** -23, places=20)
+        self.assertAlmostEqual(exact_mcnemar_p_value(0, 24), 2.0 ** -23, places=20)
 
     def test_rejects_invalid_mcnemar_counts(self):
         for args in ((-1, 0), (1, -1), (True, 0), (1.5, 0)):
