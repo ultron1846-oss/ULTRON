@@ -60,11 +60,11 @@ class SquareFreeNormalizationTests(unittest.TestCase):
         defining = self.poly("(x^2 - 2)^2")
         root = RealAlgebraicNumber.from_isolating_interval(
             defining, 1, 2,
-            limits=PolynomialLimits(max_total_degree=2, max_terms=16,
-                                   max_exponent=2),
-        )
+            )
+        strict = PolynomialLimits(max_total_degree=2, max_terms=16,
+                                  max_exponent=2)
         with self.assertRaises(PolynomialError):
-            factor_for_root(root)
+            factor_for_root(root, limits=strict)
 
 
 if __name__ == "__main__":
