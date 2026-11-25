@@ -140,6 +140,25 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                                settings=self.settings, training_authorized=True)
         self.assertEqual(self.optimizer.steps, 0)
 
+    def test_opt_in_performance_metrics_report_tokens_and_cpu_timing(self):
+        settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+            max_seconds=60, profile_performance=True)
+        result = run_training_steps(self.model, self.batches, self.optimizer,
+            self.report, settings=settings, training_authorized=True)
+        metrics = result["performance"]
+        self.assertTrue(metrics["profiled"])
+        self.assertEqual(metrics["completed_optimizer_steps"], 1)
+        self.assertEqual(metrics["target_tokens"], 4)
+        self.assertGreater(metrics["elapsed_seconds"], 0.0)
+        self.assertGreater(metrics["target_tokens_per_second"], 0.0)
+        self.assertGreaterEqual(metrics["step_seconds_median"], 0.0)
+        self.assertIsNone(metrics["peak_cuda_memory_bytes"])
+
+    def test_performance_profiling_is_off_by_default_and_validated(self):
+        self.assertFalse(TrainingSettings().profile_performance)
+        with self.assertRaisesRegex(TypeError, "profile_performance"):
+            TrainingSettings(profile_performance=1)
+
     def test_training_memory_writes_default_off(self):
         self.assertFalse(TrainingSettings().write_memory)
 

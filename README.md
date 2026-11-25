@@ -795,3 +795,16 @@ The first research-guided training optimization is implemented as an **opt-in BF
 - Speed and memory improvements are hardware-dependent and remain unclaimed until measured against the same model, batch, sequence, and device.
 
 Next: run CI, review BF16 support on the intended runtime, then implement optional profiling/AMP measurements and checkpoint-safe scaler handling before considering FP16.
+
+
+## Opt-in training performance telemetry — 2026-11-25
+
+Added optional measurements to the bounded training controller:
+
+- Set `TrainingSettings(profile_performance=True)` to report optimizer-step elapsed time, target-token throughput, median/p95 step time, and peak allocated CUDA memory when running on CUDA.
+- Profiling is disabled by default. It synchronizes CUDA only when explicitly enabled, because synchronization changes runtime behavior and can affect measured throughput.
+- Metrics are returned in the controller's `performance` object. They are descriptive measurements, not a comparative benchmark or model-quality result.
+- CPU runs report elapsed time and token throughput; CUDA memory is reported only on CUDA.
+- No model benchmark, training run, or remote job was started as part of this change.
+
+Validation: added mock-controller tests for the disabled default, validation, CPU timing, and target-token counts.

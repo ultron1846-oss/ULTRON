@@ -1,6 +1,7 @@
 import copy
 import math
 import random
+import statistics
 import re
 import time
 from dataclasses import dataclass
@@ -87,6 +88,7 @@ class TrainingSettings:
     seed: int = 0
     deterministic: bool = False
     precision: str = "fp32"
+    profile_performance: bool = False
 
     def __post_init__(self):
         if isinstance(self.max_steps, bool) or not isinstance(self.max_steps, int) or not 1 <= self.max_steps <= 1000:
@@ -108,6 +110,8 @@ class TrainingSettings:
         if not isinstance(self.deterministic, bool):
             raise TypeError("deterministic must be boolean")
         validate_training_precision(self.precision)
+        if not isinstance(self.profile_performance, bool):
+            raise TypeError("profile_performance must be boolean")
 
 
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
@@ -299,6 +303,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     session_steps, accumulated, microbatches_seen = 0, 0, 0
     losses = []
     stop_reason = "dataset_exhausted"
+    performance_tokens = 0
+    performance_elapsed = 0.0
+    performance_step_seconds = []
+    performance_peak_cuda_memory_bytes = None
+    step_profile_started = None
+    step_profile_tokens = 0
+    profile_device = None
 
     def time_expired():
         return time.monotonic() - started >= settings.max_seconds
@@ -319,6 +330,21 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             if ids.shape[0] > planned_batch or ids.shape[1] > planned_sequence:
                 raise ValueError("batch exceeds the preflight batch/sequence resource plan")
 
+            if settings.profile_performance:
+                profile_device = ids.device
+                if ids.device.type == "cuda":
+                    torch.cuda.synchronize(ids.device)
+                    if accumulated == 0:
+                        torch.cuda.reset_peak_memory_stats(ids.device)
+                if accumulated == 0:
+                    step_profile_started = time.perf_counter()
+                    step_profile_tokens = 0
+                if mask is not None:
+                    if not isinstance(mask, torch.Tensor) or mask.shape != ids.shape:
+                        raise ValueError("attention_mask must match input_ids when profiling")
+                    step_profile_tokens += int(mask[:, 1:].sum().detach().cpu())
+                else:
+                    step_profile_tokens += max(0, ids.numel() - ids.shape[0])
             reset_memory()
             try:
                 # BF16 is opt-in; loss accumulation remains FP32 for stability.
@@ -335,6 +361,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     stop_reason = "time_limit"
                     break
                 (loss / settings.gradient_accumulation_steps).backward()
+                if settings.profile_performance and ids.device.type == "cuda":
+                    torch.cuda.synchronize(ids.device)
                 accumulated += 1
                 microbatches_seen += 1
                 losses.append(float(loss.detach().cpu()))
@@ -358,6 +386,18 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
+                if settings.profile_performance:
+                    if profile_device.type == "cuda":
+                        torch.cuda.synchronize(profile_device)
+                        peak = int(torch.cuda.max_memory_allocated(profile_device))
+                        performance_peak_cuda_memory_bytes = (
+                            peak if performance_peak_cuda_memory_bytes is None
+                            else max(performance_peak_cuda_memory_bytes, peak)
+                        )
+                    step_elapsed = max(0.0, time.perf_counter() - step_profile_started)
+                    performance_elapsed += step_elapsed
+                    performance_tokens += step_profile_tokens
+                    performance_step_seconds.append(step_elapsed)
                 session_steps += 1
                 global_step += 1
                 optimizer.zero_grad(set_to_none=True)
@@ -433,6 +473,26 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "remote_execution_enabled": False,
         "resource_monitoring": "preflight_budget_only",
         "resumed_from_checkpoint": resume_metadata is not None,
+        "performance": ({
+            "profiled": True,
+            "completed_optimizer_steps": session_steps,
+            "target_tokens": performance_tokens,
+            "elapsed_seconds": performance_elapsed,
+            "target_tokens_per_second": (
+                performance_tokens / performance_elapsed if performance_elapsed > 0 else 0.0
+            ),
+            "step_seconds_median": (
+                statistics.median(performance_step_seconds) if performance_step_seconds else None
+            ),
+            "step_seconds_p95": (
+                sorted(performance_step_seconds)[min(
+                    len(performance_step_seconds) - 1,
+                    max(0, math.ceil(0.95 * len(performance_step_seconds)) - 1)
+                )] if performance_step_seconds else None
+            ),
+            "peak_cuda_memory_bytes": performance_peak_cuda_memory_bytes,
+            "measurement_note": "Opt-in controller timing; not a quality or comparative benchmark.",
+        } if settings.profile_performance else {"profiled": False}),
     }
 
 def seed_training_rng(seed: int, *, deterministic: bool = False) -> dict:
