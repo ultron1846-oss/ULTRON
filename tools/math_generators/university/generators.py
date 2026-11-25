@@ -231,7 +231,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
 
     elif topic == "predicate_logic":
         size=n(2,8*d)
-        threshold=n(1,size)
+        threshold=n(0,size)
         quantifier=rng.choice(("forall","exists"))
         satisfying=[x for x in range(1,size+1) if x<=threshold]
         value=(len(satisfying)==size) if quantifier=="forall" else bool(satisfying)
