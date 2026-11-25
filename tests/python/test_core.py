@@ -316,7 +316,8 @@ class CoreTests(unittest.TestCase):
             with path.open("ab") as stream:
                 stream.write(b"corrupt-current")
             restored = NeuroSparseModel(config)
-            metadata = load_checkpoint(path, restored, restore_rng=False)
+            metadata = load_checkpoint(path, restored, restore_rng=False,
+                                      expected_dataset_manifest_sha256="a" * 64)
             self.assertFalse(metadata["rng_restored"])
             self.assertEqual(metadata["step"], 4)
             self.assertEqual(metadata["data_state"], {"cursor": 4})
