@@ -65,7 +65,7 @@ class BenchmarkStatisticsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "max_parameters"):
             run_benchmark(max_parameters=0, iterations=2)
 
-    def test_benchmark_runtime_restores_rng_and_thread_count(self)
+    def test_benchmark_runtime_restores_rng_and_thread_count(self):
         import torch
         from ultron_core.benchmark import _preserve_benchmark_runtime
         state_before = torch.random.get_rng_state().clone()
