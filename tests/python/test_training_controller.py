@@ -164,7 +164,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
     def test_resume_uses_restored_rng_without_reseeding(self):
         metadata = {"format_version": 4, "rng_restored": True,
                     "step": 12,
-                    "data_state": {"epoch": 2, "next_batch_index": 3},
+                    "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0, "gradient_accumulation_steps": 2},
                     "dataset_manifest_sha256": "a" * 64}
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                    max_seconds=60, write_memory=False)
