@@ -154,6 +154,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     dataset_hash = preflight_report.get("dataset_manifest_sha256")
     if not isinstance(dataset_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", dataset_hash):
         raise ValueError("training requires a verified dataset manifest SHA-256 in preflight")
+    dataset_size = preflight_report.get("dataset_size")
+    if isinstance(dataset_size, bool) or not isinstance(dataset_size, int) or dataset_size <= 0:
+        raise ValueError("preflight dataset_size must be a positive integer")
 
     if resume_metadata is not None:
         if not isinstance(resume_metadata, dict):
@@ -169,8 +172,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 or "next_sample_index" not in resume_cursor):
             raise ValueError("resume checkpoint data_state must include epoch, next_batch_index, and next_sample_index")
         if (resume_metadata.get("dataset_hash_verified") is not True
-                or resume_metadata.get("dataset_manifest_sha256") != dataset_hash):
+                or resume_metadata.get("dataset_manifest_sha256") != dataset_hash
+                or resume_cursor.get("dataset_manifest_sha256") != dataset_hash):
             raise ValueError("resume checkpoint dataset manifest must be verified and match preflight")
+        if resume_cursor.get("dataset_size") != dataset_size:
+            raise ValueError("resume checkpoint dataset size does not match preflight")
         saved_seed = resume_cursor.get("seed")
         if (isinstance(saved_seed, bool) or not isinstance(saved_seed, int)
                 or saved_seed != settings.seed):
@@ -199,11 +205,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             or isinstance(next_batch_index, bool) or not isinstance(next_batch_index, int)
             or next_batch_index < 0
             or isinstance(next_sample_index, bool) or not isinstance(next_sample_index, int)
-            or next_sample_index < 0):
-        raise ValueError("data cursor epoch/batch/sample indices must be non-negative integers")
+            or next_sample_index < 0 or next_sample_index > dataset_size):
+        raise ValueError("data cursor epoch/batch/sample indices must be non-negative and sample index within dataset_size")
     cursor["epoch"] = epoch
     cursor["next_batch_index"] = next_batch_index
     cursor["next_sample_index"] = next_sample_index
+    cursor["dataset_size"] = dataset_size
+    cursor["dataset_manifest_sha256"] = dataset_hash
 
     budget = preflight_report.get("memory_budget_bytes")
     if isinstance(budget, bool) or not isinstance(budget, int) or budget <= 0:
@@ -314,6 +322,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "epoch": epoch,
                         "next_batch_index": next_batch_index + microbatches_seen,
                         "next_sample_index": next_sample_index + samples_seen,
+                        "dataset_size": dataset_size,
+                        "dataset_manifest_sha256": dataset_hash,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                         "dataset_manifest_sha256": dataset_hash,
@@ -341,6 +351,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "epoch": epoch,
         "next_batch_index": next_batch_index + committed_microbatches,
         "next_sample_index": next_sample_index + committed_samples,
+        "dataset_size": dataset_size,
+        "dataset_manifest_sha256": dataset_hash,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
         "dataset_manifest_sha256": dataset_hash,
