@@ -112,7 +112,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
 - [x] Rewind cursor for uncommitted accumulation groups that are discarded.
 - [x] Add dataset-bound deterministic resumable random sampler with seed/epoch/sample cursor and permutation-tail tests.
-- [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler and `num_workers=0`, and rewind to the last committed optimizer step.
+- [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
 - [ ] Owner notebook: construct the sampler/DataLoader, persist callback `data_state`, and verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
