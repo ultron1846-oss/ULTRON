@@ -334,7 +334,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-zero initial cursor"):
             run_training_steps(self.model, loader, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, sampler=sampler,
-                initial_data_state={"epoch": 0, "next_batch_index": 5})
+                initial_data_state={"epoch": 0, "next_batch_index": 5, "next_sample_index": 5})
         self.assertEqual(self.optimizer.steps, 0)
 
     def test_trainer_rejects_prefetch_workers_for_resumable_sampler(self):
@@ -382,9 +382,10 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         result = run_training_steps(self.model, self.batches[:2], self.optimizer,
             self.report, settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
             max_seconds=60), training_authorized=True,
-            initial_data_state={"epoch": 5, "next_batch_index": 10})
+            initial_data_state={"epoch": 5, "next_batch_index": 10, "next_sample_index": 10})
         self.assertEqual(result["data_state"]["epoch"], 5)
         self.assertEqual(result["data_state"]["next_batch_index"], 12)
+        self.assertEqual(result["data_state"]["next_sample_index"], 12)
         self.assertEqual(result["data_state"]["next_sample_index"], 2)
         self.assertEqual(result["global_step"], 1)
 
@@ -416,7 +417,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                     "dataset_size": 100, "dataset_manifest_sha256": "b" * 64,
                     "seed": 0, "gradient_accumulation_steps": 2},
                 "dataset_manifest_sha256": "b" * 64}
-        with self.assertRaisesRegex(ValueError, "does not match preflight"):
+        with self.assertRaisesRegex(ValueError, "must be verified and match preflight"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=base)
         base["dataset_manifest_sha256"] = "a" * 64
