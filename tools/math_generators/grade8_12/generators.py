@@ -292,7 +292,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
     return {
         "grade_band": BANDS[topic], "topic": topic, "subtopic": topic.replace("_"," "),
         "difficulty": d, "problem": problem, "steps": steps, "answer": str(answer),
-        "answer_type": "expression" if any(ch in str(answer) for ch in "=;√i") else "fraction" if "/" in str(answer) else "integer",
+        "answer_type": "boolean" if str(answer) in {"True", "False"} else "expression" if any(ch in str(answer) for ch in "=;√i") else "fraction" if "/" in str(answer) else "integer",
         "ingredients": ingredients, "verifier": topic+"_seed_replay_and_exact_check",
     }, exact
 
