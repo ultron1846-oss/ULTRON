@@ -9,7 +9,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any, Callable
 
-from .math_solver_tool import run_math_solver\nfrom .knowledge_bank import run_knowledge_search
+from .math_solver_tool import run_math_solver
+from .knowledge_bank import run_knowledge_search
 
 
 MATH_SOLVER_TOOL: dict[str, Any] = {
@@ -54,7 +55,8 @@ KNOWLEDGE_SEARCH_TOOL: dict[str, Any] = {
 }
 
 _TOOL_HANDLERS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
-    "math_solver": run_math_solver,\n    "knowledge_search": run_knowledge_search,
+    "math_solver": run_math_solver,
+    "knowledge_search": run_knowledge_search,
 }
 
 
