@@ -22,6 +22,16 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertFalse(report["model_evaluated"])
         self.assertFalse(report["training_performed"])
 
+
+    def test_scores_exact_polynomial_derivative_predictions(self):
+        examples = generate_examples(29, 25, topics=("polynomial_derivative",))
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["correct"], 25)
+        self.assertEqual(report["exact_accuracy_all"], 1.0)
+        self.assertEqual(report["per_topic"]["polynomial_derivative"]["exact_accuracy_all"], 1.0)
+
+
     def test_rejects_prediction_ids_outside_evaluation_set(self):
         examples = generate_examples(4, 5)
         with self.assertRaisesRegex(ValueError, "IDs not present"):
