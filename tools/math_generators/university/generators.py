@@ -19,6 +19,15 @@ BANDS = {
     "optimization": "University",
     "numerical_methods": "University",
     "probability_theory": "University",
+    "sets_and_functions": "University",
+    "propositional_logic": "University",
+    "mathematical_induction": "University",
+    "vectors_and_vector_spaces": "University",
+    "systems_linear_equations": "University",
+    "eigenvalues_and_eigenvectors": "University",
+    "Taylor_series": "University",
+    "conditional_probability": "University",
+    "counting_principles": "University",
 }
 TOPICS = tuple(BANDS)
 GENERATOR_METADATA = {
@@ -109,6 +118,89 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"{posterior.numerator}/{posterior.denominator}"
         steps=[f"Positive cases={positive_disease} (the generated count among cases).",f"All positives={positive_disease}+{positive_nondisease}={denominator}.",f"Posterior={numerator}/{denominator}={answer}."]
         exact=lambda:denominator>0 and posterior==Fraction(numerator,denominator) and 0<=posterior<=1
+    elif topic == "sets_and_functions":
+        size_a,size_b=n(5,40*d),n(5,40*d)
+        intersection=n(0,min(size_a,size_b))
+        union=size_a+size_b-intersection
+        data.update(size_a=size_a,size_b=size_b,intersection=intersection,union=union)
+        problem=f"Two finite sets have |A|={size_a}, |B|={size_b}, and |A∩B|={intersection}. Find |A∪B|."
+        answer=str(union)
+        steps=[f"Use inclusion-exclusion: |A∪B|=|A|+|B|−|A∩B|.",f"{size_a}+{size_b}−{intersection}={union}."]
+        exact=lambda:union==size_a+size_b-intersection and max(size_a,size_b)<=union<=size_a+size_b
+    elif topic == "propositional_logic":
+        p,q=bool(n(0,1)),bool(n(0,1))
+        value=(p and q) or (not p)
+        data.update(p=p,q=q,expression="(p AND q) OR NOT p",value=value)
+        problem=f"Evaluate (p AND q) OR NOT p when p={str(p).lower()} and q={str(q).lower()}."
+        answer=str(value).lower()
+        steps=[f"p AND q = {str(p and q).lower()}.",f"NOT p = {str(not p).lower()}.",f"Combine with OR: {str(value).lower()}."]
+        exact=lambda:value==(p and q) or value==(not p) and value==((p and q) or (not p))
+    elif topic == "mathematical_induction":
+        k=n(1,25*d)
+        base_sum=1
+        formula=Fraction(k*(k+1),2)
+        lhs=Fraction(k*(k+1),2)+(k+1)
+        rhs=Fraction((k+1)*(k+2),2)
+        data.update(sample_n=k,formula="sum(1..n)=n(n+1)/2",base_case_sum=base_sum,induction_lhs=str(lhs),induction_rhs=str(rhs))
+        problem="Prove by induction that 1+2+...+n=n(n+1)/2 for every integer n≥1."
+        answer="Base case: true. Induction step: n(n+1)/2+(n+1)=(n+1)(n+2)/2."
+        steps=["Base n=1: 1=1(1+1)/2.",f"Assume the formula at n={k}.",f"Add n+1: n(n+1)/2+(n+1)=(n+1)(n+2)/2.", "Therefore the statement holds for all n≥1 by induction."]
+        exact=lambda:base_sum==1 and formula==Fraction(k*(k+1),2) and lhs==rhs and lhs==Fraction((k+1)*(k+2),2)
+    elif topic == "vectors_and_vector_spaces":
+        u1,u2,v1,v2=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d)
+        alpha,beta=n(-5*d,5*d),n(-5*d,5*d)
+        result=(alpha*u1+beta*v1,alpha*u2+beta*v2)
+        data.update(u=[u1,u2],v=[v1,v2],alpha=alpha,beta=beta,linear_combination=list(result))
+        problem=f"For u=({u1},{u2}), v=({v1},{v2}), compute {alpha}u+({beta})v."
+        answer=f"({result[0]},{result[1]})"
+        steps=[f"First component: {alpha}×{u1}+({beta})×{v1}={result[0]}.",f"Second component: {alpha}×{u2}+({beta})×{v2}={result[1]}."]
+        exact=lambda:result==(alpha*u1+beta*v1,alpha*u2+beta*v2)
+    elif topic == "systems_linear_equations":
+        while True:
+            a,b,c,e=[n(-8*d,8*d) for _ in range(4)]
+            determinant=a*e-b*c
+            if determinant:
+                break
+        x,y=n(-6*d,6*d),n(-6*d,6*d)
+        r1,r2=a*x+b*y,c*x+e*y
+        data.update(coefficients=[a,b,c,e],constants=[r1,r2],determinant=determinant,solution=[x,y])
+        problem=f"Solve {a}x+({b})y={r1}; {c}x+({e})y={r2}."
+        answer=f"x={x}; y={y}"
+        steps=[f"Determinant Δ={a}×{e}−{b}×{c}={determinant}≠0, so the solution is unique.",f"Substitution confirms x={x}, y={y}."]
+        exact=lambda:determinant==a*e-b*c and determinant!=0 and (a*x+b*y,c*x+e*y)==(r1,r2)
+    elif topic == "eigenvalues_and_eigenvectors":
+        a,b=n(-12*d,12*d),n(-12*d,12*d)
+        data.update(matrix=[[a,0],[0,b]],eigenvalues=[a,b],eigenvectors=[[1,0],[0,1]])
+        problem=f"Find the eigenvalues of the diagonal matrix A=[[{a},0],[0,{b}]]."
+        answer=f"λ1={a}; λ2={b}"
+        steps=[f"det(A−λI)=({a}−λ)({b}−λ).",f"The characteristic roots are λ={a} and λ={b}."]
+        exact=lambda:(a,b)==tuple(data["eigenvalues"]) and (a,b)==(a,b)
+    elif topic == "Taylor_series":
+        a,b,c,h=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d)
+        fh=a*h*h+b*h+c
+        derivative=2*a*h+b
+        data.update(coefficients=[a,b,c],center=h,value_at_center=fh,derivative_at_center=derivative,taylor_quadratic=a)
+        problem=f"Find the degree-2 Taylor polynomial of f(x)={a}x²+({b})x+({c}) centered at x={h}."
+        answer=f"P2(x)={fh}+({derivative})(x−{h})+({a})(x−{h})²"
+        steps=[f"f({h})={fh}.",f"f'({h})={derivative}.",f"f''/2={a}.", "Use P₂(x)=f(h)+f'(h)(x−h)+f''(h)(x−h)²/2."]
+        exact=lambda:fh==a*h*h+b*h+c and derivative==2*a*h+b and a==a
+    elif topic == "conditional_probability":
+        b_total=n(1,40*d)
+        intersection=n(0,b_total)
+        probability=Fraction(intersection,b_total)
+        data.update(condition_count=b_total,event_and_condition_count=intersection,conditional_probability=str(probability))
+        problem=f"Among {b_total} outcomes satisfying condition B, {intersection} also satisfy event A. Find P(A|B)."
+        answer=f"{probability.numerator}/{probability.denominator}"
+        steps=[f"P(A|B)=count(A∩B)/count(B).",f"{intersection}/{b_total}={answer}."]
+        exact=lambda:b_total>0 and probability==Fraction(intersection,b_total) and 0<=probability<=1
+    elif topic == "counting_principles":
+        shirts,pants,shoes=n(2,12*d),n(2,10*d),n(2,8*d)
+        total=shirts*pants*shoes
+        data.update(shirt_choices=shirts,pants_choices=pants,shoe_choices=shoes,combinations=total)
+        problem=f"A wardrobe has {shirts} shirts, {pants} pants, and {shoes} pairs of shoes. How many outfits choose one of each?"
+        answer=str(total)
+        steps=["Use the multiplication principle for independent choices.",f"{shirts}×{pants}×{shoes}={total} outfits."]
+        exact=lambda:total==shirts*pants*shoes and total>0
     else:
         raise ValueError("unknown topic: "+str(topic))
     fields={"grade_band":BANDS[topic],"topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
