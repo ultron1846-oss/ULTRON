@@ -52,9 +52,11 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 5 — Data generation and dataset integrity
 
-- [ ] Audit generator topics, coverage, edge cases, and answer validator.
-- [ ] Separate train/validation/test by seed/problem family to prevent near-duplicate leakage.
-- [ ] Add corpus-level balance, duplicate, provenance, schema, and checksum verification.
+- [x] Audit generator scope: three narrow topics only; no calculus/university curriculum coverage claim.
+- [x] Add deterministic prompt-group split and duplicate prompt collapse.
+- [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
+- [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
+- [ ] Add corpus-level balance/coverage reports and independent validators for broader topics.
 - [ ] Expand topics only with independent exact validators.
 - [ ] Ensure ULTRON-generated data only; no external generated corpus.
 
