@@ -993,3 +993,10 @@ No training, corpus generation, or remote execution has started. Continue by imp
 ### University generator registry correction — 2026-11-25
 
 CI exposed a mismatch between nine implemented university generator identifiers and the curriculum topic IDs. The curriculum now maps each generator to a canonical topic (`determinants`, `partial_derivatives`, `first_order_ODEs`, `congruences`, `convergence_of_sequences`, `cyclic_groups`, `unconstrained_optimization`, `Newton_and_secant_methods`, and `Bayes_theorem`). Registry generation reports these as `generator_available_not_mastered`; this means a deterministic exercise template exists, not that ULTRON has learned or mastered the topic. The remaining catalog entries stay `catalogued_not_implemented`. Regression tests now verify all nine mappings. Training remains disabled.
+
+
+### University foundation generator batch 2 — 2026-11-25 (PR in review)
+
+Added nine more deterministic, seed-replayable university exercise templates: finite-set inclusion/exclusion, propositional truth evaluation, a summation induction proof template, vector linear combinations, nonsingular 2×2 linear systems, diagonal-matrix eigenvalues, quadratic Taylor polynomials, count-based conditional probability, and the multiplication principle. Each is registered against its curriculum topic with status `generator_available_not_mastered`; exact verification and randomized regression tests are required. The catalog remains 197 topics, with 18 generator implementations and 179 topics not yet implemented. This is template coverage only, not learned or benchmark-mastered ability. No training or corpus generation was performed.
+
+**Next:** validate this batch on CI, fix any failures, then continue with additional topics in prerequisite order. Training remains disabled.
