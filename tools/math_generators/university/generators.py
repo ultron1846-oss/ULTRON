@@ -16,7 +16,6 @@ BANDS = {
     "multivariable_calculus": "University",
     "differential_equations": "University",
     "discrete_mathematics": "University",
-    "real_analysis": "University",
     "abstract_algebra": "University",
     "optimization": "University",
     "numerical_methods": "University",
