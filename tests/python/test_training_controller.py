@@ -164,8 +164,10 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_uses_restored_rng_without_reseeding(self):
         metadata = {"format_version": 4, "rng_restored": True,
-                    "step": 12,
-                    "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0, "gradient_accumulation_steps": 2},
+                    "dataset_hash_verified": True, "step": 12,
+                    "data_state": {"epoch": 2, "next_batch_index": 3, "next_sample_index": 3,
+                        "dataset_size": 100, "dataset_manifest_sha256": "a" * 64,
+                        "seed": 0, "gradient_accumulation_steps": 2},
                     "dataset_manifest_sha256": "a" * 64}
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                    max_seconds=60, write_memory=False)
@@ -183,9 +185,11 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
-        metadata = {"format_version": 4, "rng_restored": True, "step": 4,
-                    "data_state": {"epoch": 0, "next_batch_index": 2, "seed": 0,
-                                   "gradient_accumulation_steps": 2},
+        metadata = {"format_version": 4, "rng_restored": True,
+                    "dataset_hash_verified": True, "step": 4,
+                    "data_state": {"epoch": 0, "next_batch_index": 2, "next_sample_index": 2,
+                                   "dataset_size": 100, "dataset_manifest_sha256": "a" * 64,
+                                   "seed": 0, "gradient_accumulation_steps": 2},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "seed does not match"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
@@ -324,9 +328,10 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
+                    "dataset_hash_verified": True,
                     "data_state": {"epoch": 1, "batch": 3},
                     "dataset_manifest_sha256": "a" * 64}
-        with self.assertRaisesRegex(ValueError, "epoch and next_batch_index"):
+        with self.assertRaisesRegex(ValueError, "next_batch_index"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=metadata)
         self.assertEqual(self.optimizer.steps, 0)
@@ -373,11 +378,16 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
         base = {"format_version": 4, "rng_restored": True,
-                "data_state": {"epoch": 0, "next_batch_index": 1}, "dataset_manifest_sha256": "b" * 64}
+                "dataset_hash_verified": True,
+                "data_state": {"epoch": 0, "next_batch_index": 1, "next_sample_index": 1,
+                    "dataset_size": 100, "dataset_manifest_sha256": "b" * 64,
+                    "seed": 0, "gradient_accumulation_steps": 2},
+                "dataset_manifest_sha256": "b" * 64}
         with self.assertRaisesRegex(ValueError, "does not match preflight"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=base)
         base["dataset_manifest_sha256"] = "a" * 64
+        base["data_state"]["dataset_manifest_sha256"] = "a" * 64
         base["rng_restored"] = False
         with self.assertRaisesRegex(ValueError, "restored RNG"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
