@@ -9,7 +9,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 The latest code review found and fixed shared fast-memory contamination risk: training-time writes reject batch sizes greater than one, and the model now exposes `reset_memory()`. The future trainer must call it between independent examples. This safeguard is merged; no training was run.
 
-Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. Next engineering work: finish bounded training-loop implementation without executing optimizer steps, add strict trainer-level memory reset/validation isolation, then prove checkpoint resume equivalence with non-training state tests before any authorized tiny run. Keep training and remote execution disabled.
+Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: finish Phase 7 evaluation breadth and Phase 8 dataset-hash/checkpoint recovery tests, then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
 
 ## Pre-training readiness — Phase 1 specification
 
