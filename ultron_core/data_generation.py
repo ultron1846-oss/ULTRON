@@ -69,6 +69,55 @@ class MathExample:
         return value
 
 
+def _parse_integer_polynomial(text: str) -> dict[int, int]:
+    """Parse the bounded integer-polynomial grammar used by generated tasks."""
+    if not isinstance(text, str):
+        raise ValueError("polynomial must be text")
+    compact = re.sub(r"\s+", "", text)
+    if compact == "0":
+        return {}
+    terms = re.findall(r"[+-]?[^+-]+", compact)
+    if not terms or "".join(terms) != compact:
+        raise ValueError("polynomial terms are malformed")
+    result: dict[int, int] = {}
+    for term in terms:
+        match = re.fullmatch(r"([+-]?)(\d+)?(\*?x(?:\^(\d+))?)?", term)
+        if not match:
+            raise ValueError("polynomial term is malformed")
+        sign, digits, x_term, exponent_text = match.groups()
+        if x_term:
+            coefficient = int(digits) if digits else 1
+            exponent = int(exponent_text) if exponent_text else 1
+            if exponent > 12:
+                raise ValueError("polynomial exponent exceeds validator limit")
+        else:
+            if not digits:
+                raise ValueError("constant term is malformed")
+            coefficient, exponent = int(digits), 0
+        if sign == "-":
+            coefficient = -coefficient
+        result[exponent] = result.get(exponent, 0) + coefficient
+    return {power: coefficient for power, coefficient in result.items() if coefficient}
+
+
+def _format_integer_polynomial(coefficients: dict[int, int]) -> str:
+    terms = []
+    for exponent in sorted(coefficients, reverse=True):
+        coefficient = coefficients[exponent]
+        if coefficient == 0:
+            continue
+        sign = "-" if coefficient < 0 else "+"
+        magnitude = abs(coefficient)
+        if exponent == 0:
+            body = str(magnitude)
+        else:
+            coefficient_text = "" if magnitude == 1 else f"{magnitude}*"
+            power_text = "" if exponent == 1 else f"^{exponent}"
+            body = f"{coefficient_text}x{power_text}"
+        terms.append(("-" if sign == "-" else "") + body if not terms else f" {sign} {body}")
+    return "".join(terms) if terms else "0"
+
+
 def validate_example_text(input_text: str, expected_answer: str, topic: str) -> bool:
     """Independently parse the emitted text and check it using exact Fractions."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
