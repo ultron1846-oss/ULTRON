@@ -29,6 +29,10 @@ Added `ultron_core/preflight.py` to validate the 40M floor, canonical tokenizer 
 
 Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata, retains the last verified checkpoint as a backup, falls back to that backup if the current file fails integrity verification, and rolls back live model/optimizer/scheduler state if restoration fails. Tests cover RNG replay and backup recovery. This is infrastructure validation only; no optimizer step or training run occurred.
 
+## Phase 9 — free runtime review
+
+Colab remains the planned primary notebook, but free GPU availability and session limits are dynamic. Lightning AI is excluded under the current phone-verification constraint; Hugging Face Spaces is auxiliary, not a dependable persistent GPU host. No runtime has been connected or tested. See [free runtime review](docs/FREE_RUNTIME_REVIEW.md).
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
