@@ -118,11 +118,12 @@ def build(topic: str, rng: random.Random, difficulty: int):
         steps=["A geometric sequence tends to zero exactly when |r|<1 (for nonzero r)."]
         check=lambda:converges==(abs(r)<1)
     elif topic=="Cauchy_sequences":
-        k=n(1,20*d);N=n(2,20*d);data.update(sequence=f"{k}/n",epsilon=str(Fraction(1,N)),bound_index=N)
-        problem=f"Show that a_n={k}/n is Cauchy; give a valid index bound for ε=1/{N}."
-        answer=f"Cauchy; choose N>{k*N}"
-        steps=[f"For m,n≥N, |{k}/n−{k}/m|≤{k}/N.", "This can be made smaller than any prescribed ε by choosing N sufficiently large."]
-        check=lambda:k>0 and N>0
+        k=n(1,20*d);eps_den=n(2,20*d);index_bound=k*eps_den+1
+        data.update(sequence=f"{k}/n",epsilon=str(Fraction(1,eps_den)),epsilon_denominator=eps_den,bound_index=index_bound)
+        problem=f"Show that a_n={k}/n is Cauchy; give an index bound for ε=1/{eps_den}."
+        answer=f"Cauchy; choose N0={index_bound}"
+        steps=[f"For m,n≥N0, |{k}/n−{k}/m|≤{k}/N0<{Fraction(1,eps_den)}.", "Thus the sequence satisfies the Cauchy criterion."]
+        check=lambda:k>0 and index_bound>k*eps_den
     elif topic=="pointwise_and_uniform_convergence":
         N=n(1,50*d);bound=Fraction(1,N);data.update(function=f"f_n(x)=x/n on [0,1]",index=N,sup_norm=str(bound))
         problem=f"For f_n(x)=x/n on [0,1], find ||f_{N}−0||∞ and decide uniform convergence."
