@@ -155,6 +155,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     dataset_hash = preflight_report.get("dataset_manifest_sha256")
     if not isinstance(dataset_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", dataset_hash):
         raise ValueError("training requires a verified dataset manifest SHA-256 in preflight")
+    dataset_size = preflight_report.get("dataset_size")
+    if isinstance(dataset_size, bool) or not isinstance(dataset_size, int) or dataset_size <= 0:
+        raise ValueError("preflight dataset_size must be a positive integer")
 
     if resume_metadata is not None:
         if not isinstance(resume_metadata, dict):
@@ -163,13 +166,18 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 or not isinstance(resume_metadata.get("format_version"), int)
                 or resume_metadata.get("format_version") < 3)
                 or resume_metadata.get("rng_restored") is not True
+                or resume_metadata.get("dataset_hash_verified") is not True
                 or not isinstance(resume_metadata.get("data_state"), dict)):
             raise ValueError("resume checkpoint must include restored RNG and data cursor state")
         resume_cursor = resume_metadata["data_state"]
-        if "epoch" not in resume_cursor or "next_batch_index" not in resume_cursor:
-            raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
-        if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
+        if ("epoch" not in resume_cursor or "next_batch_index" not in resume_cursor
+                or "next_sample_index" not in resume_cursor):
+            raise ValueError("resume checkpoint data_state must include epoch, next_batch_index, and next_sample_index")
+        if (resume_metadata.get("dataset_manifest_sha256") != dataset_hash
+                or resume_cursor.get("dataset_manifest_sha256") != dataset_hash):
             raise ValueError("resume checkpoint dataset manifest does not match preflight")
+        if resume_cursor.get("dataset_size") != dataset_size:
+            raise ValueError("resume checkpoint dataset size does not match preflight")
         saved_seed = resume_cursor.get("seed")
         if (isinstance(saved_seed, bool) or not isinstance(saved_seed, int)
                 or saved_seed != settings.seed):
