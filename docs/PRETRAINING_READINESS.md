@@ -109,6 +109,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
 - [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
+- [x] Rewind the final cursor when uncommitted gradient-accumulation microbatches are discarded.
 - [ ] Ensure caller restores/positions the DataLoader sampler from saved cursor.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
