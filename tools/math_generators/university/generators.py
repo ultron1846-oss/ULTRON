@@ -97,7 +97,10 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         steps=[f"f(x)=x²−{target}, f'(x)=2x.",f"x₁=x₀−f(x₀)/f'(x₀)=(x₀+{target}/x₀)/2={x1}."]
         exact=lambda:x0>0 and x1==(x0+Fraction(target,x0))/2
     elif topic == "probability_theory":
-        disease,nondisease,positive_disease,positive_nondisease=[n(1,20*d) for _ in range(4)]
+        disease,nondisease=n(1,20*d),n(1,20*d)
+        positive_disease,positive_nondisease=n(0,disease),n(0,nondisease)
+        if positive_disease+positive_nondisease==0:
+            positive_disease=1
         numerator=disease*positive_disease
         denominator=numerator+nondisease*positive_nondisease
         posterior=Fraction(numerator,denominator)
