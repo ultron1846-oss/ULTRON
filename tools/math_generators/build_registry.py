@@ -11,6 +11,7 @@ from pathlib import Path
 from tools.math_generators.grade1_4.generators import GENERATOR_METADATA as GRADE1_4
 from tools.math_generators.grade5_8.generators import GENERATOR_METADATA as GRADE5_8
 from tools.math_generators.grade8_12.generators import GENERATOR_METADATA as GRADE8_12
+from tools.math_generators.university.generators import GENERATOR_METADATA as UNIVERSITY
 
 ROOT = Path(__file__).resolve().parent
 
@@ -50,13 +51,33 @@ def build_grade8_12_registry() -> dict:
     }
 
 
-def build_combined_registry() -> dict:
+def build_university_registry() -> dict:
+    return {
+        "version": 1,
+        "batch": "University foundation mathematics",
+        "topics": [
+            {
+                "topic": topic,
+                "grade_band": spec["grade_band"],
+                "includes_word_problems": bool(spec.get("word_templates", [])),
+            }
+            for topic, spec in UNIVERSITY.items()
+        ],
+    }
+
+
+def build_combined_registry() -> dict
     topics = []
     for metadata in (GRADE1_4, GRADE5_8, GRADE8_12):
         topics.extend(_topic_rows(metadata, "word_problems"))
+    topics.extend([
+        {"topic": topic, "grade_band": spec["grade_band"],
+         "word_problems": bool(spec.get("word_templates", []))}
+        for topic, spec in UNIVERSITY.items()
+    ])
     return {
         "version": 1,
-        "coverage_through": "G1-12 (overlapping topic batches)",
+        "coverage_through": "G1-12 + university foundations (generator coverage)",
         "topics": topics,
     }
 
@@ -66,6 +87,7 @@ def render_registries() -> dict[str, str]:
         "grade1_4/registry.json": json.dumps(build_grade1_4_registry(), indent=2) + "\n",
         "grade5_8/registry.json": json.dumps(build_grade5_8_registry(), indent=2) + "\n",
         "grade8_12/registry.json": json.dumps(build_grade8_12_registry(), indent=2) + "\n",
+        "university/registry.json": json.dumps(build_university_registry(), indent=2) + "\n",
         "registry.json": json.dumps(build_combined_registry(), indent=2) + "\n",
     }
 
