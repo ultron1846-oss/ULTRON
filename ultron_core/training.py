@@ -173,13 +173,17 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             "epoch", "next_batch_index", "next_sample_index", "dataset_size",
             "dataset_manifest_sha256", "seed", "gradient_accumulation_steps",
         }
-        if not required_cursor_fields <= set(resume_cursor):
-            raise ValueError("resume checkpoint data_state must include epoch, batch/sample cursors, dataset identity, seed, and accumulation")
+        missing_cursor_fields = required_cursor_fields - set(resume_cursor)
+        if missing_cursor_fields:
+            raise ValueError("resume checkpoint data_state missing required fields: "
+                             + ", ".join(sorted(missing_cursor_fields)))
         if (resume_metadata.get("dataset_hash_verified") is not True
                 or resume_metadata.get("dataset_manifest_sha256") != dataset_hash
                 or resume_cursor.get("dataset_manifest_sha256") != dataset_hash):
             raise ValueError("resume checkpoint dataset manifest must be verified and match preflight")
-        if resume_cursor.get("dataset_size") != dataset_size:
+        saved_dataset_size = resume_cursor.get("dataset_size")
+        if (isinstance(saved_dataset_size, bool) or not isinstance(saved_dataset_size, int)
+                or saved_dataset_size != dataset_size):
             raise ValueError("resume checkpoint dataset size does not match preflight")
         saved_seed = resume_cursor.get("seed")
         if (isinstance(saved_seed, bool) or not isinstance(saved_seed, int)
@@ -214,8 +218,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             or isinstance(next_sample_index, bool) or not isinstance(next_sample_index, int)
             or not 0 <= next_sample_index <= dataset_size):
         raise ValueError("data cursor epoch/batch/sample indices must be non-negative and sample index within dataset_size")
-    if (isinstance(cursor.get("dataset_size", dataset_size), bool)
-            or cursor.get("dataset_size", dataset_size) != dataset_size):
+    saved_dataset_size = cursor.get("dataset_size", dataset_size)
+    if (isinstance(saved_dataset_size, bool) or not isinstance(saved_dataset_size, int)
+            or saved_dataset_size != dataset_size):
         raise ValueError("data cursor dataset_size does not match preflight")
     if cursor.get("dataset_manifest_sha256", dataset_hash) != dataset_hash:
         raise ValueError("data cursor dataset manifest hash does not match preflight")
