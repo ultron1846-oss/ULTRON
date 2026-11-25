@@ -79,6 +79,21 @@ class ResumableRandomSamplerTests(unittest.TestCase):
             sampler.load_state_dict(state)
 
 
+    def test_sampler_state_rejects_boolean_integer_fields(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        sampler = ResumableRandomSampler([0], seed=1, dataset_manifest_sha256="f" * 64)
+        state = sampler.state_dict()
+        bad_size = dict(state)
+        bad_size["dataset_size"] = True
+        with self.assertRaisesRegex(ValueError, "dataset size"):
+            sampler.load_state_dict(bad_size)
+        bad_seed = dict(state)
+        bad_seed["seed"] = True
+        with self.assertRaisesRegex(ValueError, "seed"):
+            sampler.load_state_dict(bad_seed)
+
+
+
 class MathTokenizerTests(unittest.TestCase):
     def setUp(self):
         self.vocabulary = MathVocabulary.default()
