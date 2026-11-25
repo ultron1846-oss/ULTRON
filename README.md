@@ -51,6 +51,8 @@ Phase 6 also now provides explicit Python/Torch/CUDA seeding and a dedicated see
 
 Phase 8 now binds a resumable data cursor to a validated dataset-manifest SHA-256 in checkpoint format v4. A cursor cannot be saved without the manifest hash; older checkpoint formats remain loadable.
 
+Checkpoint resume now returns whether RNG restoration succeeded. The trainer refuses resume without restored RNG, data cursor, and a matching dataset-manifest SHA-256; it skips initial reseeding on resume so checkpoint RNG is preserved.
+
 ## Frontend status
 
 The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
