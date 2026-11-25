@@ -1,7 +1,14 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261125-3';
 import { compileGraphExpression } from './graph-tool.js?v=20261125-2';
 
-export const MATH_TOOL_COMMANDS = Object.freeze([\n  {name:'/help',description:'Show the complete command directory.'},\n  {name:'/menu',description:'Open the command directory.'},\n  {name:'/commands',description:'List registered commands.'},\n  {name:'/tools',description:'List registered mathematics tools.'},\n  {name:'/topics',description:'List mathematics topic commands.'},\n  {name:'/status',description:'Show deterministic Math Agent capabilities.'},\n  {name:'/graph',description:'Plot a supported function locally.'},
+export const MATH_TOOL_COMMANDS = Object.freeze([
+  {name:'/help',description:'Show the complete command directory.'},
+  {name:'/menu',description:'Open the command directory.'},
+  {name:'/commands',description:'List registered commands.'},
+  {name:'/tools',description:'List registered mathematics tools.'},
+  {name:'/topics',description:'List mathematics topic commands.'},
+  {name:'/status',description:'Show deterministic Math Agent capabilities.'},
+  {name:'/graph',description:'Plot a supported function locally.'},
   {name:'/calc',description:'Evaluate a supported arithmetic expression.'},
   {name:'/gcd',description:'Greatest common divisor of two integers.'},
   {name:'/lcm',description:'Least common multiple of two integers.'},
