@@ -415,7 +415,7 @@ class TrainingPreflightTests(unittest.TestCase):
         small = NeuroSparseConfig(vocab_size=len(self.vocabulary), hidden_size=32,
             num_layers=1, num_experts=4, top_k=2, max_refinements=2,
             fast_memory_slots=8, num_attention_heads=4)
-        with self.assertRaisesRegex(ValueError, "minimum is 40000000"):
+        with self.assertRaisesRegex(ValueError, "minimum is 60000001"):
             preflight_training_plan(small, self.splits)
         wrong_vocab = self.config.to_dict()
         wrong_vocab["vocab_size"] += 1
