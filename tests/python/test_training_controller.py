@@ -177,16 +177,34 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
 
     def test_resume_uses_restored_rng_without_reseeding(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 8
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64, epoch=2, next_index=3)
+        sampler_state = sampler.state_dict()
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        report = dict(self.report)
+        report["split_counts"] = {"train": 8, "validation": 1, "test": 1}
         metadata = {"format_version": 4, "rng_restored": True,
-                    "step": 12,
-                    "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0, "gradient_accumulation_steps": 2},
+                    "step": 12, "seed": 0, "gradient_accumulation_steps": 2,
+                    "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0,
+                                   "gradient_accumulation_steps": 2,
+                                   "sampler_state": sampler_state},
                     "dataset_manifest_sha256": "a" * 64}
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                    max_seconds=60, write_memory=False)
         with patch("ultron_core.training.seed_training_rng") as seed:
-            result = run_training_steps(self.model, self.batches[:2], self.optimizer,
-                self.report, settings=settings, training_authorized=True,
-                resume_metadata=metadata)
+            result = run_training_steps(self.model, loader, self.optimizer, report,
+                settings=settings, training_authorized=True, resume_metadata=metadata,
+                sampler=sampler)
             seed.assert_not_called()
         self.assertTrue(result["resumed_from_checkpoint"])
         self.assertEqual(self.optimizer.steps, 1)
@@ -194,7 +212,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["global_step"], 13)
         self.assertEqual(result["data_state"]["epoch"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 5)
-
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 5)
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
         metadata = {"format_version": 4, "rng_restored": True, "step": 4,
@@ -367,7 +385,20 @@ class BoundedTrainingControllerTests(unittest.TestCase):
     def test_checkpoint_callback_metadata_can_be_persisted_and_restored(self):
         import tempfile
         from pathlib import Path
+        from torch.utils.data import DataLoader, Dataset
         from ultron_core.checkpoint import save_checkpoint, load_checkpoint
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "mock-resume.pt"
             def save_callback(step, metrics):
@@ -376,13 +407,15 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                     dataset_manifest_sha256=metrics["dataset_manifest_sha256"])
             settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                        max_seconds=60)
-            run_training_steps(self.model, self.batches, self.optimizer, self.report,
-                settings=settings, training_authorized=True, checkpoint_callback=save_callback)
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=settings, training_authorized=True, checkpoint_callback=save_callback,
+                sampler=sampler)
             restored = MockModel()
             metadata = load_checkpoint(path, restored,
                 expected_dataset_manifest_sha256="a" * 64)
             self.assertEqual(metadata["step"], 1)
             self.assertEqual(metadata["data_state"]["next_batch_index"], 2)
+            self.assertEqual(metadata["data_state"]["sampler_state"]["next_index"], 2)
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
