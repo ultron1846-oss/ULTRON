@@ -227,6 +227,26 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         answer = _format_integer_polynomial(derivative)
         params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items()))}
         difficulty = degree
+    elif topic == "polynomial_definite_integral":
+        degree = rng.randint(1, 4)
+        coefficients = {power: rng.randint(-5, 5) for power in range(degree + 1)}
+        if coefficients[degree] == 0:
+            coefficients[degree] = rng.choice((-5, -4, -3, -2, -1, 1, 2, 3, 4, 5))
+        lower = Fraction(rng.randint(-4, 4), rng.randint(1, 3))
+        upper = Fraction(rng.randint(-4, 4), rng.randint(1, 3))
+        if lower == upper:
+            upper += 1
+        answer = sum(
+            (Fraction(coefficient, power + 1)
+             * (upper ** (power + 1) - lower ** (power + 1)
+             for power, coefficient in coefficients.items()),
+            Fraction(0),
+        )
+        prompt = (f"integrate: {_format_integer_polynomial(coefficients)} "
+                  f"from x={_fraction_text(lower)} to x={_fraction_text(upper)}")
+        params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items())),
+                  "lower": _fraction_text(lower), "upper": _fraction_text(upper)}
+        difficulty = degree + 1
     else:
         raise ValueError(f"unsupported topic: {topic}")
 
