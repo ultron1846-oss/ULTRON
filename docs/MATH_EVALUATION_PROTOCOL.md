@@ -54,3 +54,17 @@ Before any trained-model quality claim:
 For the supported polynomial derivative topic, semantic equality is checked by exact integer-coefficient maps, not raw string comparison. Rational and definite-integral answers are compared as exact fractions. These equivalence checks are limited to the current generator grammar and are not a general-purpose computer algebra system.
 
 No model evaluation or training run has been performed as part of this protocol.
+
+
+## Stage A paired comparison gate
+
+Use `ultron_core/benchmark_comparison.py` to compare ULTRON and the baseline on the exact same frozen `MathExample` references and prompt serialization. The tool accepts prediction maps from files; it does not invoke either model.
+
+The preregistered default gate is:
+- At least 200 examples for each topic (a minimum floor, not a power analysis).
+- Higher exact accuracy for ULTRON on that topic.
+- Two-sided exact McNemar/binomial test on paired per-example correctness, with Holm step-down correction across the included topics; adjusted p-value must be below 0.05.
+- ULTRON coverage and valid-answer rate may not fall more than 2 percentage points below the baseline.
+- Missing outputs count as abstentions; malformed outputs remain invalid, not abstentions.
+
+The JSON report includes per-topic raw counts, paired wins/losses/ties, accuracy, coverage, validity, raw and adjusted p-values, and each gate condition. The default baseline label is Fable 5.2, but the code does not call Fable or any external AI service. Only actual, independently recorded prediction files can support a comparison claim. The default sample floor is not a substitute for prospective power analysis, and a Stage A pass is limited to the tested topics and benchmark version.
