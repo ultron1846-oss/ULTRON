@@ -65,13 +65,16 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertEqual(report["abstentions"], 0)
 
     def test_polynomial_answers_are_scored_by_exact_symbolic_equivalence(self):
-        examples = generate_examples(29, 25, topics=("polynomial_derivative",))
+        examples = generate_examples(29, 100, topics=("polynomial_derivative",))
         predictions = {item.example_id: item.exact_answer for item in examples}
-        target = examples[0].exact_answer
-        predictions[examples[0].example_id] = target.replace(" ", "")
+        item = next(item for item in examples if " + " in item.exact_answer or " - " in item.exact_answer)
+        target = item.exact_answer
+        equivalent = target.replace(" ", "")
+        self.assertNotEqual(equivalent, target)
+        predictions[item.example_id] = equivalent
         report = evaluate_predictions(examples, predictions)
-        self.assertEqual(report["correct"], 25)
-        self.assertEqual(report["error_class_counts"]["correct_answer"], 25)
+        self.assertEqual(report["correct"], 100)
+        self.assertEqual(report["error_class_counts"]["correct_answer"], 100)
 
     def test_scores_exact_polynomial_derivative_predictions(self):
         examples = generate_examples(29, 25, topics=("polynomial_derivative",))
