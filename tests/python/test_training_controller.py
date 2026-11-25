@@ -288,6 +288,26 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 settings=self.settings, training_authorized=True, sampler=sampler)
         self.assertEqual(self.optimizer.steps, 0)
 
+    def test_resumable_sampler_requires_drop_last_false(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler,
+                            num_workers=0, drop_last=True)
+        with self.assertRaisesRegex(ValueError, "drop_last=False"):
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, sampler=sampler)
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_loader_batch_size_must_match_preflight(self):
         from torch.utils.data import DataLoader, Dataset
         from ultron_core.resumable_sampler import ResumableRandomSampler
