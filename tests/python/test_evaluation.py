@@ -39,6 +39,16 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertAlmostEqual(report["coverage"], 29 / 30)
         self.assertAlmostEqual(report["valid_answer_rate"], 28 / 30)
 
+    def test_non_string_prediction_is_counted_as_invalid(self):
+        examples = generate_examples(94, 5)
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        predictions[examples[0].example_id] = 123
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["attempted"], 5)
+        self.assertEqual(report["answered"], 4)
+        self.assertEqual(report["invalid_predictions"], 1)
+        self.assertEqual(report["abstentions"], 0)
+
     def test_scores_exact_polynomial_derivative_predictions(self):
         examples = generate_examples(29, 25, topics=("polynomial_derivative",))
         predictions = {item.example_id: item.exact_answer for item in examples}
