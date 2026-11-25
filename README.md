@@ -696,14 +696,13 @@ No model training, optimizer step, dataset generation, or remote execution was p
 
 Keep real-weight training and remote execution disabled until separate explicit authorization.
 
-### Next-chat handoff
-Start with the owner notebook/DataLoader wiring and clean-runtime acceptance plan. Do not rerun merged code work, claim training readiness, or authorize a real-weight optimizer step without explicit approval. Update this README at each meaningful milestone.
+
 
 ## Bounded exact polynomial identity verifier — 2026-11-25
 
 ULTRON now includes `ultron_core/polynomial_verifier.py`, a bounded exact checker for identities in the supported multivariate rational-polynomial grammar.
 
-- Converts both sides of an equality to canonical sparse polynomials over \\(\\mathbb{Q}\\), then computes the exact difference.
+- Converts both sides of an equality to canonical sparse polynomials over \(\mathbb{Q}\), then computes the exact difference.
 - Returns `FORMALLY_VERIFIED` only when the canonical difference is exactly zero; returns `REJECTED` for a non-zero polynomial difference; unsupported syntax or resource exhaustion returns `UNRESOLVED`.
 - Emits canonical JSON containing the expression hash, hard-capped resource limits, normalized sides and difference, plus a SHA-256 integrity digest.
 - Certificate validation re-runs the checker using the certificate's validated limits. Limits above the polynomial engine's hard caps are rejected.
@@ -712,3 +711,10 @@ ULTRON now includes `ultron_core/polynomial_verifier.py`, a bounded exact checke
 
 See [bounded polynomial identity verification](docs/POLYNOMIAL_IDENTITY_VERIFICATION.md). This is a restricted exact algebraic checker, not a universal theorem prover or proof of autonomous formula discovery. No training, optimizer step, dataset generation, remote execution, website, Supabase or authentication behavior changed.
 
+### Next implementation handoff
+
+1. Complete review and merge of this verifier only after the Python and Node.js checks pass.
+2. Keep expanding the exact mathematics core one independently validated grammar family at a time; preserve domain restrictions and treat unsupported inputs as unresolved.
+3. The next release gate remains manual iPad Safari frontend acceptance. Record the actual device/browser results; do not claim this pass has been completed by CI.
+4. Do not connect a cloud runtime or perform optimizer steps until the frontend release gate is complete and training is separately authorized.
+5. Update this README at every meaningful milestone.
