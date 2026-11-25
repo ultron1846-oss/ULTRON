@@ -119,6 +119,12 @@ class BoundedTrainingControllerTests(unittest.TestCase):
     def test_training_memory_writes_default_off(self):
         self.assertFalse(TrainingSettings().write_memory)
 
+    def test_controller_restores_previous_model_mode(self):
+        self.model.eval()
+        run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                           settings=self.settings, training_authorized=True)
+        self.assertFalse(self.model.training)
+
     def test_non_finite_loss_stops_before_optimizer_step(self):
         model = MockModel(non_finite=True)
         with self.assertRaisesRegex(FloatingPointError, "loss is non-finite"):
