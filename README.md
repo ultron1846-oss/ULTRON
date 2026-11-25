@@ -1,18 +1,18 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-> **Current access model (2026-11-25):** The website is account-free. Owner sign-in and the browser auth module have been removed; there is no login, sign-up, account-specific dashboard, pairing UI or public-read-only mode. Supabase is used only for the optional generic service-status page. Private database records remain protected. Training and remote execution remain disabled.
+> **Current access model (2026-11-25):** Public browsing does not require an account. Optional Owner Sign-in is retained for the existing Supabase email/password account; there is no public sign-up. Owner privileges are verified by the Edge Function against the configured owner identity. No pairing UI or account-specific training history/checkpoints are exposed. Training and remote execution remain disabled.
 
 ULTRON is an independent, local-first mathematics workspace under development. Its long-term goal is an original mathematics intelligence system. The current website is a static frontend and deterministic foundation prototype—not a trained AI model.
 
 ## Frontend status
 
-The latest frontend PR removes owner login and account-specific access UI. The public static website does not offer a public-read-only mode toggle; it simply loads without an account. The Supabase page is an informational generic status check only.
+The frontend retains the optional Owner Sign-in page. Public browsing still loads without an account; there is no public sign-up or public/private access-mode toggle. The Supabase page provides generic service status, while protected owner actions remain server-verified.
 
 The frontend includes startup/navigation resilience, visible render-error recovery, cache-busted modules, actionable overview status and quick links. A successful automated build does not replace full iPad browser verification.
 
 ## Frontend release gate
 
-The account-free interface, required root assets and deployment-path cleanup are covered by automated regression tests. Before calling the frontend fully complete, perform the real iPad Safari acceptance pass: open every page, exercise mobile navigation and contrast, run supported/unsupported Math Agent inputs, verify IndexedDB history and backup/restore, and check the workload slider. Do not start training or connect a cloud runtime during this pass.
+The public frontend, optional owner sign-in, required root assets and deployment-path cleanup are covered by automated regression tests. Before calling the frontend fully complete, perform the real iPad Safari acceptance pass: open every page, test owner sign-in/sign-out and server-side owner verification, exercise mobile navigation and contrast, run supported/unsupported Math Agent inputs, verify IndexedDB history and backup/restore, and check the workload slider. Do not start training or connect a cloud runtime during this pass.
 
 The frontend uses the supplied ULTRON control-room reference: near-black surfaces, crimson accents, a compact top header, left navigation, bordered panels and responsive tablet/mobile layouts.
 
@@ -24,6 +24,7 @@ The frontend uses the supplied ULTRON control-room reference: near-black surface
 - **Memory vault:** IndexedDB stores existing experiences and mistakes locally, with JSON export/import for manual device-to-device transfer. This is not cloud sync.
 - **Servers & Colab:** reads `servers.json`, handles missing/malformed directory data and never starts remote jobs.
 - **Settings:** stores a preferred future workload memory budget locally; it does not allocate device or remote memory.
+- **Owner sign in:** optional email/password sign-in for the existing owner account; no public registration.
 
 The frontend intentionally does not claim a general AI assistant, general symbolic algebra, a proof checker, a trained neural model or active training. The Math Agent currently supports only its documented deterministic arithmetic and limited linear-equation operations.
 
@@ -40,7 +41,7 @@ The frontend intentionally does not claim a general AI assistant, general symbol
 
 ## Safety boundaries
 - No external AI APIs or pretrained model weights.
-- Public browsing requires no account. No authentication is required; the website does not provide account-specific controls.
+- Public browsing requires no account. The optional owner sign-in uses the existing Supabase email/password account; public registration is not exposed. Owner-only actions are revalidated server-side.
 - No provider job submission or background execution from the public frontend.
 - **Actual model training remains disabled** until separate explicit user authorization.
 - The RAM slider is a browser-local workload preference only; it does not control physical RAM, GPU VRAM or Colab runtime allocation.
@@ -58,7 +59,7 @@ Automated tests do not replace live browser testing. iPad Safari testing must on
 
 ## GitHub Pages
 
-Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The repository uses GitHub's built-in Pages branch deployment, which successfully published the account-free frontend. The redundant custom `.github/workflows/pages.yml` workflow was removed because it repeatedly uploaded an artifact that the subsequent deploy step could not find, while the built-in `pages build and deployment` workflow succeeded for the same main commit.
+Target URL: `https://ultron1846-oss.github.io/ULTRON/`. The repository uses GitHub's built-in Pages branch deployment, which successfully published the frontend with optional owner sign-in. The redundant custom `.github/workflows/pages.yml` workflow was removed because it repeatedly uploaded an artifact that the subsequent deploy step could not find, while the built-in `pages build and deployment` workflow succeeded for the same main commit.
 
 Keep the required runtime assets in the repository root: `index.html`, `styles.css`, `app.js`, `math-engine.js`, `supabase-integration.js`, `memory-store.js` and `servers.json`. Regression tests verify they exist and are non-empty. Do not reintroduce a second deployment workflow unless its artifact handoff is independently validated.
 
@@ -70,20 +71,20 @@ The connected Supabase project `ultron-memory` was inspected directly. It was `A
 - `device-control` remains retired and returns HTTP 410.
 - `training-control` is deployed at version 8. Its GitHub repository target is `ultron1846-oss/ULTRON`, and its allowed browser origin is `https://ultron1846-oss.github.io`.
 - A `public_status` action is available without a user session. It returns only generic service state, model status, and explicit training/remote-execution disabled flags. It does not return owner IDs, run metadata, memory records, provider credentials, or secrets.
-- The Edge Function platform JWT check is disabled so the public status action can be called from the account-free site. Every existing protected action still performs its own bearer-token verification and owner-ID check inside the function. The public site calls only `public_status`.
+- The Edge Function platform JWT check is disabled so the public status action can be called from the public site. Every existing protected action still performs its own bearer-token verification and owner-ID check inside the function. The public status page calls only `public_status`; owner sign-in remains separate.
 - The frontend uses the Supabase publishable key in the `apikey` header. No service-role key, secret key, GitHub token, or owner credential is included in the repository.
 - No database schema, RLS policy, user record, or secret was changed. The Edge Function code was updated; training remains disabled and no training job was started.
 - Security advisors also reported three RLS-enabled retired device/pairing tables with no policies, disabled leaked-password protection, and several unindexed foreign keys. These are separate database-hardening items; the public status endpoint does not expose those tables.
 
-## Owner authentication — 2026-11-24
+## Owner authentication — retained
 
-**Retired frontend feature:** Owner sign-in and its `owner-auth.js` browser module were removed on 2026-11-25 to match the account-free website requirement. The public site has no login, sign-up, session handling, owner dashboard, pairing controls or account-specific training history/checkpoints. Server-side owner authorization remains a backend security boundary; private records and RLS are unchanged.
+The optional owner sign-in is retained in the frontend. It uses the existing Supabase email/password account, supports session refresh and sign-out, and does not expose public registration. Authentication alone does not grant owner privileges: the page calls the `training-control` `health` action with the bearer token, and the Edge Function verifies the authenticated user ID against the server-side `ULTRON_OWNER_USER_ID` secret. Non-owner users are rejected. The publishable key is the only key included in browser code. No Auth provider settings, user records, secrets, RLS policies or database data were changed. Owner sign-in does not start training or remote jobs.
 
 ## Supabase frontend integration audit — 2026-11-24
 
 The live project was re-inspected while aligning the backend page with the rebuilt frontend. The project is `ACTIVE_HEALTHY` in `ap-south-1`. The public page calls only `training-control` with the `public_status` action, the publishable key in the `apikey` header, no owner bearer token, and a 10-second request timeout. The response is validated to require an online control plane, training disabled, remote execution disabled, and an informational-only provider directory. The page exposes a manual refresh and last-checked timestamp.
 
-The deployed `training-control` function is version 8 with platform JWT verification disabled so the no-login public status request can reach its handler. The handler returns only generic status for `public_status`; its other actions continue to validate a signed-in owner session and configured owner ID. The deployed `device-control` function is still listed as active/version 4, but its handler is fail-closed and returns HTTP 410 for every request. It is retired, not physically removed.
+The deployed `training-control` function is version 8 with platform JWT verification disabled so the unauthenticated public status request can reach its handler. The handler returns only generic status for `public_status`; its other actions continue to validate a signed-in owner session and configured owner ID. The deployed `device-control` function is still listed as active/version 4, but its handler is fail-closed and returns HTTP 410 for every request. It is retired, not physically removed.
 
 All nine inspected public tables had RLS enabled. The security advisor reported three RLS-enabled retired device/pairing tables with no policies, and warned that leaked-password protection is disabled. Those findings are documented for backend hardening; this frontend PR does not alter database schema, policies, Auth settings, Edge Functions, secrets, or records. The website does not access any of those tables.
 
@@ -93,7 +94,7 @@ Next implementation work should:
 1. Maintain and test the deterministic math engine API without breaking the frontend imports.
 2. Maintain the documented `servers.json` provider schema and verify Colab terms and quotas before any future runtime integration.
 3. Keep all training entry points hard-disabled and add backend regression tests preventing accidental execution.
-4. Keep cloud memory synchronization separate from the local Memory Vault. Do not expose owner-linked tables to the no-login website; propose an explicit anonymous-device identity and threat model before any cloud-sync change.
+4. Keep cloud memory synchronization separate from the local Memory Vault. Do not expose owner-linked tables to the public website; propose an explicit anonymous-device identity and threat model before any cloud-sync change.
 5. Keep provider metadata evidence-based and current; never invent free-tier availability.
 6. Keep the Supabase public_status response read-only and separate from owner-only training controls; do not expose database rows or credentials.
 7. Update this README at meaningful milestones so the next development session can resume accurately.
@@ -116,33 +117,33 @@ Next implementation work should:
 3. Test supported Math Agent inputs and unsupported-input handling; the removed fixed exercise card must not reappear.
 4. Test Memory Vault history, JSON export/import and clear-all only after exporting any data you want to keep.
 5. Test the workload preference slider and verify it is clearly described as a saved preference, not actual memory allocation.
-6. Verify the public Supabase status refresh and confirm no login, sign-up, pairing or account-specific controls are present.
+6. Verify the public Supabase status refresh; test owner sign-in/sign-out and confirm non-owner accounts are rejected by server-side verification. Confirm there is no public sign-up or pairing UI.
 7. Keep actual model training, Colab connection and remote execution disabled until separately authorized.
 
 ## Project rule
 A polished interface must not imply functionality that has not been implemented. Training remains disabled absent separate explicit authorization.
 
 
-## Superseded handoff — account access removal
+## Owner sign-in correction — 2026-11-25
 
-The prior owner-login instructions are obsolete. The browser auth module and sign-in page have been removed. Do not restore login, sign-up, account-specific controls, pairing, or per-account training history/checkpoint UI. Backend authorization and private database protections remain server-side.
+Owner sign-in remains an optional existing-account feature. The public access-mode badge is removed, but the Owner Sign-in navigation and `owner-auth.js` module are present. Do not add public sign-up, pairing, or account-specific training history/checkpoint UI. Keep owner identity verification on the Edge Function; do not treat a successful Supabase login alone as owner authorization.
 
 
 ## Frontend completion hardening — 2026-11-24
 
 This release pass closes several frontend reliability gaps while preserving the no-training/no-server-connection boundary:
 
-- The GitHub Pages artifact contains only the frontend runtime modules that remain in use; the retired `owner-auth.js` module is not deployed.
+- The built-in GitHub Pages deployment serves the root runtime assets, including `owner-auth.js` for the optional Owner Sign-in page.
 - Navigation exposes the active page to assistive technology. The mobile menu closes with Escape, after navigation, and when the user taps outside it. The contrast preference persists in the current browser.
 - The Memory Vault separates recent experiences from incorrect attempts, provides an explicit confirmed clear-all action, and reports storage failures honestly. Export URL cleanup is delayed so mobile browsers have time to start the download.
 - IndexedDB request helpers resolve only after the transaction commits. The local practice interface no longer hides a failed memory write behind a success message.
 - Tablet/mobile styles account for safe areas and reduced-motion preferences.
 
-Automated release checks cover the Pages runtime asset list, frontend module syntax, mobile navigation hooks, persisted contrast preference, and Memory Vault controls. These checks do not substitute for a live iPad Safari interaction test; that still requires a user-side browser test after deployment. The website has no login or sign-up UI and does not store browser auth sessions. No Supabase policies, secrets, Auth settings, provider connections, remote jobs or training behavior are changed.
+Automated release checks cover the Pages runtime asset list, frontend module syntax, mobile navigation hooks, persisted contrast preference, and Memory Vault controls. These checks do not substitute for a live iPad Safari interaction test; that still requires a user-side browser test after deployment. The website has optional owner sign-in but no public sign-up. The browser auth module stores the session locally and never stores the password. No Supabase policies, secrets, Auth settings, provider connections, remote jobs or training behavior are changed.
 
 ## Next-chat handoff — frontend release
 
-- Verify the deployed Pages build loads all remaining pages without authentication. Confirm the Pages artifact excludes `owner-auth.js`.
+- Verify the deployed Pages build loads all pages, including Owner Sign-in. Confirm `owner-auth.js` is served from the repository root.
 - On iPad, test opening/closing navigation, switching pages, contrast preference persistence, practice answer checking, Memory Vault history/mistake lists, backup export/import and clear-all confirmation.
 - If local memory is important, export a backup before testing clear-all; clear-all permanently deletes all four local IndexedDB stores in the current browser profile.
 - Keep Google Colab disconnected. Do not create notebooks, connect runtimes, submit jobs, or start model training. Server connection is deferred until the AI model is ready.
@@ -157,21 +158,21 @@ Automated release checks cover the Pages runtime asset list, frontend module syn
 - Updated the Overview quick-access card to lead to Mathematics Topics instead of the removed practice exercise.
 - Removed the now-unused exercise fixtures, event handlers and practice-only imports from the browser entry module.
 - Existing IndexedDB experience/mistake history and backup tools remain intact; this UI change does not delete browser data. Existing local practice counters are left untouched rather than destructively clearing user preferences.
-- No backend, Supabase, Colab connection, remote execution or model-training behavior changed; owner authentication was removed from the frontend.
+- No backend, Supabase, Colab connection, remote execution or model-training behavior changed; optional owner authentication remains available in the frontend.
 
 
 ## GitHub Pages deployment verification — 2026-11-24
 
 The latest frontend commit `932fcf005d414fdd1338d4d58265afd9b8ed64c4` was checked against both Pages workflows. The repository's custom `Deploy static site to GitHub Pages` workflow successfully staged and uploaded the `github-pages` artifact, but its deploy step failed because GitHub could not resolve the artifact for that concurrent deployment. The built-in `pages build and deployment` workflow then completed its build, artifact upload and deploy jobs successfully for the same commit. Therefore the latest commit has a successful Pages deployment through the built-in workflow; do not interpret the custom workflow's failed run as proof that the site is offline.
 
-The redundant custom deployment workflow has been removed in the frontend release PR. The built-in GitHub Pages deployment remains the single deployment path and has completed successfully for the merged account-free frontend.
+The redundant custom deployment workflow has been removed in the frontend release PR. The built-in GitHub Pages deployment remains the single deployment path and has completed successfully for the merged frontend.
 
-## Next-chat handoff — post-removal release
+## Next-chat handoff — owner sign-in retention
 
 - Latest merged change: PR #9, removing the fixed exercise interface and retaining the Mathematics Topics roadmap and existing local Memory Vault records.
 - The latest main commit's GitHub Pages retry completed successfully. A first custom workflow attempt had a transient artifact lookup failure; the retry succeeded
 - README content has been aligned to the current page structure and the removal of the fixed exercise interface.
-- Perform the real iPad Safari page-by-page interaction test before declaring frontend completion. Automated checks do not simulate Safari's UI or IndexedDB behavior.
+- Perform the real iPad Safari page-by-page interaction test before declaring frontend completion. Automated checks do not simulate Safari's UI or IndexedDB behavior. Include owner sign-in/sign-out and server-side owner rejection of non-owner accounts.
 - Do not connect Google Colab, start a server, submit remote jobs or train the model. The user explicitly deferred server connection until the AI is ready.
 - Preserve Supabase RLS, server-side authorization, credentials and private records. Do not change Auth settings or secrets during frontend QA.
 - Update this README at every meaningful milestone and leave a precise next-chat handoff.

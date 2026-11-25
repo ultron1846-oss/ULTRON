@@ -4,13 +4,17 @@ import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 
-test('account-free root site imports required runtime modules and excludes auth', async () => {
-  const [app, html] = await Promise.all([read('app.js'), read('index.html')]);
-  for (const module of ['math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
+test('root site retains optional owner sign-in and required runtime imports', async () => {
+  const [app, html, auth] = await Promise.all([read('app.js'), read('index.html'), read('owner-auth.js')]);
+  for (const module of ['math-engine.js', 'supabase-integration.js', 'memory-store.js', 'owner-auth.js']) {
     assert.ok(app.includes(module), `app entry must import ${module}`);
   }
-  assert.doesNotMatch(app, /owner-auth|signInOwner|verifyOwner|signOutOwner|renderOwner|bindOwner/);
-  assert.doesNotMatch(html, /data-page="owner"|Owner sign in|owner-password|owner-email/);
+  assert.match(html, /data-page="owner"/);
+  assert.match(html, /Owner sign in/);
+  assert.match(app, /renderOwner/);
+  assert.match(app, /bindOwner/);
+  assert.match(auth, /grant_type=password/);
+  assert.match(auth, /grant_type=refresh_token/);
 });
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
@@ -38,7 +42,7 @@ test('Memory Vault supports mistake review, safe clear-all and committed transac
   assert.match(app, /setTimeout\(\(\)=>URL\.revokeObjectURL\(url\),1000\)/);
 });
 test('all browser modules pass syntax validation', async () => {
-  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
+  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'owner-auth.js']) {
     execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
   }
 });
@@ -77,10 +81,11 @@ test('no duplicate custom Pages artifact deployment workflow remains', async () 
   assert.match(workflow, /pull_request/);
   assert.match(workflow, /node --test/);
 });
-test('static shell does not present a public access mode', async () => {
+test('static shell has no access-mode toggle and retains owner sign-in', async () => {
   const html = await read('index.html');
   assert.doesNotMatch(html, /public-pill|PUBLIC BROWSER ACCESS|PUBLIC MATHEMATICS WORKSPACE|PUBLIC DASHBOARD/i);
-  assert.match(html, /No account required/);
+  assert.match(html, /data-page="owner"/);
+  assert.match(html, /Owner sign in/);
 });
 test('all required Pages runtime assets exist and are non-empty', async () => {
   for (const path of ['index.html', 'styles.css', 'app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json', 'command-center.html']) {
@@ -89,7 +94,3 @@ test('all required Pages runtime assets exist and are non-empty', async () => {
   }
 });
 
-test('retired browser auth module and its dedicated tests are absent', async () => {
-  await assert.rejects(read('owner-auth.js'), { code: 'ENOENT' });
-  await assert.rejects(read('tests/owner-auth.test.js'), { code: 'ENOENT' });
-});

@@ -193,12 +193,14 @@ test('Supabase public status client bounds requests and reports timeouts clearly
   );
 });
 
-test('Supabase backend page exposes generic status without account controls', async () => {
+test('Supabase backend page exposes generic status and retains owner sign-in', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
   assert.match(app, /id="supabase-refresh"/);
   assert.match(app, /id="supabase-status-checked"/);
-  assert.match(app, /PROTECTED/);
-  assert.doesNotMatch(app, /OWNER-GATED|owner sign in|owner-password|owner-email/);
-  assert.match(app, /The browser calls only the training-control public_status action/);
-  assert.match(app, /timeout/);
+  assert.match(app, /OWNER-GATED/);
+  assert.match(app, /renderOwner/);
+  assert.match(app, /owner sign in/i);
+  assert.match(app, /training-control public_status action/);
+  assert.match(app, /protected health action/);
+  // Request timeout behavior is asserted in the Supabase client test above.
 });
