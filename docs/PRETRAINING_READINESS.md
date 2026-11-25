@@ -73,7 +73,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Include gradient accumulation, clipping, finite loss/gradient checks, cancellation, and step/time caps.
 - [x] Add Python/Torch/CUDA RNG seeding and dedicated deterministic DataLoader generator.
 - [x] Require preflight memory budget to cover persistent state and enforce batch/sequence/accumulation limits.
-- [ ] Restore sampler/data-loader state and verify reproducibility across runtime restart.
+- [x] Preserve checkpoint-restored RNG on resume; require checkpoint/preflight dataset hash match.
+- [ ] Restore sampler/data-loader cursor and verify exact reproducibility across a clean runtime restart.
 - [ ] Add measured resource cap enforcement (current controller checks only the preflight budget; no live RAM/VRAM monitor).
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
 - [x] Reset mutable memory before and after each independent batch; memory writing defaults off.

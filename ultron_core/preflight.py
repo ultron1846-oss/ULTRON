@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import re
 from typing import Iterable, Mapping
 
 from .config import NeuroSparseConfig, count_parameters, count_total_parameters
@@ -12,7 +13,7 @@ _REQUIRED_SPLITS = ("train", "validation", "test")
 _MINIMUM_PARAMETERS = 40_000_000
 
 def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256,
-                            gradient_accumulation_steps=1, memory_budget_gib=None):
+                            gradient_accumulation_steps=1, memory_budget_gib=None, dataset_manifest_sha256=None):
     """Validate a proposed plan; this never authorizes or executes training."""
     if not isinstance(config, NeuroSparseConfig):
         raise TypeError("config must be a NeuroSparseConfig")
@@ -26,6 +27,10 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
         if (isinstance(memory_budget_gib, bool) or not isinstance(memory_budget_gib, (int, float))
                 or not math.isfinite(memory_budget_gib) or memory_budget_gib <= 0):
             raise ValueError("memory_budget_gib must be a finite positive number or None")
+    if dataset_manifest_sha256 is not None and (
+            not isinstance(dataset_manifest_sha256, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", dataset_manifest_sha256)):
+        raise ValueError("dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
     vocab = MathVocabulary.default()
     if config.vocab_size != len(vocab):
         raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
@@ -78,6 +83,7 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
         # Backward-compatible alias; includes weights as well as gradient/optimizer state.
         "model_grad_and_adamw_state_fp32_bytes": persistent_bytes,
         "memory_budget_bytes": budget_bytes, "budget_covers_persistent_state": fits,
+        "dataset_manifest_sha256": dataset_manifest_sha256,
         "limitations": [
             "Persistent-state estimate excludes activations, attention workspace, temporary tensors, runtime overhead and allocator fragmentation.",
             "A budget that covers persistent state does not guarantee the workload fits.",

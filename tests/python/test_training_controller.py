@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 import torch
 
 from ultron_core.config import NeuroSparseConfig, count_parameters, count_total_parameters
@@ -61,6 +62,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "gradient_accumulation_steps": 2,
             "memory_budget_bytes": 2 * 1024 ** 3,
             "budget_covers_persistent_state": True,
+            "dataset_manifest_sha256": "a" * 64,
         }
         self.settings = TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                         max_seconds=60, write_memory=False)
@@ -149,6 +151,35 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             seed_training_rng(True)
         with self.assertRaisesRegex(ValueError, "seed must be"):
             make_seeded_generator(-1)
+
+
+
+    def test_resume_uses_restored_rng_without_reseeding(self):
+        metadata = {"format_version": 4, "rng_restored": True,
+                    "data_state": {"epoch": 2, "batch": 3},
+                    "dataset_manifest_sha256": "a" * 64}
+        settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                   max_seconds=60, write_memory=False)
+        with patch("ultron_core.training.seed_training_rng") as seed:
+            result = run_training_steps(self.model, self.batches[:2], self.optimizer,
+                self.report, settings=settings, training_authorized=True,
+                resume_metadata=metadata)
+            seed.assert_not_called()
+        self.assertTrue(result["resumed_from_checkpoint"])
+        self.assertEqual(self.optimizer.steps, 1)
+
+    def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
+        base = {"format_version": 4, "rng_restored": True,
+                "data_state": {"cursor": 1}, "dataset_manifest_sha256": "b" * 64}
+        with self.assertRaisesRegex(ValueError, "does not match preflight"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, resume_metadata=base)
+        base["dataset_manifest_sha256"] = "a" * 64
+        base["rng_restored"] = False
+        with self.assertRaisesRegex(ValueError, "restored RNG"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, resume_metadata=base)
+        self.assertEqual(self.optimizer.steps, 0)
 
 
     def test_settings_enforce_step_and_time_caps(self):
