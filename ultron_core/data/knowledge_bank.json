@@ -1,0 +1,1699 @@
+{
+  "schema_version": 1,
+  "title": "ULTRON Core Knowledge Bank",
+  "entry_count": 169,
+  "scope": "Grade 1 through introductory and advanced university topics; curated starter bank, not exhaustive curriculum",
+  "notice": "These entries are knowledge statements, not all formal axioms. Grade bands are approximate and curriculum-dependent. A formal proof must state its axioms, definitions, and domain conditions.",
+  "entries": [
+    {
+      "id": "KB-001",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Whole numbers can be ordered by their magnitude.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-002",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Addition combines quantities; its result is called a sum.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-003",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Subtraction finds a difference or remaining quantity.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-004",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Multiplication is repeated addition for non-negative whole numbers.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-005",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Division partitions a quantity into equal groups.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-006",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Zero is the additive identity: a + 0 = a.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-007",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "One is the multiplicative identity: a × 1 = a.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-008",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Addition is commutative: a + b = b + a.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-009",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Multiplication is commutative: a × b = b × a.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-010",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Addition is associative: (a + b) + c = a + (b + c).",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-011",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Multiplication is associative: (ab)c = a(bc).",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-012",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Multiplication distributes over addition: a(b + c) = ab + ac.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-013",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "A fraction represents a number of equal parts of a whole.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-014",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Equivalent fractions represent the same rational number.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-015",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Perimeter is the total length around a plane figure.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-016",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Area measures the size of a two-dimensional region.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-017",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "A right angle measures 90 degrees.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-018",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "Parallel lines in a plane do not intersect.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-019",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "A triangle has three sides and three interior angles.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-020",
+      "subject": "mathematics",
+      "level": "Grade 1–5",
+      "kind": "fact",
+      "statement": "The place value of a digit depends on its position.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-021",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "A ratio compares two quantities by division.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-022",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "A proportion states that two ratios are equal.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-023",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "A percent is a ratio with denominator 100.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-024",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "An integer is a whole number, its negative, or zero.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-025",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "A rational number can be written as p/q with integers p and q≠0.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-026",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "An absolute value is a number's distance from zero.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-027",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "A variable represents a value that may vary or be unknown.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-028",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "An equation states that two expressions are equal.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-029",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "An inequality compares quantities using <, >, ≤, or ≥.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-030",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "The distributive property applies multiplication across a sum or difference.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-031",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "A linear expression has variables only to the first power.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-032",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "The slope of a nonvertical line is change in y divided by change in x.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-033",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "The coordinate plane locates points using ordered pairs.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-034",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "The sum of interior angles of a triangle is 180 degrees in Euclidean geometry.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-035",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "Congruent figures have equal shape and size.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-036",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "Similar figures have equal corresponding angles and proportional sides.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-037",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "The mean is the sum of data values divided by their count.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-038",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "Probability of an event in equally likely outcomes is favorable outcomes over total outcomes.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-039",
+      "subject": "mathematics",
+      "level": "Grade 6–8",
+      "kind": "definition",
+      "statement": "An exponent indicates repeated multiplication of a base by itself.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-040",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The quadratic formula solves ax²+bx+c=0 for a≠0.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-041",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Completing the square rewrites a quadratic as a squared binomial plus a constant.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-042",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The Pythagorean theorem states a²+b²=c² for a right triangle.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-043",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Sine in a right triangle is opposite over hypotenuse.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-044",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Cosine in a right triangle is adjacent over hypotenuse.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-045",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Tangent in a right triangle is opposite over adjacent.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-046",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The unit circle has equation x²+y²=1.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-047",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "An arithmetic sequence has a constant difference between consecutive terms.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-048",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "A geometric sequence has a constant ratio between consecutive nonzero terms.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-049",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The sum of the first n positive integers is n(n+1)/2.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-050",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The discriminant b²−4ac determines the nature of quadratic roots over the reals.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-051",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Function composition applies one function to the output of another.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-052",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The inverse of a one-to-one function reverses its input-output mapping.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-053",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Logarithms satisfy log_b(xy)=log_b(x)+log_b(y) for positive x,y and b>0,b≠1.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-054",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Exponential growth with constant rate is modeled by y=Ae^(kt).",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-055",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The distance between points is the square root of the sum of squared coordinate differences.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-056",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "A vector has magnitude and direction.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-057",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "The dot product of vectors is the sum of products of corresponding components.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-058",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "A matrix product is defined when the first matrix's column count equals the second's row count.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-059",
+      "subject": "mathematics",
+      "level": "Grade 9–12",
+      "kind": "formula",
+      "statement": "Determinants of square matrices are scalars and a nonzero determinant implies invertibility.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-060",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Living organisms require energy to carry out life processes.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-061",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Plants use light energy in photosynthesis to make sugars from carbon dioxide and water.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-062",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Most food chains begin with producers that capture energy.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-063",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "An ecosystem includes organisms and their physical environment.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-064",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Matter has mass and occupies space.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-065",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Solids have a relatively fixed shape and volume.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-066",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Liquids have fixed volume but take the shape of their container.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-067",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Gases expand to fill their container.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-068",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Heating generally increases the average kinetic energy of particles.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-069",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Force can change an object's motion.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-070",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Gravity attracts objects with mass toward one another.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-071",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Friction opposes relative motion between contacting surfaces.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-072",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Sound is a mechanical wave and needs a medium to propagate.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-073",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Light in a uniform medium travels approximately in straight lines.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-074",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Earth rotates once approximately every 24 hours.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-075",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Earth orbits the Sun once approximately every year.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-076",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "The Moon's phases arise from changing views of its sunlit half.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-077",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Water cycles through evaporation, condensation, precipitation, and collection.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-078",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "An electric circuit needs a closed conducting path for steady current.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-079",
+      "subject": "science",
+      "level": "Grade 1–8",
+      "kind": "fact",
+      "statement": "Magnets have north and south poles; like poles repel and unlike poles attract.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-080",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Newton's first law: without net external force, velocity remains constant.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-081",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Newton's second law: net force equals mass times acceleration, F=ma.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-082",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Newton's third law: interacting bodies exert equal and opposite forces on each other.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-083",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Momentum is mass multiplied by velocity.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-084",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Energy is conserved in an isolated system.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-085",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Work by a constant force parallel to displacement is W=Fd.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-086",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Power is the rate of energy transfer or work, P=W/t.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-087",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Density is mass divided by volume.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-088",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Pressure is force per unit area.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-089",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "An atom contains a nucleus and surrounding electrons.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-090",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Atomic number equals the number of protons in an atom's nucleus.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-091",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Isotopes have the same proton number but different neutron numbers.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-092",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Chemical reactions rearrange atoms; ordinary chemical reactions conserve atoms.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-093",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "pH is a logarithmic measure related to hydrogen-ion activity.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-094",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "DNA stores hereditary information in nucleotide sequences.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-095",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Natural selection changes trait frequencies when heritable differences affect reproductive success.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-096",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Cellular respiration releases usable energy from molecules such as glucose.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-097",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "An ideal gas approximately obeys PV=nRT.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-098",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Current is charge flow per unit time.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-099",
+      "subject": "science",
+      "level": "Grade 9–12",
+      "kind": "principle",
+      "statement": "Voltage is electric potential difference; resistance relates voltage and current by V=IR for an ohmic resistor.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-100",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "An algorithm is a finite, well-defined procedure for solving a problem.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-101",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A variable in a program names a value or storage location.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-102",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A conditional selects behavior based on a Boolean condition.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-103",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A loop repeats a block of instructions.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-104",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A function packages a reusable computation.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-105",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A data structure organizes data for access and modification.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-106",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "An array stores a sequence of elements accessible by index.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-107",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A stack follows last-in, first-out order.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-108",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A queue follows first-in, first-out order.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-109",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A binary search requires sorted data and repeatedly halves the search interval.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-110",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "Linear search checks elements sequentially until a match or end.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-111",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "Big-O notation describes asymptotic growth of resource use.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-112",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A graph consists of vertices and edges.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-113",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "A tree is a connected acyclic graph.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-114",
+      "subject": "computer_science",
+      "level": "Grade 6–12",
+      "kind": "definition",
+      "statement": "Binary representation expresses values using base 2.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-115",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A noun names a person, place, thing, or idea.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-116",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A verb expresses an action, occurrence, or state.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-117",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "An adjective modifies or describes a noun or pronoun.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-118",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "An adverb modifies a verb, adjective, adverb, or clause.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-119",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A complete independent clause contains a subject and a predicate and can stand as a sentence.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-120",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A paragraph develops a connected main idea with supporting material.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-121",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A thesis states the central claim of an argumentative or analytical work.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-122",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A primary source originates from the time or event being studied.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-123",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A secondary source interprets or analyzes primary sources or other evidence.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-124",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "A metaphor describes one thing in terms of another without using a literal comparison.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-125",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "Simile explicitly compares using words such as like or as.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-126",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "An inference is a conclusion drawn from evidence and reasoning.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-127",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "Credible claims should be supported by relevant evidence.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-128",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "Plagiarism presents another person's work or ideas as one's own without proper attribution.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-129",
+      "subject": "language_arts",
+      "level": "Grade 1–12",
+      "kind": "definition",
+      "statement": "Revision improves content, organization, clarity, and reasoning beyond surface-level proofreading.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-130",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "A map represents spatial relationships using symbols and a scale.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-131",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Latitude measures angular position north or south of the equator.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-132",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Longitude measures angular position east or west of the prime meridian.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-133",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Democracy is a system in which political authority is grounded in the people.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-134",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "A constitution establishes a framework of government and its powers.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-135",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "The rule of law means public authority is constrained by law.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-136",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Supply and demand interact to influence market prices in many competitive markets.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-137",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Opportunity cost is the value of the next-best alternative forgone.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-138",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Inflation is a sustained increase in the general price level.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-139",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Trade allows parties to exchange goods or services.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-140",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Historical claims require evidence from sources evaluated in context.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-141",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Chronology orders events by time.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-142",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Culture includes learned practices, beliefs, values, and artifacts shared by groups.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-143",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Population density is population divided by land area.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-144",
+      "subject": "social_studies",
+      "level": "Grade 1–12",
+      "kind": "fact",
+      "statement": "Climate describes long-term patterns of weather in a region.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-145",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A limit describes the value a function approaches as its input approaches a point.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-146",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "The derivative gives the instantaneous rate of change of a differentiable function.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-147",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "The definite integral represents signed accumulation and equals net area in appropriate contexts.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-148",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "The Fundamental Theorem of Calculus connects differentiation and integration.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-149",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A continuous function on a closed bounded interval attains a maximum and minimum.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-150",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A vector space is a set with vector addition and scalar multiplication satisfying the vector-space axioms.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-151",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Linear independence means no nontrivial linear combination of the vectors equals zero.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-152",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "The rank of a matrix equals the dimension of its column space.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-153",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Eigenvectors satisfy Av=λv for a matrix A and scalar eigenvalue λ.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-154",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A probability distribution assigns probabilities to outcomes or values according to its type.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-155",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Expected value is the probability-weighted average for a discrete random variable.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-156",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Variance measures the expected squared deviation from the mean.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-157",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Correlation measures a form of association and does not by itself establish causation.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-158",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Bayes' theorem updates conditional probabilities using evidence.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-159",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A p-value is computed under a specified null model and is not the probability that the null hypothesis is true.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-160",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "An ordinary differential equation relates a function to its derivatives.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-161",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A partial derivative differentiates with respect to one variable while holding others fixed.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-162",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A group is a set with an associative operation, identity, and inverses.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-163",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A ring has addition forming an abelian group and a compatible multiplication operation.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-164",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A field supports addition, subtraction, multiplication, and division by nonzero elements.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-165",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "An equivalence relation is reflexive, symmetric, and transitive.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-166",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "An invariant remains unchanged under a specified transformation.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-167",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "A proof establishes a conclusion from premises by valid inference.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-168",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "An asymptotic approximation describes behavior as a parameter approaches a limit.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    },
+    {
+      "id": "KB-169",
+      "subject": "university",
+      "level": "University introductory",
+      "kind": "principle",
+      "statement": "Gradient descent updates parameters in a direction intended to reduce an objective, typically opposite the gradient.",
+      "prerequisites": [],
+      "verification_status": "curriculum_reference",
+      "source_basis": "Standard introductory curriculum or established textbook treatment; review exact context before using as a formal premise."
+    }
+  ]
+}
