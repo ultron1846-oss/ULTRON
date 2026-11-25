@@ -17,7 +17,7 @@ from .precision import training_autocast, validate_training_precision
 def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         load_balance: torch.Tensor | None = None, prediction_error: torch.Tensor | None = None,
         balance_weight: float = 0.01, prediction_weight: float = 0.01,
-        ignore_index: int | None = 0, loss_chunk_size: int = 2048) -> torch.Tensor:
+        ignore_index: int | None = 0, loss_chunk_size: int = 1024) -> torch.Tensor:
     """Causal next-token loss with chunked FP32 CE to bound temporary memory.
 
     Logits are processed per batch row and token chunk. This avoids creating a
@@ -56,9 +56,10 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
     if ignore_index is None:
         valid_count = targets.numel()
     else:
-        valid_count = int(targets.ne(ignore_index).sum().detach().cpu())
-        if valid_count == 0:
+        valid_targets = targets.ne(ignore_index)
+        if not bool(valid_targets.any()):
             raise ValueError('all next-token targets are padding; loss is undefined')
+        valid_count = valid_targets.sum().clamp_min(1)
 
     loss_sum = None
     time_steps = targets.shape[1]
