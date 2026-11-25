@@ -1000,3 +1000,16 @@ CI exposed a mismatch between nine implemented university generator identifiers 
 Added nine more deterministic, seed-replayable university exercise templates: finite-set inclusion/exclusion, propositional truth evaluation, a summation induction proof template, vector linear combinations, nonsingular 2×2 linear systems, diagonal-matrix eigenvalues, quadratic Taylor polynomials, count-based conditional probability, and the multiplication principle. Each is registered against its curriculum topic with status `generator_available_not_mastered`; exact verification and randomized regression tests are required. The catalog remains 197 topics, with 18 generator implementations and 179 topics not yet implemented. This is template coverage only, not learned or benchmark-mastered ability. No training or corpus generation was performed.
 
 **Next:** validate this batch on CI, fix any failures, then continue with additional topics in prerequisite order. Training remains disabled.
+
+
+### University foundation generator batch 3 — 2026-11-25
+Added eight deterministic, seed-replayable university exercise templates: bounded predicate logic, modular equivalence classes, standard-basis span coordinates, vector independence, basis/dimension in R², rank of 2×2 matrices, limits of linear expressions, and derivatives of quadratic polynomials. Curriculum and combined registries mark these as \`generator_available_not_mastered\`. Regression tests independently check 250 seeds per topic (2,000 generated cases across this batch), in addition to existing replay, verifier, and registry tests. This increases implemented university generator topics from 18 to 26; 171 of the 197 catalog topics remain without generators. Templates are narrow, exact synthetic tasks—not general proof, calculus, or university-level solving. No training or corpus generation was started.
+
+
+### University generator expansion — Batch 3 (PR in progress)
+
+- Added 22 deterministic, seed-replayable university-foundation exercise templates across logic, linear algebra, and calculus.
+- New topics include quantifiers, cardinality, linear transformations, diagonalization, inner products, projections, least squares, mean value theorem, definite/improper integrals, geometric series, power-series convergence, gradient/directional derivatives, and multivariable chain rule, alongside the first eight batch topics.
+- Curriculum and generated coverage registries now mark these as `generator_available_not_mastered`; generator availability is not evidence of model training or mastery.
+- Added randomized regression checks for the mathematical formulas. CI must run before this batch is considered validated or merged.
+- This work only expands deterministic exercise generation and verification. No training was started and no model weights were changed.

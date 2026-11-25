@@ -21,13 +21,15 @@
       "topic": "predicate_logic",
       "title": "predicate logic",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "predicate_logic"
     },
     {
       "topic": "quantifiers",
       "title": "quantifiers",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "quantifiers"
     },
     {
       "topic": "proof_methods",
@@ -46,13 +48,15 @@
       "topic": "relations_and_equivalence",
       "title": "relations and equivalence",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "relations_and_equivalence"
     },
     {
       "topic": "cardinality",
       "title": "cardinality",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "cardinality"
     },
     {
       "topic": "countable_and_uncountable_sets",
@@ -77,31 +81,36 @@
       "topic": "subspaces_and_span",
       "title": "subspaces and span",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "subspaces_and_span"
     },
     {
       "topic": "linear_independence",
       "title": "linear independence",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "linear_independence"
     },
     {
       "topic": "basis_and_dimension",
       "title": "basis and dimension",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "basis_and_dimension"
     },
     {
       "topic": "linear_transformations",
       "title": "linear transformations",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "linear_transformations"
     },
     {
       "topic": "matrix_rank",
       "title": "matrix rank",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "matrix_rank"
     },
     {
       "topic": "systems_linear_equations",
@@ -128,25 +137,29 @@
       "topic": "diagonalization",
       "title": "diagonalization",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "diagonalization"
     },
     {
       "topic": "inner_product_spaces",
       "title": "inner product spaces",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "inner_product_spaces"
     },
     {
       "topic": "orthogonality_and_projection",
       "title": "orthogonality and projection",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "orthogonality_and_projection"
     },
     {
       "topic": "least_squares",
       "title": "least squares",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "least_squares"
     },
     {
       "topic": "spectral_theorem",
@@ -170,19 +183,22 @@
       "topic": "limits_and_continuity",
       "title": "limits and continuity",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "limits_and_continuity"
     },
     {
       "topic": "derivative_theory",
       "title": "derivative theory",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "derivative_theory"
     },
     {
       "topic": "mean_value_theorems",
       "title": "mean value theorems",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "mean_value_theorems"
     },
     {
       "topic": "Taylor_series",
@@ -195,25 +211,29 @@
       "topic": "Riemann_integral",
       "title": "Riemann integral",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "Riemann_integral"
     },
     {
       "topic": "improper_integrals",
       "title": "improper integrals",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "improper_integrals"
     },
     {
       "topic": "sequences_and_series",
       "title": "sequences and series",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "sequences_and_series"
     },
     {
       "topic": "power_series",
       "title": "power series",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "power_series"
     },
     {
       "topic": "multivariable_limits",
@@ -232,13 +252,15 @@
       "topic": "gradient_and_directional_derivatives",
       "title": "gradient and directional derivatives",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "gradient_and_directional_derivatives"
     },
     {
       "topic": "chain_rule_multivariable",
       "title": "chain rule multivariable",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "chain_rule_multivariable"
     },
     {
       "topic": "multiple_integrals",

@@ -27,19 +27,21 @@
       "topic": "predicate_logic",
       "title": "predicate logic",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "predicate_logic",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "quantifiers",
       "title": "quantifiers",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "quantifiers",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "proof_methods",
@@ -64,19 +66,21 @@
       "topic": "relations_and_equivalence",
       "title": "relations and equivalence",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "relations_and_equivalence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "cardinality",
       "title": "cardinality",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "cardinality",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "countable_and_uncountable_sets",
@@ -110,46 +114,51 @@
       "topic": "subspaces_and_span",
       "title": "subspaces and span",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "subspaces_and_span",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "linear_independence",
       "title": "linear independence",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "linear_independence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "basis_and_dimension",
       "title": "basis and dimension",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "basis_and_dimension",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "linear_transformations",
       "title": "linear transformations",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "linear_transformations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "matrix_rank",
       "title": "matrix rank",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "matrix_rank",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "systems_linear_equations",
@@ -185,37 +194,41 @@
       "topic": "diagonalization",
       "title": "diagonalization",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "diagonalization",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "inner_product_spaces",
       "title": "inner product spaces",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "inner_product_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "orthogonality_and_projection",
       "title": "orthogonality and projection",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "orthogonality_and_projection",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "least_squares",
       "title": "least squares",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "least_squares",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "spectral_theorem",
@@ -248,28 +261,31 @@
       "topic": "limits_and_continuity",
       "title": "limits and continuity",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "limits_and_continuity",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "derivative_theory",
       "title": "derivative theory",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "derivative_theory",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "mean_value_theorems",
       "title": "mean value theorems",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "mean_value_theorems",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Taylor_series",
@@ -285,37 +301,41 @@
       "topic": "Riemann_integral",
       "title": "Riemann integral",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "Riemann_integral",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "improper_integrals",
       "title": "improper integrals",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "improper_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "sequences_and_series",
       "title": "sequences and series",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "sequences_and_series",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "power_series",
       "title": "power series",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "power_series",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "multivariable_limits",
@@ -340,19 +360,21 @@
       "topic": "gradient_and_directional_derivatives",
       "title": "gradient and directional derivatives",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "gradient_and_directional_derivatives",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "chain_rule_multivariable",
       "title": "chain rule multivariable",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "chain_rule_multivariable",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "multiple_integrals",

@@ -243,13 +243,13 @@
       "topic": "predicate_logic",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "quantifiers",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "proof_methods",
@@ -267,13 +267,13 @@
       "topic": "relations_and_equivalence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "cardinality",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "countable_and_uncountable_sets",
@@ -297,31 +297,31 @@
       "topic": "subspaces_and_span",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "linear_independence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "basis_and_dimension",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "linear_transformations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "matrix_rank",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "systems_linear_equations",
@@ -345,25 +345,25 @@
       "topic": "diagonalization",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "inner_product_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "orthogonality_and_projection",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "least_squares",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "spectral_theorem",
@@ -387,19 +387,19 @@
       "topic": "limits_and_continuity",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "derivative_theory",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "mean_value_theorems",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Taylor_series",
@@ -411,25 +411,25 @@
       "topic": "Riemann_integral",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "improper_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "sequences_and_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "power_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "multivariable_limits",
@@ -447,13 +447,13 @@
       "topic": "gradient_and_directional_derivatives",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "chain_rule_multivariable",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "multiple_integrals",

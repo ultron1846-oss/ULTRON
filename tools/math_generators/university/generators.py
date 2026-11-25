@@ -28,6 +28,28 @@ BANDS = {
     "Taylor_series": "University",
     "conditional_probability": "University",
     "counting_principles": "University",
+    "predicate_logic": "University",
+    "relations_and_equivalence": "University",
+    "subspaces_and_span": "University",
+    "linear_independence": "University",
+    "basis_and_dimension": "University",
+    "matrix_rank": "University",
+    "limits_and_continuity": "University",
+    "derivative_theory": "University",
+    "quantifiers": "University",
+    "cardinality": "University",
+    "linear_transformations": "University",
+    "diagonalization": "University",
+    "inner_product_spaces": "University",
+    "orthogonality_and_projection": "University",
+    "least_squares": "University",
+    "mean_value_theorems": "University",
+    "Riemann_integral": "University",
+    "improper_integrals": "University",
+    "sequences_and_series": "University",
+    "power_series": "University",
+    "gradient_and_directional_derivatives": "University",
+    "chain_rule_multivariable": "University",
 }
 TOPICS = tuple(BANDS)
 WORD_TOPICS = {"conditional_probability", "counting_principles"}
@@ -220,6 +242,199 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=str(total)
         steps=["Use the multiplication principle for independent choices.",f"{shirts}×{pants}×{shoes}={total} outfits."]
         exact=lambda:total==shirts*pants*shoes and total>0
+
+    elif topic == "predicate_logic":
+        size=n(2,8*d)
+        threshold=n(0,size)
+        quantifier=rng.choice(("forall","exists"))
+        satisfying=[x for x in range(1,size+1) if x<=threshold]
+        value=(len(satisfying)==size) if quantifier=="forall" else bool(satisfying)
+        data.update(domain=list(range(1,size+1)),threshold=threshold,quantifier=quantifier,satisfying=satisfying,value=value)
+        symbol="∀" if quantifier=="forall" else "∃"
+        problem=f"Over the domain {{1,...,{size}}}, evaluate {symbol}x: x≤{threshold}."
+        answer=str(value).lower()
+        steps=[f"The values satisfying x≤{threshold} are {satisfying}.",f"The {quantifier} statement is {str(value).lower()}."]
+        exact=lambda:value==((threshold==size) if quantifier=="forall" else threshold>=1)
+    elif topic == "relations_and_equivalence":
+        size=n(4,20*d)
+        modulus=n(2,min(8,size))
+        element=n(0,size-1)
+        cls=[x for x in range(size) if x%modulus==element%modulus]
+        data.update(domain=list(range(size)),modulus=modulus,element=element,equivalence_class=cls)
+        problem=f"On {{0,...,{size-1}}}, define a~b iff a≡b (mod {modulus}). Find the equivalence class of {element}."
+        answer=str(cls)
+        steps=[f"Members of the class have remainder {element%modulus} modulo {modulus}.",f"The class is {cls}."]
+        exact=lambda:cls==[x for x in range(size) if x%modulus==element%modulus]
+    elif topic == "subspaces_and_span":
+        x,y=n(-20*d,20*d),n(-20*d,20*d)
+        data.update(vectors=[[1,0],[0,1]],target=[x,y],coefficients=[x,y])
+        problem=f"Express ({x},{y}) as a linear combination of e1=(1,0) and e2=(0,1)."
+        answer=f"{x}e1+({y})e2"
+        steps=[f"Use the standard basis: ({x},{y})={x}(1,0)+({y})(0,1)."]
+        exact=lambda:[x,y]==data["target"] and [x,y]==data["coefficients"]
+    elif topic == "linear_independence":
+        a,b,c,e=[n(-8*d,8*d) for _ in range(4)]
+        determinant=a*e-b*c
+        independent=determinant!=0
+        data.update(vectors=[[a,b],[c,e]],determinant=determinant,independent=independent)
+        problem=f"Determine whether vectors ({a},{b}) and ({c},{e}) in R² are linearly independent."
+        answer="independent" if independent else "dependent"
+        steps=[f"Form the determinant {a}×{e}−{b}×{c}={determinant}.",f"Nonzero determinant means {answer}."]
+        exact=lambda:independent==(determinant!=0) and determinant==a*e-b*c
+    elif topic == "basis_and_dimension":
+        while True:
+            a,b,c,e=[n(-8*d,8*d) for _ in range(4)]
+            determinant=a*e-b*c
+            if determinant!=0:
+                break
+        data.update(vectors=[[a,b],[c,e]],determinant=determinant,is_basis=True,dimension=2)
+        problem=f"Do vectors ({a},{b}) and ({c},{e}) form a basis of R²? State the dimension."
+        answer="yes; dimension=2"
+        steps=[f"The determinant is {determinant}≠0, so the vectors are independent.", "Two independent vectors in R² form a basis; dim(R²)=2."]
+        exact=lambda:determinant==a*e-b*c and determinant!=0 and data["dimension"]==2
+    elif topic == "matrix_rank":
+        a,b,c,e=[n(-6*d,6*d) for _ in range(4)]
+        determinant=a*e-b*c
+        rank=2 if determinant else (1 if any((a,b,c,e)) else 0)
+        data.update(matrix=[[a,b],[c,e]],determinant=determinant,rank=rank)
+        problem=f"Find the rank of matrix [[{a},{b}],[{c},{e}]]."
+        answer=str(rank)
+        steps=[f"The determinant is {determinant}.",f"Rank is {rank} by the 2×2 rank criterion."]
+        exact=lambda:rank==(2 if determinant else (1 if any((a,b,c,e)) else 0))
+    elif topic == "limits_and_continuity":
+        center=n(-10*d,10*d)
+        slope=n(-8*d,8*d)
+        limit_value=n(-20*d,20*d)
+        data.update(center=center,slope=slope,constant=limit_value,limit=limit_value)
+        problem=f"Evaluate lim(x→{center}) [{slope}(x−{center})+({limit_value})]."
+        answer=str(limit_value)
+        steps=[f"As x approaches {center}, the term {slope}(x−{center}) approaches 0.",f"The limit is {limit_value}."]
+        exact=lambda:limit_value==data["constant"]
+    elif topic == "derivative_theory":
+        a,b,c,x=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-10*d,10*d)
+        derivative=2*a*x+b
+        data.update(coefficients=[a,b,c],point=x,derivative_at_point=derivative)
+        problem=f"For f(x)={a}x²+({b})x+({c}), find f'({x})."
+        answer=str(derivative)
+        steps=[f"Differentiate: f'(x)=2({a})x+({b}).",f"Substitute x={x}: f'({x})={derivative}."]
+        exact=lambda:derivative==2*a*x+b
+
+
+    elif topic == "quantifiers":
+        size=n(2,10*d); threshold=n(0,size); quantifier=rng.choice(("forall","exists"))
+        value=(threshold==size) if quantifier=="forall" else threshold>0
+        data.update(domain=list(range(1,size+1)),threshold=threshold,quantifier=quantifier,value=value)
+        problem=f"On the domain {{1,...,{size}}}, evaluate {('∀' if quantifier=='forall' else '∃')}x: x≤{threshold}."
+        answer=str(value).lower()
+        steps=[f"Exactly {threshold} domain values satisfy x≤{threshold}.",f"The quantified statement is {answer}."]
+        exact=lambda:value==((threshold==size) if quantifier=="forall" else threshold>0)
+    elif topic == "cardinality":
+        size=n(1,40*d); modulus=n(2,10*d); residues=sorted({x%modulus for x in range(size)})
+        data.update(set_size=size,modulus=modulus,distinct_residues=residues,cardinality=len(residues))
+        problem=f"Let S={{0,1,...,{size-1}}}. How many distinct residues modulo {modulus} occur in S?"
+        answer=str(len(residues))
+        steps=[f"Count distinct remainders modulo {modulus} among the {size} integers.",f"There are {len(residues)} distinct residues."]
+        exact=lambda:len(residues)==min(size,modulus)
+    elif topic == "linear_transformations":
+        a,b,c,e=[n(-6*d,6*d) for _ in range(4)]; x,y=n(-8*d,8*d),n(-8*d,8*d)
+        result=(a*x+b*y,c*x+e*y)
+        data.update(matrix=[a,b,c,e],vector=[x,y],image=list(result))
+        problem=f"For T(x,y)=({a}x+({b})y,({c})x+({e})y), find T({x},{y})."
+        answer=f"({result[0]},{result[1]})"
+        steps=[f"Multiply the matrix by the vector: ({a}×{x}+{b}×{y},{c}×{x}+{e}×{y})={result}."]
+        exact=lambda:result==(a*x+b*y,c*x+e*y)
+    elif topic == "diagonalization":
+        a,b=n(-10*d,10*d),n(-10*d,10*d)
+        data.update(matrix=[[a,0],[0,b]],diagonal_entries=[a,b],diagonalizable=True)
+        problem=f"Is diagonal matrix [[{a},0],[0,{b}]] diagonalizable? Give its diagonal entries."
+        answer=f"yes; D=diag({a},{b})"
+        steps=["Every diagonal matrix is already diagonalized by the identity matrix.",f"The diagonal entries are {a} and {b}."]
+        exact=lambda:data["diagonalizable"] and data["diagonal_entries"]==[a,b]
+    elif topic == "inner_product_spaces":
+        x,y,u,v=n(-10*d,10*d),n(-10*d,10*d),n(-10*d,10*d),n(-10*d,10*d)
+        dot=x*u+y*v
+        data.update(vector=[x,y],other=[u,v],inner_product=dot)
+        problem=f"Compute the standard inner product of ({x},{y}) and ({u},{v}) in R²."
+        answer=str(dot)
+        steps=[f"⟨u,v⟩={x}×{u}+{y}×{v}={dot}."]
+        exact=lambda:dot==x*u+y*v
+    elif topic == "orthogonality_and_projection":
+        x,y=n(-10*d,10*d),n(-10*d,10*d)
+        dot=x*1+y*0
+        data.update(vector=[x,y],onto=[1,0],dot_product=dot,projection=[x,0])
+        problem=f"Project ({x},{y}) orthogonally onto the x-axis."
+        answer=f"({x},0)"
+        steps=["The projection onto the x-axis keeps the first coordinate and sets the second to zero.",f"Projection=({x},0)."]
+        exact=lambda:data["projection"]==[x,0] and dot==x
+    elif topic == "least_squares":
+        a,b,c=n(-10*d,10*d),n(-10*d,10*d),n(-10*d,10*d)
+        denominator=a*a+b*b
+        if denominator==0: a=1; denominator=1
+        scalar=Fraction(a*c,denominator)
+        data.update(column=[a,b],target=[c,0],normal_equation_coefficient=str(scalar),squared_norm=denominator)
+        problem=f"Find the least-squares scalar t minimizing ||t({a},{b})−({c},0)||²."
+        answer=str(scalar)
+        steps=[f"Minimizer t=(v·w)/(v·v)=({a}×{c})/({denominator})={scalar}."]
+        exact=lambda:scalar==Fraction(a*c,a*a+b*b)
+    elif topic == "mean_value_theorems":
+        a,b,c=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d)
+        left,right=sorted((n(-5*d,5*d),n(1,6*d)))
+        if left==right: right+=1
+        slope=Fraction(a*(right**2-left**2)+b*(right-left),right-left)
+        c_value=Fraction(left+right,2)
+        data.update(coefficients=[a,b,c],interval=[left,right],mean_value_point=str(c_value),secant_slope=str(slope))
+        problem=f"For f(x)={a}x²+({b})x+({c}) on [{left},{right}], find a c satisfying the Mean Value Theorem."
+        answer=f"c={c_value}"
+        steps=[f"Secant slope is {slope}.",f"f'(x)=2({a})x+({b}); x=({left}+{right})/2={c_value} gives the secant slope."]
+        exact=lambda:Fraction(2*a*c_value+b)==slope
+    elif topic == "Riemann_integral":
+        a,b=n(-8*d,8*d),n(-8*d,8*d); left,right=sorted((n(-5*d,5*d),n(1,8*d)))
+        integral=Fraction(a*(right**2-left**2),2)+b*(right-left)
+        data.update(linear_coefficients=[a,b],interval=[left,right],integral=str(integral))
+        problem=f"Evaluate the definite integral ∫[{left},{right}] ({a}x+({b})) dx."
+        answer=str(integral)
+        steps=[f"An antiderivative is ({a}/2)x²+({b})x.",f"Evaluate at the endpoints to obtain {integral}."]
+        exact=lambda:integral==Fraction(a*(right**2-left**2),2)+b*(right-left)
+    elif topic == "improper_integrals":
+        p=n(2,6*d); value=Fraction(1,p-1)
+        data.update(power=p,integral_from_one=value,converges=True)
+        problem=f"Evaluate the convergent improper integral ∫[1,∞) 1/x^{p} dx."
+        answer=str(value)
+        steps=[f"For p={p}>1, the integral converges.",f"∫₁∞ x^(-{p})dx=1/({p}−1)={value}."]
+        exact=lambda:p>1 and value==Fraction(1,p-1)
+    elif topic == "sequences_and_series":
+        r=Fraction(n(-8*d,8*d),n(9,15))
+        if abs(r)>=1: r=Fraction(1,3)
+        first=n(-10*d,10*d); total=Fraction(first,1)/(1-r)
+        data.update(first_term=first,common_ratio=str(r),sum=str(total),converges=True)
+        problem=f"Find the sum of the infinite geometric series with first term {first} and ratio {r}."
+        answer=str(total)
+        steps=[f"|r|={abs(r)}<1, so the series converges.",f"Sum=a₁/(1−r)={first}/(1−({r}))={total}."]
+        exact=lambda:abs(r)<1 and total==Fraction(first,1)/(1-r)
+    elif topic == "power_series":
+        center=n(-5*d,5*d); radius=n(1,8*d); x=center+n(-5,5)
+        data.update(center=center,coefficient=1,radius=radius,test_point=x,converges=abs(x-center)<radius)
+        problem=f"Determine whether the geometric power series Σ((x−{center})/{radius})^n converges at x={x}."
+        answer="converges" if abs(x-center)<radius else "diverges"
+        steps=[f"A geometric series converges exactly when |(x−{center})/{radius}|<1.",f"At x={x}, the series {answer}."]
+        exact=lambda:(data["converges"]==(abs(x-center)<radius)) and (answer==("converges" if abs(x-center)<radius else "diverges"))
+    elif topic == "gradient_and_directional_derivatives":
+        a,b,x,y,u,v=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d),n(-5*d,5*d)
+        directional=2*a*x*u+2*b*y*v
+        data.update(coefficients=[a,b],point=[x,y],direction=[u,v],gradient=[2*a*x,2*b*y],directional_derivative=directional)
+        problem=f"For f(x,y)={a}x²+{b}y², find the directional derivative at ({x},{y}) along vector ({u},{v}) (not normalized)."
+        answer=str(directional)
+        steps=[f"Gradient=(2({a})x,2({b})y).",f"Dot with direction ({u},{v}) gives {directional}."]
+        exact=lambda:directional==2*a*x*u+2*b*y*v
+    elif topic == "chain_rule_multivariable":
+        a,b,t=n(-8*d,8*d),n(-8*d,8*d),n(-6*d,6*d)
+        x=t*t; y=3*t+1; value=2*a*x*(2*t)+b*(3)
+        data.update(coefficients=[a,b],parameter=t,x_value=x,y_value=y,derivative=value)
+        problem=f"If f(x,y)={a}x²+{b}y, x=t² and y=3t+1, find df/dt at t={t}."
+        answer=str(value)
+        steps=[f"df/dt=(2({a})x)(2t)+({b})(3).",f"Substitute t={t}, x={x}: df/dt={value}."]
+        exact=lambda:value==4*a*t**3+3*b
+
     else:
         raise ValueError("unknown topic: "+str(topic))
     fields={"grade_band":BANDS[topic],"topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
