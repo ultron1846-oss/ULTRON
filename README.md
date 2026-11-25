@@ -735,8 +735,7 @@ See [rational identity verification](docs/RATIONAL_IDENTITY_VERIFICATION.md). No
 
 ### Next implementation handoff
 
-1. Review and merge the rational verifier only after full CI passes.
-2. Continue expanding exact math with independently validated university-level task families; do not broaden the verifier by silently dropping domains.
-3. Complete manual iPad Safari frontend acceptance before training work.
-4. Keep actual training and remote execution disabled until separate explicit authorization.
-5. Update this README at each meaningful milestone.
+1. After this PR merges, continue expanding exact math with independently validated university-level task families; do not broaden either verifier by silently dropping domains.
+2. Complete manual iPad Safari frontend acceptance before training work, and record actual device/browser results.
+3. Keep actual training and remote execution disabled until the frontend release gate is complete and separate explicit authorization is given.
+4. Update this README at each meaningful milestone.
