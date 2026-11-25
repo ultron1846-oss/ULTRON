@@ -108,7 +108,7 @@ export function solveLinearSystem2x2(a,b,c,d,e,f){
   if(![a,b,c,d,e,f].every(Number.isFinite))throw new Error('System coefficients must be finite.');
   const det=a*d-b*c;
   if(det===0){
-    const consistent=(a===0&&b===0?e===0:true)&&(c===0&&d===0?f===0:true);
+    const consistent=(a*f-c*e===0)&&(b*f-d*e===0);
     return {kind:consistent?'dependent':'inconsistent'};
   }
   const x=(e*d-b*f)/det,y=(a*f-e*c)/det;
