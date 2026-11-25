@@ -1,5 +1,5 @@
 """ULTRON original mathematical reasoning core prototype."""
-from .config import NeuroSparseConfig, count_parameters
+from .config import NeuroSparseConfig, count_parameters, count_total_parameters
 from .model import NeuroSparseModel
 from .math_ir import Expr, ExprKind, FormulaCandidate, VerificationStatus
 from .math_tokenizer import MathTokenizer, MathVocabulary
@@ -11,4 +11,4 @@ from .rational import RationalFunction, RationalExpressionError, RationalDomainE
 from .algebraic import RealAlgebraicNumber
 from .algebraic_arithmetic import resultant_polynomial
 
-__all__ = ["NeuroSparseConfig", "count_parameters", "NeuroSparseModel", "Expr", "ExprKind", "FormulaCandidate", "VerificationStatus", "MathTokenizer", "MathVocabulary", "MathExample", "generate_examples", "MathParser", "MathParseError", "parse_math", "simplify", "Polynomial", "PolynomialError", "PolynomialLimits", "RationalFunction", "RationalExpressionError", "RationalDomainError", "RealAlgebraicNumber", "resultant_polynomial"]
+__all__ = ["NeuroSparseConfig", "count_parameters", "count_total_parameters", "NeuroSparseModel", "Expr", "ExprKind", "FormulaCandidate", "VerificationStatus", "MathTokenizer", "MathVocabulary", "MathExample", "generate_examples", "MathParser", "MathParseError", "parse_math", "simplify", "Polynomial", "PolynomialError", "PolynomialLimits", "RationalFunction", "RationalExpressionError", "RationalDomainError", "RealAlgebraicNumber", "resultant_polynomial"]
