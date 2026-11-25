@@ -405,6 +405,8 @@ class TrainingPreflightTests(unittest.TestCase):
         self.assertFalse(report["budget_covers_persistent_state"])
         self.assertEqual(report["parameter_count"], 61826048)
         self.assertEqual(report["total_parameter_count"], 63400451)
+        self.assertEqual(report["minimum_parameter_count"], 60000001)
+        self.assertEqual(report["minimum_trainable_parameter_count"], 60000001)
         self.assertEqual(report["model_weights_fp32_bytes"], 253601804)
         self.assertEqual(report["model_gradients_fp32_bytes"], 247304192)
         self.assertEqual(report["model_adamw_moments_fp32_bytes"], 494608384)
