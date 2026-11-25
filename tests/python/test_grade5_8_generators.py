@@ -88,13 +88,13 @@ class Grade5To8GeneratorTests(unittest.TestCase):
                 self.assertEqual(exact.denominator, 1, (seed, p))
                 self.assertEqual(Fraction(p["answer"]).denominator, 1, (seed, p))
                 self.assertIn("students", p["problem"].lower())
-                self.assertNotRegex(p["problem"].lower(), r"\\b(dollars?|kilometers?|litres?|liters?)\\b")
+                self.assertNotRegex(p["problem"].lower(), r"\b(dollars?|kilometers?|litres?|liters?)\b")
             else:
                 self.assertEqual(ingredients["quantity_type"], "continuous")
                 self.assertEqual(Fraction(p["answer"]), exact, (seed, p))
                 decimal_places = len(p["answer"].partition(".")[2])
                 self.assertLessEqual(decimal_places, 2, (seed, p))
-                self.assertNotRegex(p["problem"].lower(), r"\\b(students?|people|children|items|animals)\\b")
+                self.assertNotRegex(p["problem"].lower(), r"\b(students?|people|children|items|animals)\b")
 
     def test_semantic_checks_reject_invalid_contextual_values(self):
         p = generate(14, 3, "percentages")
