@@ -33,3 +33,16 @@ test('Math Agent uses the existing deterministic engine and rejects unsupported 
   assert.ok(app.includes('solveLinearEquation'));
   assert.ok(app.includes('Unsupported requests are not guessed'));
 });
+
+
+test('Math Agent exposes commands for every mathematics roadmap topic', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  for (const command of [
+    '/arithmetic', '/algebra', '/geometry', '/trigonometry', '/calculus',
+    '/linear-algebra', '/probability', '/statistics', '/number-theory', '/logic-proofs'
+  ]) assert.ok(app.includes(`command:'${command}'`), `missing topic command: ${command}`);
+  assert.ok(app.includes("command==='/help'"));
+  assert.ok(app.includes("command==='/topics'"));
+  assert.ok(app.includes('data-topic-command'));
+  assert.ok(app.includes('PLANNED · NOT SOLVER-SUPPORTED'));
+});
