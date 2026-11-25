@@ -231,7 +231,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
         base = {"format_version": 4, "rng_restored": True,
-                "data_state": {"cursor": 1}, "dataset_manifest_sha256": "b" * 64}
+                "data_state": {"epoch": 0, "next_batch_index": 1}, "dataset_manifest_sha256": "b" * 64}
         with self.assertRaisesRegex(ValueError, "does not match preflight"):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=base)
