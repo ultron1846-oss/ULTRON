@@ -23,7 +23,7 @@ Source review corrected stale training documentation: ULTRON has an untrained mo
 
 ## Phase 5 — data integrity hardening
 
-The original generator currently covers only arithmetic, rational arithmetic, and simple linear equations. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
+The deterministic generator now covers arithmetic, rational arithmetic, simple linear equations, and exactly validated polynomial derivatives (degree 2–5). It still does not cover calculus or university mathematics broadly. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
 
 The foundation config now binds to the canonical 240-token math vocabulary instead of the initial 256-token placeholder. The revised exact count is **63,400,451**.
 
@@ -41,7 +41,7 @@ Checkpoint format v3 now records Python/Torch RNG state and data cursor metadata
 
 ## Phase 7 — exact-answer evaluation
 
-Added an exact-rational evaluation function for caller-supplied predictions on the current generator topics. It reports exact accuracy, coverage, abstentions, invalid outputs, and per-topic metrics. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
+Added an exact-answer evaluation function for caller-supplied predictions on the current generator topics. It reports exact accuracy, coverage, abstentions, invalid outputs, and per-topic metrics. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
 
 ## Phase 9 — free runtime review
 

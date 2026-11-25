@@ -4,7 +4,7 @@
 
 ## Current evaluator
 
-`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact rational targets. It reports:
+`ultron_core/evaluation.py` accepts caller-supplied prediction strings and compares them with independently validated exact targets. It reports:
 
 - exact correct count;
 - exact accuracy over all references;
@@ -20,9 +20,10 @@ The evaluator does not instantiate or run a neural model. Its output sets `model
 Current generator topics are:
 - integer arithmetic;
 - rational arithmetic;
-- simple one-variable linear equations.
+- simple one-variable linear equations;
+- bounded polynomial derivatives with integer coefficients and degree 2–5.
 
-The prediction format is an exact rational string such as `-7/3` or `4`. It does not parse natural-language explanations, symbolic expressions, derivations, or proof steps.
+For rational tasks, predictions are exact rational strings such as `-7/3` or `4`. For polynomial-derivative tasks, predictions use the bounded canonical polynomial grammar. It does not parse natural-language explanations, derivations, or proof steps.
 
 ## Held-out evaluation rules
 

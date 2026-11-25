@@ -6,7 +6,7 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
     def test_reports_exact_accuracy_coverage_and_abstentions(self):
         examples = generate_examples(88, 30)
         predictions = {item.example_id: item.exact_answer for item in examples}
-        predictions[examples[0].example_id] = "999/1"
+        predictions[examples[0].example_id] = "0" if examples[0].exact_answer != "0" else "1"
         predictions[examples[1].example_id] = None
         predictions[examples[2].example_id] = "not a rational"
         report = evaluate_predictions(examples, predictions)
@@ -21,6 +21,16 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertFalse(report["proof_verified"])
         self.assertFalse(report["model_evaluated"])
         self.assertFalse(report["training_performed"])
+
+
+    def test_scores_exact_polynomial_derivative_predictions(self):
+        examples = generate_examples(29, 25, topics=("polynomial_derivative",))
+        predictions = {item.example_id: item.exact_answer for item in examples}
+        report = evaluate_predictions(examples, predictions)
+        self.assertEqual(report["correct"], 25)
+        self.assertEqual(report["exact_accuracy_all"], 1.0)
+        self.assertEqual(report["per_topic"]["polynomial_derivative"]["exact_accuracy_all"], 1.0)
+
 
     def test_rejects_prediction_ids_outside_evaluation_set(self):
         examples = generate_examples(4, 5)

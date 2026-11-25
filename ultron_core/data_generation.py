@@ -15,8 +15,8 @@ import re
 import tempfile
 from typing import Iterable
 
-GENERATOR_VERSION = "0.1.0"
-SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations")
+GENERATOR_VERSION = "0.2.0"
+SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative")
 _MAX_EXAMPLES = 100_000
 
 
@@ -69,10 +69,72 @@ class MathExample:
         return value
 
 
+def _parse_integer_polynomial(text: str) -> dict[int, int]:
+    """Parse the bounded integer-polynomial grammar used by generated tasks."""
+    if not isinstance(text, str):
+        raise ValueError("polynomial must be text")
+    compact = re.sub(r"\s+", "", text)
+    if compact == "0":
+        return {}
+    terms = re.findall(r"[+-]?[^+-]+", compact)
+    if not terms or "".join(terms) != compact:
+        raise ValueError("polynomial terms are malformed")
+    result: dict[int, int] = {}
+    for term in terms:
+        match = re.fullmatch(r"([+-]?)(\d+)?(\*?x(?:\^(\d+))?)?", term)
+        if not match:
+            raise ValueError("polynomial term is malformed")
+        sign, digits, x_term, exponent_text = match.groups()
+        if x_term:
+            coefficient = int(digits) if digits else 1
+            exponent = int(exponent_text) if exponent_text else 1
+            if exponent > 12:
+                raise ValueError("polynomial exponent exceeds validator limit")
+        else:
+            if not digits:
+                raise ValueError("constant term is malformed")
+            coefficient, exponent = int(digits), 0
+        if sign == "-":
+            coefficient = -coefficient
+        result[exponent] = result.get(exponent, 0) + coefficient
+    return {power: coefficient for power, coefficient in result.items() if coefficient}
+
+
+def _format_integer_polynomial(coefficients: dict[int, int]) -> str:
+    terms = []
+    for exponent in sorted(coefficients, reverse=True):
+        coefficient = coefficients[exponent]
+        if coefficient == 0:
+            continue
+        sign = "-" if coefficient < 0 else "+"
+        magnitude = abs(coefficient)
+        if exponent == 0:
+            body = str(magnitude)
+        else:
+            coefficient_text = "" if magnitude == 1 else f"{magnitude}*"
+            power_text = "" if exponent == 1 else f"^{exponent}"
+            body = f"{coefficient_text}x{power_text}"
+        terms.append(("-" if sign == "-" else "") + body if not terms else f" {sign} {body}")
+    return "".join(terms) if terms else "0"
+
+
 def validate_example_text(input_text: str, expected_answer: str, topic: str) -> bool:
-    """Independently parse the emitted text and check it using exact Fractions."""
+    """Independently parse generated text and validate exact rational/polynomial answers."""
     if not all(isinstance(item, str) for item in (input_text, expected_answer, topic)):
         return False
+    if topic == "polynomial_derivative":
+        match = re.fullmatch(r"^\s*differentiate\s*:\s*(.*?)\s*$", input_text, flags=re.IGNORECASE)
+        if not match:
+            return False
+        try:
+            source = _parse_integer_polynomial(match.group(1))
+            expected_poly = _parse_integer_polynomial(expected_answer)
+            derivative = {power - 1: coefficient * power
+                          for power, coefficient in source.items() if power > 0}
+            derivative = {power: coefficient for power, coefficient in derivative.items() if coefficient}
+            return derivative == expected_poly
+        except (ValueError, TypeError):
+            return False
     try:
         expected = Fraction(expected_answer)
         if topic in ("arithmetic", "rational_arithmetic"):
@@ -137,10 +199,21 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         answer = Fraction(solution)
         params = {"coefficient": a, "constant": b, "rhs": rhs}
         difficulty = 2
+    elif topic == "polynomial_derivative":
+        degree = rng.randint(2, 5)
+        coefficients = {power: rng.randint(-5, 5) for power in range(degree + 1)}
+        if coefficients[degree] == 0:
+            coefficients[degree] = rng.choice((-5, -4, -3, -2, -1, 1, 2, 3, 4, 5))
+        derivative = {power - 1: coefficient * power
+                     for power, coefficient in coefficients.items() if power > 0}
+        prompt = "differentiate: " + _format_integer_polynomial(coefficients)
+        answer = _format_integer_polynomial(derivative)
+        params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items()))}
+        difficulty = degree
     else:
         raise ValueError(f"unsupported topic: {topic}")
 
-    answer_text = _fraction_text(answer)
+    answer_text = answer if topic == "polynomial_derivative" else _fraction_text(answer)
     valid = validate_example_text(prompt, answer_text, topic)
     payload = {
         "generator_version": GENERATOR_VERSION, "seed": seed, "index": index,
