@@ -282,6 +282,26 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 2)
         self.assertEqual(sampler.next_index, 2)
 
+    def test_trainer_requires_sampler_state_for_nonzero_initial_cursor(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 8
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        with self.assertRaisesRegex(ValueError, "non-zero initial cursor"):
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, sampler=sampler,
+                initial_data_state={"epoch": 0, "next_batch_index": 5})
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_trainer_rejects_prefetch_workers_for_resumable_sampler(self):
         from torch.utils.data import DataLoader, Dataset
         from ultron_core.resumable_sampler import ResumableRandomSampler
