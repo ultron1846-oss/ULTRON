@@ -137,7 +137,7 @@ function attachSaveButton(node,prompt,answer,explanation){const button=document.
 
 function runAgentCommand(raw){
  if(!raw.startsWith('/'))return false;
- const command=raw.trim().split(/\\s+/)[0].toLowerCase();
+ const command=raw.trim().split(/\s+/)[0].toLowerCase();
  if(command==='/help'){
   const list=['/help — show command help','/topics — list mathematics topics and status',...topics.map(topic=>topic.command+' — '+topic.name)];
   addChat('assistant','ULTRON Math Agent commands:\\n'+list.join('\\n')+'\\n\\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
