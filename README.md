@@ -603,3 +603,10 @@ No model training, optimizer step, external dataset, remote execution, website, 
 The math core includes bounded exact real-algebraic arithmetic and square-free normalization. `ultron_core/squarefree.py` separates repeated polynomial factors over rational coefficients and identifies the square-free component containing a selected real root using exact rational evaluation or Sturm counts. This is **not** irreducible factorization and does not establish a minimal polynomial. See [square-free normalization](docs/SQUARE_FREE_NORMALIZATION.md) for scope and regression coverage.
 
 No model training, optimizer step, external dataset ingestion, or remote execution was performed for this math-core milestone.
+
+
+## Exact polynomial evaluation at algebraic numbers
+
+The exact math core now includes bounded evaluation of a univariate rational polynomial at a selected real algebraic number using Horner's rule and the existing exact resultant arithmetic. It enforces the algebraic value's resource limits, rejects multivariate or mismatched-variable inputs, evaluates rational inputs directly, and normalizes exact cancellation to zero. The result is not claimed to have a minimal or irreducible defining polynomial. See [polynomial evaluation](docs/ALGEBRAIC_POLYNOMIAL_EVALUATION.md).
+
+No model training, optimizer step, dataset generation, or remote execution was performed for this milestone.
