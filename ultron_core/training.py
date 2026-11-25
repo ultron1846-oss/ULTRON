@@ -158,10 +158,15 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     if resume_metadata is not None:
         if not isinstance(resume_metadata, dict):
             raise TypeError("resume_metadata must be checkpoint load metadata")
-        if (resume_metadata.get("format_version", 0) < 3
+        if ( (isinstance(resume_metadata.get("format_version"), bool)
+                or not isinstance(resume_metadata.get("format_version"), int)
+                or resume_metadata.get("format_version") < 3)
                 or resume_metadata.get("rng_restored") is not True
                 or not isinstance(resume_metadata.get("data_state"), dict)):
             raise ValueError("resume checkpoint must include restored RNG and data cursor state")
+        resume_cursor = resume_metadata["data_state"]
+        if "epoch" not in resume_cursor or "next_batch_index" not in resume_cursor:
+            raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
         if resume_metadata.get("dataset_manifest_sha256") != dataset_hash:
             raise ValueError("resume checkpoint dataset manifest does not match preflight")
         resume_step = resume_metadata.get("step")
