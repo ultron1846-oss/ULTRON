@@ -9,19 +9,17 @@ const WORD_NUMBER_PATTERN = NUMBER_WORDS.join('|');
 const QUANTITY_PATTERN = '(?:\\d+(?:\\.\\d+)?|(?:'+WORD_NUMBER_PATTERN+')(?:[- ](?:'+WORD_NUMBER_PATTERN+'))*)';
 
 function wordsToNumber(source) {
- const words=source.toLowerCase().replace(/-/g,' ').trim().split(/\\s+/);
- let total=0, current=0;
+ const words=source.toLowerCase().replace(/-/g,' ').trim().split(/\s+/);
+ let current=0;
  for(const word of words){
-  if(/^\\d+(?:\\.\\d+)?$/.test(word)){current+=Number(word);continue;}
+  if(/^\d+(?:\.\d+)?$/.test(word)){current+=Number(word);continue;}
   if(Object.hasOwn(SMALL,word)){current+=SMALL[word];continue;}
   if(Object.hasOwn(TENS,word)){current+=TENS[word];continue;}
   if(word==='hundred'){current=Math.max(1,current)*100;continue;}
   return null;
  }
- total+=current;
- return Number.isFinite(total)?total:null;
+ return Number.isFinite(current)?current:null;
 }
-
 function quantitiesIn(text){
  const re=new RegExp('\\b'+QUANTITY_PATTERN+'\\b','gi');
  const out=[];
@@ -31,47 +29,28 @@ function quantitiesIn(text){
  }
  return out;
 }
-
-/**
- * Interpret a deliberately bounded set of English arithmetic word-problem patterns.
- * Returns a structured parse; it never guesses when a pattern is ambiguous.
- */
 export function parseWordProblem(input){
  if(typeof input!=='string'||!input.trim())return {kind:'unsupported',reason:'Enter a word problem.'};
  if(input.length>600)return {kind:'unsupported',reason:'Word problems are limited to 600 characters.'};
- const text=input.toLowerCase().replace(/[’']/g,"'").replace(/\\s+/g,' ').trim();
+ const text=input.toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' ').trim();
  const quantities=quantitiesIn(text);
  if(quantities.length<2)return {kind:'unsupported',reason:'I need at least two clearly stated quantities to solve this word-problem pattern.'};
  const values=quantities.map(q=>q.value);
  const directOps=[
-  {pattern:/\\b(?:plus|added to|add)\\b/,operation:'addition'},
-  {pattern:/\\b(?:minus|subtract(?:ed)? from)\\b/,operation:'subtraction'},
-  {pattern:/\\b(?:times|multiplied by)\\b/,operation:'multiplication'},
-  {pattern:/\\b(?:divided by)\\b/,operation:'division'}
+  {pattern:/\b(?:plus|added to|add)\b/,operation:'addition'},
+  {pattern:/\b(?:minus|subtract(?:ed)? from)\b/,operation:'subtraction'},
+  {pattern:/\b(?:times|multiplied by)\b/,operation:'multiplication'},
+  {pattern:/\b(?:divided by)\b/,operation:'division'}
  ];
- for(const item of directOps){
-  if(item.pattern.test(text)){
-   const a=values[0],b=values[1];
-   return solve(item.operation,a,b,quantities.slice(0,2));
-  }
- }
- if(/\\b(?:shared equally|divided equally|split equally|equally among|per person|each person|how many each)\\b/.test(text)){
-  return solve('division',values[0],values[1],quantities.slice(0,2));
- }
- if(/\\b(?:each|every|per|groups? of|rows? of|boxes? of)\\b/.test(text)){
-  return solve('multiplication',values[0],values[1],quantities.slice(0,2));
- }
- if(/\\b(?:left|remain(?:s|ed)?|remaining|gave away|given away|sold|lost|used|difference|how many more|how many fewer|how many less)\\b/.test(text)){
-  return solve('subtraction',values[0],values[1],quantities.slice(0,2));
- }
- if(/\\b(?:altogether|in total|total|combined|sum|all together)\\b/.test(text)){
-  return solve('addition',values[0],values[1],quantities.slice(0,2));
- }
+ for(const item of directOps)if(item.pattern.test(text))return solve(item.operation,values[0],values[1],quantities.slice(0,2));
+ if(/\b(?:shared equally|divided equally|split equally|equally among|per person|each person|how many each)\b/.test(text))return solve('division',values[0],values[1],quantities.slice(0,2));
+ if(/\b(?:each|every|per|groups? of|rows? of|boxes? of)\b/.test(text))return solve('multiplication',values[0],values[1],quantities.slice(0,2));
+ if(/\b(?:left|remain(?:s|ed)?|remaining|gave away|given away|sold|lost|used|difference|how many more|how many fewer|how many less)\b/.test(text))return solve('subtraction',values[0],values[1],quantities.slice(0,2));
+ if(/\b(?:altogether|in total|total|combined|sum|all together)\b/.test(text))return solve('addition',values[0],values[1],quantities.slice(0,2));
  return {kind:'unsupported',reason:'I found quantities but no clear operation clue. Add wording such as altogether, left, each, or shared equally so I do not guess.'};
 }
-
 function solve(operation,a,b,sourceQuantities){
- let result, symbol, explanation;
+ let result,symbol,explanation;
  switch(operation){
   case 'addition':result=a+b;symbol='+';explanation='Combine the two quantities by addition.';break;
   case 'subtraction':result=a-b;symbol='−';explanation='Find the difference by subtracting the second quantity from the first.';break;
@@ -82,5 +61,5 @@ function solve(operation,a,b,sourceQuantities){
   default:return {kind:'unsupported',reason:'That operation is not supported.'};
  }
  if(!Number.isFinite(result))return {kind:'unsupported',reason:'The computed result is outside the supported numeric range.'};
- return {kind:'solved',operation,expression:`${a} ${symbol} ${b}`,result,explanation,quantities:sourceQuantities.map(q=>({value:q.value,word:q.raw})),confidence:'template-based'};
+ return {kind:'solved',operation,expression:String(a)+' '+symbol+' '+String(b),result,explanation,quantities:sourceQuantities.map(q=>({value:q.value,word:q.raw})),confidence:'template-based'};
 }
