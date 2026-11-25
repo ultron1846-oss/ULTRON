@@ -181,6 +181,18 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
             raise ValueError("resume checkpoint must include restored RNG and data cursor state")
         if resume_metadata.get("dataset_hash_verified") is not True:
             raise ValueError("resume checkpoint dataset manifest hash was not verified")
+        saved_training_settings = resume_metadata.get("training_settings")
+        if saved_training_settings is None:
+            if settings.precision != "fp32":
+                raise ValueError(
+                    "resume checkpoint lacks precision metadata; cannot safely resume BF16"
+                )
+        elif (not isinstance(saved_training_settings, dict)
+                or saved_training_settings.get("precision", "fp32") != settings.precision):
+            raise ValueError("resume checkpoint precision does not match training settings")
+        if isinstance(saved_training_settings, dict):
+            if saved_training_settings.get("deterministic", settings.deterministic) != settings.deterministic:
+                raise ValueError("resume checkpoint deterministic setting does not match")
         resume_cursor = resume_metadata["data_state"]
         if "epoch" not in resume_cursor or "next_batch_index" not in resume_cursor:
             raise ValueError("resume checkpoint data_state must include epoch and next_batch_index")
@@ -407,6 +419,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 if checkpoint_callback is not None:
                     mean_loss = sum(losses[-settings.gradient_accumulation_steps:]) / settings.gradient_accumulation_steps
                     checkpoint_data_state = dict(cursor)
+                    checkpoint_training_settings = {
+                        "precision": settings.precision,
+                        "seed": settings.seed,
+                        "gradient_accumulation_steps": settings.gradient_accumulation_steps,
+                        "deterministic": settings.deterministic,
+                        "profile_performance": settings.profile_performance,
+                    }
                     checkpoint_data_state.update({
                         "epoch": epoch,
                         "next_batch_index": next_batch_index + microbatches_seen,
@@ -414,6 +433,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "dataset_size": train_size,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
+                        "training_settings": checkpoint_training_settings,
                     })
                     if committed_sampler_state is not None:
                         checkpoint_data_state["next_sample_index"] = committed_sampler_state["next_index"]
@@ -422,6 +442,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "mean_loss": mean_loss,
                         "data_state": checkpoint_data_state,
                         "dataset_manifest_sha256": dataset_hash,
+                        "training_settings": checkpoint_training_settings,
                     })
                 if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
