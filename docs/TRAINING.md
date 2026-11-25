@@ -5,13 +5,13 @@
 The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for three narrow topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and an inference-only benchmark harness. These are prototypes, not a complete training pipeline.
 
 - `ultron_core/model.py`: experimental sparse-expert causal sequence model.
-- `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,396,379-parameter configuration.
+- `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,408,643-parameter configuration.
 - `ultron_core/data_generation.py`: deterministic exact-rational examples for arithmetic, rational arithmetic, and simple linear equations.
 - `ultron_core/training.py`: loss and optimizer factory only; no epoch/step loop, batching, scheduler, gradient accumulation, or cancellation controller.
 - `ultron_core/checkpoint.py`: model/config/step/optional optimizer plus SHA-256 manifest; no complete RNG/data-cursor/scheduler resume.
 - `ultron_core/benchmark.py`: synthetic-token inference timing, not mathematical quality evaluation.
 
-The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,396,379 unique trainable parameters by formula; it has not been trained.
+The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,408,643 unique trainable parameters by formula; it has not been trained.
 
 ## Safety and scope
 
