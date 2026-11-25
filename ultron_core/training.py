@@ -201,14 +201,28 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     cursor["next_batch_index"] = next_batch_index
 
     committed_sampler_state = None
+    if (checkpoint_callback is not None or resume_metadata is not None) and sampler is None:
+        raise ValueError("checkpointing/resume requires a ResumableRandomSampler")
     if sampler is not None:
-        if not callable(getattr(sampler, "state_dict", None)) or not callable(getattr(sampler, "load_state_dict", None)):
-            raise TypeError("sampler must provide state_dict() and load_state_dict()")
+        if not isinstance(sampler, ResumableRandomSampler):
+            raise TypeError("sampler must be ResumableRandomSampler")
         if getattr(batches, "sampler", None) is not sampler:
             raise ValueError("sampler must be the DataLoader sampler used by batches")
         workers = getattr(batches, "num_workers", None)
         if isinstance(workers, bool) or not isinstance(workers, int) or workers != 0:
             raise ValueError("resumable sampler requires DataLoader num_workers=0")
+        loader_batch_size = getattr(batches, "batch_size", None)
+        if (isinstance(loader_batch_size, bool) or not isinstance(loader_batch_size, int)
+                or loader_batch_size != planned_batch):
+            raise ValueError("DataLoader batch_size must match the preflight batch size")
+        if getattr(batches, "drop_last", False) is not False:
+            raise ValueError("resumable sampler requires DataLoader drop_last=False")
+        split_counts = preflight_report.get("split_counts")
+        if (not isinstance(split_counts, dict) or isinstance(split_counts.get("train"), bool)
+                or not isinstance(split_counts.get("train"), int) or split_counts.get("train") <= 0):
+            raise ValueError("preflight must include a valid training split size")
+        if len(sampler.data_source) != split_counts["train"]:
+            raise ValueError("sampler dataset size does not match preflight train split")
         sampler_state = cursor.get("sampler_state")
         if resume_metadata is not None and not isinstance(sampler_state, dict):
             raise ValueError("resume checkpoint is missing sampler_state")
@@ -223,6 +237,9 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 or live_sampler_state.get("seed") != settings.seed
                 or live_sampler_state.get("epoch") != epoch):
             raise ValueError("sampler state does not match training dataset, seed, or epoch")
+        expected_sample_cursor = min(next_batch_index * planned_batch, split_counts["train"])
+        if live_sampler_state.get("next_index") != expected_sample_cursor:
+            raise ValueError("sampler sample cursor does not match next_batch_index and preflight batch size")
         committed_sampler_state = copy.deepcopy(live_sampler_state)
 
     budget = preflight_report.get("memory_budget_bytes")
