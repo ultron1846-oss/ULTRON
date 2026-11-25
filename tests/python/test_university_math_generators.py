@@ -36,8 +36,11 @@ class UniversityFoundationTests(unittest.TestCase):
         registry=render_registries()["university/registry.json"]
         import json
         payload=json.loads(registry)
-        self.assertEqual({x["topic"] for x in payload["topics"]},set(TOPICS))
-        self.assertTrue(all(x["grade_band"]=="University Foundation" for x in payload["topics"]))
+        rows={x["topic"]:x for x in payload["topics"]}
+        self.assertGreaterEqual(len(rows),190)
+        self.assertTrue(set(TOPICS).issubset(rows))
+        self.assertTrue(all(rows[t]["has_generator"] for t in TOPICS))
+        self.assertTrue(all(rows[t]["status"]=="catalogued_not_implemented" for t in rows if t not in TOPICS))
 
 
 if __name__=="__main__":
