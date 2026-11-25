@@ -157,7 +157,8 @@ function runAgentCommand(raw){
   catch(error){addChat('assistant','Graph error: '+error.message,'Check the function syntax and supported functions.');}
   return true;
  }
-\n const mathTool=executeMathToolCommand(raw);
+
+ const mathTool=executeMathToolCommand(raw);
  if(mathTool.handled){addChat('assistant',mathTool.output,mathTool.detail);return true;}
  const topic=topics.find(item=>item.command===command);
  if(topic){
