@@ -48,6 +48,26 @@ class Grade5To8GeneratorTests(unittest.TestCase):
         for topic in WORD_TOPICS:
             self.assertTrue(generate(7, 3, topic)["problem"])
 
+    def test_declared_contextual_topics_emit_story_templates(self):
+        markers = {
+            "ratios": ("beads", "recipe"),
+            "percentages": ("students", "dollar", "kilometer"),
+            "integers": ("temperature",),
+            "order_of_operations": ("packs",),
+            "linear_equations": ("club sells",),
+            "inequalities": ("plan costs",),
+            "basic_geometry": ("garden", "rectangle"),
+            "angles": ("straight line", "supplementary"),
+            "statistics_basics": ("quiz scores", "measurements"),
+            "simple_probability": ("bag has", "equally likely"),
+        }
+        for topic, words in markers.items():
+            emitted = any(
+                any(word in generate(seed, 2, topic)["problem"].lower() for word in words)
+                for seed in range(500)
+            )
+            self.assertTrue(emitted, topic)
+
     def test_committed_registries_match_generator_output(self):
         rendered = render_registries()
         registry_root = ROOT / "tools" / "math_generators"
@@ -106,6 +126,22 @@ class Grade5To8GeneratorTests(unittest.TestCase):
         bad = dict(p["ingredients"])
         bad["values"] = [-2, 4]
         self.assertFalse(semantic_check(bad, p["answer"]))
+        self.assertFalse(semantic_check(
+            {"topic": "statistics_basics", "values": [101, 90, 80], "context_type": "quiz_scores"},
+            "mean=90; median=90; range=21",
+        ))
+        self.assertFalse(semantic_check(
+            {"topic": "simple_probability", "values": [-1, 2, 3]},
+            "1/4",
+        ))
+        self.assertFalse(semantic_check(
+            {"topic": "angles", "angle": -5},
+            "185",
+        ))
+        self.assertFalse(semantic_check(
+            {"topic": "percentages", "percent": 101, "amount": 20, "quantity_type": "continuous"},
+            "20.20",
+        ))
 
 
 if __name__ == "__main__":
