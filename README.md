@@ -965,6 +965,8 @@ Grade 1–4 already had 10 topic generators; this update adds an explicit semant
 
 Batch 3 adds 22 deterministic Grade 8–12 topics: linear equations, systems, quadratics, polynomial operations/factoring, functions, coordinate geometry, triangle geometry, trigonometry, sequences, logarithms, limits, derivatives, definite integrals, matrices, combinatorics, number theory, complex numbers, vectors, statistics, probability, and a narrow divisibility proof template. Each item is seed-replay verified and includes ingredients and solution steps. Contextual coverage is declared in generator metadata and the registry builder now regenerates Grade 1–4, Grade 5–8, Grade 8–12, and combined registries.
 
-**Important limits:** These are original deterministic practice-item generators, not trained-model capability. Difficulty is heuristic. The proof topic is not a general proof checker. The Grade 8–12 batch needs randomized CI and final review before merge. No training, corpus generation, or remote execution was started.
+**Validation:** PR #128 head `dff1027e17198839c5c9a585e1aa8e86ea36d5e1` passed Python AI Core Tests (392 tests; Python 3.11 regression suite and CPU forward/backward smoke) and Node Tests. The first CI attempt exposed over-escaped Grade 1–4 semantic regexes and a narrow coordinate seed-variation range; both were fixed and the complete workflows reran successfully.
 
-**Next handoff:** Run Python 3.11 regression CI and Node tests on the PR. Review the final diff, fix any failing generators or metadata mismatches, and merge only after all required checks pass. Keep training disabled.
+**Important limits:** These are original deterministic practice-item generators, not trained-model capability. Difficulty is heuristic. The proof topic is a narrow divisibility proof template, not a general proof checker. No training, corpus generation, or remote execution was started.
+
+**Next handoff:** PR #128 is ready for final merge review. After merge, continue expanding topic coverage and curriculum-calibrated difficulty while keeping training disabled.
