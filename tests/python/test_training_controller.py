@@ -201,6 +201,106 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(self.optimizer.steps, 0)
 
 
+    def test_trainer_saves_sampler_state_at_checkpoint_and_return(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 8
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        saved = []
+        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+            settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True, sampler=sampler,
+            checkpoint_callback=lambda step, metrics: saved.append((step, metrics)))
+        self.assertEqual(saved[0][1]["data_state"]["sampler_state"]["next_index"], 2)
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 2)
+        self.assertEqual(sampler.next_index, 2)
+
+    def test_trainer_restores_sampler_before_dataloader_iteration(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 8
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        sampler_iterator = iter(sampler)
+        [next(sampler_iterator) for _ in range(2)]
+        saved_sampler_state = sampler.state_dict()
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        data_state = {
+            "epoch": 0, "next_batch_index": 2, "seed": 0,
+            "gradient_accumulation_steps": 2,
+            "sampler_state": saved_sampler_state,
+        }
+        metadata = {
+            "format_version": 4, "rng_restored": True, "step": 6,
+            "data_state": data_state, "dataset_manifest_sha256": "a" * 64,
+        }
+        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+            settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True, resume_metadata=metadata, sampler=sampler)
+        self.assertEqual(result["global_step"], 7)
+        self.assertEqual(result["data_state"]["next_batch_index"], 4)
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+
+    def test_trainer_rewinds_sampler_after_discarded_accumulation(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        result = run_training_steps(self.model, loader, self.optimizer, self.report,
+            settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True, sampler=sampler)
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["discarded_microbatches"], 1)
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 2)
+        self.assertEqual(sampler.next_index, 2)
+
+    def test_trainer_rejects_prefetch_workers_for_resumable_sampler(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=1)
+        with self.assertRaisesRegex(ValueError, "num_workers=0"):
+            run_training_steps(self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True, sampler=sampler)
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
                     "data_state": {"epoch": 1, "batch": 3},
