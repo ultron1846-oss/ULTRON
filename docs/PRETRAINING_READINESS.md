@@ -75,6 +75,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add Python/Torch/CUDA RNG seeding and dedicated deterministic DataLoader generator.
 - [x] Require preflight memory budget to cover persistent state and enforce batch/sequence/accumulation limits.
 - [x] Preserve checkpoint-restored RNG on resume; require checkpoint/preflight dataset hash match.
+- [x] Check expected dataset hash inside checkpoint loader before mutating model/optimizer/scheduler/RNG state.
 - [ ] Restore sampler/data-loader cursor and verify exact reproducibility across a clean runtime restart.
 - [ ] Add measured resource cap enforcement (current controller checks only the preflight budget; no live RAM/VRAM monitor).
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
@@ -127,6 +128,6 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 1. Review PR #60 and merge only after Node/Python checks pass.
 2. Expand Phase 7 with symbolic-equivalence/proof-verifier metrics and broader independently validated mathematical suites.
-3. Phase 8: bind the dataset manifest hash into checkpoint cursor metadata and add restore/recovery tests that do not execute optimizer steps.
+3. Phase 8: add uninterrupted-versus-resumed equivalence tests only after separate tiny-run authorization; current restore/hash/RNG checks do not prove optimizer-step equivalence.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
 5. Keep real-weight training and remote execution disabled until separate explicit authorization.
