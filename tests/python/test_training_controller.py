@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from ultron_core.config import NeuroSparseConfig, count_parameters
+from ultron_core.config import NeuroSparseConfig, count_parameters, count_total_parameters
 from ultron_core.training import (TrainingSettings, run_training_steps, seed_training_rng, make_seeded_generator)
 import random
 
@@ -46,9 +46,24 @@ class BoundedTrainingControllerTests(unittest.TestCase):
     def setUp(self):
         self.model = MockModel()
         self.optimizer = MockOptimizer()
-        self.report = {"validated": True, "parameter_count": count_parameters(self.model.config)}
+        trainable = count_parameters(self.model.config)
+        self.report = {
+            "status": "PREFLIGHT_ONLY",
+            "validated": True,
+            "training_authorized": False,
+            "optimizer_steps": 0,
+            "remote_execution_enabled": False,
+            "parameter_count": trainable,
+            "trainable_parameter_count": trainable,
+            "total_parameter_count": count_total_parameters(self.model.config),
+            "batch_size": 1,
+            "sequence_length": 3,
+            "gradient_accumulation_steps": 2,
+            "memory_budget_bytes": 2 * 1024 ** 3,
+            "budget_covers_persistent_state": True,
+        }
         self.settings = TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
-                                        max_seconds=60, write_memory=True)
+                                        max_seconds=60, write_memory=False)
         self.batches = [{"input_ids": torch.tensor([[1, 2, 3]], dtype=torch.long)}
                         for _ in range(4)]
 
@@ -77,12 +92,38 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(len(saved), 2)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
-    def test_memory_writes_reject_multi_example_batches(self):
-        batch = {"input_ids": torch.tensor([[1, 2, 3], [1, 2, 3]], dtype=torch.long)}
-        with self.assertRaisesRegex(ValueError, "batch_size=1"):
-            run_training_steps(self.model, [batch], self.optimizer, self.report,
+    def test_memory_writing_training_is_blocked_until_chunk_semantics_exist(self):
+        settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=1,
+                                   max_seconds=60, write_memory=True)
+        with self.assertRaisesRegex(NotImplementedError, "sequential chunk semantics"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                               settings=settings, training_authorized=True)
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_preflight_report_must_be_non_authorizing_and_local(self):
+        for field, value in (("training_authorized", True), ("remote_execution_enabled", True)):
+            report = dict(self.report)
+            report[field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "non-authorizing"):
+                run_training_steps(self.model, self.batches, self.optimizer, report,
+                                   settings=self.settings, training_authorized=True)
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_batch_cannot_exceed_preflight_resource_plan(self):
+        oversized = {"input_ids": torch.tensor([[1, 2, 3, 4]], dtype=torch.long)}
+        with self.assertRaisesRegex(ValueError, "exceeds the preflight"):
+            run_training_steps(self.model, [oversized], self.optimizer, self.report,
                                settings=self.settings, training_authorized=True)
         self.assertEqual(self.optimizer.steps, 0)
+
+    def test_training_memory_writes_default_off(self):
+        self.assertFalse(TrainingSettings().write_memory)
+
+    def test_controller_restores_previous_model_mode(self):
+        self.model.eval()
+        run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                           settings=self.settings, training_authorized=True)
+        self.assertFalse(self.model.training)
 
     def test_non_finite_loss_stops_before_optimizer_step(self):
         model = MockModel(non_finite=True)

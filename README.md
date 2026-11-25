@@ -9,7 +9,7 @@ ULTRON is an independent, local-first mathematics workspace under development. I
 
 The latest code review found and fixed shared fast-memory contamination risk: training-time writes reject batch sizes greater than one, and the model now exposes `reset_memory()`. The future trainer must call it between independent examples. This safeguard is merged; no training was run.
 
-Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. Next engineering work: finish bounded training-loop implementation without executing optimizer steps, add strict trainer-level memory reset/validation isolation, then prove checkpoint resume equivalence with non-training state tests before any authorized tiny run. Keep training and remote execution disabled.
+Phase 9 provider research is updated with current official Colab, Lightning AI, and Hugging Face ZeroGPU limits. Actual Colab access and checkpoint-transfer acceptance still require the owner on iPad. The bounded local controller is implemented but only tested with a mock optimizer; PR #60 hardens preflight/resource checks and disables unsupported memory-write training. Next: finish Phase 7 evaluation breadth and Phase 8 dataset-hash/checkpoint recovery tests, then owner-side iPad/runtime acceptance. Keep real-weight training and remote execution disabled.
 
 ## Pre-training readiness — Phase 1 specification
 
@@ -19,7 +19,7 @@ The current model specification sets a **minimum of 40,000,000 trainable paramet
 
 The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the 40M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
 
-Source review corrected stale training documentation: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, and checkpoint utilities, but no complete training loop or full resume controller. Training remains disabled.
+Source review: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, checkpoint utilities, and a bounded local training controller. The controller has only been tested with a mock model/optimizer; no real weights have been updated and the full resume controller remains incomplete. Training remains disabled.
 
 ## Phase 5 — data integrity hardening
 
@@ -29,7 +29,7 @@ The foundation config now binds to the canonical 240-token math vocabulary inste
 
 ## Phase 6 — training preflight (validation only)
 
-Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a passing preflight report, the 40M floor, per-example memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and per-call step/time caps. CI exercises only a mock model/optimizer; no real weights were updated.
+Added `ultron_core/preflight.py` and a bounded training controller. The controller requires explicit authorization, a complete non-authorizing preflight report, a budget covering persistent state, matching batch/sequence/accumulation limits, the 40M trainable floor, memory reset, finite loss/gradient checks, gradient accumulation/clipping, cancellation, and step/time caps. Memory writing defaults off. CI exercises only a mock model/optimizer; no real weights were updated. Live resource monitoring remains pending.
 
 ## Model review — fast-memory isolation
 

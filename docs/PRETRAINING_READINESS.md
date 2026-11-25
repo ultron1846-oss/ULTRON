@@ -43,8 +43,9 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 ## Phase 4 — Architecture and model sizing
 
 - [x] Add proposed foundation config with 63,400,451 total and 61,826,048 trainable parameters.
-- [x] Add exact parameter-count formula and tests.
-- [x] Document FP32/AdamW memory floor and limitations.
+- [x] Add separate exact total/trainable parameter formulas and tests.
+- [x] Freeze detached memory key/value/gate projections and verify actual trainable count.
+- [x] Document FP32 weights plus trainable gradient/AdamW memory estimate and limitations.
 - [x] Bind foundation vocabulary to canonical tokenizer size (240) and reserved-token IDs.
 - [ ] Freeze task serialization for problem, derivation, answer, and verifier result.
 - [ ] Decide whether experimental memory/refinement remain based on ablations.
@@ -68,13 +69,15 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 - [x] Add no-allocation preflight for trainable parameter floor, tokenizer, splits, and workload bounds.
 - [x] Preflight memory estimate distinguishes all weights from gradients/optimizer state for trainable parameters.
-- [x] Implement bounded orchestration with explicit authorization, accumulation, clipping, finite checks, cancellation, and step/time caps.
+- [x] Implement bounded orchestration with explicit authorization, complete preflight contract, accumulation, clipping, finite checks, cancellation, and step/time caps.
 - [x] Include gradient accumulation, clipping, finite loss/gradient checks, cancellation, and step/time caps.
 - [x] Add Python/Torch/CUDA RNG seeding and dedicated deterministic DataLoader generator.
+- [x] Require preflight memory budget to cover persistent state and enforce batch/sequence/accumulation limits.
 - [ ] Restore sampler/data-loader state and verify reproducibility across runtime restart.
-- [ ] Add measured resource cap enforcement.
+- [ ] Add measured resource cap enforcement (current controller checks only the preflight budget; no live RAM/VRAM monitor).
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
-- [ ] Implement and test trainer-level isolation across examples, batches, and validation.
+- [x] Reset mutable memory before and after each independent batch; memory writing defaults off.
+- [ ] Implement and test validation-set isolation and real-model trainer execution.
 - [ ] Keep remote dispatch disabled; require explicit owner authorization for any run.
 - [x] Add preflight report that performs no optimizer steps and never authorizes training.
 
@@ -116,10 +119,10 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 Training is **not approved**. It requires Phases 1–9 review, outstanding iPad acceptance and Supabase Auth setting, clean validation, resource-budget confirmation, and separate explicit authorization. A 40M parameter count alone is not readiness.
 
-## Next-chat handoff
+## Next engineering handoff
 
-1. Review PR 43 and CI.
-2. Continue Phase 5 generator and split-integrity review in its own PR.
-3. Then harden checkpoint/recovery and add a no-optimizer dry-run.
-4. Update README at every meaningful milestone.
-5. Do not enable training or remote training jobs without separate authorization.
+1. Review PR #60 and merge only after Node/Python checks pass.
+2. Expand Phase 7 with symbolic-equivalence/proof-verifier metrics and broader independently validated mathematical suites.
+3. Phase 8: bind the dataset manifest hash into checkpoint cursor metadata and add restore/recovery tests that do not execute optimizer steps.
+4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
+5. Keep real-weight training and remote execution disabled until separate explicit authorization.
