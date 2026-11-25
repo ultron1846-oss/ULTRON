@@ -30,8 +30,18 @@ BANDS = {
     "counting_principles": "University",
 }
 TOPICS = tuple(BANDS)
+WORD_TOPICS = {"conditional_probability", "counting_principles"}
 GENERATOR_METADATA = {
-    topic: {"grade_band": "University Foundation", "word_templates": []}
+    topic: {
+        "grade_band": "University Foundation",
+        "word_templates": (
+            ["population-count conditional probability scenario"]
+            if topic == "conditional_probability"
+            else ["wardrobe-combination counting scenario"]
+            if topic == "counting_principles"
+            else []
+        ),
+    }
     for topic in TOPICS
 }
 
