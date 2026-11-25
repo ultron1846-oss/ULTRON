@@ -10,6 +10,8 @@ from .resumable_sampler import ResumableRandomSampler
 import torch
 from torch.nn import functional as F
 
+from .precision import training_autocast, validate_training_precision
+
 
 def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         load_balance: torch.Tensor | None = None, prediction_error: torch.Tensor | None = None,
@@ -41,7 +43,7 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
             if not auxiliary.is_floating_point() or auxiliary.device != logits.device:
                 raise ValueError(f"{name} must be a floating-point scalar on the logits device")
     targets = input_ids[:, 1:].reshape(-1).long()
-    flat_logits = logits[:, :-1].reshape(-1, logits.shape[-1])
+    flat_logits = logits[:, :-1].reshape(-1, logits.shape[-1]).float()
     if ignore_index is not None:
         if not bool((targets != ignore_index).any()):
             raise ValueError('all next-token targets are padding; loss is undefined')
@@ -84,6 +86,7 @@ class TrainingSettings:
     write_memory: bool = False
     seed: int = 0
     deterministic: bool = False
+    precision: str = "fp32"
 
     def __post_init__(self):
         if isinstance(self.max_steps, bool) or not isinstance(self.max_steps, int) or not 1 <= self.max_steps <= 1000:
@@ -104,6 +107,7 @@ class TrainingSettings:
             raise ValueError("seed must be an integer in [0, 2**63)")
         if not isinstance(self.deterministic, bool):
             raise TypeError("deterministic must be boolean")
+        validate_training_precision(self.precision)
 
 
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
@@ -317,12 +321,14 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
 
             reset_memory()
             try:
-                output = model(ids, write_memory=False, attention_mask=mask)
-                if not isinstance(output, dict) or not isinstance(output.get("logits"), torch.Tensor):
-                    raise ValueError("model output must contain logits")
-                loss = causal_language_model_loss(
-                    output["logits"], ids, load_balance=output.get("load_balance_loss"),
-                    prediction_error=output.get("prediction_error"))
+                # BF16 is opt-in; loss accumulation remains FP32 for stability.
+                with training_autocast(ids.device, settings.precision):
+                    output = model(ids, write_memory=False, attention_mask=mask)
+                    if not isinstance(output, dict) or not isinstance(output.get("logits"), torch.Tensor):
+                        raise ValueError("model output must contain logits")
+                    loss = causal_language_model_loss(
+                        output["logits"], ids, load_balance=output.get("load_balance_loss"),
+                        prediction_error=output.get("prediction_error"))
                 if not bool(torch.isfinite(loss)):
                     raise FloatingPointError("training loss is non-finite")
                 if time_expired():
