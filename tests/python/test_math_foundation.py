@@ -10,7 +10,7 @@ from ultron_core import NeuroSparseConfig, NeuroSparseModel
 from ultron_core.math_ir import Expr, ExprKind
 from ultron_core.verification import evaluate
 from ultron_core.data_generation import (
-    GENERATOR_VERSION, generate_examples, validate_example_text, verify_dataset, write_dataset,
+    GENERATOR_VERSION, SUPPORTED_TOPICS, generate_examples, split_examples, validate_example_text, verify_dataset, write_dataset,
 )
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary
 from ultron_core.math_parser import MathParseError, MathParser, parse_math
@@ -151,6 +151,48 @@ class DeterministicDataGenerationTests(unittest.TestCase):
             with path.open("ab") as stream:
                 stream.write(b"tamper\\n")
             with self.assertRaisesRegex(ValueError, "SHA-256"):
+                verify_dataset(path)
+
+    def test_split_examples_are_deterministic_deduplicated_and_prompt_disjoint(self):
+        examples = generate_examples(4301, 500)
+        first = split_examples(examples, validation_fraction=0.15, test_fraction=0.15, seed=99)
+        second = split_examples(examples, validation_fraction=0.15, test_fraction=0.15, seed=99)
+        self.assertEqual(first, second)
+        prompts = {
+            name: {" ".join(item.input_text.split()) for item in values}
+            for name, values in first.items()
+        }
+        self.assertTrue(first["train"] and first["validation"] and first["test"])
+        self.assertFalse(prompts["train"] & prompts["validation"])
+        self.assertFalse(prompts["train"] & prompts["test"])
+        self.assertFalse(prompts["validation"] & prompts["test"])
+        self.assertEqual(sum(len(values) for values in first.values()), len(set().union(*prompts.values())))
+
+    def test_split_examples_rejects_invalid_fractions_and_seed(self):
+        examples = generate_examples(11, 30)
+        with self.assertRaisesRegex(ValueError, "less than 1"):
+            split_examples(examples, validation_fraction=0.6, test_fraction=0.4)
+        with self.assertRaisesRegex(ValueError, "finite"):
+            split_examples(examples, validation_fraction=float("nan"))
+        with self.assertRaises(TypeError):
+            split_examples(examples, seed=True)
+
+    def test_dataset_verifier_recomputes_example_identity_not_only_file_hash(self):
+        examples = generate_examples(909, 12)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "identity.jsonl"
+            write_dataset(path, examples, seed=909, topics=SUPPORTED_TOPICS)
+            rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+            rows[0]["example_id"] = "0" * 64
+            content = "".join(json.dumps(row, sort_keys=True, ensure_ascii=False,
+                                       separators=(",", ":")) + "\n" for row in rows).encode("utf-8")
+            path.write_bytes(content)
+            manifest_path = path.with_suffix(path.suffix + ".manifest.json")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["sha256"] = hashlib.sha256(content).hexdigest()
+            manifest_path.write_text(json.dumps(manifest, sort_keys=True, ensure_ascii=False,
+                                               separators=(",", ":")) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "example_id does not match"):
                 verify_dataset(path)
 
 

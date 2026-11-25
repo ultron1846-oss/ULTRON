@@ -6,7 +6,7 @@ The repository contains an **experimental untrained PyTorch model**, an original
 
 - `ultron_core/model.py`: experimental sparse-expert causal sequence model.
 - `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,408,643-parameter configuration.
-- `ultron_core/data_generation.py`: deterministic exact-rational examples for arithmetic, rational arithmetic, and simple linear equations.
+- `ultron_core/data_generation.py`: deterministic exact-rational examples for arithmetic, rational arithmetic, and simple linear equations; prompt-disjoint deterministic splits; manifest/checksum and content-derived example-ID verification.
 - `ultron_core/training.py`: loss and optimizer factory only; no epoch/step loop, batching, scheduler, gradient accumulation, or cancellation controller.
 - `ultron_core/checkpoint.py`: model/config/step/optional optimizer plus SHA-256 manifest; no complete RNG/data-cursor/scheduler resume.
 - `ultron_core/benchmark.py`: synthetic-token inference timing, not mathematical quality evaluation.

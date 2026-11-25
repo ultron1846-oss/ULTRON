@@ -46,6 +46,10 @@ These are arithmetic estimates, not a claim that a free provider can train this 
 - The 256-token vocabulary is a placeholder tied to the existing math tokenizer. Audit vocabulary IDs and special tokens before connecting data/model pipelines.
 - This is a next-token sequence prototype. It does not establish university-level mathematics, theorem proving, or novel formula discovery.
 
+## Dataset integrity milestone
+
+The generator now has deterministic prompt-disjoint train/validation/test partitioning, duplicate prompt collapse, strict manifest/row schema validation, checksum verification, and content-derived example-ID checks. This does not establish broad mathematical coverage; only the three documented generator topics are supported.
+
 ## Required before training
 
 1. Audit tokenizer/vocabulary compatibility and special-token IDs.

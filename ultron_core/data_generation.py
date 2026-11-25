@@ -5,7 +5,9 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from fractions import Fraction
 import hashlib
+import hmac
 import json
+import math
 import os
 from pathlib import Path
 import random
@@ -176,6 +178,59 @@ def generate_examples(seed: int, count: int,
     return tuple(result)
 
 
+
+def split_examples(
+    examples: Iterable[MathExample],
+    *,
+    validation_fraction: float = 0.1,
+    test_fraction: float = 0.1,
+    seed: int = 0,
+) -> dict[str, tuple[MathExample, ...]]:
+    """Create deterministic prompt-disjoint train/validation/test splits.
+
+    Duplicate normalized prompts are collapsed before assignment, and the
+    SHA-256 assignment uses the prompt group so variants cannot cross splits.
+    """
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise TypeError("split seed must be an integer")
+    for name, value in (("validation_fraction", validation_fraction), ("test_fraction", test_fraction)):
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            raise ValueError(f"{name} must be a finite number")
+        if not 0.0 < value < 1.0:
+            raise ValueError(f"{name} must be in (0, 1)")
+    if validation_fraction + test_fraction >= 1.0:
+        raise ValueError("validation_fraction + test_fraction must be less than 1")
+    items = tuple(examples)
+    if not items or any(not isinstance(item, MathExample) for item in items):
+        raise ValueError("examples must contain at least one MathExample")
+    groups: dict[str, MathExample] = {}
+    for item in items:
+        if (item.validation_status != "semantically_checked"
+                or item.target_text != item.exact_answer
+                or not validate_example_text(item.input_text, item.exact_answer, item.topic)):
+            raise ValueError("split input contains an invalid or unverified example")
+        prompt = " ".join(item.input_text.split())
+        current = groups.get(prompt)
+        if current is None or item.example_id < current.example_id:
+            groups[prompt] = item
+    if len(groups) < 3:
+        raise ValueError("at least three unique normalized prompts are required for three splits")
+    result: dict[str, list[MathExample]] = {"train": [], "validation": [], "test": []}
+    for prompt, item in sorted(groups.items()):
+        assignment = hashlib.sha256(
+            f"ultron-split-v1\0{seed}\0{prompt}".encode("utf-8")
+        ).digest()
+        bucket = int.from_bytes(assignment[:8], "big") / 2**64
+        if bucket < test_fraction:
+            result["test"].append(item)
+        elif bucket < test_fraction + validation_fraction:
+            result["validation"].append(item)
+        else:
+            result["train"].append(item)
+    if any(not result[name] for name in result):
+        raise ValueError("split seed/fractions produced an empty split; increase unique prompt count")
+    return {name: tuple(values) for name, values in result.items()}
+
 def write_dataset(path: str | Path, examples: Iterable[MathExample],
                   *, seed: int, topics: Iterable[str]) -> dict:
     """Write deterministic JSONL and a deterministic SHA-256 manifest atomically."""
@@ -228,7 +283,7 @@ def write_dataset(path: str | Path, examples: Iterable[MathExample],
 
 
 def verify_dataset(path: str | Path) -> dict:
-    """Verify the on-disk manifest, JSONL digest, row count and exact answers."""
+    """Verify manifest schema, file digest, row identity and exact answers."""
     target = Path(path)
     manifest_path = target.with_suffix(target.suffix + ".manifest.json")
     try:
@@ -236,42 +291,99 @@ def verify_dataset(path: str | Path) -> dict:
         content = target.read_bytes()
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError("dataset or manifest is missing or malformed") from exc
+
     required = {"schema_version", "generator_version", "seed", "topics",
                 "example_count", "topic_counts", "sha256"}
     if not isinstance(manifest, dict) or set(manifest) != required:
         raise ValueError("dataset manifest schema is invalid")
-    if manifest["schema_version"] != 1 or manifest["generator_version"] != GENERATOR_VERSION:
+    if (isinstance(manifest["schema_version"], bool) or manifest["schema_version"] != 1
+            or manifest["generator_version"] != GENERATOR_VERSION):
         raise ValueError("unsupported dataset manifest version")
+    if isinstance(manifest["seed"], bool) or not isinstance(manifest["seed"], int):
+        raise ValueError("dataset manifest seed is invalid")
+    topics = manifest["topics"]
+    if (not isinstance(topics, list) or not topics
+            or any(not isinstance(topic, str) or topic not in SUPPORTED_TOPICS for topic in topics)
+            or len(set(topics)) != len(topics)):
+        raise ValueError("dataset manifest topics are invalid")
+    count = manifest["example_count"]
+    if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
+        raise ValueError("dataset manifest example_count is invalid")
+    topic_counts = manifest["topic_counts"]
+    if (not isinstance(topic_counts, dict)
+            or any(topic not in topics for topic in topic_counts)
+            or any(isinstance(value, bool) or not isinstance(value, int) or value <= 0
+                   for value in topic_counts.values())
+            or sum(topic_counts.values()) != count):
+        raise ValueError("dataset manifest topic_counts are invalid")
+    digest_expected = manifest["sha256"]
+    if not isinstance(digest_expected, str) or not re.fullmatch(r"[0-9a-f]{64}", digest_expected):
+        raise ValueError("dataset manifest SHA-256 is invalid")
     digest = hashlib.sha256(content).hexdigest()
-    if digest != manifest["sha256"]:
+    if digest != digest_expected:
         raise ValueError("dataset SHA-256 mismatch")
+    if not content.endswith(b"\n"):
+        raise ValueError("dataset JSONL must end with a newline")
     try:
-        rows = [json.loads(line) for line in content.decode("utf-8").splitlines() if line]
+        decoded = content.decode("utf-8")
+        lines = decoded.splitlines()
+        if any(not line for line in lines):
+            raise ValueError("dataset JSONL contains blank rows")
+        rows = [json.loads(line) for line in lines]
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError("dataset JSONL is malformed") from exc
-    if len(rows) != manifest["example_count"]:
+    if len(rows) != count:
         raise ValueError("dataset example count does not match manifest")
+
     counts = Counter()
     identifiers = set()
+    indexes = set()
+    required_row = {"example_id", "generator_version", "topic", "difficulty",
+                    "input_text", "target_text", "exact_answer", "seed", "index",
+                    "generation_parameters", "validation_status", "provenance"}
     for row in rows:
-        if not isinstance(row, dict):
-            raise ValueError("dataset row must be an object")
-        required_row = {"example_id", "generator_version", "topic", "difficulty",
-                        "input_text", "target_text", "exact_answer", "seed", "index",
-                        "generation_parameters", "validation_status", "provenance"}
-        if set(row) != required_row:
+        if not isinstance(row, dict) or set(row) != required_row:
             raise ValueError("dataset row schema is invalid")
-        if row["generator_version"] != GENERATOR_VERSION or row["seed"] != manifest["seed"]:
-            raise ValueError("dataset row provenance does not match manifest")
-        if row["topic"] not in manifest["topics"]:
-            raise ValueError("dataset row topic is not declared in manifest")
+        if not isinstance(row["example_id"], str) or not re.fullmatch(r"[0-9a-f]{64}", row["example_id"]):
+            raise ValueError("dataset row example_id is malformed")
         if row["example_id"] in identifiers:
             raise ValueError("dataset contains duplicate example IDs")
         identifiers.add(row["example_id"])
-        if row["validation_status"] != "semantically_checked" or row["target_text"] != row["exact_answer"]:
-            raise ValueError("dataset row has an invalid validation status or answer")
-        if not validate_example_text(row["input_text"], row["exact_answer"], row["topic"]):
+        if (row["generator_version"] != GENERATOR_VERSION
+                or isinstance(row["seed"], bool) or not isinstance(row["seed"], int)
+                or row["seed"] != manifest["seed"]):
+            raise ValueError("dataset row provenance does not match manifest")
+        if not isinstance(row["topic"], str) or row["topic"] not in topics:
+            raise ValueError("dataset row topic is not declared in manifest")
+        if (isinstance(row["difficulty"], bool) or not isinstance(row["difficulty"], int)
+                or row["difficulty"] <= 0):
+            raise ValueError("dataset row difficulty is invalid")
+        if (not isinstance(row["index"], int) or isinstance(row["index"], bool)
+                or row["index"] < 0 or row["index"] in indexes):
+            raise ValueError("dataset row index is invalid or duplicated")
+        indexes.add(row["index"])
+        if not all(isinstance(row[key], str) for key in ("input_text", "target_text", "exact_answer", "provenance")):
+            raise ValueError("dataset row text/provenance fields are invalid")
+        params = row["generation_parameters"]
+        if (not isinstance(params, dict)
+                or any(not isinstance(key, str) or isinstance(value, bool)
+                       or not isinstance(value, (int, str)) for key, value in params.items())):
+            raise ValueError("dataset row generation_parameters are invalid")
+        if (row["validation_status"] != "semantically_checked"
+                or row["target_text"] != row["exact_answer"]
+                or not validate_example_text(row["input_text"], row["exact_answer"], row["topic"])):
             raise ValueError("dataset row failed exact semantic validation")
+        identity_payload = {
+            "generator_version": row["generator_version"], "seed": row["seed"],
+            "index": row["index"], "topic": row["topic"],
+            "input_text": row["input_text"], "target_text": row["target_text"],
+            "generation_parameters": params,
+        }
+        canonical = json.dumps(identity_payload, sort_keys=True, separators=(",", ":"),
+                                ensure_ascii=False)
+        expected_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+        if not hmac.compare_digest(row["example_id"], expected_id):
+            raise ValueError("dataset row example_id does not match its content")
         counts[row["topic"]] += 1
     if dict(sorted(counts.items())) != manifest["topic_counts"]:
         raise ValueError("dataset topic counts do not match manifest")
