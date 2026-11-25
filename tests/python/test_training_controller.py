@@ -162,9 +162,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
 
     def test_resume_uses_restored_rng_without_reseeding(self):
-        metadata = {"format_version": 4, "rng_restored": True,
+        metadata = {"format_version": 4, "rng_restored": True, "dataset_hash_verified": True,
                     "step": 12,
-                    "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0, "gradient_accumulation_steps": 2},
+                    "data_state": {"epoch": 2, "next_batch_index": 3, "next_sample_index": 3, "seed": 0, "gradient_accumulation_steps": 2},
                     "dataset_manifest_sha256": "a" * 64}
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
                                    max_seconds=60, write_memory=False)
@@ -183,7 +183,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
         metadata = {"format_version": 4, "rng_restored": True, "step": 4,
-                    "data_state": {"epoch": 0, "next_batch_index": 2, "seed": 0,
+                    "data_state": {"epoch": 0, "next_batch_index": 2, "next_sample_index": 2, "seed": 0,
                                    "gradient_accumulation_steps": 2},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "seed does not match"):
