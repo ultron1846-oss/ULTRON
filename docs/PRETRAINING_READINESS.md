@@ -54,7 +54,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 5 — Data generation and dataset integrity
 
-- [x] Audit generator scope: four narrow topics including polynomial derivatives; no broad calculus/university curriculum claim.
+- [x] Audit generator scope: seven exact-synthetic topics (arithmetic, rationals, linear equations, polynomial derivative/integral, 2x2 determinant/system); no broad university curriculum claim.
 - [x] Add deterministic prompt-group split and duplicate prompt collapse.
 - [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
@@ -89,10 +89,10 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 7 — Evaluation and benchmark protocol
 
-- [x] Add exact answer scoring for rational arithmetic, polynomial derivatives, and definite polynomial integrals, including coverage/abstention and per-topic metrics.
+- [x] Add exact answer scoring for rational arithmetic, polynomial derivatives/integrals, 2x2 determinants, and 2x2 linear systems, including coverage/abstention and per-topic metrics.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
-- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for rational, polynomial-derivative, and definite-integral tasks.
+- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for all seven generated topics.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
@@ -109,10 +109,11 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
-- [x] Carry global step, epoch, next-batch and next-sample cursors, seed, accumulation, and dataset hash through trainer checkpoint callbacks.
-- [x] Keep batch index and sampler sample index distinct; validate sample cursor against dataset size.
+- [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
 - [x] Rewind cursor for uncommitted accumulation groups that are discarded.
-- [ ] Owner/caller reconstructs `ResumableRandomSampler` from `next_sample_index` and uses DataLoader `num_workers=0` for exact resume.
+- [x] Add dataset-bound deterministic resumable random sampler with seed/epoch/sample cursor and permutation-tail tests.
+- [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler and `num_workers=0`, and rewind to the last committed optimizer step.
+- [ ] Owner notebook: construct the sampler/DataLoader, persist callback `data_state`, and verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
 
