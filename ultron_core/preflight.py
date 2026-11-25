@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 from typing import Iterable, Mapping
 
-from .config import NeuroSparseConfig, count_parameters
+from .config import NeuroSparseConfig, count_parameters, count_total_parameters
 from .data_generation import MathExample, validate_example_text
 from .math_tokenizer import MathVocabulary
 
@@ -30,6 +30,7 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
     if config.vocab_size != len(vocab):
         raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
     parameter_count = count_parameters(config)
+    total_parameter_count = count_total_parameters(config)
     if parameter_count < _MINIMUM_PARAMETERS:
         raise ValueError(f"model has {parameter_count} trainable parameters; minimum is {_MINIMUM_PARAMETERS}")
     if not isinstance(splits, Mapping) or set(splits) != set(_REQUIRED_SPLITS):
@@ -56,14 +57,17 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
             if (item.validation_status != "semantically_checked" or item.target_text != item.exact_answer
                     or not validate_example_text(item.input_text, item.exact_answer, item.topic)):
                 raise ValueError(f"{split_name} contains an unverified mathematical example")
-    weight_bytes = parameter_count * 4
-    persistent_bytes = weight_bytes * 4
+    weight_bytes = total_parameter_count * 4
+    # All parameters occupy weight memory; only trainable parameters need gradients
+    # and AdamW's two moment tensors.
+    persistent_bytes = weight_bytes + parameter_count * 4 * 3
     budget_bytes = None if memory_budget_gib is None else int(memory_budget_gib * (1024 ** 3))
     fits = None if budget_bytes is None else budget_bytes >= persistent_bytes
     return {
         "status": "PREFLIGHT_ONLY", "validated": True, "training_authorized": False,
         "optimizer_steps": 0, "remote_execution_enabled": False,
-        "parameter_count": parameter_count, "minimum_parameter_count": _MINIMUM_PARAMETERS,
+        "parameter_count": parameter_count, "trainable_parameter_count": parameter_count,
+        "total_parameter_count": total_parameter_count, "minimum_parameter_count": _MINIMUM_PARAMETERS,
         "vocabulary_size": len(vocab), "split_counts": split_counts, "prompt_disjoint": True,
         "batch_size": batch_size, "sequence_length": sequence_length,
         "gradient_accumulation_steps": gradient_accumulation_steps,
