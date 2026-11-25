@@ -897,3 +897,10 @@ python -m ultron_core.benchmark --device cuda --model-config foundation --batch 
 ```
 
 The benchmark still uses synthetic random token IDs solely for tensor-shape timing. It is not a math-quality test, and this code change does not report measured speed or memory gains. No training, optimizer step, corpus generation, cloud execution, or remote job was started. Next: CI validation, then a foundation-model inference baseline on suitable hardware before claiming any performance improvement.
+
+
+## Hybrid language architecture — 2026-11-25
+
+ULTRON will use a **measured hybrid stack** rather than force every language into the core. Python/PyTorch remains the canonical model and training implementation; JavaScript powers the current browser frontend; C++/CUDA is reserved for profiled native hot paths with a tested Python fallback. Rust may be considered for a safe inference/runtime service once interfaces stabilize. Java/C# and Julia/R remain optional integrations or research tools, not duplicate model implementations. See [hybrid language architecture](docs/MULTI_LANGUAGE_ARCHITECTURE.md) for responsibilities, interoperability boundaries and the performance decision gate.
+
+No training, dataset generation, cloud execution or remote job was started for this documentation milestone.
