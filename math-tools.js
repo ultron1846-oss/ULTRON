@@ -1,7 +1,7 @@
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261125-3';
 import { compileGraphExpression } from './graph-tool.js?v=20261125-2';
 
-export const MATH_TOOL_COMMANDS = Object.freeze([
+export const MATH_TOOL_COMMANDS = Object.freeze([\n  {name:'/help',description:'Show the complete command directory.'},\n  {name:'/menu',description:'Open the command directory.'},\n  {name:'/commands',description:'List registered commands.'},\n  {name:'/tools',description:'List registered mathematics tools.'},\n  {name:'/topics',description:'List mathematics topic commands.'},\n  {name:'/status',description:'Show deterministic Math Agent capabilities.'},\n  {name:'/graph',description:'Plot a supported function locally.'},
   {name:'/calc',description:'Evaluate a supported arithmetic expression.'},
   {name:'/gcd',description:'Greatest common divisor of two integers.'},
   {name:'/lcm',description:'Least common multiple of two integers.'},
@@ -122,6 +122,7 @@ export function executeMathToolCommand(raw){
   if(!match)return {handled:false};
   const command=match[1].toLowerCase(),args=(match[2]||'').trim();
   if(!MATH_TOOL_COMMANDS.some(item=>item.name===command))return {handled:false};
+  if(['/help','/menu','/commands','/tools','/topics','/status','/graph'].includes(command))return {handled:false};
   try{
     let output,detail='LOCAL DETERMINISTIC MATH TOOL';
     if(command==='/calc'){
