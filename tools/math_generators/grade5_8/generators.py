@@ -24,7 +24,7 @@ GENERATOR_METADATA={
 WORD_TOPICS={topic for topic,spec in GENERATOR_METADATA.items() if spec["word_templates"]}
 
 def semantic_check(ingredients,answer):
- """Optional semantic validation hook, called after exact arithmetic verification."""
+ """Optional semantic validator run after exact arithmetic verification."""
  try:
   topic=ingredients["topic"]
   if topic=="percentages":
@@ -33,12 +33,12 @@ def semantic_check(ingredients,answer):
    quantity_type=ingredients["quantity_type"]
    if not 0<=pct<=100 or amount<=0:return False
    exact=Fraction(pct*amount,100)
-   if value!=exact:return False
+   if value!=exact or exact<0:return False
    if quantity_type=="count":
-    return exact.denominator==1 and value.denominator==1 and value>=0
+    divisor=100//__import__("math").gcd(pct,100)
+    return amount%divisor==0 and exact.denominator==1 and value.denominator==1
    if quantity_type=="continuous":
-    # Integer percent × integer amount is exact to at most cents/hundredths.
-    return exact.denominator in (1,2,4,5,10,20,25,50,100) and value>=0
+    return exact.denominator in (1,2,4,5,10,20,25,50,100)
    return False
   if topic=="ratios":
    x,y,scale=map(int,ingredients["values"])
@@ -49,24 +49,27 @@ def semantic_check(ingredients,answer):
   if topic=="order_of_operations":
    value=Fraction(str(answer))
    a,b,c=map(int,ingredients["values"])
-   return a>=0 and b>=0 and c>=0 and value.denominator==1 and value>=0
+   return a>0 and b>0 and c>0 and value.denominator==1 and value>=0
   if topic=="linear_equations":
    value=Fraction(str(answer))
    a,x,b,c=map(int,ingredients["values"])
-   return a>0 and a*x+b==c and (not ingredients.get("contextual",False) or x>=0)
+   contextual=bool(ingredients.get("contextual",False))
+   return a>0 and a*x+b==c and value==x and (not contextual or (x>=0 and b>=0 and c>=0))
   if topic=="inequalities":
    a,bound,b,c=map(int,ingredients["values"])
-   return a>0 and a*bound+b==c
+   contextual=bool(ingredients.get("contextual",False))
+   return a>0 and a*bound+b==c and (not contextual or (bound>=0 and b>=0 and c>=0))
   if topic=="basic_geometry":
    w,h=map(int,ingredients["values"])
-   return w>=0 and h>=0 and w*h>=0 and 2*(w+h)>=0
+   return w>0 and h>0 and w*h>0 and 2*(w+h)>0
   if topic=="angles":
    value=Fraction(str(answer))
    angle=int(ingredients["angle"])
-   return value==180-angle and 0<=angle<=180 and 0<=180-angle<=180
+   return value==180-angle and 0<angle<180 and 0<180-angle<180
   if topic=="statistics_basics":
    values=list(map(int,ingredients["values"]))
-   return bool(values) and all(0<=v<=100 for v in values) and 0<=sum(values)/len(values)<=100
+   context=ingredients.get("context_type","measurement")
+   return bool(values) and all(v>=0 for v in values) and (context!="quiz_scores" or all(v<=100 for v in values))
   if topic=="simple_probability":
    value=Fraction(str(answer))
    red,blue,green=map(int,ingredients["values"])
