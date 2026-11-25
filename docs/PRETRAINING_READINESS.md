@@ -14,7 +14,8 @@
 - [x] Establish 40M minimum and add a 63,400,451-total / 61,826,048-trainable candidate configuration.
 - [x] Add exact parameter-count formula and small-model cross-check.
 - [x] Add theoretical FP32/optimizer memory estimate.
-- [ ] Final architecture review and tokenizer-vocabulary compatibility audit.
+- [x] Final tokenizer-vocabulary compatibility audit (240 canonical IDs).
+- [ ] Final architecture/ablation review and freeze task serialization.
 
 **Exit criteria:** reviewed capability/curriculum specification, architecture, exact parameter count, resource estimate, and bounded scope.
 
@@ -54,7 +55,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 5 — Data generation and dataset integrity
 
-- [x] Audit generator scope: four narrow topics including polynomial derivatives; no broad calculus/university curriculum claim.
+- [x] Audit generator scope: five narrow topics including polynomial derivatives and exact definite polynomial integrals; no broad university curriculum claim.
 - [x] Add deterministic prompt-group split and duplicate prompt collapse.
 - [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
@@ -107,7 +108,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
-- [ ] Prove resumed execution matches uninterrupted execution within tolerance.
+- [x] Reject expected dataset-hash mismatch before any live state mutation.
+- [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separate tiny-run authorization).
 - [ ] Document storage and backup limits.
 
 ## Phase 9 — Free runtime and operations
@@ -127,8 +129,9 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Review PR #60 and merge only after Node/Python checks pass.
-2. Expand Phase 7 with symbolic-equivalence/proof-verifier metrics and broader independently validated mathematical suites.
-3. Phase 8: add uninterrupted-versus-resumed equivalence tests only after separate tiny-run authorization; current restore/hash/RNG checks do not prove optimizer-step equivalence.
-4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform the clean Colab runtime check.
-5. Keep real-weight training and remote execution disabled until separate explicit authorization.
+1. Expand Phase 5 with more independently verified algebra, calculus, linear algebra, probability, and discrete-math tasks; preserve strict provenance and leakage controls.
+2. Expand Phase 7 with symbolic equivalence, derivation scoring, proof-checker acceptance, and a broader untouched test set.
+3. Phase 8: implement sampler/data-loader cursor replay and test uninterrupted-versus-resumed equivalence only after separate tiny-run authorization.
+4. Phase 6: add live RAM/VRAM monitoring and verify deterministic behavior on the approved runtime.
+5. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and perform clean Colab runtime acceptance.
+6. Keep real-weight training and remote execution disabled until separate explicit authorization.
