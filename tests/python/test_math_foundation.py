@@ -10,7 +10,7 @@ from ultron_core import NeuroSparseConfig, NeuroSparseModel
 from ultron_core.math_ir import Expr, ExprKind
 from ultron_core.verification import evaluate
 from ultron_core.data_generation import (
-    GENERATOR_VERSION, SUPPORTED_TOPICS, generate_examples, split_examples, validate_example_text, verify_dataset, write_dataset,
+    GENERATOR_VERSION, SUPPORTED_TOPICS, generate_examples, split_examples, summarize_corpus, validate_example_text, verify_dataset, write_dataset,
 )
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary
 from ultron_core.math_parser import MathParseError, MathParser, parse_math
@@ -90,6 +90,39 @@ class MathTokenizerTests(unittest.TestCase):
 
 
 class DeterministicDataGenerationTests(unittest.TestCase):
+    def test_corpus_summary_reports_topic_difficulty_and_validation(self):
+        examples = generate_examples(812, 80)
+        report = summarize_corpus(examples)
+        self.assertEqual(report["example_count"], 80)
+        self.assertEqual(report["unique_example_id_count"], 80)
+        self.assertEqual(report["duplicate_example_id_count"], 0)
+        self.assertEqual(report["validated_example_count"], 80)
+        self.assertEqual(report["invalid_example_count"], 0)
+        self.assertEqual(sum(report["topic_counts"].values()), 80)
+        self.assertAlmostEqual(sum(report["topic_proportions"].values()), 1.0)
+        self.assertFalse(report["training_performed"])
+        self.assertFalse(report["data_generated"])
+
+    def test_corpus_summary_detects_prompt_group_leakage(self):
+        examples = generate_examples(813, 30)
+        splits = {"train": (examples[0],), "validation": (examples[0],),
+                  "test": tuple(examples[1:])}
+        report = summarize_corpus(examples, splits=splits)
+        self.assertFalse(report["splits_prompt_disjoint"])
+        self.assertTrue(report["prompt_group_leakage"])
+        self.assertEqual(report["split_counts"]["train"], 1)
+        self.assertEqual(report["repeated_split_example_id_count"], 1)
+        self.assertFalse(report["split_membership_valid"])
+
+    def test_corpus_summary_flags_split_rows_outside_corpus(self):
+        examples = generate_examples(814, 12)
+        outsider = generate_examples(815, 1)[0]
+        splits = {"train": (examples[0], outsider), "validation": tuple(examples[1:6]),
+                  "test": tuple(examples[6:])}
+        report = summarize_corpus(examples, splits=splits)
+        self.assertEqual(report["unknown_split_example_id_count"], 1)
+        self.assertFalse(report["split_membership_valid"])
+
     def test_same_seed_and_configuration_produce_identical_examples(self):
         first = generate_examples(712, 50)
         second = generate_examples(712, 50)
