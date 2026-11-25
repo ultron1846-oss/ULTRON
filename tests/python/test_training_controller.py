@@ -319,6 +319,34 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["next_sample_index"], 1)
         self.assertEqual(sampler.next_index, 1)
 
+    def test_trainer_rewinds_sampler_on_cancellation_after_batch_fetch(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
+        report = dict(self.report)
+        report["dataset_size"] = 4
+        checks = iter((False, False, True))
+        result = run_training_steps(self.model, loader, self.optimizer, report,
+            settings=TrainingSettings(max_steps=3, gradient_accumulation_steps=1,
+                                     max_seconds=60, write_memory=False),
+            training_authorized=True, sampler=sampler,
+            cancellation_check=lambda: next(checks))
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(result["stop_reason"], "cancelled")
+        self.assertEqual(result["data_state"]["next_sample_index"], 1)
+        self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 1)
+        self.assertEqual(sampler.next_index, 1)
+
     def test_trainer_rewinds_sampler_after_discarded_accumulation(self):
         from torch.utils.data import DataLoader, Dataset
         from ultron_core.resumable_sampler import ResumableRandomSampler
