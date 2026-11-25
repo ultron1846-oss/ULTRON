@@ -6,16 +6,16 @@ import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemo
 
 const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', training:'Training control', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
 const topics = [
-  {name:'Arithmetic',symbol:'＋',level:'AVAILABLE',desc:'Numbers, operations, fractions and ratios.',intro:'Arithmetic studies number systems and the operations used to calculate with them.',formula:'a + b · a − b · a × b · a ÷ b',example:'18 × 7 = 126',prereq:'Whole numbers'},
-  {name:'Algebra',symbol:'x',level:'PLANNED',desc:'Expressions, equations and relationships.',intro:'Algebra represents unknown values with symbols and studies relationships between quantities.',formula:'ax + b = c',example:'2x + 3 = 11 → x = 4',prereq:'Arithmetic'},
-  {name:'Geometry',symbol:'△',level:'PLANNED',desc:'Shapes, measurement and spatial reasoning.',intro:'Geometry studies points, lines, angles, shapes, distance and spatial relationships.',formula:'A rectangle = length × width',example:'A 4 by 3 rectangle has area 12 square units.',prereq:'Arithmetic'},
-  {name:'Trigonometry',symbol:'∠',level:'PLANNED',desc:'Angles and relationships in triangles.',intro:'Trigonometry relates angles to side lengths and periodic functions.',formula:'sin θ = opposite / hypotenuse',example:'For a right triangle, use the side ratio relative to the chosen angle.',prereq:'Geometry'},
-  {name:'Calculus',symbol:'∫',level:'PLANNED',desc:'Limits, derivatives and integrals.',intro:'Calculus studies change and accumulation through limits, derivatives and integrals.',formula:'d(xⁿ)/dx = n·xⁿ⁻¹',example:'The derivative of x² is 2x.',prereq:'Algebra and functions'},
-  {name:'Linear algebra',symbol:'▦',level:'PLANNED',desc:'Vectors, matrices and linear systems.',intro:'Linear algebra studies vectors, matrices, linear transformations and systems of equations.',formula:'A x = b',example:'A matrix can represent a linear transformation.',prereq:'Algebra'},
-  {name:'Probability',symbol:'P',level:'PLANNED',desc:'Chance, events and distributions.',intro:'Probability quantifies uncertainty and the likelihood of events.',formula:'P(A) = favourable outcomes / equally likely outcomes',example:'A fair coin has probability 1/2 of landing heads.',prereq:'Fractions'},
-  {name:'Statistics',symbol:'σ',level:'PLANNED',desc:'Data, variation and inference.',intro:'Statistics describes data and supports conclusions while accounting for variation.',formula:'Mean = sum of values / number of values',example:'The mean of 2, 4 and 6 is 4.',prereq:'Arithmetic'},
-  {name:'Number theory',symbol:'ℤ',level:'PLANNED',desc:'Integers, divisibility and primes.',intro:'Number theory investigates the properties and relationships of integers.',formula:'a = bq + r',example:'17 = 5 × 3 + 2.',prereq:'Arithmetic'},
-  {name:'Logic & proofs',symbol:'∴',level:'PLANNED',desc:'Statements, arguments and proof methods.',intro:'Mathematical logic studies formal statements, valid inference and proof.',formula:'P and (P → Q) imply Q',example:'A proof must justify each inference from assumptions or established results.',prereq:'Foundational reasoning'}
+  {name:'Arithmetic',command:'/arithmetic',symbol:'＋',level:'AVAILABLE',desc:'Numbers, operations, fractions and ratios.',intro:'Arithmetic studies number systems and the operations used to calculate with them.',formula:'a + b · a − b · a × b · a ÷ b',example:'18 × 7 = 126',prereq:'Whole numbers'},
+  {name:'Algebra',command:'/algebra',symbol:'x',level:'PLANNED',desc:'Expressions, equations and relationships.',intro:'Algebra represents unknown values with symbols and studies relationships between quantities.',formula:'ax + b = c',example:'2x + 3 = 11 → x = 4',prereq:'Arithmetic'},
+  {name:'Geometry',command:'/geometry',symbol:'△',level:'PLANNED',desc:'Shapes, measurement and spatial reasoning.',intro:'Geometry studies points, lines, angles, shapes, distance and spatial relationships.',formula:'A rectangle = length × width',example:'A 4 by 3 rectangle has area 12 square units.',prereq:'Arithmetic'},
+  {name:'Trigonometry',command:'/trigonometry',symbol:'∠',level:'PLANNED',desc:'Angles and relationships in triangles.',intro:'Trigonometry relates angles to side lengths and periodic functions.',formula:'sin θ = opposite / hypotenuse',example:'For a right triangle, use the side ratio relative to the chosen angle.',prereq:'Geometry'},
+  {name:'Calculus',command:'/calculus',symbol:'∫',level:'PLANNED',desc:'Limits, derivatives and integrals.',intro:'Calculus studies change and accumulation through limits, derivatives and integrals.',formula:'d(xⁿ)/dx = n·xⁿ⁻¹',example:'The derivative of x² is 2x.',prereq:'Algebra and functions'},
+  {name:'Linear algebra',command:'/linear-algebra',symbol:'▦',level:'PLANNED',desc:'Vectors, matrices and linear systems.',intro:'Linear algebra studies vectors, matrices, linear transformations and systems of equations.',formula:'A x = b',example:'A matrix can represent a linear transformation.',prereq:'Algebra'},
+  {name:'Probability',command:'/probability',symbol:'P',level:'PLANNED',desc:'Chance, events and distributions.',intro:'Probability quantifies uncertainty and the likelihood of events.',formula:'P(A) = favourable outcomes / equally likely outcomes',example:'A fair coin has probability 1/2 of landing heads.',prereq:'Fractions'},
+  {name:'Statistics',command:'/statistics',symbol:'σ',level:'PLANNED',desc:'Data, variation and inference.',intro:'Statistics describes data and supports conclusions while accounting for variation.',formula:'Mean = sum of values / number of values',example:'The mean of 2, 4 and 6 is 4.',prereq:'Arithmetic'},
+  {name:'Number theory',command:'/number-theory',symbol:'ℤ',level:'PLANNED',desc:'Integers, divisibility and primes.',intro:'Number theory investigates the properties and relationships of integers.',formula:'a = bq + r',example:'17 = 5 × 3 + 2.',prereq:'Arithmetic'},
+  {name:'Logic & proofs',command:'/logic-proofs',symbol:'∴',level:'PLANNED',desc:'Statements, arguments and proof methods.',intro:'Mathematical logic studies formal statements, valid inference and proof.',formula:'P and (P → Q) imply Q',example:'A proof must justify each inference from assumptions or established results.',prereq:'Foundational reasoning'}
 ];
 const content=document.querySelector('#page-content');
 const nav=document.querySelector('#navigation');
@@ -76,6 +76,7 @@ function renderLearning(){
 function renderAgent(){
  return `${heading('MATHEMATICAL WORKSPACE / STAGE 1','Math Agent','ULTRON independently solves supported foundation questions, shows working and checks the answer through the deterministic math engine.','<span class="status-pill">LOCAL · DETERMINISTIC</span>')}
  ${card('<div class="eyebrow">CONVERSATIONAL MATHEMATICS / STAGE 1</div><h2>Talk through a maths question</h2><p class="muted">Enter a supported arithmetic expression or a one-variable linear equation. Unsupported requests are reported honestly; this is not a general-purpose AI model.</p><div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-message system-message">Start with a simple arithmetic question, such as <b>12 + 5</b>, or an equation such as <b>2x + 3 = 11</b>.</div></div><label class="field-label" for="agent-input">Your message</label><textarea id="agent-input" rows="3" maxlength="240" placeholder="Example: What is 12 + 5? Or solve 2x + 3 = 11"></textarea><div class="agent-actions"><button class="primary-button" id="agent-send">Send</button><button class="outline-button" id="agent-reset">Reset conversation</button></div><div class="examples"><span>TRY:</span><button data-example="12 + 5">12 + 5</button><button data-example="(1/3) + (1/6)">(1/3) + (1/6)</button><button data-example="2x + 3 = 11">2x + 3 = 11</button></div>')}
+ ${card(`<div class="eyebrow">TOPIC COMMANDS</div><h2>Open a topic reference</h2><p class="muted">Use a command to view a topic outline. Planned topics are not yet supported by the deterministic solver.</p><div class="examples topic-command-list"><button type="button" data-topic-command="/help">/help</button><button type="button" data-topic-command="/topics">/topics</button>${topics.map(topic=>`<button type="button" data-topic-command="${topic.command}">${topic.command}</button>`).join('')}</div>`)}
  ${card('<div class="eyebrow">SUPPORTED OPERATIONS</div><h2>Current engine boundaries</h2><div class="capability-list"><div><b>Arithmetic</b><span class="tag available">SUPPORTED</span></div><div><b>Linear equations in x</b><span class="tag available">LIMITED</span></div><div><b>Symbolic algebra</b><span class="tag planned">NOT SUPPORTED</span></div><div><b>Calculus and proofs</b><span class="tag planned">NOT SUPPORTED</span></div></div>','compact-panel')}`;
 }
 function renderServers(){
@@ -133,9 +134,34 @@ function renderOwner(){
 function render(page){return ({owner:renderOwner,overview:renderOverview,learning:renderLearning,agent:renderAgent,memory:renderMemory,servers:renderServers,training:renderTraining,backend:renderBackend,settings:renderSettings})[page]();}
 function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}const log=document.querySelector('#chat-log');log.append(node);log.scrollTop=log.scrollHeight;return node;}
 function attachSaveButton(node,prompt,answer,explanation){const button=document.createElement('button');button.type='button';button.className='outline-button memory-save-button';button.textContent='Save to memory';button.addEventListener('click',async()=>{button.disabled=true;button.textContent='Saving…';try{await saveExperience({prompt,answer,correct:true,topic:'Math Agent',explanation});button.textContent='Saved locally';button.title='Saved in this browser’s ULTRON Memory Vault';}catch(error){button.disabled=false;button.textContent='Retry save';button.title=error.message||'Local memory save failed';}});node.append(button);}
+
+function runAgentCommand(raw){
+ if(!raw.startsWith('/'))return false;
+ const command=raw.trim().split(/\\s+/)[0].toLowerCase();
+ if(command==='/help'){
+  const list=['/help — show command help','/topics — list mathematics topics and status',...topics.map(topic=>topic.command+' — '+topic.name)];
+  addChat('assistant','ULTRON Math Agent commands:\\n'+list.join('\\n')+'\\n\\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
+  return true;
+ }
+ if(command==='/topics'){
+  addChat('assistant','Mathematics topic commands:\\n'+topics.map(topic=>topic.command+' — '+topic.name+' ['+topic.level+']').join('\\n'),'Topic status reflects the current roadmap.');
+  return true;
+ }
+ const topic=topics.find(item=>item.command===command);
+ if(topic){
+  const availability=topic.level==='AVAILABLE'?'AVAILABLE FOUNDATION':'PLANNED · NOT SOLVER-SUPPORTED';
+  const reply=topic.name+' ['+availability+']\\n\\n'+topic.intro+'\\n\\nCore idea: '+topic.formula+'\\nExample: '+topic.example+'\\nPrerequisite: '+topic.prereq+'\\n\\nThis is a topic reference, not a claim that ULTRON can solve every problem in this topic.';
+  addChat('assistant',reply,'TOPIC REFERENCE · '+topic.command);
+  return true;
+ }
+ addChat('assistant','Unknown command: '+command+'. Type /help to see available Math Agent commands.','Command not recognized.');
+ return true;
+}
+
 function answerAgent(){
  const input=document.querySelector('#agent-input');const raw=input.value.trim();if(!raw)return;
  addChat('user',raw);input.value='';
+ if(runAgentCommand(raw))return;
  const equation=raw.match(/(?:solve\s+)?([0-9xX+*/().\s^=-]+=[0-9xX+*/().\s^=-]+)/i);
  const expression=raw.replace(/^(what is|calculate|compute)\s+/i,'').replace(/[?]$/,'').trim();
  try{
@@ -263,6 +289,7 @@ function bind(page){
   document.querySelector('#agent-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();answerAgent();}});
   document.querySelector('#agent-reset').addEventListener('click',()=>{document.querySelector('#chat-log').innerHTML='<div class="chat-message system-message">Conversation reset. Enter a supported arithmetic expression or linear equation.</div>';});
   content.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('#agent-input').value=b.dataset.example;document.querySelector('#agent-input').focus();}));
+  content.querySelectorAll('[data-topic-command]').forEach(button=>button.addEventListener('click',()=>{const input=document.querySelector('#agent-input');input.value=button.dataset.topicCommand;answerAgent();}));
  }
  if(page==='servers'){document.querySelector('#servers-refresh').addEventListener('click',loadServers);loadServers();}
  if(page==='training'){document.querySelector('#training-status-refresh').addEventListener('click',loadTrainingStatus);loadTrainingStatus();}
