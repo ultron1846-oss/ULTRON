@@ -63,6 +63,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "memory_budget_bytes": 2 * 1024 ** 3,
             "budget_covers_persistent_state": True,
             "dataset_manifest_sha256": "a" * 64,
+            "dataset_size": 100,
         }
         self.settings = TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                         max_seconds=60, write_memory=False)
