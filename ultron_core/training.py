@@ -318,6 +318,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 global_step += 1
                 optimizer.zero_grad(set_to_none=True)
                 accumulated = 0
+                if sampler is not None:
+                    committed_sampler_state = copy.deepcopy(sampler.state_dict())
                 if checkpoint_callback is not None:
                     mean_loss = sum(losses[-settings.gradient_accumulation_steps:]) / settings.gradient_accumulation_steps
                     checkpoint_data_state = dict(cursor)
@@ -327,15 +329,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                     })
-                    if sampler is not None:
-                        checkpoint_data_state["sampler_state"] = copy.deepcopy(sampler.state_dict())
+                    if committed_sampler_state is not None:
+                        checkpoint_data_state["sampler_state"] = copy.deepcopy(committed_sampler_state)
                     checkpoint_callback(global_step, {
                         "mean_loss": mean_loss,
                         "data_state": checkpoint_data_state,
                         "dataset_manifest_sha256": dataset_hash,
                     })
-                    if sampler is not None:
-                        committed_sampler_state = copy.deepcopy(sampler.state_dict())
                 if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
                     break
