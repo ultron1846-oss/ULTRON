@@ -21,7 +21,7 @@ The evaluator does not instantiate or run a neural model. Its output sets `model
 
 ## Supported scope
 
-Current generator topics are:
+Current generator topics (version 0.4.0) are:
 - integer arithmetic;
 - rational arithmetic;
 - simple one-variable linear equations;
