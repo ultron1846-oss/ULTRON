@@ -129,12 +129,20 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         exact=lambda:union==size_a+size_b-intersection and max(size_a,size_b)<=union<=size_a+size_b
     elif topic == "propositional_logic":
         p,q=bool(n(0,1)),bool(n(0,1))
-        value=(p and q) or (not p)
-        data.update(p=p,q=q,expression="(p AND q) OR NOT p",value=value)
-        problem=f"Evaluate (p AND q) OR NOT p when p={str(p).lower()} and q={str(q).lower()}."
+        operator=rng.choice(("AND","OR","XOR","IMPLIES"))
+        if operator=="AND":
+            value=p and q
+        elif operator=="OR":
+            value=p or q
+        elif operator=="XOR":
+            value=p != q
+        else:
+            value=(not p) or q
+        data.update(p=p,q=q,operator=operator,value=value)
+        problem=f"Evaluate p {operator} q when p={str(p).lower()} and q={str(q).lower()}."
         answer=str(value).lower()
-        steps=[f"p AND q = {str(p and q).lower()}.",f"NOT p = {str(not p).lower()}.",f"Combine with OR: {str(value).lower()}."]
-        exact=lambda:value==(p and q) or value==(not p) and value==((p and q) or (not p))
+        steps=[f"Apply the truth rule for {operator}.",f"The result is {str(value).lower()}."]
+        exact=lambda:value==((p and q) if operator=="AND" else (p or q) if operator=="OR" else (p != q) if operator=="XOR" else ((not p) or q)
     elif topic == "mathematical_induction":
         k=n(1,25*d)
         base_sum=1
@@ -142,7 +150,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         lhs=Fraction(k*(k+1),2)+(k+1)
         rhs=Fraction((k+1)*(k+2),2)
         data.update(sample_n=k,formula="sum(1..n)=n(n+1)/2",base_case_sum=base_sum,induction_lhs=str(lhs),induction_rhs=str(rhs))
-        problem="Prove by induction that 1+2+...+n=n(n+1)/2 for every integer n≥1."
+        problem=f"Prove by induction that 1+2+...+n=n(n+1)/2 for every n≥1; show the induction step at n={k}."
         answer="Base case: true. Induction step: n(n+1)/2+(n+1)=(n+1)(n+2)/2."
         steps=["Base n=1: 1=1(1+1)/2.",f"Assume the formula at n={k}.",f"Add n+1: n(n+1)/2+(n+1)=(n+1)(n+2)/2.", "Therefore the statement holds for all n≥1 by induction."]
         exact=lambda:base_sum==1 and formula==Fraction(k*(k+1),2) and lhs==rhs and lhs==Fraction((k+1)*(k+2),2)
@@ -174,7 +182,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         problem=f"Find the eigenvalues of the diagonal matrix A=[[{a},0],[0,{b}]]."
         answer=f"λ1={a}; λ2={b}"
         steps=[f"det(A−λI)=({a}−λ)({b}−λ).",f"The characteristic roots are λ={a} and λ={b}."]
-        exact=lambda:(a,b)==tuple(data["eigenvalues"]) and (a,b)==(a,b)
+        exact=lambda:data["matrix"]==[[a,0],[0,b]] and (a,b)==tuple(data["eigenvalues"]) and (a-a)*(a-b)==0 and (b-a)*(b-b)==0
     elif topic == "Taylor_series":
         a,b,c,h=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d)
         fh=a*h*h+b*h+c
@@ -183,7 +191,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         problem=f"Find the degree-2 Taylor polynomial of f(x)={a}x²+({b})x+({c}) centered at x={h}."
         answer=f"P2(x)={fh}+({derivative})(x−{h})+({a})(x−{h})²"
         steps=[f"f({h})={fh}.",f"f'({h})={derivative}.",f"f''/2={a}.", "Use P₂(x)=f(h)+f'(h)(x−h)+f''(h)(x−h)²/2."]
-        exact=lambda:fh==a*h*h+b*h+c and derivative==2*a*h+b and a==a
+        exact=lambda:fh==a*h*h+b*h+c and derivative==2*a*h+b and all(fh+derivative*(x-h)+a*(x-h)**2==a*x*x+b*x+c for x in (h-1,h,h+1))
     elif topic == "conditional_probability":
         b_total=n(1,40*d)
         intersection=n(0,b_total)
