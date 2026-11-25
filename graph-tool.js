@@ -78,7 +78,7 @@ function compile(source) {
 }
 
 export function compileGraphExpression(source) {
-  return compile(String(source).trim().replace(/^y\\s*=\\s*/i, ''));
+  return compile(String(source).trim().replace(/^y\s*=\s*/i, ''));
 }
 
 function xmlEscape(value) {
