@@ -125,6 +125,65 @@ class UniversityFoundationTests(unittest.TestCase):
             a,b,_=v["coefficients"]
             self.assertEqual(int(item["answer"]),2*a*v["point"]+b)
 
+
+    def test_batch3_math_regressions(self):
+        for seed in range(180):
+            difficulty=1+seed%5
+            item=generate(seed,difficulty,"quantifiers")
+            v=item["ingredients"]
+            expected=v["threshold"]==len(v["domain"]) if v["quantifier"]=="forall" else v["threshold"]>0
+            self.assertEqual(item["answer"],str(expected).lower())
+
+            item=generate(seed,difficulty,"cardinality")
+            v=item["ingredients"]
+            self.assertEqual(v["cardinality"],min(v["set_size"],v["modulus"]))
+
+            item=generate(seed,difficulty,"linear_transformations")
+            v=item["ingredients"]; a,b,c,e=v["matrix"]; x,y=v["vector"]
+            self.assertEqual(v["image"],[a*x+b*y,c*x+e*y])
+
+            item=generate(seed,difficulty,"diagonalization")
+            self.assertTrue(item["ingredients"]["diagonalizable"])
+
+            item=generate(seed,difficulty,"inner_product_spaces")
+            v=item["ingredients"]
+            self.assertEqual(v["inner_product"],v["vector"][0]*v["other"][0]+v["vector"][1]*v["other"][1])
+
+            item=generate(seed,difficulty,"orthogonality_and_projection")
+            self.assertEqual(item["ingredients"]["projection"],[item["ingredients"]["vector"][0],0])
+
+            item=generate(seed,difficulty,"least_squares")
+            v=item["ingredients"]
+            self.assertEqual(Fraction(item["answer"]),Fraction(v["column"][0]*v["target"][0],v["squared_norm"]))
+
+            item=generate(seed,difficulty,"mean_value_theorems")
+            v=item["ingredients"]; a,b,_=v["coefficients"]; c=Fraction(v["mean_value_point"])
+            self.assertEqual(2*a*c+b,Fraction(v["secant_slope"]))
+
+            item=generate(seed,difficulty,"Riemann_integral")
+            v=item["ingredients"]; a,b=v["linear_coefficients"]; left,right=v["interval"]
+            expected=Fraction(a*(right**2-left**2),2)+b*(right-left)
+            self.assertEqual(Fraction(item["answer"]),expected)
+
+            item=generate(seed,difficulty,"improper_integrals")
+            self.assertEqual(Fraction(item["answer"]),Fraction(1,item["ingredients"]["power"]-1))
+
+            item=generate(seed,difficulty,"sequences_and_series")
+            v=item["ingredients"]
+            self.assertEqual(Fraction(item["answer"]),Fraction(v["first_term"],1)/(1-Fraction(v["common_ratio"])))
+
+            item=generate(seed,difficulty,"power_series")
+            v=item["ingredients"]
+            self.assertEqual(item["answer"],"converges" if abs(v["test_point"]-v["center"])<v["radius"] else "diverges")
+
+            item=generate(seed,difficulty,"gradient_and_directional_derivatives")
+            v=item["ingredients"]; a,b=v["coefficients"]; x,y=v["point"]; u,w=v["direction"]
+            self.assertEqual(int(item["answer"]),2*a*x*u+2*b*y*w)
+
+            item=generate(seed,difficulty,"chain_rule_multivariable")
+            v=item["ingredients"]; a,b=v["coefficients"]; t=v["parameter"]
+            self.assertEqual(int(item["answer"]),4*a*t**3+3*b)
+
     def test_university_registry_declared(self):
         self.assertEqual(set(GENERATOR_METADATA),set(TOPICS))
         registry=render_registries()["university/registry.json"]
