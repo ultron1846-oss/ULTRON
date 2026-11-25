@@ -4,15 +4,13 @@ import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 
-test('GitHub Pages stages required runtime modules and excludes account authentication', async () => {
-  const [workflow, app, html] = await Promise.all([read('.github/workflows/pages.yml'), read('app.js'), read('index.html')]);
+test('account-free root site imports required runtime modules and excludes auth', async () => {
+  const [app, html] = await Promise.all([read('app.js'), read('index.html')]);
   for (const module of ['math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
     assert.ok(app.includes(module), `app entry must import ${module}`);
-    assert.ok(workflow.includes(module), `Pages artifact must stage ${module}`);
   }
   assert.doesNotMatch(app, /owner-auth|signInOwner|verifyOwner|signOutOwner|renderOwner|bindOwner/);
   assert.doesNotMatch(html, /data-page="owner"|Owner sign in|owner-password|owner-email/);
-  assert.doesNotMatch(workflow, /owner-auth\.js/);
 });
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
@@ -73,13 +71,11 @@ test('practice exercise handlers and fixtures are removed without deleting exist
   assert.match(app, /listRecords\('mistakes',30\)/);
 });
 
-test('Pages deployment validates all required assets and rejects retired auth artifacts', async () => {
-  const workflow = await read('.github/workflows/pages.yml');
-  assert.match(workflow, /Validate static site inputs/);
-  assert.match(workflow, /set -eu/);
-  assert.match(workflow, /test -s/);
-  assert.match(workflow, /if \[ -e owner-auth\.js \]/);
-  assert.match(workflow, /mkdir -p _site/);
+test('no duplicate custom Pages artifact deployment workflow remains', async () => {
+  await assert.rejects(read('.github/workflows/pages.yml'), { code: 'ENOENT' });
+  const workflow = await read('.github/workflows/test.yml');
+  assert.match(workflow, /pull_request/);
+  assert.match(workflow, /node --test/);
 });
 test('static shell does not present a public access mode', async () => {
   const html = await read('index.html');
