@@ -25,7 +25,7 @@
     {
       "topic": "integers",
       "grade_band": "G5-6",
-      "includes_word_problems": false
+      "includes_word_problems": true
     },
     {
       "topic": "exponents",
@@ -35,7 +35,7 @@
     {
       "topic": "order_of_operations",
       "grade_band": "G5-6",
-      "includes_word_problems": false
+      "includes_word_problems": true
     },
     {
       "topic": "linear_equations",
