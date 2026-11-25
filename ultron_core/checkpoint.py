@@ -113,9 +113,16 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
         raise TypeError("data_state must be a dictionary or None")
     if data_state is not None and dataset_manifest_sha256 is None:
         raise ValueError("data_state requires a dataset manifest SHA-256")
-    if training_settings is None and isinstance(data_state, dict):
-        training_settings = data_state.get("training_settings")
+    cursor_training_settings = (
+        data_state.get("training_settings") if isinstance(data_state, dict) else None
+    )
+    if training_settings is None:
+        training_settings = cursor_training_settings
     training_settings = _validate_training_settings(training_settings)
+    cursor_training_settings = _validate_training_settings(cursor_training_settings)
+    if (training_settings is not None and cursor_training_settings is not None
+            and training_settings != cursor_training_settings):
+        raise ValueError("top-level and data_state training_settings must match")
     if dataset_manifest_sha256 is not None and (
             not isinstance(dataset_manifest_sha256, str) or len(dataset_manifest_sha256) != 64
             or any(char not in "0123456789abcdef" for char in dataset_manifest_sha256)):
@@ -202,10 +209,16 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     data_state = payload.get("data_state")
     if data_state is not None and not isinstance(data_state, dict):
         raise ValueError("checkpoint data state is malformed")
-    training_settings = payload.get("training_settings")
-    if training_settings is None and isinstance(data_state, dict):
-        training_settings = data_state.get("training_settings")
-    training_settings = _validate_training_settings(training_settings)
+    training_settings = _validate_training_settings(payload.get("training_settings"))
+    cursor_training_settings = (
+        data_state.get("training_settings") if isinstance(data_state, dict) else None
+    )
+    cursor_training_settings = _validate_training_settings(cursor_training_settings)
+    if (training_settings is not None and cursor_training_settings is not None
+            and training_settings != cursor_training_settings):
+        raise ValueError("checkpoint training_settings metadata is inconsistent")
+    if training_settings is None:
+        training_settings = cursor_training_settings
     dataset_hash = payload.get("dataset_manifest_sha256")
     if dataset_hash is not None and (
             not isinstance(dataset_hash, str) or len(dataset_hash) != 64
