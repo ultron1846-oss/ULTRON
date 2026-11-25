@@ -4,7 +4,7 @@ import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-inte
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261125-1';
 import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory, saveExperience } from './memory-store.js?v=20261124-5';
 
-const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
+const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', training:'Training control', backend:'Supabase backend', settings:'Settings', owner:'Owner sign in' };
 const topics = [
   {name:'Arithmetic',symbol:'＋',level:'AVAILABLE',desc:'Numbers, operations, fractions and ratios.',intro:'Arithmetic studies number systems and the operations used to calculate with them.',formula:'a + b · a − b · a × b · a ÷ b',example:'18 × 7 = 126',prereq:'Whole numbers'},
   {name:'Algebra',symbol:'x',level:'PLANNED',desc:'Expressions, equations and relationships.',intro:'Algebra represents unknown values with symbols and studies relationships between quantities.',formula:'ax + b = c',example:'2x + 3 = 11 → x = 4',prereq:'Arithmetic'},
@@ -85,6 +85,16 @@ function renderServers(){
  ${card('<div class="eyebrow">EXECUTION SAFETY</div><h2>Informational only</h2><p class="muted">The public website does not authenticate with providers, submit jobs, allocate hosted memory or run training. No provider should be used until its terms and integration are independently verified.</p><span class="status-pill">REMOTE EXECUTION DISABLED</span>')}`;
 }
 
+function renderTraining(){
+ return `${heading('TRAINING CONTROL / PRE-TRAINING GATE','Training control','Generic public status and readiness snapshot. This page does not launch jobs, generate training data or mutate checkpoints.','<span class="status-pill">EXECUTION DISABLED</span>')}
+ <div class="status-grid">
+ ${[['MODEL CONFIGURATION','61.8M TRAINABLE','Configured foundation model: 61,826,048 trainable / 63,400,451 total parameters. No weights have been trained.'],['TRAINING DATA','NOT CREATED','Generator v0.4.0 has seven narrow exact-synthetic topics; no training corpus has been generated.'],['RUNTIME','NOT CONNECTED','Colab is listed for future manual use only. No provider session is connected.'],['CHECKPOINT','NO TRAINED CHECKPOINT','Checkpoint infrastructure has mock/test coverage only; no trained weights or optimizer state exist.']].map(([a,b,c])=>card(`<div class="mini-label">${a}</div><strong class="status-value">${b}</strong><p>${c}</p>`,'status-card')).join('')}
+ </div>
+ ${card('<div class="eyebrow">PUBLIC CONTROL-PLANE STATUS</div><h2>Runtime status</h2><p class="muted">This requests only the generic public_status action. It does not authenticate, inspect owner records, or start/stop a job.</p><div class="capability-list"><div><b>Control plane</b><span class="tag planned" id="training-control-plane">CHECKING</span></div><div><b>Model status</b><span class="tag planned" id="training-model-status">UNKNOWN</span></div><div><b>Training enabled</b><span class="tag planned" id="training-enabled-status">CHECKING</span></div><div><b>Remote execution</b><span class="tag planned" id="training-remote-status">CHECKING</span></div><p class="muted small" id="training-status-checked">Last checked: pending</p></div><button class="outline-button" id="training-status-refresh" type="button">Refresh public status</button><p class="muted small" id="training-status-feedback" role="status">No user-specific job history is displayed.</p>')}
+ ${card('<div class="eyebrow">PRE-TRAINING GATE</div><h2>Outstanding readiness checks</h2><div class="capability-list"><div><b>Owner iPad Safari acceptance</b><span class="tag planned">OWNER TEST</span></div><div><b>Supabase leaked-password protection</b><span class="tag planned">OWNER SETTING</span></div><div><b>Clean Colab runtime and checkpoint transfer</b><span class="tag planned">OWNER TEST</span></div><div><b>Sampler restoration and clean-runtime equivalence</b><span class="tag planned">NOT PROVEN</span></div><div><b>Formal proof checking and broader university mathematics</b><span class="tag planned">INCOMPLETE</span></div></div>')}
+ ${card('<div class="eyebrow">EXECUTION CONTROLS / LOCKED</div><h2>Training controls</h2><p class="muted">Controls are intentionally disabled until the readiness gate is passed and a separate training authorization is given. There are no click handlers or remote execution requests on this page.</p><div class="agent-actions"><button class="primary-button" id="training-start" type="button" disabled aria-disabled="true" title="Disabled until pre-training readiness and separate authorization">Start training</button><button class="outline-button" id="training-pause" type="button" disabled aria-disabled="true">Pause</button><button class="outline-button" id="training-stop" type="button" disabled aria-disabled="true">Stop</button><button class="outline-button" id="training-resume" type="button" disabled aria-disabled="true">Resume checkpoint</button><button class="outline-button" id="training-save" type="button" disabled aria-disabled="true">Save checkpoint</button></div><div class="agent-actions"><button class="outline-button" data-page="servers" type="button">View provider directory →</button><button class="outline-button" data-page="owner" type="button">Owner sign in →</button></div><div class="warning-banner">No training, bulk data generation, remote job submission or checkpoint mutation is available from this frontend.</div>')}
+ ${card('<div class="eyebrow">RESOURCE PREFERENCE</div><h2>Workload budget</h2><p class="muted">The RAM slider in Settings is a saved preference only. It does not allocate physical RAM or change a hosted runtime.</p><button class="outline-button" data-page="settings" type="button">Open workload settings →</button>')}`;
+}
 function renderBackend(){
  const audit=supabaseBackendAudit;
  const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='active'?'available':'planned'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
@@ -120,7 +130,7 @@ function renderOwner(){
  + card('<div class="eyebrow">SUPABASE AUTH / EXISTING ACCOUNT ONLY</div><h2>Owner session</h2><p class="muted">There is no public registration. Signing in does not grant owner privileges unless the backend verifies the configured owner identity.</p><div id="owner-auth-state" class="status-pill">CHECKING SESSION</div><form id="owner-signin-form" class="owner-form"><label class="field-label" for="owner-email">Owner email</label><div id="owner-credentials"><input class="text-input" id="owner-email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Email address"><label class="field-label" for="owner-password">Password</label><input class="text-input" id="owner-password" name="password" type="password" autocomplete="current-password" required maxlength="256" placeholder="Password"><button class="primary-button" id="owner-signin" type="submit">Sign in</button></div><div class="agent-actions"><button class="outline-button" id="owner-check" type="button">Check connection</button><button class="outline-button" id="owner-signout" type="button" hidden>Sign out</button></div></form><p id="owner-auth-feedback" class="practice-feedback" role="status" aria-live="polite">Owner-only access is protected by server-side identity verification.</p><p class="muted small">Do not share your password. This website never creates accounts and never stores your password.</p>')
  + card('<div class="eyebrow">ACCESS BOUNDARY</div><h2>Public and owner areas</h2><ul class="feature-list"><li>Overview, learning, Math Agent and local memory remain public.</li><li>Owner identity is checked against the server-side owner configuration.</li><li>Non-owner accounts are denied even if they can authenticate.</li><li>Training and remote execution remain disabled unless separately authorized.</li></ul>');
 }
-function render(page){return ({owner:renderOwner,overview:renderOverview,learning:renderLearning,agent:renderAgent,memory:renderMemory,servers:renderServers,backend:renderBackend,settings:renderSettings})[page]();}
+function render(page){return ({owner:renderOwner,overview:renderOverview,learning:renderLearning,agent:renderAgent,memory:renderMemory,servers:renderServers,training:renderTraining,backend:renderBackend,settings:renderSettings})[page]();}
 function addChat(role,text,extra=''){const node=document.createElement('div');node.className='chat-message '+(role==='user'?'user-message':'system-message');const label=document.createElement('b');label.textContent=role==='user'?'YOU':'ULTRON';const body=document.createElement('p');body.textContent=text;node.append(label,body);if(extra){const detail=document.createElement('small');detail.textContent=extra;node.append(detail);}const log=document.querySelector('#chat-log');log.append(node);log.scrollTop=log.scrollHeight;return node;}
 function attachSaveButton(node,prompt,answer,explanation){const button=document.createElement('button');button.type='button';button.className='outline-button memory-save-button';button.textContent='Save to memory';button.addEventListener('click',async()=>{button.disabled=true;button.textContent='Saving…';try{await saveExperience({prompt,answer,correct:true,topic:'Math Agent',explanation});button.textContent='Saved locally';button.title='Saved in this browser’s ULTRON Memory Vault';}catch(error){button.disabled=false;button.textContent='Retry save';button.title=error.message||'Local memory save failed';}});node.append(button);}
 function answerAgent(){
@@ -133,6 +143,36 @@ function answerAgent(){
   else if(/^[0-9+*/().\s^×÷−-]+$/.test(expression)){const value=evaluateExpression(expression);const text=`Result: ${value}`;const node=addChat('assistant',text,`Expression: ${expression}. Evaluated by the deterministic arithmetic parser.`);attachSaveButton(node,raw,text,'Arithmetic expression evaluated by the deterministic ULTRON parser.');}
   else addChat('assistant','I cannot safely identify a supported arithmetic expression or linear equation in that message. Try an expression such as (12 + 8) / 4 or an equation such as 2x + 3 = 11.','Unsupported requests are not guessed.');
  }catch(error){addChat('assistant',`I could not solve that input: ${error.message}`,'Check the syntax and supported-operation limits.');}
+}
+async function loadTrainingStatus(){
+ const control=document.querySelector('#training-control-plane');
+ const model=document.querySelector('#training-model-status');
+ const enabled=document.querySelector('#training-enabled-status');
+ const remote=document.querySelector('#training-remote-status');
+ const checked=document.querySelector('#training-status-checked');
+ const feedback=document.querySelector('#training-status-feedback');
+ const refresh=document.querySelector('#training-status-refresh');
+ if(!control||!model||!enabled||!remote)return;
+ if(refresh)refresh.disabled=true;
+ control.textContent='CHECKING';model.textContent='CHECKING';enabled.textContent='CHECKING';remote.textContent='CHECKING';
+ if(checked)checked.textContent='Last checked: in progress';
+ if(feedback)feedback.textContent='Requesting generic public status only…';
+ try{
+  const result=await fetchSupabasePublicStatus();
+  control.textContent=result.control_plane==='online'?'ONLINE':'UNAVAILABLE';
+  model.textContent=String(result.model_status||'unknown').toUpperCase();
+  enabled.textContent=result.training_enabled===true?'ENABLED':'DISABLED';
+  remote.textContent=result.remote_execution_enabled===true?'ENABLED':'DISABLED';
+  if(checked){
+   const stamp=result.checked_at?new Date(result.checked_at):new Date();
+   checked.textContent='Last checked: '+(Number.isNaN(stamp.getTime())?'just now':stamp.toLocaleString());
+  }
+  if(feedback)feedback.textContent='Public status received. This page exposes no job controls or owner-specific history.';
+ }catch(error){
+  control.textContent='UNAVAILABLE';model.textContent='UNKNOWN';enabled.textContent='UNKNOWN';remote.textContent='UNKNOWN';
+  if(checked)checked.textContent='Last checked: '+new Date().toLocaleString();
+  if(feedback)feedback.textContent=error?.message||'Could not retrieve public status. No job action was attempted.';
+ }finally{if(refresh)refresh.disabled=false;}
 }
 async function loadSupabaseStatus(){
  const status=document.querySelector('#supabase-status');
@@ -225,6 +265,7 @@ function bind(page){
   content.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('#agent-input').value=b.dataset.example;document.querySelector('#agent-input').focus();}));
  }
  if(page==='servers'){document.querySelector('#servers-refresh').addEventListener('click',loadServers);loadServers();}
+ if(page==='training'){document.querySelector('#training-status-refresh').addEventListener('click',loadTrainingStatus);loadTrainingStatus();}
  if(page==='backend'){document.querySelector('#supabase-refresh').addEventListener('click',loadSupabaseStatus);loadSupabaseStatus();}
  if(page==='settings'){
   const slider=document.querySelector('#memory-slider');
