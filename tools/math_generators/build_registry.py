@@ -51,33 +51,40 @@ def build_grade8_12_registry() -> dict:
     }
 
 
+def _university_curriculum() -> list[dict]:
+    curriculum_path = ROOT / "university" / "curriculum.json"
+    return json.loads(curriculum_path.read_text(encoding="utf-8"))["topics"]
+
+
 def build_university_registry() -> dict:
+    implemented = set(UNIVERSITY)
+    rows = []
+    for topic in _university_curriculum():
+        rows.append({
+            **topic,
+            "grade_band": "University",
+            "includes_word_problems": False,
+            "has_generator": topic["topic"] in implemented,
+        })
     return {
         "version": 1,
-        "batch": "University foundation mathematics",
-        "topics": [
-            {
-                "topic": topic,
-                "grade_band": spec["grade_band"],
-                "includes_word_problems": bool(spec.get("word_templates", [])),
-            }
-            for topic, spec in UNIVERSITY.items()
-        ],
+        "batch": "University mathematics curriculum map",
+        "scope": "Broad undergraduate topic catalog; not an exhaustive list of every specialty.",
+        "topics": rows,
     }
-
 
 def build_combined_registry() -> dict:
     topics = []
     for metadata in (GRADE1_4, GRADE5_8, GRADE8_12):
         topics.extend(_topic_rows(metadata, "word_problems"))
     topics.extend([
-        {"topic": topic, "grade_band": spec["grade_band"],
-         "word_problems": bool(spec.get("word_templates", []))}
-        for topic, spec in UNIVERSITY.items()
+        {"topic": row["topic"], "grade_band": "University",
+         "word_problems": False, "status": row["status"]}
+        for row in _university_curriculum()
     ])
     return {
         "version": 1,
-        "coverage_through": "G1-12 + university foundations (generator coverage)",
+        "coverage_through": "G1-12 + university mathematics curriculum catalog (generator status explicit)",
         "topics": topics,
     }
 
