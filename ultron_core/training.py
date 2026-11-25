@@ -395,8 +395,10 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     committed_microbatches = microbatches_seen - accumulated
     committed_samples = samples_seen - accumulated_samples
     if sampler is not None:
-        if accumulated and committed_sampler_state is not None:
-            sampler.load_state_dict(committed_sampler_state)
+        if committed_sampler_state is not None:
+            current_sampler_state = sampler.state_dict()
+            if current_sampler_state.get("next_index") != committed_sampler_state.get("next_index"):
+                sampler.load_state_dict(committed_sampler_state)
         final_sampler_state = copy.deepcopy(sampler.state_dict())
     else:
         final_sampler_state = None
