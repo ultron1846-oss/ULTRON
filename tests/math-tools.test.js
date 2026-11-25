@@ -53,6 +53,7 @@ test('2x2 solver covers unique, dependent and inconsistent systems',()=>{
   assert.deepEqual(solveLinearSystem2x2(2,1,1,-1,5,1),{kind:'unique',x:2,y:1});
   assert.equal(solveLinearSystem2x2(1,2,2,4,3,6).kind,'dependent');
   assert.equal(solveLinearSystem2x2(1,2,2,4,3,7).kind,'inconsistent');
+  assert.equal(solveLinearSystem2x2(1,2,2,4,3,7).kind,'inconsistent');
 });
 
 test('command parser is safe and rejects unknown commands',()=>{
