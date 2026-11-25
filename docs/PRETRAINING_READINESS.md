@@ -55,7 +55,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 5 — Data generation and dataset integrity
 
-- [x] Audit generator scope: seven exact-synthetic topics (arithmetic, rationals, linear equations, polynomial derivative/integral, 2x2 determinant/system); no broad university curriculum claim.
+- [x] Audit generator scope: eight exact-synthetic topics (arithmetic, rationals, linear equations, polynomial derivative/integral, 2x2 determinant/system/inverse); no broad university curriculum claim.
 - [x] Add deterministic prompt-group split and duplicate prompt collapse.
 - [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
@@ -63,6 +63,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [ ] Add independent validators for broader topics.
 - [x] Add bounded polynomial derivative generation with an independent exact polynomial parser/validator.
 - [x] Add exact definite polynomial-integral generation and independent rational antiderivative evaluation.
+- [x] Add exact 2x2 matrix inverse generation with an independent determinant-based rational validator (generator v0.5.0).
 - [ ] Expand further topics only with independent exact validators.
 - [ ] Ensure ULTRON-generated data only; no external generated corpus.
 
@@ -94,7 +95,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add exact answer scoring for rational arithmetic, polynomial derivatives/integrals, 2x2 determinants, and 2x2 linear systems, including coverage/abstention and per-topic metrics.
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
-- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for all seven generated topics.
+- [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for all eight generated topics.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
