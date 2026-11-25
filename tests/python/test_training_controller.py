@@ -186,7 +186,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
-        metadata = {"format_version": 4, "rng_restored": True, "step": 4,
+        metadata = {"format_version": 4, "rng_restored": True, "dataset_hash_verified": True, "step": 4,
                     "data_state": {"epoch": 0, "next_batch_index": 2, "next_sample_index": 2, "seed": 0,
                                    "gradient_accumulation_steps": 2, "dataset_size": 100,
                                    "dataset_manifest_sha256": "a" * 64},
@@ -234,7 +234,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
 
     def test_resume_requires_next_batch_cursor(self):
-        metadata = {"format_version": 4, "step": 8, "rng_restored": True,
+        metadata = {"format_version": 4, "step": 8, "rng_restored": True, "dataset_hash_verified": True,
                     "data_state": {"epoch": 1, "batch": 3},
                     "dataset_manifest_sha256": "a" * 64}
         with self.assertRaisesRegex(ValueError, "epoch, next_batch_index, and next_sample_index"):
