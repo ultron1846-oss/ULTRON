@@ -88,7 +88,8 @@ export function createGraphSvg(expression, options = {}) {
   if (!Number.isFinite(minX) || !Number.isFinite(maxX) || minX >= maxX || maxX - minX > 10000) throw new Error('Choose a valid x-domain with minX < maxX and width no greater than 10,000.');
   if (!Number.isFinite(width) || width < 240 || width > 1000 || !Number.isFinite(height) || height < 180 || height > 800) throw new Error('Graph size must be between 240×180 and 1000×800.');
   if (!Number.isFinite(samples) || samples < 100 || samples > 2000) throw new Error('Graph sampling must be between 100 and 2,000 points.');
-  const fn = compile(expression.trim().replace(/^y\s*=\s*/i, ''));
+  const labelExpression = expression.trim().replace(/^y\s*=\s*/i, '');
+  const fn = compile(labelExpression);
   const pad = 34, plotW = width - pad * 2, plotH = height - pad * 2;
   const xs = Array.from({length: 11}, (_, i) => minX + (maxX - minX) * i / 10);
   const ys = [];
@@ -122,5 +123,5 @@ export function createGraphSvg(expression, options = {}) {
     path.push((drawing ? 'L' : 'M') + px(x).toFixed(2) + ' ' + py(y).toFixed(2));
     drawing = true;
   }
-  return '<svg class="ultron-graph" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Graph of y='+xmlEscape(expression)+'"><title>y='+xmlEscape(expression)+'</title><rect x="0" y="0" width="'+width+'" height="'+height+'" rx="12" class="graph-background"/>'+grid.join('')+'<line x1="'+pad+'" y1="'+axisX.toFixed(2)+'" x2="'+(width-pad)+'" y2="'+axisX.toFixed(2)+'" class="graph-axis"/><line x1="'+axisY.toFixed(2)+'" y1="'+pad+'" x2="'+axisY.toFixed(2)+'" y2="'+(height-pad)+'" class="graph-axis"/><path d="'+path.join(' ')+'" class="graph-curve" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="'+pad+'" y="'+(height-10)+'" class="graph-label">x: '+minX+' to '+maxX+'</text><text x="'+(width-pad)+'" y="18" text-anchor="end" class="graph-label">y='+xmlEscape(expression)+'</text></svg>';
+  return '<svg class="ultron-graph" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Graph of y='+xmlEscape(labelExpression)+'"><title>y='+xmlEscape(labelExpression)+'</title><rect x="0" y="0" width="'+width+'" height="'+height+'" rx="12" class="graph-background"/>'+grid.join('')+'<line x1="'+pad+'" y1="'+axisX.toFixed(2)+'" x2="'+(width-pad)+'" y2="'+axisX.toFixed(2)+'" class="graph-axis"/><line x1="'+axisY.toFixed(2)+'" y1="'+pad+'" x2="'+axisY.toFixed(2)+'" y2="'+(height-pad)+'" class="graph-axis"/><path d="'+path.join(' ')+'" class="graph-curve" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="'+pad+'" y="'+(height-10)+'" class="graph-label">x: '+minX+' to '+maxX+'</text><text x="'+(width-pad)+'" y="18" text-anchor="end" class="graph-label">y='+xmlEscape(labelExpression)+'</text></svg>';
 }
