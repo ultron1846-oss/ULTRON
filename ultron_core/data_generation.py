@@ -321,7 +321,7 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
     else:
         raise ValueError(f"unsupported topic: {topic}")
 
-    answer_text = answer if topic == "polynomial_derivative" else _fraction_text(answer)
+    answer_text = answer if topic in ("polynomial_derivative", "linear_system_2x2") else _fraction_text(answer)
     valid = validate_example_text(prompt, answer_text, topic)
     payload = {
         "generator_version": GENERATOR_VERSION, "seed": seed, "index": index,
