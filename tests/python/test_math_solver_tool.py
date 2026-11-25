@@ -1,5 +1,4 @@
 import unittest
-from fractions import Fraction
 
 from ultron_core.agent_tools import execute_tool, get_tool_specs
 from ultron_core.math_solver_tool import run_math_solver, solve_linear
@@ -32,6 +31,10 @@ class MathSolverToolTests(unittest.TestCase):
     def test_linear_equation_fraction_solution(self):
         result = solve_linear("3x = 1")
         self.assertEqual(result["value"], "1/3")
+
+    def test_linear_equation_with_shifted_factor(self):
+        self.assertEqual(solve_linear("2(x + 1) = 8")["value"], "3")
+        self.assertEqual(solve_linear("x + 1 = 5")["value"], "4")
 
     def test_identity_and_no_solution(self):
         self.assertEqual(solve_linear("x = x")["status"], "identity")
