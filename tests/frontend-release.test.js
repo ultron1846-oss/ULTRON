@@ -79,7 +79,8 @@ test('no duplicate custom Pages artifact deployment workflow remains', async () 
   await assert.rejects(read('.github/workflows/pages.yml'), { code: 'ENOENT' });
   const workflow = await read('.github/workflows/test.yml');
   assert.match(workflow, /pull_request/);
-  assert.match(workflow, /node --test/);
+  assert.match(workflow, /run: npm test/);
+  assert.match(workflow, /build:math/);
 });
 test('static shell has no access-mode toggle and retains owner sign-in', async () => {
   const html = await read('index.html');
