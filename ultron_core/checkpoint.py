@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 from .config import NeuroSparseConfig
 
-_FORMAT_VERSION = 3
+_FORMAT_VERSION = 4
 
 def _digest(path: Path) -> str:
     h = hashlib.sha256()
@@ -78,7 +78,7 @@ def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
             raise ValueError(f"checkpoint model state tensor {name!r} has dtype {actual.dtype}; expected {target.dtype}")
 
 def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
-                   optimizer=None, step: int = 0, scheduler=None, data_state=None):
+                   optimizer=None, step: int = 0, scheduler=None, data_state=None, dataset_manifest_sha256=None):
     if not isinstance(config, NeuroSparseConfig):
         raise TypeError("config must be a NeuroSparseConfig")
     if isinstance(step, bool) or not isinstance(step, int) or step < 0:
@@ -88,6 +88,12 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
         raise ValueError("checkpoint config does not match model config")
     if data_state is not None and not isinstance(data_state, dict):
         raise TypeError("data_state must be a dictionary or None")
+    if data_state is not None and dataset_manifest_sha256 is None:
+        raise ValueError("data_state requires a dataset manifest SHA-256")
+    if dataset_manifest_sha256 is not None and (
+            not isinstance(dataset_manifest_sha256, str) or len(dataset_manifest_sha256) != 64
+            or any(char not in "0123456789abcdef" for char in dataset_manifest_sha256)):
+        raise ValueError("dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
     if scheduler is not None and not hasattr(scheduler, "state_dict"):
         raise TypeError("scheduler must provide state_dict")
     target = Path(path)
@@ -103,6 +109,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
         "optimizer": optimizer.state_dict() if optimizer is not None else None,
         "scheduler": scheduler.state_dict() if scheduler is not None else None,
         "rng": _capture_rng(), "data_state": data_state,
+        "dataset_manifest_sha256": dataset_manifest_sha256,
     }
     fd, name = tempfile.mkstemp(prefix="." + target.name + ".", suffix=".tmp", dir=target.parent)
     temporary = Path(name)
@@ -144,7 +151,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     if not isinstance(payload, dict):
         raise ValueError("checkpoint payload must be a mapping")
     version = payload.get("format_version")
-    if version not in (2, _FORMAT_VERSION):
+    if version not in (2, 3, _FORMAT_VERSION):
         raise ValueError("unsupported checkpoint format")
     saved_config, model_state, step = payload.get("config"), payload.get("model"), payload.get("step")
     if not isinstance(saved_config, dict) or not isinstance(model_state, dict):
@@ -168,6 +175,11 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     data_state = payload.get("data_state")
     if data_state is not None and not isinstance(data_state, dict):
         raise ValueError("checkpoint data state is malformed")
+    dataset_hash = payload.get("dataset_manifest_sha256")
+    if dataset_hash is not None and (
+            not isinstance(dataset_hash, str) or len(dataset_hash) != 64
+            or any(char not in "0123456789abcdef" for char in dataset_hash)):
+        raise ValueError("checkpoint dataset manifest hash is malformed")
     rng_state = payload.get("rng")
     if restore_rng and version >= 3 and not isinstance(rng_state, dict):
         raise ValueError("checkpoint RNG state is missing")
