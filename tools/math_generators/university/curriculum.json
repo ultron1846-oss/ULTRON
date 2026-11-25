@@ -1,0 +1,1189 @@
+{
+  "version": 1,
+  "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
+  "topic_count": 197,
+  "topics": [
+    {
+      "topic": "sets_and_functions",
+      "title": "sets and functions",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "propositional_logic",
+      "title": "propositional logic",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "predicate_logic",
+      "title": "predicate logic",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "quantifiers",
+      "title": "quantifiers",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "proof_methods",
+      "title": "proof methods",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mathematical_induction",
+      "title": "mathematical induction",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "relations_and_equivalence",
+      "title": "relations and equivalence",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cardinality",
+      "title": "cardinality",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "countable_and_uncountable_sets",
+      "title": "countable and uncountable sets",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "axiom_of_choice_intro",
+      "title": "axiom of choice intro",
+      "field": "Foundations and logic",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "vectors_and_vector_spaces",
+      "title": "vectors and vector spaces",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "subspaces_and_span",
+      "title": "subspaces and span",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_independence",
+      "title": "linear independence",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "basis_and_dimension",
+      "title": "basis and dimension",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_transformations",
+      "title": "linear transformations",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "matrix_rank",
+      "title": "matrix rank",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "systems_linear_equations",
+      "title": "systems linear equations",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "determinants",
+      "title": "determinants",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "eigenvalues_and_eigenvectors",
+      "title": "eigenvalues and eigenvectors",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "diagonalization",
+      "title": "diagonalization",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "inner_product_spaces",
+      "title": "inner product spaces",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "orthogonality_and_projection",
+      "title": "orthogonality and projection",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "least_squares",
+      "title": "least squares",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "spectral_theorem",
+      "title": "spectral theorem",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Jordan_form",
+      "title": "Jordan form",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "bilinear_and_quadratic_forms",
+      "title": "bilinear and quadratic forms",
+      "field": "Linear algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "limits_and_continuity",
+      "title": "limits and continuity",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "derivative_theory",
+      "title": "derivative theory",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mean_value_theorems",
+      "title": "mean value theorems",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Taylor_series",
+      "title": "Taylor series",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Riemann_integral",
+      "title": "Riemann integral",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "improper_integrals",
+      "title": "improper integrals",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "sequences_and_series",
+      "title": "sequences and series",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "power_series",
+      "title": "power series",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "multivariable_limits",
+      "title": "multivariable limits",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "partial_derivatives",
+      "title": "partial derivatives",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "gradient_and_directional_derivatives",
+      "title": "gradient and directional derivatives",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "chain_rule_multivariable",
+      "title": "chain rule multivariable",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "multiple_integrals",
+      "title": "multiple integrals",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "change_of_variables",
+      "title": "change of variables",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "line_integrals",
+      "title": "line integrals",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "surface_integrals",
+      "title": "surface integrals",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "vector_calculus",
+      "title": "vector calculus",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Green_stokes_divergence_theorems",
+      "title": "Green stokes divergence theorems",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "metric_spaces",
+      "title": "metric spaces",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "convergence_of_sequences",
+      "title": "convergence of sequences",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Cauchy_sequences",
+      "title": "Cauchy sequences",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "pointwise_and_uniform_convergence",
+      "title": "pointwise and uniform convergence",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "compactness",
+      "title": "compactness",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "connectedness",
+      "title": "connectedness",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continuity_metric_spaces",
+      "title": "continuity metric spaces",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "differentiation_real_analysis",
+      "title": "differentiation real analysis",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "measure_intro",
+      "title": "measure intro",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lebesgue_measure",
+      "title": "Lebesgue measure",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lebesgue_integral",
+      "title": "Lebesgue integral",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lp_spaces",
+      "title": "Lp spaces",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "functional_sequences",
+      "title": "functional sequences",
+      "field": "Real analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "complex_numbers_and_topology",
+      "title": "complex numbers and topology",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "holomorphic_functions",
+      "title": "holomorphic functions",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Cauchy_Riemann_equations",
+      "title": "Cauchy Riemann equations",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "contour_integrals",
+      "title": "contour integrals",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Cauchy_integral_formula",
+      "title": "Cauchy integral formula",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Taylor_and_Laurent_series",
+      "title": "Taylor and Laurent series",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "residues",
+      "title": "residues",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "singularities",
+      "title": "singularities",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "conformal_maps",
+      "title": "conformal maps",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "maximum_modulus_principle",
+      "title": "maximum modulus principle",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "groups_and_subgroups",
+      "title": "groups and subgroups",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cyclic_groups",
+      "title": "cyclic groups",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "permutation_groups",
+      "title": "permutation groups",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cosets_and_Lagrange_theorem",
+      "title": "cosets and Lagrange theorem",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "normal_subgroups_and_quotients",
+      "title": "normal subgroups and quotients",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "group_homomorphisms",
+      "title": "group homomorphisms",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "rings_and_ideals",
+      "title": "rings and ideals",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "integral_domains",
+      "title": "integral domains",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "fields_and_extensions",
+      "title": "fields and extensions",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "polynomial_rings",
+      "title": "polynomial rings",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "modules_intro",
+      "title": "modules intro",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Galois_theory_intro",
+      "title": "Galois theory intro",
+      "field": "Abstract algebra",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "divisibility_and_gcd",
+      "title": "divisibility and gcd",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Euclidean_algorithm",
+      "title": "Euclidean algorithm",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "congruences",
+      "title": "congruences",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Chinese_remainder_theorem",
+      "title": "Chinese remainder theorem",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Fermat_and_Euler_theorems",
+      "title": "Fermat and Euler theorems",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "multiplicative_order",
+      "title": "multiplicative order",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Diophantine_equations",
+      "title": "Diophantine equations",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "quadratic_residues",
+      "title": "quadratic residues",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continued_fractions",
+      "title": "continued fractions",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "analytic_number_theory_intro",
+      "title": "analytic number theory intro",
+      "field": "Number theory",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "topological_spaces",
+      "title": "topological spaces",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "open_and_closed_sets",
+      "title": "open and closed sets",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "basis_for_topology",
+      "title": "basis for topology",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continuity_topological_spaces",
+      "title": "continuity topological spaces",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "homeomorphisms",
+      "title": "homeomorphisms",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "compact_topological_spaces",
+      "title": "compact topological spaces",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "connected_spaces",
+      "title": "connected spaces",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "product_and_quotient_topology",
+      "title": "product and quotient topology",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "fundamental_group_intro",
+      "title": "fundamental group intro",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "covering_spaces_intro",
+      "title": "covering spaces intro",
+      "field": "Topology",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "counting_principles",
+      "title": "counting principles",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "permutations_and_combinations",
+      "title": "permutations and combinations",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "pigeonhole_principle",
+      "title": "pigeonhole principle",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "inclusion_exclusion",
+      "title": "inclusion exclusion",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "recurrence_relations",
+      "title": "recurrence relations",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "generating_functions",
+      "title": "generating functions",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "graph_theory_basics",
+      "title": "graph theory basics",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "trees_and_spanning_trees",
+      "title": "trees and spanning trees",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "planar_graphs",
+      "title": "planar graphs",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "matching_and_networks",
+      "title": "matching and networks",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "extremal_combinatorics",
+      "title": "extremal combinatorics",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "designs_and_codes_intro",
+      "title": "designs and codes intro",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "probability_spaces",
+      "title": "probability spaces",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "conditional_probability",
+      "title": "conditional probability",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Bayes_theorem",
+      "title": "Bayes theorem",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "random_variables",
+      "title": "random variables",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "discrete_distributions",
+      "title": "discrete distributions",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "continuous_distributions",
+      "title": "continuous distributions",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "expectation_and_variance",
+      "title": "expectation and variance",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "joint_distributions",
+      "title": "joint distributions",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "law_of_large_numbers",
+      "title": "law of large numbers",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "central_limit_theorem",
+      "title": "central limit theorem",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Markov_chains",
+      "title": "Markov chains",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "martingales_intro",
+      "title": "martingales intro",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "stochastic_processes_intro",
+      "title": "stochastic processes intro",
+      "field": "Probability",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "descriptive_statistics",
+      "title": "descriptive statistics",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "sampling_and_estimators",
+      "title": "sampling and estimators",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "confidence_intervals",
+      "title": "confidence intervals",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "hypothesis_testing",
+      "title": "hypothesis testing",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_regression",
+      "title": "linear regression",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "generalized_linear_models_intro",
+      "title": "generalized linear models intro",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "ANOVA",
+      "title": "ANOVA",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Bayesian_statistics_intro",
+      "title": "Bayesian statistics intro",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "statistical_learning_theory_intro",
+      "title": "statistical learning theory intro",
+      "field": "Statistics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "first_order_ODEs",
+      "title": "first order ODEs",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "second_order_linear_ODEs",
+      "title": "second order linear ODEs",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "systems_of_ODEs",
+      "title": "systems of ODEs",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "phase_portraits",
+      "title": "phase portraits",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laplace_transform",
+      "title": "Laplace transform",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "series_solutions_ODE",
+      "title": "series solutions ODE",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "boundary_value_problems",
+      "title": "boundary value problems",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Fourier_methods_PDE",
+      "title": "Fourier methods PDE",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "heat_equation",
+      "title": "heat equation",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "wave_equation",
+      "title": "wave equation",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laplace_equation",
+      "title": "Laplace equation",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "characteristics_PDE",
+      "title": "characteristics PDE",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "convex_sets_and_functions",
+      "title": "convex sets and functions",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "unconstrained_optimization",
+      "title": "unconstrained optimization",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Lagrange_multipliers",
+      "title": "Lagrange multipliers",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "KKT_conditions",
+      "title": "KKT conditions",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_programming",
+      "title": "linear programming",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "simplex_method",
+      "title": "simplex method",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "dualities",
+      "title": "dualities",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "integer_programming_intro",
+      "title": "integer programming intro",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "dynamic_programming",
+      "title": "dynamic programming",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "network_optimization",
+      "title": "network optimization",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "stochastic_optimization_intro",
+      "title": "stochastic optimization intro",
+      "field": "Optimization and operations research",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "floating_point_error",
+      "title": "floating point error",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "conditioning_and_stability",
+      "title": "conditioning and stability",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "root_finding",
+      "title": "root finding",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Newton_and_secant_methods",
+      "title": "Newton and secant methods",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "numerical_linear_algebra",
+      "title": "numerical linear algebra",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "interpolation",
+      "title": "interpolation",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "numerical_differentiation",
+      "title": "numerical differentiation",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "numerical_integration",
+      "title": "numerical integration",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "ODE_numerical_methods",
+      "title": "ODE numerical methods",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "iterative_methods",
+      "title": "iterative methods",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Monte_Carlo_methods",
+      "title": "Monte Carlo methods",
+      "field": "Numerical and computational mathematics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Euclidean_geometry_proofs",
+      "title": "Euclidean geometry proofs",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "analytic_geometry",
+      "title": "analytic geometry",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "affine_geometry",
+      "title": "affine geometry",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "projective_geometry_intro",
+      "title": "projective geometry intro",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "differential_geometry_curves",
+      "title": "differential geometry curves",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "surfaces_and_curvature",
+      "title": "surfaces and curvature",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "manifolds_intro",
+      "title": "manifolds intro",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Riemannian_geometry_intro",
+      "title": "Riemannian geometry intro",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "tensor_calculus_intro",
+      "title": "tensor calculus intro",
+      "field": "Geometry",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "dimensional_analysis",
+      "title": "dimensional analysis",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Fourier_series_and_transforms",
+      "title": "Fourier series and transforms",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laplace_transforms_applications",
+      "title": "Laplace transforms applications",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "calculus_of_variations",
+      "title": "calculus of variations",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Hamiltonian_and_Lagrangian_mechanics",
+      "title": "Hamiltonian and Lagrangian mechanics",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mathematical_modeling",
+      "title": "mathematical modeling",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "fluid_dynamics_math_intro",
+      "title": "fluid dynamics math intro",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "elasticity_math_intro",
+      "title": "elasticity math intro",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "control_theory_intro",
+      "title": "control theory intro",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "information_theory_intro",
+      "title": "information theory intro",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "cryptography_math_foundations",
+      "title": "cryptography math foundations",
+      "field": "Applied mathematics and mathematical physics",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "category_theory_intro",
+      "title": "category theory intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "order_and_lattice_theory",
+      "title": "order and lattice theory",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "representation_theory_intro",
+      "title": "representation theory intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "algebraic_topology_intro",
+      "title": "algebraic topology intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "homological_algebra_intro",
+      "title": "homological algebra intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "functional_analysis_intro",
+      "title": "functional analysis intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "operator_theory_intro",
+      "title": "operator theory intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "harmonic_analysis_intro",
+      "title": "harmonic analysis intro",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "partial_order_and_fixed_points",
+      "title": "partial order and fixed points",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "mathematical_logic_advanced",
+      "title": "mathematical logic advanced",
+      "field": "Advanced and interdisciplinary",
+      "status": "catalogued_not_implemented"
+    }
+  ]
+}
