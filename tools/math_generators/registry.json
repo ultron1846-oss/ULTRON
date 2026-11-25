@@ -243,7 +243,7 @@
       "topic": "predicate_logic",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "quantifiers",
@@ -267,7 +267,7 @@
       "topic": "relations_and_equivalence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "cardinality",
@@ -297,19 +297,19 @@
       "topic": "subspaces_and_span",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "linear_independence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "basis_and_dimension",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "linear_transformations",
@@ -321,7 +321,7 @@
       "topic": "matrix_rank",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "systems_linear_equations",
@@ -387,13 +387,13 @@
       "topic": "limits_and_continuity",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "derivative_theory",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "mean_value_theorems",
