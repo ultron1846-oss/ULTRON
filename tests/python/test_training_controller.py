@@ -40,6 +40,9 @@ class MockOptimizer:
 
 
 class BoundedTrainingControllerTests(unittest.TestCase):
+    def tearDown(self):
+        seed_training_rng(0, deterministic=False)
+
     def setUp(self):
         self.model = MockModel()
         self.optimizer = MockOptimizer()
