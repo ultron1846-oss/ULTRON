@@ -82,7 +82,7 @@ def _validate_training_settings(settings: dict | None) -> dict | None:
         return None
     if not isinstance(settings, dict):
         raise TypeError("training_settings must be a dictionary or None")
-    allowed = {"precision", "seed", "gradient_accumulation_steps", "deterministic", "profile_performance"}
+    allowed = {"precision", "seed", "gradient_accumulation_steps", "deterministic", "profile_performance", "activation_checkpointing"}
     if set(settings) - allowed:
         raise ValueError("training_settings contains unsupported fields")
     precision = settings.get("precision", "fp32")
@@ -94,7 +94,7 @@ def _validate_training_settings(settings: dict | None) -> dict | None:
     accumulation = settings.get("gradient_accumulation_steps")
     if accumulation is not None and (isinstance(accumulation, bool) or not isinstance(accumulation, int) or not 1 <= accumulation <= 128):
         raise ValueError("training_settings gradient_accumulation_steps is invalid")
-    for name in ("deterministic", "profile_performance"):
+    for name in ("deterministic", "profile_performance", "activation_checkpointing"):
         if name in settings and not isinstance(settings[name], bool):
             raise TypeError(f"training_settings {name} must be boolean")
     return copy.deepcopy(settings)

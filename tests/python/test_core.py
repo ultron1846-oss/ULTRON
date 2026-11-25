@@ -49,6 +49,46 @@ class CoreTests(unittest.TestCase):
         self.assertTrue(torch.isfinite(output['logits']).all())
         self.assertEqual(model.active_parameter_fraction(), 0.5)
 
+    def test_activation_checkpointing_preserves_forward_and_gradients(self):
+        config = NeuroSparseConfig(vocab_size=64, hidden_size=32, num_layers=2,
+            num_experts=4, top_k=2, max_refinements=2, fast_memory_slots=8,
+            dropout=0.0)
+        model = NeuroSparseModel(config).train()
+        ids = torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.long)
+        model.reset_memory()
+        baseline = model(ids)
+        baseline_loss = causal_language_model_loss(
+            baseline["logits"], ids, baseline["load_balance_loss"],
+            baseline["prediction_error"])
+        baseline_loss.backward()
+        baseline_logits = baseline["logits"].detach().clone()
+        baseline_grads = {
+            name: parameter.grad.detach().clone()
+            for name, parameter in model.named_parameters()
+            if parameter.grad is not None
+        }
+        model.zero_grad(set_to_none=True)
+        model.reset_memory()
+        model.set_activation_checkpointing(True)
+        checkpointed = model(ids)
+        checkpointed_loss = causal_language_model_loss(
+            checkpointed["logits"], ids, checkpointed["load_balance_loss"],
+            checkpointed["prediction_error"])
+        checkpointed_loss.backward()
+        torch.testing.assert_close(checkpointed["logits"], baseline_logits,
+            rtol=1e-5, atol=1e-6)
+        for name, parameter in model.named_parameters():
+            if name in baseline_grads:
+                torch.testing.assert_close(parameter.grad, baseline_grads[name],
+                    rtol=2e-4, atol=2e-6, msg=name)
+        self.assertTrue(model.activation_checkpointing)
+
+    def test_activation_checkpointing_setting_requires_boolean(self):
+        model = NeuroSparseModel(self.config())
+        with self.assertRaisesRegex(TypeError, "must be boolean"):
+            model.set_activation_checkpointing(1)
+        self.assertFalse(model.activation_checkpointing)
+
     def test_backward_smoke(self):
         model = NeuroSparseModel(self.config())
         ids = torch.randint(1, 64, (2, 6))
@@ -413,6 +453,7 @@ class CoreTests(unittest.TestCase):
             "gradient_accumulation_steps": 4,
             "deterministic": True,
             "profile_performance": False,
+            "activation_checkpointing": True,
         }
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "precision.pt"
