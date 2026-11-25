@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "coverage_through": "G1-12 (overlapping topic batches)",
+  "coverage_through": "G1-12 + university foundations (generator coverage)",
   "topics": [
     {
       "topic": "counting",
@@ -225,6 +225,51 @@
     {
       "topic": "proof_logic",
       "grade_band": "G8-12",
+      "word_problems": false
+    },
+    {
+      "topic": "linear_algebra",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "multivariable_calculus",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "differential_equations",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "discrete_mathematics",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "real_analysis",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "abstract_algebra",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "optimization",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "numerical_methods",
+      "grade_band": "University Foundation",
+      "word_problems": false
+    },
+    {
+      "topic": "probability_theory",
+      "grade_band": "University Foundation",
       "word_problems": false
     }
   ]
