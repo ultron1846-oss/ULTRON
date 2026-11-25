@@ -92,3 +92,8 @@ test('all required Pages runtime assets exist and are non-empty', async () => {
     assert.ok(content.trim().length > 0, `required static asset is empty: ${path}`);
   }
 });
+
+test('retired browser auth module and its dedicated tests are absent', async () => {
+  await assert.rejects(read('owner-auth.js'), { code: 'ENOENT' });
+  await assert.rejects(read('tests/owner-auth.test.js'), { code: 'ENOENT' });
+});
