@@ -9,6 +9,8 @@ test('command directory has unique registered names and useful help',()=>{
   const names=MATH_TOOL_COMMANDS.map(item=>item.name);
   assert.equal(new Set(names).size,names.length);
   assert.ok(names.includes('/calc')&&names.includes('/table')&&names.includes('/quadratic'));
+  assert.ok(names.includes('/help')&&names.includes('/graph')&&names.includes('/status'));
+  assert.equal(executeMathToolCommand('/graph y=x^2').handled,false);
   for(const name of names)assert.ok(mathToolHelp().includes(name));
 });
 
