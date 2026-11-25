@@ -596,3 +596,10 @@ Regression coverage includes sums and differences of square roots, products with
 `python -m unittest tests.python.test_algebraic_arithmetic -v`
 
 No model training, optimizer step, external dataset, remote execution, website, Supabase or authentication changes were made.
+
+
+## Exact algebraic normalization
+
+The math core includes bounded exact real-algebraic arithmetic and square-free normalization. `ultron_core/squarefree.py` separates repeated polynomial factors over rational coefficients and identifies the square-free component containing a selected real root using exact rational evaluation or Sturm counts. This is **not** irreducible factorization and does not establish a minimal polynomial. See [square-free normalization](docs/SQUARE_FREE_NORMALIZATION.md) for scope and regression coverage.
+
+No model training, optimizer step, external dataset ingestion, or remote execution was performed for this math-core milestone.
