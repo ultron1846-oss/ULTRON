@@ -296,7 +296,7 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
     if not items or any(not isinstance(item, MathExample) for item in items):
         raise ValueError("examples must contain at least one MathExample")
     ids = [item.example_id for item in items]
-    prompt_groups = [re.sub(r"\\s+", " ", item.input_text).strip().casefold() for item in items]
+    prompt_groups = [re.sub(r"\s+", " ", item.input_text).strip().casefold() for item in items]
     topic_counts = Counter(item.topic for item in items)
     difficulty_counts = Counter(str(item.difficulty) for item in items)
     topic_difficulty = {
@@ -339,7 +339,7 @@ def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
                 raise TypeError(f"{name} split contains a non-MathExample row")
             split_counts[name] = len(rows)
             split_prompt_groups[name] = {
-                re.sub(r"\\s+", " ", item.input_text).strip().casefold() for item in rows
+                re.sub(r"\s+", " ", item.input_text).strip().casefold() for item in rows
             }
         names = ("train", "validation", "test")
         leakage = []
