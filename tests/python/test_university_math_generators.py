@@ -37,7 +37,7 @@ class UniversityFoundationTests(unittest.TestCase):
         import json
         payload=json.loads(registry)
         rows={x["topic"]:x for x in payload["topics"]}
-        self.assertGreaterEqual(len(rows),190)
+        self.assertEqual(len(rows),197)
         self.assertTrue(set(TOPICS).issubset(rows))
         self.assertTrue(all(rows[t]["has_generator"] for t in TOPICS))
         self.assertTrue(all(rows[t]["status"]=="catalogued_not_implemented" for t in rows if t not in TOPICS))
