@@ -231,13 +231,13 @@
       "topic": "sets_and_functions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "propositional_logic",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "predicate_logic",
@@ -261,7 +261,7 @@
       "topic": "mathematical_induction",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "relations_and_equivalence",
@@ -291,7 +291,7 @@
       "topic": "vectors_and_vector_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "subspaces_and_span",
@@ -327,7 +327,7 @@
       "topic": "systems_linear_equations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "determinants",
@@ -339,7 +339,7 @@
       "topic": "eigenvalues_and_eigenvectors",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "diagonalization",
@@ -405,7 +405,7 @@
       "topic": "Taylor_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Riemann_integral",
@@ -824,8 +824,8 @@
     {
       "topic": "counting_principles",
       "grade_band": "University",
-      "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "word_problems": true,
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "permutations_and_combinations",
@@ -902,8 +902,8 @@
     {
       "topic": "conditional_probability",
       "grade_band": "University",
-      "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "word_problems": true,
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Bayes_theorem",

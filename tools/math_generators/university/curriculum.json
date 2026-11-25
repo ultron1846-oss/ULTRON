@@ -7,13 +7,15 @@
       "topic": "sets_and_functions",
       "title": "sets and functions",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "sets_and_functions"
     },
     {
       "topic": "propositional_logic",
       "title": "propositional logic",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "propositional_logic"
     },
     {
       "topic": "predicate_logic",
@@ -37,7 +39,8 @@
       "topic": "mathematical_induction",
       "title": "mathematical induction",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "mathematical_induction"
     },
     {
       "topic": "relations_and_equivalence",
@@ -67,7 +70,8 @@
       "topic": "vectors_and_vector_spaces",
       "title": "vectors and vector spaces",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "vectors_and_vector_spaces"
     },
     {
       "topic": "subspaces_and_span",
@@ -103,7 +107,8 @@
       "topic": "systems_linear_equations",
       "title": "systems linear equations",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "systems_linear_equations"
     },
     {
       "topic": "determinants",
@@ -116,7 +121,8 @@
       "topic": "eigenvalues_and_eigenvectors",
       "title": "eigenvalues and eigenvectors",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "eigenvalues_and_eigenvectors"
     },
     {
       "topic": "diagonalization",
@@ -182,7 +188,8 @@
       "topic": "Taylor_series",
       "title": "Taylor series",
       "field": "Calculus",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "Taylor_series"
     },
     {
       "topic": "Riemann_integral",
@@ -606,7 +613,8 @@
       "topic": "counting_principles",
       "title": "counting principles",
       "field": "Discrete mathematics and combinatorics",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "counting_principles"
     },
     {
       "topic": "permutations_and_combinations",
@@ -684,7 +692,8 @@
       "topic": "conditional_probability",
       "title": "conditional probability",
       "field": "Probability",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "conditional_probability"
     },
     {
       "topic": "Bayes_theorem",

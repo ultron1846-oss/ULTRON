@@ -63,7 +63,7 @@ def build_university_registry() -> dict:
         rows.append({
             **topic,
             "grade_band": "University",
-            "includes_word_problems": False,
+            "includes_word_problems": bool(UNIVERSITY.get(topic.get("generator_topic", topic["topic"]), {}).get("word_templates", [])),
             "has_generator": topic["topic"] in implemented or topic.get("generator_topic") in implemented,
         })
     return {
@@ -79,7 +79,8 @@ def build_combined_registry() -> dict:
         topics.extend(_topic_rows(metadata, "word_problems"))
     topics.extend([
         {"topic": row["topic"], "grade_band": "University",
-         "word_problems": False, "status": row["status"]}
+         "word_problems": bool(UNIVERSITY.get(row.get("generator_topic", row["topic"]), {}).get("word_templates", [])),
+         "status": row["status"]}
         for row in _university_curriculum()
     ])
     return {
