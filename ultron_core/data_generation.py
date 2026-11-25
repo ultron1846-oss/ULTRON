@@ -199,10 +199,21 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         answer = Fraction(solution)
         params = {"coefficient": a, "constant": b, "rhs": rhs}
         difficulty = 2
+    elif topic == "polynomial_derivative":
+        degree = rng.randint(2, 5)
+        coefficients = {power: rng.randint(-5, 5) for power in range(degree + 1)}
+        if coefficients[degree] == 0:
+            coefficients[degree] = rng.choice((-5, -4, -3, -2, -1, 1, 2, 3, 4, 5))
+        derivative = {power - 1: coefficient * power
+                     for power, coefficient in coefficients.items() if power > 0}
+        prompt = "differentiate: " + _format_integer_polynomial(coefficients)
+        answer = _format_integer_polynomial(derivative)
+        params = {"degree": degree, "coefficients": json.dumps(sorted(coefficients.items()))}
+        difficulty = degree
     else:
         raise ValueError(f"unsupported topic: {topic}")
 
-    answer_text = _fraction_text(answer)
+    answer_text = answer if topic == "polynomial_derivative" else _fraction_text(answer)
     valid = validate_example_text(prompt, answer_text, topic)
     payload = {
         "generator_version": GENERATOR_VERSION, "seed": seed, "index": index,
