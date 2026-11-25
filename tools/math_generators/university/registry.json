@@ -27,10 +27,11 @@
       "topic": "predicate_logic",
       "title": "predicate logic",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "predicate_logic"
     },
     {
       "topic": "quantifiers",
@@ -64,10 +65,11 @@
       "topic": "relations_and_equivalence",
       "title": "relations and equivalence",
       "field": "Foundations and logic",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "relations_and_equivalence"
     },
     {
       "topic": "cardinality",
@@ -110,28 +112,31 @@
       "topic": "subspaces_and_span",
       "title": "subspaces and span",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "subspaces_and_span"
     },
     {
       "topic": "linear_independence",
       "title": "linear independence",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "linear_independence"
     },
     {
       "topic": "basis_and_dimension",
       "title": "basis and dimension",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "basis_and_dimension"
     },
     {
       "topic": "linear_transformations",
@@ -146,10 +151,11 @@
       "topic": "matrix_rank",
       "title": "matrix rank",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "matrix_rank"
     },
     {
       "topic": "systems_linear_equations",
@@ -248,19 +254,21 @@
       "topic": "limits_and_continuity",
       "title": "limits and continuity",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "limits_and_continuity"
     },
     {
       "topic": "derivative_theory",
       "title": "derivative theory",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "generator_topic": "derivative_theory"
     },
     {
       "topic": "mean_value_theorems",
