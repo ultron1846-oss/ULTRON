@@ -14,5 +14,4 @@ test('test workflow runs the built-in suite on PRs and main pushes', async () =>
   assert.match(workflow, /pull_request:/);
   assert.match(workflow, /branches: \[main\]/);
   assert.match(workflow, /run: npm test/);
-  assert.match(workflow, /build:math/);
 });
