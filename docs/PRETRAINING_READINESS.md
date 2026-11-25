@@ -98,10 +98,11 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 9 — Free runtime and operations
 
-- [x] Review current official Colab, Lightning AI, and Hugging Face Spaces free-tier constraints.
-- [x] Document single-runtime checkpoint-resumable strategy and no-phone constraint.
-- [ ] Verify actual free-tier hardware, quotas, idle timeout, and persistence from a clean iPad session
-- [ ] Test Colab notebook setup from a clean session without phone verification or payment activation.
+- [x] Review official Colab, Lightning AI, Hugging Face Spaces, and ZeroGPU constraints with current sources.
+- [x] Document the single-runtime, checkpoint-resumable strategy and current no-phone constraint.
+- [x] Record that free Hugging Face ZeroGPU quota is short/shared and not a dependable long training host.
+- [ ] Owner: verify actual Colab access, hardware, quotas, idle timeout, and persistence from a clean iPad session.
+- [ ] Owner: test notebook setup without phone verification or payment activation.
 - [ ] Validate checkpoint transfer and resume across sessions.
 - [ ] Keep website status read-only and never expose secrets.
 - [ ] Confirm zero-cost compute/storage/time limits before any run.
