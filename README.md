@@ -37,7 +37,7 @@ The code review identified that fast/episodic memory is mutable and shared by th
 
 ## Phase 8 — checkpoint recovery hardening
 
-Checkpoint format v4 records Python/Torch RNG state and optional data cursor bound to a dataset manifest SHA-256, retains the last verified backup, and rolls back model/optimizer/scheduler/RNG state on restore failure. The loader rejects a mismatched expected dataset hash before mutation. The trainer carries global step and next-batch cursor through checkpoint callback metadata; the caller must restore the sampler/iterator from that cursor. If partial accumulation is discarded, the final cursor rewinds to the last completed optimizer step; a regression test covers this boundary. This is infrastructure validation only; no real-weight optimizer step or training run occurred.
+Checkpoint format v4 records Python/Torch RNG state and optional data cursor bound to a dataset manifest SHA-256, retains the last verified backup, and rolls back model/optimizer/scheduler/RNG state on restore failure. The loader rejects a mismatched expected dataset hash before mutation. The trainer carries global step and next-batch cursor through checkpoint callback metadata; `ResumableRandomSampler` now provides a deterministic epoch/sample cursor bound to the dataset manifest, with exact permutation-tail restore tests. The caller still must load sampler state and position the DataLoader before resuming; use `num_workers=0` to avoid prefetch cursor drift. If partial accumulation is discarded, the trainer cursor rewinds to the last completed optimizer step. This is infrastructure validation only; no real-weight optimizer step or training run occurred.
 
 ## Phase 7 — exact-answer evaluation
 
