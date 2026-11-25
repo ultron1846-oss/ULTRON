@@ -295,7 +295,7 @@ class CoreTests(unittest.TestCase):
             random.seed(5)
             restored = NeuroSparseModel(config)
             metadata = load_checkpoint(path, restored)
-            self.assertEqual(metadata["format_version"], 3)
+            self.assertEqual(metadata["format_version"], 4)
             self.assertEqual(metadata["data_state"], {"epoch": 2, "batch": 9})
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
             torch.testing.assert_close(torch.rand(4), expected_torch)
