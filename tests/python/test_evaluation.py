@@ -6,7 +6,7 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
     def test_reports_exact_accuracy_coverage_and_abstentions(self):
         examples = generate_examples(88, 30)
         predictions = {item.example_id: item.exact_answer for item in examples}
-        predictions[examples[0].example_id] = "999/1"
+        predictions[examples[0].example_id] = "0" if examples[0].exact_answer != "0" else "1"
         predictions[examples[1].example_id] = None
         predictions[examples[2].example_id] = "not a rational"
         report = evaluate_predictions(examples, predictions)
