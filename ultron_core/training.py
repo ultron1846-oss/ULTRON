@@ -66,12 +66,18 @@ def make_optimizer(model: torch.nn.Module, learning_rate: float = 3e-4,
 
 @dataclass(frozen=True)
 class TrainingSettings:
-    """Bounded per-session settings; these do not authorize training."""
+    """Bounded per-session settings; these do not authorize training.
+
+    The wall-time cap is best-effort: it is checked between batches and before
+    optimizer steps, and cannot interrupt an individual PyTorch operation.
+    """
     max_steps: int = 1
     gradient_accumulation_steps: int = 1
     gradient_clip_norm: float = 1.0
     max_seconds: int = 3600
-    write_memory: bool = True
+    write_memory: bool = False
+    seed: int = 0
+    deterministic: bool = False
 
     def __post_init__(self):
         if isinstance(self.max_steps, bool) or not isinstance(self.max_steps, int) or not 1 <= self.max_steps <= 1000:
@@ -88,27 +94,72 @@ class TrainingSettings:
             raise ValueError("max_seconds must be an integer in [1, 3600]")
         if not isinstance(self.write_memory, bool):
             raise TypeError("write_memory must be boolean")
+        if isinstance(self.seed, bool) or not isinstance(self.seed, int) or not 0 <= self.seed < 2**63:
+            raise ValueError("seed must be an integer in [0, 2**63)")
+        if not isinstance(self.deterministic, bool):
+            raise TypeError("deterministic must be boolean")
 
 
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                        training_authorized=False, scheduler=None,
                        checkpoint_callback=None, cancellation_check=None):
-    """Run bounded training only after explicit authorization."""
+    """Run bounded local training only after explicit authorization.
+
+    A complete no-allocation preflight report and a budget covering persistent
+    state are required. Remote dispatch is intentionally not supported.
+    """
     if training_authorized is not True:
         raise PermissionError("explicit training authorization is required")
     if not isinstance(settings, TrainingSettings):
         raise TypeError("settings must be TrainingSettings")
     if not isinstance(preflight_report, dict) or preflight_report.get("validated") is not True:
         raise ValueError("a successful preflight report is required")
-    count = preflight_report.get("parameter_count")
+    if preflight_report.get("status") != "PREFLIGHT_ONLY":
+        raise ValueError("preflight report status must be PREFLIGHT_ONLY")
+    if (preflight_report.get("training_authorized") is not False
+            or preflight_report.get("optimizer_steps") != 0
+            or preflight_report.get("remote_execution_enabled") is not False):
+        raise ValueError("preflight report must be non-authorizing and local-only")
+
+    count = preflight_report.get("trainable_parameter_count", preflight_report.get("parameter_count"))
     if isinstance(count, bool) or not isinstance(count, int) or count < 40_000_000:
-        raise ValueError("preflight model must meet the 40M parameter minimum")
+        raise ValueError("preflight model must meet the 40M trainable parameter minimum")
+    if preflight_report.get("parameter_count") != count:
+        raise ValueError("preflight parameter_count must equal trainable_parameter_count")
+    total_count = preflight_report.get("total_parameter_count")
+    if isinstance(total_count, bool) or not isinstance(total_count, int) or total_count < count:
+        raise ValueError("preflight total_parameter_count is invalid")
+
+    planned_batch = preflight_report.get("batch_size")
+    planned_sequence = preflight_report.get("sequence_length")
+    planned_accumulation = preflight_report.get("gradient_accumulation_steps")
+    for name, value in (("batch_size", planned_batch), ("sequence_length", planned_sequence),
+                         ("gradient_accumulation_steps", planned_accumulation)):
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"preflight {name} is invalid")
+    if planned_sequence < 2 or settings.gradient_accumulation_steps != planned_accumulation:
+        raise ValueError("training accumulation/sequence plan does not match preflight")
+
+    budget = preflight_report.get("memory_budget_bytes")
+    if isinstance(budget, bool) or not isinstance(budget, int) or budget <= 0:
+        raise ValueError("training requires a positive preflight memory budget")
+    if preflight_report.get("budget_covers_persistent_state") is not True:
+        raise MemoryError("preflight memory budget does not cover persistent model state")
+
     config = getattr(model, "config", None)
-    if isinstance(config, NeuroSparseConfig) and count_parameters(config) != count:
-        raise ValueError("preflight parameter count does not match model config")
+    if isinstance(config, NeuroSparseConfig):
+        if count_parameters(config) != count:
+            raise ValueError("preflight trainable parameter count does not match model config")
+        from .config import count_total_parameters
+        if count_total_parameters(config) != total_count:
+            raise ValueError("preflight total parameter count does not match model config")
     reset_memory = getattr(model, "reset_memory", None)
     if not callable(reset_memory):
         raise ValueError("model must implement reset_memory() for example isolation")
+    if not callable(getattr(model, "train", None)):
+        raise TypeError("model must provide train()")
+    if not callable(getattr(optimizer, "step", None)) or not callable(getattr(optimizer, "zero_grad", None)):
+        raise TypeError("optimizer must provide step() and zero_grad()")
     if scheduler is not None and not callable(getattr(scheduler, "step", None)):
         raise TypeError("scheduler must provide step()")
     if checkpoint_callback is not None and not callable(checkpoint_callback):
@@ -116,40 +167,54 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     if cancellation_check is not None and not callable(cancellation_check):
         raise TypeError("cancellation_check must be callable")
 
+    seed_training_rng(settings.seed, deterministic=settings.deterministic)
     model.train()
     optimizer.zero_grad(set_to_none=True)
     started = time.monotonic()
     steps, accumulated = 0, 0
     losses = []
     stop_reason = "dataset_exhausted"
+
+    def time_expired():
+        return time.monotonic() - started >= settings.max_seconds
+
     try:
         for batch in batches:
             if cancellation_check is not None and cancellation_check():
                 stop_reason = "cancelled"
                 break
-            if time.monotonic() - started >= settings.max_seconds:
+            if time_expired():
                 stop_reason = "time_limit"
                 break
             if not isinstance(batch, dict) or not isinstance(batch.get("input_ids"), torch.Tensor):
                 raise TypeError("batch must contain tensor input_ids")
             ids, mask = batch["input_ids"], batch.get("attention_mask")
-            if ids.ndim != 2 or ids.shape[0] == 0:
-                raise ValueError("input_ids must be a non-empty [batch, sequence] tensor")
+            if ids.ndim != 2 or ids.shape[0] == 0 or ids.shape[1] < 2:
+                raise ValueError("input_ids must be a non-empty [batch, sequence] tensor with sequence >= 2")
+            if ids.shape[0] > planned_batch or ids.shape[1] > planned_sequence:
+                raise ValueError("batch exceeds the preflight batch/sequence resource plan")
             if settings.write_memory and ids.shape[0] != 1:
                 raise ValueError("memory-writing training requires batch_size=1 for isolation")
+
             reset_memory()
-            output = model(ids, write_memory=settings.write_memory, attention_mask=mask)
-            if not isinstance(output, dict) or not isinstance(output.get("logits"), torch.Tensor):
-                raise ValueError("model output must contain logits")
-            loss = causal_language_model_loss(
-                output["logits"], ids, load_balance=output.get("load_balance_loss"),
-                prediction_error=output.get("prediction_error"))
-            if not bool(torch.isfinite(loss)):
-                raise FloatingPointError("training loss is non-finite")
-            (loss / settings.gradient_accumulation_steps).backward()
-            accumulated += 1
-            losses.append(float(loss.detach().cpu()))
-            reset_memory()
+            try:
+                output = model(ids, write_memory=settings.write_memory, attention_mask=mask)
+                if not isinstance(output, dict) or not isinstance(output.get("logits"), torch.Tensor):
+                    raise ValueError("model output must contain logits")
+                loss = causal_language_model_loss(
+                    output["logits"], ids, load_balance=output.get("load_balance_loss"),
+                    prediction_error=output.get("prediction_error"))
+                if not bool(torch.isfinite(loss)):
+                    raise FloatingPointError("training loss is non-finite")
+                if time_expired():
+                    stop_reason = "time_limit"
+                    break
+                (loss / settings.gradient_accumulation_steps).backward()
+                accumulated += 1
+                losses.append(float(loss.detach().cpu()))
+            finally:
+                reset_memory()
+
             if accumulated == settings.gradient_accumulation_steps:
                 parameters = [p for p in model.parameters() if p.grad is not None]
                 if parameters:
@@ -158,6 +223,12 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         raise FloatingPointError("gradient norm is non-finite")
                     if any(not bool(torch.isfinite(p.grad).all()) for p in parameters):
                         raise FloatingPointError("gradient contains non-finite values")
+                if cancellation_check is not None and cancellation_check():
+                    stop_reason = "cancelled"
+                    break
+                if time_expired():
+                    stop_reason = "time_limit"
+                    break
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
@@ -173,11 +244,17 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     finally:
         reset_memory()
         optimizer.zero_grad(set_to_none=True)
-    return {"steps_completed": steps, "microbatches_seen": len(losses),
-            "discarded_incomplete_microbatches": accumulated, "mean_loss": sum(losses) / len(losses) if losses else None,
-            "stop_reason": stop_reason, "training_authorized": True}
 
-
+    return {
+        "steps_completed": steps,
+        "microbatches_seen": len(losses),
+        "discarded_microbatches": accumulated,
+        "mean_loss": sum(losses) / len(losses) if losses else None,
+        "stop_reason": stop_reason,
+        "training_authorized": True,
+        "remote_execution_enabled": False,
+        "resource_monitoring": "preflight_budget_only",
+    }
 
 def seed_training_rng(seed: int, *, deterministic: bool = False) -> dict:
     """Seed Python, Torch CPU/CUDA and deterministic backend settings."""
