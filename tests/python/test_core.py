@@ -105,7 +105,8 @@ class CoreTests(unittest.TestCase):
         expected_flat_grad = flat.grad.detach().clone()
         expected_weight_grad = weights.grad.detach().clone()
         expected_expert_grads = [
-            parameter.grad.detach().clone() for parameter in experts.parameters()
+            None if parameter.grad is None else parameter.grad.detach().clone()
+            for parameter in experts.parameters()
         ]
 
         flat.grad = None
@@ -120,7 +121,10 @@ class CoreTests(unittest.TestCase):
         torch.testing.assert_close(flat.grad, expected_flat_grad, rtol=1e-6, atol=1e-7)
         torch.testing.assert_close(weights.grad, expected_weight_grad, rtol=1e-6, atol=1e-7)
         for parameter, expected in zip(experts.parameters(), expected_expert_grads):
-            torch.testing.assert_close(parameter.grad, expected, rtol=1e-6, atol=1e-7)
+            if expected is None:
+                self.assertIsNone(parameter.grad)
+            else:
+                torch.testing.assert_close(parameter.grad, expected, rtol=1e-6, atol=1e-7)
 
     def test_forward_shapes_and_finite_values(self):
         model = NeuroSparseModel(self.config())
