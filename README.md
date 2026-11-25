@@ -808,3 +808,16 @@ Added optional measurements to the bounded training controller:
 - No model benchmark, training run, or remote job was started as part of this change.
 
 Validation: added mock-controller tests for the disabled default, validation, CPU timing, and target-token counts.
+
+
+## Precision-aware checkpoint/resume — 2026-11-25
+
+Checkpoint format version 5 now stores optional validated training settings, including precision, seed, gradient accumulation, deterministic mode, and profiling flag.
+
+- The bounded controller writes the active training settings into its checkpoint cursor/callback metadata.
+- Loading returns the saved training settings and rejects disagreement between top-level and cursor metadata.
+- Resuming BF16 requires a checkpoint with explicit precision metadata; older checkpoints without it cannot silently resume in BF16.
+- FP32 remains compatible with legacy checkpoint metadata. Existing dataset-hash, RNG, optimizer, and scheduler integrity checks remain in place.
+- The checkpoint format accepts versions 2, 3, 4, and 5 for backwards compatibility.
+
+No training run or remote job was started. Tests cover metadata persistence, validation, and precision mismatch/legacy BF16 resume rejection.

@@ -235,6 +235,33 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["next_batch_index"], 5)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 5)
 
+    def test_resume_rejects_precision_mismatch_and_legacy_bf16(self):
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+        metadata = {
+            "format_version": 5, "rng_restored": True,
+            "dataset_hash_verified": True, "step": 4,
+            "dataset_manifest_sha256": "a" * 64,
+            "training_settings": {"precision": "bf16", "deterministic": False},
+            "data_state": {
+                "epoch": 0, "next_batch_index": 0, "seed": 0,
+                "gradient_accumulation_steps": 2,
+                "dataset_manifest_sha256": "a" * 64, "dataset_size": 4,
+            },
+        }
+        with self.assertRaisesRegex(ValueError, "precision does not match"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                resume_metadata=metadata)
+        legacy = dict(metadata)
+        legacy.pop("training_settings")
+        bf16_settings = TrainingSettings(max_steps=1,
+            gradient_accumulation_steps=2, max_seconds=60, precision="bf16")
+        with self.assertRaisesRegex(ValueError, "lacks precision metadata"):
+            run_training_steps(self.model, self.batches, self.optimizer, self.report,
+                settings=bf16_settings, training_authorized=True,
+                resume_metadata=legacy)
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_resume_rejects_changed_seed_or_accumulation(self):
         metadata = {"format_version": 4, "rng_restored": True,
                     "dataset_hash_verified": True, "step": 4,

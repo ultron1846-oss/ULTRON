@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 from .config import NeuroSparseConfig
 
-_FORMAT_VERSION = 4
+_FORMAT_VERSION = 5
 
 def _digest(path: Path) -> str:
     h = hashlib.sha256()
@@ -77,8 +77,31 @@ def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
         if actual.dtype != target.dtype:
             raise ValueError(f"checkpoint model state tensor {name!r} has dtype {actual.dtype}; expected {target.dtype}")
 
+def _validate_training_settings(settings: dict | None) -> dict | None:
+    if settings is None:
+        return None
+    if not isinstance(settings, dict):
+        raise TypeError("training_settings must be a dictionary or None")
+    allowed = {"precision", "seed", "gradient_accumulation_steps", "deterministic", "profile_performance"}
+    if set(settings) - allowed:
+        raise ValueError("training_settings contains unsupported fields")
+    precision = settings.get("precision", "fp32")
+    if precision not in ("fp32", "bf16"):
+        raise ValueError("training_settings precision must be fp32 or bf16")
+    seed = settings.get("seed")
+    if seed is not None and (isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**63):
+        raise ValueError("training_settings seed is invalid")
+    accumulation = settings.get("gradient_accumulation_steps")
+    if accumulation is not None and (isinstance(accumulation, bool) or not isinstance(accumulation, int) or not 1 <= accumulation <= 128):
+        raise ValueError("training_settings gradient_accumulation_steps is invalid")
+    for name in ("deterministic", "profile_performance"):
+        if name in settings and not isinstance(settings[name], bool):
+            raise TypeError(f"training_settings {name} must be boolean")
+    return copy.deepcopy(settings)
+
+
 def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
-                   optimizer=None, step: int = 0, scheduler=None, data_state=None, dataset_manifest_sha256=None):
+                   optimizer=None, step: int = 0, scheduler=None, data_state=None, dataset_manifest_sha256=None, training_settings=None):
     if not isinstance(config, NeuroSparseConfig):
         raise TypeError("config must be a NeuroSparseConfig")
     if isinstance(step, bool) or not isinstance(step, int) or step < 0:
@@ -90,6 +113,16 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
         raise TypeError("data_state must be a dictionary or None")
     if data_state is not None and dataset_manifest_sha256 is None:
         raise ValueError("data_state requires a dataset manifest SHA-256")
+    cursor_training_settings = (
+        data_state.get("training_settings") if isinstance(data_state, dict) else None
+    )
+    if training_settings is None:
+        training_settings = cursor_training_settings
+    training_settings = _validate_training_settings(training_settings)
+    cursor_training_settings = _validate_training_settings(cursor_training_settings)
+    if (training_settings is not None and cursor_training_settings is not None
+            and training_settings != cursor_training_settings):
+        raise ValueError("top-level and data_state training_settings must match")
     if dataset_manifest_sha256 is not None and (
             not isinstance(dataset_manifest_sha256, str) or len(dataset_manifest_sha256) != 64
             or any(char not in "0123456789abcdef" for char in dataset_manifest_sha256)):
@@ -110,6 +143,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
         "scheduler": scheduler.state_dict() if scheduler is not None else None,
         "rng": _capture_rng(), "data_state": data_state,
         "dataset_manifest_sha256": dataset_manifest_sha256,
+        "training_settings": training_settings,
     }
     fd, name = tempfile.mkstemp(prefix="." + target.name + ".", suffix=".tmp", dir=target.parent)
     temporary = Path(name)
@@ -151,7 +185,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     if not isinstance(payload, dict):
         raise ValueError("checkpoint payload must be a mapping")
     version = payload.get("format_version")
-    if version not in (2, 3, _FORMAT_VERSION):
+    if version not in (2, 3, 4, _FORMAT_VERSION):
         raise ValueError("unsupported checkpoint format")
     saved_config, model_state, step = payload.get("config"), payload.get("model"), payload.get("step")
     if not isinstance(saved_config, dict) or not isinstance(model_state, dict):
@@ -175,6 +209,16 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     data_state = payload.get("data_state")
     if data_state is not None and not isinstance(data_state, dict):
         raise ValueError("checkpoint data state is malformed")
+    training_settings = _validate_training_settings(payload.get("training_settings"))
+    cursor_training_settings = (
+        data_state.get("training_settings") if isinstance(data_state, dict) else None
+    )
+    cursor_training_settings = _validate_training_settings(cursor_training_settings)
+    if (training_settings is not None and cursor_training_settings is not None
+            and training_settings != cursor_training_settings):
+        raise ValueError("checkpoint training_settings metadata is inconsistent")
+    if training_settings is None:
+        training_settings = cursor_training_settings
     dataset_hash = payload.get("dataset_manifest_sha256")
     if dataset_hash is not None and (
             not isinstance(dataset_hash, str) or len(dataset_hash) != 64
@@ -222,4 +266,5 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             "source_path": str(source), "data_state": data_state,
             "dataset_manifest_sha256": dataset_hash, "format_version": version,
             "rng_restored": bool(restore_rng and version >= 3),
-            "dataset_hash_verified": dataset_hash_verified}
+            "dataset_hash_verified": dataset_hash_verified,
+            "training_settings": training_settings}
