@@ -160,10 +160,11 @@
       "topic": "determinants",
       "title": "determinants",
       "field": "Linear algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "linear_algebra",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "eigenvalues_and_eigenvectors",
@@ -322,10 +323,11 @@
       "topic": "partial_derivatives",
       "title": "partial derivatives",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "multivariable_calculus",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "gradient_and_directional_derivatives",
@@ -412,10 +414,11 @@
       "topic": "convergence_of_sequences",
       "title": "convergence of sequences",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "real_analysis",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Cauchy_sequences",
@@ -619,10 +622,11 @@
       "topic": "cyclic_groups",
       "title": "cyclic groups",
       "field": "Abstract algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "abstract_algebra",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "permutation_groups",
@@ -736,10 +740,11 @@
       "topic": "congruences",
       "title": "congruences",
       "field": "Number theory",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "discrete_mathematics",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Chinese_remainder_theorem",
@@ -1024,10 +1029,11 @@
       "topic": "Bayes_theorem",
       "title": "Bayes theorem",
       "field": "Probability",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "probability_theory",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "random_variables",
@@ -1204,10 +1210,11 @@
       "topic": "first_order_ODEs",
       "title": "first order ODEs",
       "field": "Differential equations",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "differential_equations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "second_order_linear_ODEs",
@@ -1321,10 +1328,11 @@
       "topic": "unconstrained_optimization",
       "title": "unconstrained optimization",
       "field": "Optimization and operations research",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "optimization",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Lagrange_multipliers",
@@ -1438,10 +1446,11 @@
       "topic": "Newton_and_secant_methods",
       "title": "Newton and secant methods",
       "field": "Numerical and computational mathematics",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "numerical_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "numerical_linear_algebra",
