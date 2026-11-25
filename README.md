@@ -1013,3 +1013,14 @@ Added eight deterministic, seed-replayable university exercise templates: bounde
 - Curriculum and generated coverage registries now mark these as `generator_available_not_mastered`; generator availability is not evidence of model training or mastery.
 - Added randomized regression checks for the mathematical formulas. CI must run before this batch is considered validated or merged.
 - This work only expands deterministic exercise generation and verification. No training was started and no model weights were changed.
+
+
+### Math Agent graph tool — PR #132 (2026-11-25)
+
+- Added the local `/graph` command. Examples: `/graph y=x^2`, `/graph sin(x)`, `/graph sqrt(abs(x))`.
+- Supported functions: sin, cos, tan, sqrt, abs, ln, log, exp. Constants: pi and e. Operators: +, -, *, /, ^, and parentheses. Use explicit multiplication, such as `2*x`.
+- Graphs render as responsive SVG in the browser. No API, training, generated training corpus, or model weights are involved.
+- Parser, domain, dimensions, and sample count are bounded. Tests cover polynomial/trig functions, constants, malformed input, and resource limits.
+- PR: https://github.com/ultron1846-oss/ULTRON/pull/132 — CI pending; do not merge until tests pass and review is clean.
+
+Next: validate PR #132, then add practical Math Agent tools (table of values, improved equation solving, and calculator utilities) one at a time with tests. Keep README updated. Training remains disabled.

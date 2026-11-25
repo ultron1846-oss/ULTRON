@@ -1,6 +1,7 @@
 import { normalizeMemoryPreference } from './preferences.js?v=20261125-1';
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261124-3';
 import { parseWordProblem } from './word-problems.js?v=20261125-1';
+import { createGraphSvg } from './graph-tool.js?v=20261125-1';
 import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
 import { signInOwner, verifyOwner, signOutOwner } from './owner-auth.js?v=20261125-1';
 import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory, saveExperience } from './memory-store.js?v=20261124-5';
@@ -76,8 +77,8 @@ function renderLearning(){
 }
 function renderAgent(){
  return `${heading('MATHEMATICAL WORKSPACE / STAGE 1','Math Agent','ULTRON independently solves supported foundation questions, shows working and checks the answer through the deterministic math engine.','<span class="status-pill">LOCAL · DETERMINISTIC</span>')}
- ${card('<div class="eyebrow">CONVERSATIONAL MATHEMATICS / STAGE 1</div><h2>Talk through a maths question</h2><p class="muted">ULTRON can parse a bounded set of English arithmetic word problems, arithmetic expressions and one-variable linear equations. It explains its operation choice and rejects ambiguous wording instead of guessing.</p><div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-message system-message">Try a word problem: <b>Mia has three apples and gets five more. How many altogether?</b> Or enter 12 + 5 or 2x + 3 = 11.</div></div><label class="field-label" for="agent-input">Your message</label><textarea id="agent-input" rows="3" maxlength="240" placeholder="Example: Mia has three apples and gets five more. How many altogether?"></textarea><div class="agent-actions"><button class="primary-button" id="agent-send">Send</button><button class="outline-button" id="agent-reset">Reset conversation</button></div><div class="examples"><span>TRY:</span><button data-example="12 + 5">12 + 5</button><button data-example="(1/3) + (1/6)">(1/3) + (1/6)</button><button data-example="2x + 3 = 11">2x + 3 = 11</button><button data-example="Mia has three apples and gets five more. How many altogether?">Word problem: addition</button><button data-example="24 stickers are shared equally among 6 children. How many each?">Word problem: division</button></div>')}
- ${card(`<div class="eyebrow">TOPIC COMMANDS</div><h2>Open a topic reference</h2><p class="muted">Use a command to view a topic outline. Planned topics are not yet supported by the deterministic solver.</p><div class="examples topic-command-list"><button type="button" data-topic-command="/help">/help</button><button type="button" data-topic-command="/topics">/topics</button>${topics.map(topic=>`<button type="button" data-topic-command="${topic.command}">${topic.command}</button>`).join('')}</div>`)}
+ ${card('<div class="eyebrow">CONVERSATIONAL MATHEMATICS / STAGE 1</div><h2>Talk through a maths question</h2><p class="muted">ULTRON can parse a bounded set of English arithmetic word problems, arithmetic expressions and one-variable linear equations. It explains its operation choice and rejects ambiguous wording instead of guessing.</p><div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-message system-message">Try a word problem: <b>Mia has three apples and gets five more. How many altogether?</b> Or enter 12 + 5 or 2x + 3 = 11.</div></div><label class="field-label" for="agent-input">Your message</label><textarea id="agent-input" rows="3" maxlength="240" placeholder="Example: Mia has three apples and gets five more. How many altogether?"></textarea><div class="agent-actions"><button class="primary-button" id="agent-send">Send</button><button class="outline-button" id="agent-reset">Reset conversation</button></div><div class="examples"><span>TRY:</span><button data-example="12 + 5">12 + 5</button><button data-example="(1/3) + (1/6)">(1/3) + (1/6)</button><button data-example="2x + 3 = 11">2x + 3 = 11</button><button data-example="Mia has three apples and gets five more. How many altogether?">Word problem: addition</button><button data-example="24 stickers are shared equally among 6 children. How many each?">Word problem: division</button><button data-example="/graph y=x^2">Graph: y = x²</button><button data-example="/graph sin(x)">Graph: sin(x)</button></div>')}
+ ${card(`<div class="eyebrow">MATH TOOLS</div><h2>Use a math tool</h2><p class="muted">Tools perform a supported operation locally. Try <code>/graph y=x^2</code>, <code>/graph sin(x)</code>, or <code>/graph 1/(x)</code>. Graph syntax supports x, pi, e, +, −, ×, ÷, powers, parentheses, and sin, cos, tan, sqrt, abs, ln, log, exp.</p><div class="examples"><button type="button" data-topic-command="/graph y=x^2">/graph y=x^2</button><button type="button" data-topic-command="/graph sin(x)">/graph sin(x)</button></div><div class="eyebrow">TOPIC COMMANDS</div><h2>Open a topic reference</h2><p class="muted">Use a command to view a topic outline. Planned topics are not yet supported by the deterministic solver.</p><div class="examples topic-command-list"><button type="button" data-topic-command="/help">/help</button><button type="button" data-topic-command="/topics">/topics</button>${topics.map(topic=>`<button type="button" data-topic-command="${topic.command}">${topic.command}</button>`).join('')}</div>`)}
  ${card('<div class="eyebrow">SUPPORTED OPERATIONS</div><h2>Current engine boundaries</h2><div class="capability-list"><div><b>Arithmetic</b><span class="tag available">SUPPORTED</span></div><div><b>Linear equations in x</b><span class="tag available">LIMITED</span></div><div><b>Symbolic algebra</b><span class="tag planned">NOT SUPPORTED</span></div><div><b>Calculus and proofs</b><span class="tag planned">NOT SUPPORTED</span></div></div>','compact-panel')}`;
 }
 function renderServers(){
@@ -140,12 +141,19 @@ function runAgentCommand(raw){
  if(!raw.startsWith('/'))return false;
  const command=raw.trim().split(/\s+/)[0].toLowerCase();
  if(command==='/help'){
-  const list=['/help — show command help','/topics — list mathematics topics and status',...topics.map(topic=>topic.command+' — '+topic.name)];
+  const list=['/help — show command help','/topics — list mathematics topics and status','/graph <function> — plot a function locally (e.g. /graph y=x^2)','Graph functions: sin, cos, tan, sqrt, abs, ln, log, exp; constants pi and e',...topics.map(topic=>topic.command+' — '+topic.name)];
   addChat('assistant','ULTRON Math Agent commands:\n'+list.join('\n')+'\n\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
   return true;
  }
  if(command==='/topics'){
   addChat('assistant','Mathematics topic commands:\n'+topics.map(topic=>topic.command+' — '+topic.name+' ['+topic.level+']').join('\n'),'Topic status reflects the current roadmap.');
+  return true;
+ }
+ if(command==='/graph'){
+  const expression=raw.trim().slice(command.length).trim();
+  if(!expression){addChat('assistant','Usage: /graph <function>\nExamples: /graph y=x^2 · /graph sin(x) · /graph sqrt(abs(x))','LOCAL GRAPH TOOL');return true;}
+  try{const node=addChat('assistant','Graph generated for '+expression,'LOCAL FUNCTION PLOT · 600 SAMPLE POINTS · NO API');node.insertAdjacentHTML('beforeend',createGraphSvg(expression));}
+  catch(error){addChat('assistant','Graph error: '+error.message,'Check the function syntax and supported functions.');}
   return true;
  }
  const topic=topics.find(item=>item.command===command);
