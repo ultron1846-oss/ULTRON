@@ -136,6 +136,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
         "scheduler": scheduler.state_dict() if scheduler is not None else None,
         "rng": _capture_rng(), "data_state": data_state,
         "dataset_manifest_sha256": dataset_manifest_sha256,
+        "training_settings": training_settings,
     }
     fd, name = tempfile.mkstemp(prefix="." + target.name + ".", suffix=".tmp", dir=target.parent)
     temporary = Path(name)
