@@ -23,7 +23,7 @@ Source review: ULTRON has an untrained model prototype, a narrow deterministic g
 
 ## Phase 5 — data integrity hardening
 
-The deterministic generator now covers arithmetic, rational arithmetic, simple linear equations, and exactly validated polynomial derivatives (degree 2–5). It still does not cover calculus or university mathematics broadly. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
+The deterministic generator now covers arithmetic, rational arithmetic, simple linear equations, polynomial derivatives (degree 2–5), definite polynomial integrals (degree 1–4), 2x2 determinants, and unique 2x2 linear systems. It still does not cover university mathematics broadly. Phase 5 adds deterministic prompt-disjoint train/validation/test splitting, duplicate-prompt collapse, strict manifest schema checks, and recomputation of each example ID from its content. This is dataset infrastructure only; no training corpus was generated or training started.
 
 The foundation config now binds to the canonical 240-token math vocabulary instead of the initial 256-token placeholder. The revised exact count is **63,400,451 total / 61,826,048 trainable**. Fast-memory key/value/gate projections are frozen because their updates are detached and they receive no gradients.
 
@@ -41,7 +41,7 @@ Checkpoint format v4 records Python/Torch RNG state and optional data cursor bou
 
 ## Phase 7 — exact-answer evaluation
 
-Added schema-v3 exact-answer evaluation for caller-supplied predictions on the current generated topics. It reports attempted coverage, valid-answer rate, abstentions, malformed outputs, incorrect valid answers, and mutually exclusive error classes globally and per topic. Rational/integral outputs use exact fractions; bounded polynomial derivatives use exact coefficient-map equivalence, including formatting variants. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
+Added schema-v3 exact-answer evaluation for caller-supplied predictions on the current generated topics. It reports attempted coverage, valid-answer rate, abstentions, malformed outputs, incorrect valid answers, and mutually exclusive error classes globally and per topic. Rational/integral/determinant outputs use exact fractions; polynomial derivatives use exact coefficient-map equivalence; 2x2 system outputs use exact rational-pair parsing. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
 
 ## Phase 9 — free runtime review
 
@@ -53,7 +53,7 @@ Phase 8 binds resumable data cursors to a validated dataset-manifest SHA-256 in 
 
 Checkpoint resume now returns whether RNG restoration succeeded. The trainer refuses resume without restored RNG, data cursor, and a matching dataset-manifest SHA-256; it skips initial reseeding on resume so checkpoint RNG is preserved.
 
-The generator now also creates and independently validates exact definite integrals of integer-coefficient polynomials (degree 1–4), generator version 0.3.0. This is a bounded calculus task set, not broad university-math coverage.
+Generator v0.4.0 adds independently validated 2x2 matrix determinants and unique 2x2 linear systems with exact rational solutions. The complete current generator has seven narrow exact-synthetic topics; these additions are introductory linear algebra exercises, not broad university-math capability.
 
 ## Frontend status
 
