@@ -2,7 +2,7 @@
 
 ## Current implementation (source-reviewed 2026-11-25)
 
-The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for four narrow topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and a bounded local training controller. This is not yet a complete end-to-end training pipeline or validated training run.
+The repository contains an **experimental untrained PyTorch model**, an original deterministic generator for five narrow topics, a causal next-token loss, an AdamW optimizer factory, checkpoint save/load helpers, and a bounded local training controller. This is not yet a complete end-to-end training pipeline or validated training run.
 
 - `ultron_core/model.py`: experimental sparse-expert causal sequence model.
 - `ultron_core/config.py`: small default config for fast smoke tests plus `NeuroSparseConfig.foundation()`, a proposed 63,400,451-total / 61,826,048-trainable configuration.
@@ -11,7 +11,7 @@ The repository contains an **experimental untrained PyTorch model**, an original
 - `ultron_core/preflight.py`: no-allocation validation of model-size floor, tokenizer compatibility, dataset split integrity, workload bounds, and FP32 persistent-state estimate. It always reports training unauthorized and zero optimizer steps.
 - `ultron_core/checkpoint.py`: versioned model/optimizer/scheduler checkpoint, Python/Torch RNG restoration, optional data cursor bound to dataset manifest SHA-256, expected-dataset validation before state mutation, backup fallback, and transactional restore rollback.
 - `ultron_core/benchmark.py`: synthetic-token inference timing, not mathematical quality evaluation.
-- `ultron_core/evaluation.py`: exact rational answer scoring for caller-supplied predictions; no model inference or training.
+- `ultron_core/evaluation.py`: exact-answer scoring for caller-supplied predictions; no model inference or training.
 
 The small default config is a CI/CPU smoke model, not the 40M minimum target. The foundation config is exactly 63,400,451 total parameters and 61,826,048 trainable parameters by formula; it has not been trained.
 
