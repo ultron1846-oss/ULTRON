@@ -41,7 +41,7 @@ Checkpoint format v4 records Python/Torch RNG state and optional data cursor bou
 
 ## Phase 7 — exact-answer evaluation
 
-Added an exact-answer evaluation function for caller-supplied predictions on the current generated topics. It reports attempted coverage, valid-answer rate, abstentions, malformed outputs (including non-string values), incorrect valid answers, and per-topic metrics. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
+Added schema-v3 exact-answer evaluation for caller-supplied predictions on the current generated topics. It reports attempted coverage, valid-answer rate, abstentions, malformed outputs, incorrect valid answers, and mutually exclusive error classes globally and per topic. Rational/integral outputs use exact fractions; bounded polynomial derivatives use exact coefficient-map equivalence, including formatting variants. It does not run a model or validate proofs. See [math evaluation protocol](docs/MATH_EVALUATION_PROTOCOL.md).
 
 ## Phase 9 — free runtime review
 
