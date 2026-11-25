@@ -808,3 +808,16 @@ Added optional measurements to the bounded training controller:
 - No model benchmark, training run, or remote job was started as part of this change.
 
 Validation: added mock-controller tests for the disabled default, validation, CPU timing, and target-token counts.
+
+
+## Opt-in activation checkpointing — 2026-11-25
+
+Added block-level activation recomputation for the transformer model.
+
+- `NeuroSparseModel.set_activation_checkpointing(True)` enables checkpointed block execution during training with gradients.
+- The bounded controller exposes `TrainingSettings(activation_checkpointing=True)`, enables the setting for that session, and restores the model's previous setting afterward.
+- FP32/normal execution remains the default. Activation checkpointing trades additional forward recomputation for lower saved-activation memory; the actual memory/throughput trade-off must be benchmarked on the target device.
+- The checkpointed path is disabled for memory-writing forwards because recomputation must not repeat mutable memory writes.
+- Tests compare forward outputs and gradients against the normal path on a small deterministic CPU model.
+
+No full-model training or remote job was started.
