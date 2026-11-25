@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "batch": "University foundation mathematics",
+  "topics": [
+    {
+      "topic": "linear_algebra",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "multivariable_calculus",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "differential_equations",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "discrete_mathematics",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "real_analysis",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "abstract_algebra",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "optimization",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "numerical_methods",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    },
+    {
+      "topic": "probability_theory",
+      "grade_band": "University Foundation",
+      "includes_word_problems": false
+    }
+  ]
+}
