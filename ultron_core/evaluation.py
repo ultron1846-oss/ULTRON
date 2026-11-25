@@ -51,6 +51,8 @@ def evaluate_predictions(examples: Iterable[MathExample], predictions: Mapping[s
         except (ValueError, ZeroDivisionError, TypeError):
             invalid += 1
             invalid_by_topic[item.topic] += 1
+            error_classes["malformed_output"] += 1
+            topic_errors["malformed_output"] += 1
             continue
         answered += 1
         answers[item.topic] += 1
