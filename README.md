@@ -988,3 +988,8 @@ The university topic catalog now lists 197 topics across foundations and logic, 
 **Status is explicit:** nine topics currently have deterministic generator implementations; the remaining catalog entries are marked `catalogued_not_implemented`. This is a broad undergraduate curriculum map, not literally every university course or specialty. Do not present catalog entries as trained capability. The earlier CI failure in multivariable calculus (six values unpacked into five variables) has been fixed; the full suite must pass on the updated head before PR #129 can merge.
 
 No training, corpus generation, or remote execution has started. Continue by implementing catalogued topics in tested batches with exact verifiers and benchmark gates. README updated for this handoff.
+
+
+### University generator registry correction — 2026-11-25
+
+CI exposed a mismatch between nine implemented university generator identifiers and the curriculum topic IDs. The curriculum now maps each generator to a canonical topic (`determinants`, `partial_derivatives`, `first_order_ODEs`, `congruences`, `convergence_of_sequences`, `cyclic_groups`, `unconstrained_optimization`, `Newton_and_secant_methods`, and `Bayes_theorem`). Registry generation reports these as `generator_available_not_mastered`; this means a deterministic exercise template exists, not that ULTRON has learned or mastered the topic. The remaining catalog entries stay `catalogued_not_implemented`. Regression tests now verify all nine mappings. Training remains disabled.
