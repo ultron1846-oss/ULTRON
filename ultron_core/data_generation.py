@@ -289,6 +289,71 @@ def generate_examples(seed: int, count: int,
 
 
 
+
+def summarize_corpus(examples: Iterable[MathExample], *, splits=None) -> dict:
+    """Report topic/difficulty coverage and duplicate/invalid rows without generating data."""
+    items = tuple(examples)
+    if not items or any(not isinstance(item, MathExample) for item in items):
+        raise ValueError("examples must contain at least one MathExample")
+    ids = [item.example_id for item in items]
+    prompt_groups = [re.sub(r"\\s+", " ", item.input_text).strip().casefold() for item in items]
+    topic_counts = Counter(item.topic for item in items)
+    difficulty_counts = Counter(str(item.difficulty) for item in items)
+    topic_difficulty = {
+        topic: dict(sorted(Counter(str(item.difficulty) for item in items if item.topic == topic).items(),
+                           key=lambda pair: int(pair[0])))
+        for topic in sorted(topic_counts)
+    }
+    valid_count = sum(
+        item.validation_status == "semantically_checked"
+        and item.target_text == item.exact_answer
+        and validate_example_text(item.input_text, item.exact_answer, item.topic)
+        for item in items
+    )
+    result = {
+        "schema_version": 1,
+        "example_count": len(items),
+        "unique_example_id_count": len(set(ids)),
+        "duplicate_example_id_count": len(ids) - len(set(ids)),
+        "unique_prompt_count": len(set(prompt_groups)),
+        "duplicate_prompt_count": len(prompt_groups) - len(set(prompt_groups)),
+        "validated_example_count": valid_count,
+        "invalid_example_count": len(items) - valid_count,
+        "topic_counts": dict(sorted(topic_counts.items())),
+        "topic_proportions": {
+            topic: count / len(items) for topic, count in sorted(topic_counts.items())
+        },
+        "difficulty_counts": dict(sorted(difficulty_counts.items(), key=lambda pair: int(pair[0]))),
+        "topic_difficulty_counts": topic_difficulty,
+        "training_performed": False,
+        "data_generated": False,
+    }
+    if splits is not None:
+        if not isinstance(splits, dict) or set(splits) != {"train", "validation", "test"}:
+            raise ValueError("splits must contain exactly train, validation, and test")
+        split_prompt_groups = {}
+        split_counts = {}
+        for name, rows in splits.items():
+            rows = tuple(rows)
+            if any(not isinstance(item, MathExample) for item in rows):
+                raise TypeError(f"{name} split contains a non-MathExample row")
+            split_counts[name] = len(rows)
+            split_prompt_groups[name] = {
+                re.sub(r"\\s+", " ", item.input_text).strip().casefold() for item in rows
+            }
+        names = ("train", "validation", "test")
+        leakage = []
+        for i, left in enumerate(names):
+            for right in names[i + 1:]:
+                overlap = split_prompt_groups[left] & split_prompt_groups[right]
+                if overlap:
+                    leakage.append({"left": left, "right": right, "overlap_count": len(overlap)})
+        result["split_counts"] = split_counts
+        result["prompt_group_leakage"] = leakage
+        result["splits_prompt_disjoint"] = not leakage
+    return result
+
+
 def split_examples(
     examples: Iterable[MathExample],
     *,
