@@ -707,7 +707,7 @@
     ],
     "calculus_of_variations": [
       "derivative_theory",
-      "definite_integral_polynomial",
+      "Riemann_integral",
       "unconstrained_optimization"
     ],
     "Hamiltonian_and_Lagrangian_mechanics": [
