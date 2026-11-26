@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
-  "source_commit": "be4c641bd38dffb2fa3713d34fd61fa601d29405",
+  "source_commit": "1b8ab2d517529695741748e182a6e478753d8a74",
   "source_topic_count": 197,
-  "mapped_topic_count": 89,
+  "mapped_topic_count": 133,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -11,9 +11,13 @@
     "Real analysis",
     "Complex analysis",
     "Abstract algebra",
-    "Number theory"
+    "Number theory",
+    "Topology",
+    "Discrete mathematics and combinatorics",
+    "Probability",
+    "Statistics"
   ],
-  "scope_note": "Curated prerequisite edges for Foundations and logic, Linear algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, and Number theory. The other 108 curriculum topics are intentionally unmapped in this version.",
+  "scope_note": "Curated prerequisite edges for Foundations and logic, Linear algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, Number theory, Topology, Discrete mathematics and combinatorics, Probability, and Statistics. The other 64 curriculum topics are intentionally unmapped in this version.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -344,6 +348,172 @@
     "analytic_number_theory_intro": [
       "sequences_and_series",
       "complex_numbers_and_topology"
+    ],
+    "topological_spaces": [
+      "sets_and_functions",
+      "proof_methods"
+    ],
+    "open_and_closed_sets": [
+      "topological_spaces"
+    ],
+    "basis_for_topology": [
+      "topological_spaces"
+    ],
+    "continuity_topological_spaces": [
+      "topological_spaces",
+      "continuity_metric_spaces"
+    ],
+    "homeomorphisms": [
+      "continuity_topological_spaces",
+      "sets_and_functions"
+    ],
+    "compact_topological_spaces": [
+      "topological_spaces",
+      "compactness"
+    ],
+    "connected_spaces": [
+      "topological_spaces",
+      "connectedness"
+    ],
+    "product_and_quotient_topology": [
+      "topological_spaces",
+      "basis_for_topology",
+      "relations_and_equivalence"
+    ],
+    "fundamental_group_intro": [
+      "topological_spaces",
+      "connected_spaces",
+      "homeomorphisms"
+    ],
+    "covering_spaces_intro": [
+      "fundamental_group_intro",
+      "connected_spaces"
+    ],
+    "counting_principles": [
+      "sets_and_functions"
+    ],
+    "permutations_and_combinations": [
+      "counting_principles"
+    ],
+    "pigeonhole_principle": [
+      "counting_principles"
+    ],
+    "inclusion_exclusion": [
+      "counting_principles",
+      "sets_and_functions"
+    ],
+    "recurrence_relations": [
+      "mathematical_induction",
+      "sequences_and_series"
+    ],
+    "generating_functions": [
+      "counting_principles",
+      "sequences_and_series"
+    ],
+    "graph_theory_basics": [
+      "sets_and_functions",
+      "counting_principles"
+    ],
+    "trees_and_spanning_trees": [
+      "graph_theory_basics"
+    ],
+    "planar_graphs": [
+      "graph_theory_basics"
+    ],
+    "matching_and_networks": [
+      "graph_theory_basics"
+    ],
+    "extremal_combinatorics": [
+      "counting_principles",
+      "graph_theory_basics"
+    ],
+    "designs_and_codes_intro": [
+      "permutations_and_combinations",
+      "congruences"
+    ],
+    "probability_spaces": [
+      "sets_and_functions",
+      "cardinality"
+    ],
+    "conditional_probability": [
+      "probability_spaces"
+    ],
+    "Bayes_theorem": [
+      "conditional_probability"
+    ],
+    "random_variables": [
+      "probability_spaces"
+    ],
+    "discrete_distributions": [
+      "random_variables"
+    ],
+    "continuous_distributions": [
+      "random_variables",
+      "Riemann_integral"
+    ],
+    "expectation_and_variance": [
+      "discrete_distributions",
+      "continuous_distributions"
+    ],
+    "joint_distributions": [
+      "random_variables"
+    ],
+    "law_of_large_numbers": [
+      "expectation_and_variance",
+      "convergence_of_sequences"
+    ],
+    "central_limit_theorem": [
+      "law_of_large_numbers",
+      "sequences_and_series"
+    ],
+    "Markov_chains": [
+      "conditional_probability",
+      "random_variables"
+    ],
+    "martingales_intro": [
+      "conditional_probability",
+      "expectation_and_variance"
+    ],
+    "stochastic_processes_intro": [
+      "probability_spaces",
+      "random_variables"
+    ],
+    "descriptive_statistics": [
+      "probability_spaces",
+      "counting_principles"
+    ],
+    "sampling_and_estimators": [
+      "descriptive_statistics",
+      "probability_spaces"
+    ],
+    "confidence_intervals": [
+      "sampling_and_estimators",
+      "continuous_distributions"
+    ],
+    "hypothesis_testing": [
+      "sampling_and_estimators",
+      "probability_spaces"
+    ],
+    "linear_regression": [
+      "descriptive_statistics",
+      "systems_linear_equations"
+    ],
+    "generalized_linear_models_intro": [
+      "linear_regression",
+      "random_variables"
+    ],
+    "ANOVA": [
+      "hypothesis_testing",
+      "expectation_and_variance"
+    ],
+    "Bayesian_statistics_intro": [
+      "Bayes_theorem",
+      "sampling_and_estimators"
+    ],
+    "statistical_learning_theory_intro": [
+      "probability_spaces",
+      "linear_regression",
+      "sequences_and_series"
     ]
   }
 }
