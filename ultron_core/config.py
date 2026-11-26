@@ -1,6 +1,9 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import math
 from typing import Any
+
+MIN_FOUNDATION_TRAINABLE_PARAMETERS = 60_000_000
+
 
 @dataclass(frozen=True)
 class NeuroSparseConfig:
@@ -48,12 +51,62 @@ class NeuroSparseConfig:
 
     @classmethod
     def foundation(cls) -> "NeuroSparseConfig":
-        """Return the proposed >60M trainable-parameter foundation configuration (not a training command)."""
+        """Return the minimum 60M-trainable-parameter foundation configuration.
+
+        This only calculates model capacity; it does not allocate model weights
+        or initiate training.
+        """
         from .math_tokenizer import MathVocabulary
-        return cls(vocab_size=len(MathVocabulary.default()), hidden_size=512, num_layers=3,
-                  top_k=2, expert_multiplier=4, max_refinements=3,
-                  fast_memory_slots=64, num_attention_heads=8,
-                  max_sequence_length=2048)
+
+        config = cls(
+            vocab_size=len(MathVocabulary.default()),
+            hidden_size=512,
+            num_layers=3,
+            top_k=2,
+            expert_multiplier=4,
+            max_refinements=3,
+            fast_memory_slots=64,
+            num_attention_heads=8,
+            max_sequence_length=2048,
+        )
+        trainable = count_parameters(config)
+        if trainable < MIN_FOUNDATION_TRAINABLE_PARAMETERS:
+            raise ValueError(
+                "foundation configuration is below the required "
+                f"{MIN_FOUNDATION_TRAINABLE_PARAMETERS:,} trainable parameters "
+                f"(computed {trainable:,})"
+            )
+        return config
+
+    @classmethod
+    def expanded(
+        cls,
+        *,
+        hidden_size: int = 768,
+        num_layers: int = 4,
+        num_experts: int = 12,
+        expert_multiplier: int = 4,
+        num_attention_heads: int = 12,
+        base: "NeuroSparseConfig | None" = None,
+    ) -> "NeuroSparseConfig":
+        """Build a larger configurable capacity variant without allocating weights.
+
+        Increase width, depth, expert count, or expert width to grow capacity.
+        The returned configuration must exceed the foundation's trainable count.
+        """
+        foundation = cls.foundation()
+        source = base or foundation
+        config = replace(
+            source,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            num_experts=num_experts,
+            expert_multiplier=expert_multiplier,
+            num_attention_heads=num_attention_heads,
+        )
+        if count_parameters(config) <= count_parameters(foundation):
+            raise ValueError("expanded configuration must exceed foundation capacity")
+        return config
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
