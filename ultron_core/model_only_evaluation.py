@@ -6,7 +6,6 @@ and it keeps any optional tool-assisted prediction set separate.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-import math
 
 import torch
 
@@ -104,7 +103,10 @@ def run_model_only_evaluation(
                             raise ValueError("model logits do not match the input sequence")
                         if logits.shape[2] != vocabulary_size:
                             raise ValueError("model output vocabulary does not match tokenizer")
-                        next_token = int(torch.argmax(logits[0, -1, :]).item())
+                        next_logits = logits[0, -1, :]
+                        if not bool(torch.isfinite(next_logits).all()):
+                            raise ValueError("model emitted non-finite next-token logits")
+                        next_token = int(torch.argmax(next_logits).item())
                         if not 0 <= next_token < vocabulary_size:
                             raise ValueError("model emitted a token outside its vocabulary")
                         if next_token == eos_id:
