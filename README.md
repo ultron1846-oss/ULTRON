@@ -57,7 +57,7 @@ These checks validate the covered implementation and workflow behavior only. The
 ## Current handoff
 
 - Repository: [ultron1846-oss/ULTRON](https://github.com/ultron1846-oss/ULTRON), default branch `main`.
-- Latest merged engineering change: [PR #172 — verify actual model parameter counts](https://github.com/ultron1846-oss/ULTRON/pull/172). Its final PR checks and all six post-merge checks (Node, Python, Level 1, Pages build, build-status report, and deployment) succeeded on `main`.
+- Latest merged engineering change: [PR #173 — verify optimizer parameter coverage](https://github.com/ultron1846-oss/ULTRON/pull/173). Its final Node/Python/Level 1 checks passed, and all six post-merge checks passed on `main`, including Pages build, status report, and deployment.
 - The requested pre-training engineering checklist A–G has been reviewed. The implemented math-engine, generator, verification, Lean-stub, Level 1, and word-problem coverage is summarized above; detailed dated milestones are archived in [docs/HISTORY.md](docs/HISTORY.md).
 - Remaining owner-side acceptance includes manual iPad Safari testing. Automated responsive checks are not a substitute for testing on an actual iPad.
 
@@ -68,6 +68,8 @@ These checks validate the covered implementation and workflow behavior only. The
 - Merged training-controller hardening: [PR #172 — validate actual model parameter counts](https://github.com/ultron1846-oss/ULTRON/pull/172) compares the model's enumerated trainable and total parameters with the preflight report before iterating batches. It was squash-merged as `80185f0730fa4aafd7d47f417ba96362f27096ee`. Final PR checks passed on `0d3b0e8be2d4a1cba4ad6dd07cde510bf3744a6d` (Node `45832090241`, Python `45832090388`, Level 1 `45832090161`); all six post-merge checks passed on `main` (Node `45832389890`, Python `45832390292`, Level 1 `45832390114`, Pages build/report/deploy run `45832389411`). Regression tests use exact-count meta-device parameters and reject mismatched/frozen parameters before batch consumption. No real training or optimizer step was run.
 
 - Current optimizer hardening: [PR #173 — verify optimizer parameter coverage](https://github.com/ultron1846-oss/ULTRON/pull/173) requires optimizer parameter groups to match the model's trainable parameters exactly: no missing, unrelated, frozen, or duplicate parameters. New tests verify rejection before input batches are consumed. The first Python CI attempt exposed and fixed a test fixture that reused an optimizer from another model. The corrected final code/test revision `1a0e6868a8b9b189709c4ae804fc2245644169b0` passed Node Tests run `45834204104`, Python AI Core run `45834203997`, and Level 1 Math Tooling run `45834204069`. The final README/history revision also passed Node Tests `45834360621`, Python AI Core `45834360563`, and Level 1 Math Tooling `45834360523`. No training or optimizer step was run.
+
+- Current task-serialization work: the `feat/canonical-math-task-record-2026-11-26` branch adds strict schema-v1 problem restore, content-bound verifier receipts with explicit verification scope, canonical task JSON, and an allowlisted prompt/derivation/answer projection. Answer-only verifiers cannot export worked-solution targets. CI validation is pending; this layer does not generate training data or authorize training. See [docs/TASK_SERIALIZATION.md](docs/TASK_SERIALIZATION.md).
 
 For current feature-specific requirements, use the relevant documents under [docs/](docs/).
 
