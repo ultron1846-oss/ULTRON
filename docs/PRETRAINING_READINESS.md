@@ -98,7 +98,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for all eight generated topics.
 - [x] Add model-only inference with command tools unavailable to the model and separate model-only/tool-assisted metric reports.
 - [x] Add core concept/prerequisite taxonomy for all eight generator topics, concept-balanced sampling, and a validated held-out concept-transfer split protocol (see `docs/CONCEPT_TRANSFER_EVALUATION.md`).
-- [ ] Extend concept/prerequisite mapping to the full grade-band and 197-topic university curriculum.
+- [x] Add an initial curated prerequisite graph for Foundations and Linear Algebra (26/197 topics) with DAG validation and topological ordering.
+- [ ] Extend concept/prerequisite mapping to the remaining 171 university curriculum topics and relevant grade-band topics.
 - [ ] Curate a frozen concept-transfer benchmark with semantic near-duplicate review and independent answer verification.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.

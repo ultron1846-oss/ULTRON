@@ -58,8 +58,8 @@ The shared Problem contract and generated combined registry were added in merged
 ## Current handoff
 
 - PRs #136–#143 are merged. PR #134 was closed without merge and superseded by merged PR #142.
-- PRs #144–#146 (README handoff, model-only evaluation, and target provenance) merged on 2026-11-26 after all required CI workflows passed.
-- Issue #135 is being addressed incrementally. Model-only evaluation and the source-specific target provenance guard are merged. This branch adds a prerequisite-validated taxonomy for the eight core generator topics, concept-balanced sampling, and a held-out concept-transfer split validator; broad curriculum mapping and a curated final transfer benchmark remain open.
+- PRs #144–#147 (README handoff, model-only evaluation, target provenance, and core concept-transfer protocol) merged on 2026-11-26 after all required CI workflows passed.
+- Issue #135 is being addressed incrementally. Model-only evaluation, the source-specific target provenance guard, and the core concept-transfer protocol are merged. This branch adds curated prerequisite edges for 26 Foundations/Linear Algebra topics with a validated DAG loader; the remaining 171 curriculum topics and a frozen final transfer benchmark remain open.
 - The seed importer and the basic-arithmetic source registration are merged. They provide import tooling only; they do not mean the dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and the owner-controlled `ULTRON_SEED_IMPORT_ENABLED=true` variable.
 - No dataset import artifact, optimizer step, model training, or remote training execution is claimed. Do not enable the import gate or dispatch the workflow without separate explicit authorization.
 - Owner to-dos (not attempted): complete iPad Safari acceptance; enable Supabase Auth leaked-password protection; verify free-runtime access and checkpoint transfer from a clean iPad session.
@@ -122,3 +122,10 @@ PR #147 adds `ultron_core/concepts.py`: 10 concept nodes (including prerequisite
 The transfer split validator checks example-ID and normalized-prompt isolation, numeric novelty for the unseen-value category, multi-concept annotations, prerequisite-sensitive labels, and unseen-concept claims. The protocol is documented in `docs/CONCEPT_TRANSFER_EVALUATION.md`.
 
 This is core-topic readiness infrastructure, not evidence of concept mastery. The 197-topic university curriculum still lacks prerequisite mapping, semantic near-duplicate review is required, and no benchmark, training corpus, or model training was run.
+
+
+## University prerequisite map — 2026-11-26
+
+PR #148 adds `tools/math_generators/university/prerequisites.json` and a validated loader. It covers 26 of the 197 university curriculum topics (Foundations and logic plus Linear algebra), verifies exact field coverage, rejects dangling edges/cycles, and provides topological ordering.
+
+The remaining 171 topics are intentionally unmapped. These prerequisite edges are a reviewed starting sequence, not proof of mastery or a universal course order. See `docs/UNIVERSITY_PREREQUISITES.md`.

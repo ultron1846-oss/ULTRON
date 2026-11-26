@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "source_curriculum": "tools/math_generators/university/curriculum.json",
+  "source_commit": "8e22b307b808a5a2ab8b2d95afbd6fee570fc399",
+  "source_topic_count": 197,
+  "mapped_topic_count": 26,
+  "coverage_fields": [
+    "Foundations and logic",
+    "Linear algebra"
+  ],
+  "scope_note": "Curated initial prerequisite edges for Foundations and logic plus Linear algebra only. The other 171 curriculum topics are intentionally unmapped in this version.",
+  "prerequisites": {
+    "sets_and_functions": [],
+    "propositional_logic": ["sets_and_functions"],
+    "predicate_logic": ["propositional_logic", "sets_and_functions"],
+    "quantifiers": ["predicate_logic"],
+    "proof_methods": ["propositional_logic", "predicate_logic"],
+    "mathematical_induction": ["proof_methods"],
+    "relations_and_equivalence": ["sets_and_functions", "predicate_logic"],
+    "cardinality": ["sets_and_functions", "relations_and_equivalence"],
+    "countable_and_uncountable_sets": ["cardinality", "proof_methods"],
+    "axiom_of_choice_intro": ["sets_and_functions", "cardinality", "proof_methods"],
+    "vectors_and_vector_spaces": ["sets_and_functions", "proof_methods"],
+    "subspaces_and_span": ["vectors_and_vector_spaces"],
+    "linear_independence": ["vectors_and_vector_spaces"],
+    "basis_and_dimension": ["subspaces_and_span", "linear_independence"],
+    "linear_transformations": ["vectors_and_vector_spaces", "subspaces_and_span"],
+    "matrix_rank": ["linear_independence", "systems_linear_equations"],
+    "systems_linear_equations": ["vectors_and_vector_spaces"],
+    "determinants": ["systems_linear_equations"],
+    "eigenvalues_and_eigenvectors": ["linear_transformations", "determinants"],
+    "diagonalization": ["eigenvalues_and_eigenvectors", "basis_and_dimension"],
+    "inner_product_spaces": ["vectors_and_vector_spaces"],
+    "orthogonality_and_projection": ["inner_product_spaces"],
+    "least_squares": ["orthogonality_and_projection", "systems_linear_equations"],
+    "spectral_theorem": ["inner_product_spaces", "eigenvalues_and_eigenvectors"],
+    "Jordan_form": ["eigenvalues_and_eigenvectors", "linear_transformations", "basis_and_dimension"],
+    "bilinear_and_quadratic_forms": ["vectors_and_vector_spaces", "determinants"]
+  }
+}
