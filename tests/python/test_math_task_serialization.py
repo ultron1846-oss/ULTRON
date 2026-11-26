@@ -243,6 +243,10 @@ class MathTaskSerializationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
             MathTaskRecord.from_json('{"task_id":"first","task_id":"second"}')
 
+    def test_malformed_json_is_reported_as_a_parse_error(self):
+        with self.assertRaisesRegex(ValueError, "invalid math task JSON"):
+            MathTaskRecord.from_json('{"task_id":')
+
     def test_unknown_task_and_problem_fields_are_rejected(self):
         problem, verifier = _worked_problem()
         task = MathTaskRecord.from_verifier(
