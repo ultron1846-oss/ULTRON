@@ -95,8 +95,11 @@ class HuggingFaceSeedDataTests(unittest.TestCase):
         rows_math = [
             {"instruction": "What is 3 + 3?", "output": "Add 3 and 3 to get 6.", "source": "data/CoT/aqua_rat.json"}
         ]
+        rows_basic = [
+            {"question": "What is 8 + 9?", "answer": 17.0, "op": "+", "a": 8, "b": 9}
+        ]
         dataset_module = types.ModuleType("datasets")
-        dataset_module.load_dataset = Mock(side_effect=[iter(rows_meta), iter(rows_math)])
+        dataset_module.load_dataset = Mock(side_effect=[iter(rows_meta), iter(rows_math), iter(rows_basic)])
         hub_module = types.ModuleType("huggingface_hub")
         hub_module.HfApi = Mock(return_value=api)
         with tempfile.TemporaryDirectory() as temp:
@@ -104,11 +107,11 @@ class HuggingFaceSeedDataTests(unittest.TestCase):
             with patch.dict(sys.modules, {"datasets": dataset_module, "huggingface_hub": hub_module}):
                 with patch.object(importer, "CONFIG_PATH", Path(__file__).resolve().parents[2] / "tools/hf_seed_data/config.json"):
                     manifest = importer.import_sources(output)
-            self.assertEqual(manifest["unique_accepted_rows"], 2)
+            self.assertEqual(manifest["unique_accepted_rows"], 3)
             self.assertEqual(manifest["rejected_counts"]["duplicate"], 1)
             self.assertEqual(manifest["rejected_counts"]["license_or_program_filter"], 1)
             self.assertFalse(manifest["data_is_training_authorized"])
-            self.assertEqual(api.dataset_info.call_count, 2)
+            self.assertEqual(api.dataset_info.call_count, 3)
             for call in dataset_module.load_dataset.call_args_list:
                 self.assertEqual(call.kwargs["revision"], revision)
                 self.assertTrue(call.kwargs["streaming"])
@@ -116,7 +119,7 @@ class HuggingFaceSeedDataTests(unittest.TestCase):
             for name in ("train.jsonl", "validation.jsonl", "test.jsonl"):
                 rows.extend(json.loads(line) for line in (output / name).read_text().splitlines())
                 self.assertEqual(manifest["files_sha256"][name], hashlib.sha256((output / name).read_bytes()).hexdigest())
-            self.assertEqual(len(rows), 2)
+            self.assertEqual(len(rows), 3)
             self.assertTrue((output / "manifest.json").exists())
 
     def test_failed_stream_does_not_publish_partial_files(self):
