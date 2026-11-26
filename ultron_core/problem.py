@@ -159,9 +159,18 @@ class Problem:
 
 class ProblemVerifier(ABC):
     """Common interface for source-specific exact or replay verifiers."""
+
     @abstractmethod
     def verify(self, problem: Problem) -> bool:
         raise NotImplementedError
+
+    def verified_fields(self, problem: Problem) -> tuple[str, ...]:
+        """Return the task fields actually checked by this verifier.
+
+        The conservative default covers the problem and final answer only.
+        Implementations must override this to claim derivation verification.
+        """
+        return ("problem", "answer")
 
 
 class CoreExactVerifier(ProblemVerifier):
@@ -177,6 +186,13 @@ class ReplayGeneratorVerifier(ProblemVerifier):
         self._record = dict(source_record)
         self._verify_fn = verify_fn
         self._source = source
+
+    def verified_fields(self, problem: Problem) -> tuple[str, ...]:
+        if not isinstance(problem, Problem):
+            raise TypeError("problem must be a Problem")
+        if problem.steps:
+            return ("problem", "derivation", "answer")
+        return ("problem", "answer")
 
     def verify(self, problem: Problem) -> bool:
         try:
