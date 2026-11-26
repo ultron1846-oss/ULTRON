@@ -2,16 +2,34 @@
 
 ## Target
 
-Expected URL: `https://ultron1846-oss.github.io/ULTRON/`.
+Expected public URL: https://ultron1846-oss.github.io/ULTRON/
 
-## Workflow behavior
+## Current deployment status — 2026-11-26
 
-The proposed `.github/workflows/pages.yml` stages only root HTML, CSS, and JavaScript files. It has no package installation or build command. It publishes only on pushes to `main` or a manual dispatch from `main`; pull requests do not publish. The artifact root contains `index.html`.
+GitHub Pages build-and-deployment run #146 completed successfully for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`.
 
-## One-time repository setup
+- Build job: success
+- Build-status report job: success
+- Deploy job: success
 
-After the workflow is merged, open **Repository Settings → Pages** and select **GitHub Actions** as the build and deployment source. This setting has not been changed by the proposal. A workflow file alone does not prove that Pages is enabled.
+Run details: https://github.com/ultron1846-oss/ULTRON/actions/runs/45774110692
 
-## Verification and recovery
+The repository's current Pages deployment is driven by GitHub's Pages build/deployment workflow. The older description of a proposed `.github/workflows/pages.yml` is obsolete; that file is not present on main.
 
-After a deployment run succeeds, open the public URL and verify the dashboard, styles, module imports, and navigation. Also test on iPad Safari and a mobile viewport. If the site fails, inspect the latest Pages workflow run and confirm the artifact contains `index.html`, `styles.css`, `app.js`, and `math-engine.js` at its root. Do not report deployment complete before public verification.
+## Public-site and device acceptance
+
+A successful Actions deployment confirms that GitHub completed its deployment job. It does not by itself confirm that the public URL loads correctly in every browser or that all interactive behavior works.
+
+Manual acceptance remains pending:
+1. Open the public URL in Safari on an iPad.
+2. Confirm no login or sign-up is required.
+3. Check portrait and landscape layouts, navigation, module loading, and the local memory-preference slider.
+4. Follow the complete checklist in [IPAD_FRONTEND_ACCEPTANCE.md](IPAD_FRONTEND_ACCEPTANCE.md).
+
+## RAM slider limitation
+
+The 2–10 GB slider is stored as a browser-local preference. It does not allocate physical RAM, enforce a process memory cap, or configure hosted runner resources. No training runtime is connected to it yet.
+
+## Safety status
+
+Training, dataset import, corpus generation, optimizer steps, and remote execution remain disabled. Do not report training or dataset upload as completed.
