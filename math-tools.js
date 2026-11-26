@@ -173,7 +173,7 @@ export function executeMathToolCommand(raw){
       const [a,b,c]=coefficients;
       if(parts.length<2){output='First step: calculate the discriminant D = b² − 4ac using your coefficients. Send me D and I will check it.';}
       else{
-        const roots=parts[1].split(',').map(numeric);
+        const roots=parts[1].split(',').map(value=>numeric(value.trim()));
         if(roots.length!==2)throw new Error('Enter your two attempted roots after |, separated by a comma.');
         const result=solveQuadratic(a,b,c);
         const correct=result.kind==='real'&&result.roots.every((value,index)=>Math.abs(value-roots.slice().sort((x,y)=>x-y)[index])<=1e-10*Math.max(1,Math.abs(value)));
@@ -184,7 +184,7 @@ export function executeMathToolCommand(raw){
       if(coefficients.length!==6)throw new Error('Usage: /system a b c d e f | x,y');
       if(parts.length<2){output='First step: choose x or y to eliminate. Multiply one or both equations so the chosen coefficients match or are opposites, then subtract. Send me the resulting equation.';}
       else{
-        const attempt=parts[1].split(',').map(numeric);
+        const attempt=parts[1].split(',').map(value=>numeric(value.trim()));
         if(attempt.length!==2)throw new Error('Enter your attempted values after | as x,y.');
         const result=solveLinearSystem2x2(...coefficients);
         const correct=result.kind==='unique'&&Math.abs(result.x-attempt[0])<=1e-10*Math.max(1,Math.abs(result.x))&&Math.abs(result.y-attempt[1])<=1e-10*Math.max(1,Math.abs(result.y));
