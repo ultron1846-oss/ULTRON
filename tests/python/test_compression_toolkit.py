@@ -9,6 +9,7 @@ from ultron_core.compress import (
     factorize_model,
     merge_experts,
     prune_experts,
+    simulate_int8_quantization,
 )
 from ultron_core.config import NeuroSparseConfig
 from ultron_core.model import NeuroSparseModel
@@ -175,6 +176,40 @@ class LowRankFactorizationTests(unittest.TestCase):
     def test_rejects_unknown_target_module(self):
         with self.assertRaisesRegex(ValueError, "unknown target"):
             factorize_model(small_model(), target_modules=["missing.layer"])
+
+
+class SimulatedInt8QuantizationTests(unittest.TestCase):
+    def test_quantizes_copy_and_reports_per_layer_sensitivity(self):
+        model = small_model().eval()
+        path = "blocks.0.experts.0.net.0"
+        original_weight = model.get_submodule(path).weight.detach().clone()
+        torch.manual_seed(99)
+        sample = torch.randn(5, model.get_submodule(path).in_features)
+        result, report = simulate_int8_quantization(
+            model,
+            sensitivity_inputs={path: sample},
+        )
+        self.assertIsNot(result, model)
+        self.assertTrue(torch.equal(model.get_submodule(path).weight, original_weight))
+        self.assertFalse(torch.equal(result.get_submodule(path).weight, original_weight))
+        self.assertIn(path, report["layers"])
+        layer_report = report["layers"][path]
+        self.assertEqual(layer_report["quantization"], "symmetric_per_layer_int8_simulation")
+        self.assertGreater(layer_report["scale"], 0.0)
+        self.assertIsNotNone(layer_report["relative_output_error"])
+        self.assertIn("lm_head", report["skipped_tied_modules"])
+        with torch.inference_mode():
+            output = result(torch.tensor([[1, 2, 3]], dtype=torch.long))
+        self.assertEqual(tuple(output["logits"].shape), (1, 3, 64))
+
+    def test_zero_weight_layer_has_finite_scale_and_zero_error(self):
+        model = nn.Sequential(nn.Linear(4, 3, bias=False))
+        with torch.no_grad():
+            model[0].weight.zero_()
+        result, report = simulate_int8_quantization(model)
+        self.assertEqual(report["layers"]["0"]["scale"], 1.0)
+        self.assertEqual(report["layers"]["0"]["relative_weight_error"], 0.0)
+        self.assertTrue(torch.equal(result[0].weight, model[0].weight))
 
 
 if __name__ == "__main__":
