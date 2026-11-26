@@ -192,13 +192,13 @@ function answerAgent(){
   addChat('assistant','Let’s solve it together. '+hint+'\\n\\nTry the first calculation and send me your answer. I’ll check your work and give the next hint without jumping straight to the final answer.','GUIDED LEARNING · ANSWER WITHHELD');
   return;
  }
- const equation=raw.match(/(?:solve\\s+)?([0-9xX+*/().\\s^=-]+=[0-9xX+*/().\\s^=-]+)/i);
- const expression=raw.replace(/^(what is|calculate|compute)\\s+/i,'').replace(/[?]$/,'').trim();
+ const equation=raw.match(/(?:solve\s+)?([0-9xX+*/().\s^=-]+=[0-9xX+*/().\s^=-]+)/i);
+ const expression=raw.replace(/^(what is|calculate|compute)\s+/i,'').replace(/[?]$/,'').trim();
  if(equation){
   addChat('assistant','Let’s solve this step by step. First, simplify each side and collect the terms containing x on one side. Then isolate x by undoing the remaining operation.\\n\\nTry that first step and tell me what equation you get; I’ll check it.','GUIDED EQUATION MODE · FINAL VALUE WITHHELD');
   return;
  }
- if(/^[0-9+*/().\\s^×÷−-]+$/.test(expression)){
+ if(/^[0-9+*/().\s^×÷−-]+$/.test(expression)){
   addChat('assistant','I’ll help you work it out rather than give the result immediately.\\n\\n1. Follow the order of operations: parentheses, powers, multiplication/division, then addition/subtraction.\\n2. Calculate the first operation you can do.\\n\\nSend me your intermediate result and I’ll check it.','GUIDED CALCULATION · FINAL RESULT WITHHELD');
   return;
  }
