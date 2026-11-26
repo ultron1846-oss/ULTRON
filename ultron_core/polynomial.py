@@ -195,6 +195,10 @@ class Polynomial:
             raise TypeError("other must be a Polynomial")
         if not isinstance(limits, PolynomialLimits):
             raise TypeError("limits must be PolynomialLimits")
+        # Enforce the caller's budget on inputs as well as the result. Without
+        # this, oversized operands can bypass limits by cancelling in addition.
+        _check_budget(dict(self.terms), limits)
+        _check_budget(dict(other.terms), limits)
         terms = self._as_dict()
         for monomial, coefficient in other.terms:
             terms[monomial] = terms.get(monomial, Fraction(0)) + coefficient
@@ -205,6 +209,9 @@ class Polynomial:
             raise TypeError("scale coefficient must be an integer or Fraction")
         if not isinstance(limits, PolynomialLimits):
             raise TypeError("limits must be PolynomialLimits")
+        # Validate before scaling (especially scale-by-zero), which otherwise
+        # could erase an over-budget input and hide the limit violation.
+        _check_budget(dict(self.terms), limits)
         scalar = Fraction(coefficient)
         return Polynomial(_canonical({m: c * scalar for m, c in self.terms}, limits))
 
@@ -213,6 +220,8 @@ class Polynomial:
             raise TypeError("other must be a Polynomial")
         if not isinstance(limits, PolynomialLimits):
             raise TypeError("limits must be PolynomialLimits")
+        _check_budget(dict(self.terms), limits)
+        _check_budget(dict(other.terms), limits)
         terms = {}
         for lm, lc in self.terms:
             for rm, rc in other.terms:
@@ -228,6 +237,7 @@ class Polynomial:
             raise PolynomialError("negative powers are not polynomials")
         if not isinstance(limits, PolynomialLimits):
             raise TypeError("limits must be PolynomialLimits")
+        _check_budget(dict(self.terms), limits)
         if exponent > limits.max_exponent:
             raise PolynomialError(f"power {exponent} exceeds max_exponent={limits.max_exponent}")
         result, factor, remaining = Polynomial.one(), self, exponent
