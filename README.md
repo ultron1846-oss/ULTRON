@@ -31,7 +31,7 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 ### Not implemented or not accepted
 - No trained ULTRON weights or demonstrated grade/university-level competence.
 - No approved training run, optimizer steps, corpus generation, or cloud execution.
-- The public static website requires no login or sign-up. The owner sign-in route is being removed; private Supabase records remain protected server-side and are not exposed by the frontend.
+- The public static website requires no login or sign-up. The owner sign-in route and browser auth module were removed in merged PR #155; private Supabase records remain protected server-side and are not exposed by the frontend.
 - Lean remains design-only: an abstract checker interface and integration plan exist, but no Lean toolchain, proof receipt, or theorem-proving capability is claimed.
 - Generator implementations still use source-specific record formats internally; the common Problem adapter normalizes them at the boundary.
 - No claim that lexical tokenizer coverage means semantic/parser/model support.
@@ -59,7 +59,7 @@ The shared Problem contract and generated combined registry were added in merged
 ## Current handoff
 
 - PRs #136–#154 are merged; issue #135 is closed as completed.
-- PR #155 removes the owner sign-in route and browser auth module to honor the account-free website requirement; check its status before treating the change as merged.
+- PR #155 removed the owner sign-in route and browser auth module. PR #156 removes disabled job/checkpoint buttons and retired pairing controls from the public UI; check its status before treating those UI changes as merged.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, or training/checkpoint controls should be exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
 - No dataset import artifact, optimizer step, model training, or remote execution is claimed. Do not enable the import gate or dispatch training workflows without separate explicit authorization.
@@ -140,4 +140,4 @@ These curated edges are learning dependencies, not proof of mastery or a univers
 
 ## Account-free website contract — 2026-11-26
 
-The public website has no login or sign-up requirement and no owner sign-in page. Private Supabase records remain protected on the backend and are not accessed by the static frontend. The local Memory Vault uses IndexedDB and does not sync to an account. Training remains disabled; no training, checkpoint mutation, or remote job control is exposed.
+The public website has no login or sign-up requirement and no owner sign-in page. Private Supabase records remain protected on the backend and are not accessed by the static frontend. The local Memory Vault uses IndexedDB and does not sync to an account. The website exposes only generic read-only status: no job start/pause/stop/resume controls, checkpoint mutation controls, pairing controls, or account-specific training history.
