@@ -47,9 +47,10 @@ class _TinyModel(nn.Module):
     def forward(self, input_ids):
         self.forward_calls += 1
         self.assert_inference = not self.training
-        logits = torch.full((1, input_ids.shape[1], 5), -100.0, device=input_ids.device)
+        logits = torch.full((1, input_ids.shape[1], 6), -100.0, device=input_ids.device)
         next_id = 3 if input_ids.shape[1] == 2 else 2
         logits[0, -1, next_id] = 100.0
+        logits[0, -1, 5] = 200.0  # out-of-vocabulary logit must be masked
         return {"logits": logits}
 
 
