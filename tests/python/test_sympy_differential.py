@@ -66,7 +66,9 @@ class SympyDifferential(unittest.TestCase):
    p,ps=rp(r,r.randint(2,5));q,qs=rp(r,r.randint(1,3));quo,rem=p.divide_univariate(q,variable="x");sq,sr=sp.div(ps,qs)
    self.assertEqual(spoly(quo),sq,msg=f"seed=D1A1DE case={i} dividend={ps} divisor={qs}")
    self.assertEqual(spoly(rem),sr,msg=f"seed=D1A1DE case={i} dividend={ps} divisor={qs}")
-   self.assertEqual(spoly(p.gcd_univariate(q,variable="x")),sp.gcd(ps,qs).monic(),msg=f"seed=D1A1DE case={i} p={ps} q={qs}")
+   got_gcd=sp.Poly(spoly(p.gcd_univariate(q,variable="x")).as_expr(),X,domain=sp.QQ)
+   want_gcd=sp.Poly(sp.gcd(ps,qs).monic().as_expr(),X,domain=sp.QQ)
+   self.assertEqual(got_gcd,want_gcd,msg=f"seed=D1A1DE case={i} p={ps} q={qs}")
  def test_sturm_root_count_1000(self):
   r=random.Random(0x570A);i=0
   while i<N:
