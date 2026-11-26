@@ -1,16 +1,19 @@
 {
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
-  "source_commit": "b328a9c76c89ba9ed7adf4ae9828274aa08cb22d",
+  "source_commit": "be4c641bd38dffb2fa3713d34fd61fa601d29405",
   "source_topic_count": 197,
-  "mapped_topic_count": 57,
+  "mapped_topic_count": 89,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
     "Calculus",
-    "Real analysis"
+    "Real analysis",
+    "Complex analysis",
+    "Abstract algebra",
+    "Number theory"
   ],
-  "scope_note": "Curated initial prerequisite edges for Foundations and logic, Linear algebra, Calculus, and Real analysis. The other 140 curriculum topics are intentionally unmapped in this version.",
+  "scope_note": "Curated prerequisite edges for Foundations and logic, Linear algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, and Number theory. The other 108 curriculum topics are intentionally unmapped in this version.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -221,6 +224,126 @@
     "functional_sequences": [
       "pointwise_and_uniform_convergence",
       "metric_spaces"
+    ],
+    "complex_numbers_and_topology": [
+      "sets_and_functions",
+      "metric_spaces"
+    ],
+    "holomorphic_functions": [
+      "complex_numbers_and_topology",
+      "limits_and_continuity"
+    ],
+    "Cauchy_Riemann_equations": [
+      "holomorphic_functions",
+      "derivative_theory"
+    ],
+    "contour_integrals": [
+      "holomorphic_functions",
+      "line_integrals"
+    ],
+    "Cauchy_integral_formula": [
+      "contour_integrals",
+      "holomorphic_functions"
+    ],
+    "Taylor_and_Laurent_series": [
+      "Cauchy_integral_formula",
+      "power_series"
+    ],
+    "residues": [
+      "Taylor_and_Laurent_series",
+      "contour_integrals"
+    ],
+    "singularities": [
+      "holomorphic_functions",
+      "Taylor_and_Laurent_series"
+    ],
+    "conformal_maps": [
+      "holomorphic_functions",
+      "Cauchy_Riemann_equations"
+    ],
+    "maximum_modulus_principle": [
+      "holomorphic_functions",
+      "Cauchy_integral_formula"
+    ],
+    "groups_and_subgroups": [
+      "sets_and_functions",
+      "proof_methods"
+    ],
+    "cyclic_groups": [
+      "groups_and_subgroups"
+    ],
+    "permutation_groups": [
+      "groups_and_subgroups"
+    ],
+    "cosets_and_Lagrange_theorem": [
+      "groups_and_subgroups"
+    ],
+    "normal_subgroups_and_quotients": [
+      "groups_and_subgroups",
+      "cosets_and_Lagrange_theorem"
+    ],
+    "group_homomorphisms": [
+      "groups_and_subgroups"
+    ],
+    "rings_and_ideals": [
+      "groups_and_subgroups"
+    ],
+    "integral_domains": [
+      "rings_and_ideals"
+    ],
+    "fields_and_extensions": [
+      "integral_domains"
+    ],
+    "polynomial_rings": [
+      "rings_and_ideals",
+      "fields_and_extensions"
+    ],
+    "modules_intro": [
+      "rings_and_ideals",
+      "vectors_and_vector_spaces"
+    ],
+    "Galois_theory_intro": [
+      "fields_and_extensions",
+      "group_homomorphisms",
+      "polynomial_rings"
+    ],
+    "divisibility_and_gcd": [
+      "sets_and_functions",
+      "proof_methods"
+    ],
+    "Euclidean_algorithm": [
+      "divisibility_and_gcd"
+    ],
+    "congruences": [
+      "divisibility_and_gcd"
+    ],
+    "Chinese_remainder_theorem": [
+      "congruences",
+      "Euclidean_algorithm"
+    ],
+    "Fermat_and_Euler_theorems": [
+      "congruences",
+      "groups_and_subgroups"
+    ],
+    "multiplicative_order": [
+      "congruences",
+      "groups_and_subgroups"
+    ],
+    "Diophantine_equations": [
+      "divisibility_and_gcd",
+      "congruences"
+    ],
+    "quadratic_residues": [
+      "congruences",
+      "Fermat_and_Euler_theorems"
+    ],
+    "continued_fractions": [
+      "divisibility_and_gcd",
+      "Euclidean_algorithm"
+    ],
+    "analytic_number_theory_intro": [
+      "sequences_and_series",
+      "complex_numbers_and_topology"
     ]
   }
 }
