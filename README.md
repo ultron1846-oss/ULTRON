@@ -58,14 +58,15 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#157 are merged; issue #135 is closed as completed.
+- PRs #136–#158 are merged; issue #135 is closed as completed. On 2026-11-26, the latest `main` commit `394ecd1da246c642de2ac3cc3515265358d5da4e` has successful Tests, Python AI Core Tests, Level 1 Math Tooling, and GitHub Pages build/deployment runs.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
 - No dataset import artifact, optimizer step, model training, or remote execution is claimed. Do not enable the import gate or dispatch training workflows without separate explicit authorization.
-- PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
+- PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md; PR #158 refreshed the README handoff. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
 - The 2–10 GB slider is a browser-local preference only. It does not allocate physical RAM or control a hosted runtime; connecting it to an approved runtime configuration and live memory cap remains unfinished.
-- Owner to-dos (not attempted): complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md; enable Supabase Auth leaked-password protection in the dashboard; verify free-runtime access and checkpoint transfer from a clean iPad session.
+- Latest Pages deployment run #146 succeeded for commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; the deployment job reported success. The public URL and interactive behavior have not been independently verified from this session.
+- Owner to-dos (not attempted): open https://ultron1846-oss.github.io/ULTRON/ in iPad Safari and complete docs/IPAD_FRONTEND_ACCEPTANCE.md; enable Supabase Auth leaked-password protection in the dashboard; verify free-runtime access and checkpoint transfer from a clean iPad session.
 
 ## Brief dated history
 
@@ -147,3 +148,8 @@ The public website has no login or sign-up requirement and no owner sign-in page
 ## iPad frontend acceptance — 2026-11-26
 
 Automated static checks cover viewport metadata, responsive breakpoints, safe-area handling, a 44 px touch-target minimum, and local persistence of the 2–10 GB preferred-memory slider. Manual Safari acceptance on an actual iPad remains pending. The slider is a browser-local preference only; it does not allocate physical RAM or change hosted-runner limits. See docs/IPAD_FRONTEND_ACCEPTANCE.md.
+
+
+## GitHub Pages deployment verification — 2026-11-26
+
+The GitHub Pages build-and-deployment run #146 completed successfully for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`. The build, status-report, and deploy jobs all reported success. This verifies the GitHub Actions deployment workflow, not manual browser acceptance or the live site's interactive behavior. Manual iPad Safari acceptance remains pending.
