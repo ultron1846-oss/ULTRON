@@ -58,7 +58,7 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#159 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
+- PRs #136–#160 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
@@ -69,6 +69,8 @@ The shared Problem contract and generated combined registry were added in merged
 - Owner to-do (manual, not attempted): open https://ultron1846-oss.github.io/ULTRON/ in iPad Safari and complete docs/IPAD_FRONTEND_ACCEPTANCE.md. Later runtime readiness must verify free-runtime availability and safe checkpoint portability through a separate approved runtime design; the current account-free website has no checkpoint transfer controls. Supabase Auth leaked-password protection is a separate backend dashboard security setting and is not required for the public frontend.
 
 ## Brief dated history
+
+- **2026-11-26:** PR #160 merged; configuration enforces a ≥60M trainable-parameter foundation minimum and validates expandable capacity. Python AI core, Node, and Level 1 tests passed for the PR head. No foundation weight allocation, resource profiling, or training was performed.
 
 - **2026-11-24:** Browser workspace hardening; Python math-core and exact arithmetic foundations; parser/IR, polynomial/rational operations, real-root and algebraic-number utilities; checkpoint, memory, and trust-boundary reviews.
 - **2026-11-25:** Math Agent tools and tutor-first direction; Grades 1–4, 5–8, 8–12 and university generator expansion; university topic registry work; model/training preflight and free-runtime review; exact identity verifier documentation.
@@ -165,13 +167,13 @@ This phase status records the current readiness review; it does not authorize tr
 | 3. Math engine / Stage A | **IMPLEMENTED; MODEL EVALUATION PENDING** | Deterministic generators include bounded polynomial derivatives and definite integrals with exact validators. Evaluation and paired-comparison infrastructure exist. No trained-model prediction file or actual Fable 5.2 comparison is available; do not claim a benchmark pass. |
 | 4. Seed-data pipeline | **TOOLING IMPLEMENTED; UPLOAD BLOCKED** | Source registry/importer and validation gates exist. No dataset artifact has been uploaded. Available Hugging Face connection is read-only for dataset file writes; no remote job or dataset duplication was used as a workaround. |
 | 5. Training-control design | **DESIGN DOCUMENTED; RUNTIME NOT CONNECTED** | Generic status/readiness page and runtime research exist. The RAM slider is a local preference, not a live resource cap. Free-runtime and clean-session acceptance remain pending. |
-| 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | Foundation target is at least 60M trainable parameters; expandable configurations are being made explicit and guarded. Foundation instantiation, measured resource acceptance, and model capability evaluation are not verified. |
+| 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | **ENFORCED IN CONFIG + TESTS; UNTRAINED** | PR #160 enforces ≥60M trainable parameters and guarded expansion. CI passed foundation/expansion capacity tests and compared the parameter-count formula with an instantiated small model. Foundation allocation and device resource profiling remain unverified. Foundation instantiation, measured resource acceptance, and model capability evaluation are not verified. |
 | 7. Training / scale-up | **NOT AUTHORIZED; NOT STARTED** | No optimizer steps, training runs, generated corpus, or remote training execution. Requires a separate explicit authorization after readiness gates. |
-| 8. Final verification / handoff | **IN PROGRESS** | README handoff updated. Complete final verification after PR #159 checks and owner iPad acceptance; maintain exact verified/unverified boundaries. |
+| 8. Final verification / handoff | **IN PROGRESS** | README handoff updated after PR #160. Complete final verification after owner iPad acceptance; maintain exact verified/unverified boundaries. |
 
 No phase status above supersedes the training authorization gate. Keep actual training, optimizer steps, corpus generation, and remote execution disabled.
 
 
 ## Model capacity requirement — 2026-11-26
 
-ULTRON's foundation model target is **at least 60,000,000 trainable parameters**. The configuration code must enforce that minimum using the parameter-count formula; it must not rely on a descriptive label. Model capacity is expandable by increasing hidden width, depth, expert count, or expert width through validated configurations. Parameter counts are estimates from architecture shapes until checked against an instantiated model; expanded sizes are not resource-tested by this declaration. This is an architecture requirement only: the model remains untrained, and no optimizer step or training was performed.
+ULTRON's foundation model target is **at least 60,000,000 trainable parameters**. The configuration code must enforce that minimum using the parameter-count formula; it must not rely on a descriptive label. Model capacity is expandable by increasing hidden width, depth, expert count, or expert width through validated configurations. The parameter-count formula was cross-checked against an instantiated small model in PR #160 CI. The 60M foundation itself was not instantiated by that regression; expanded sizes are not resource-tested. This is an architecture requirement only: the model remains untrained, and no optimizer step or training was performed.
