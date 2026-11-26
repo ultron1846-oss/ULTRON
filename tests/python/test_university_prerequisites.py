@@ -13,7 +13,7 @@ PREREQUISITES_PATH = Path("tools/math_generators/university/prerequisites.json")
 
 
 class UniversityPrerequisiteTests(unittest.TestCase):
-    def test_curated_map_covers_declared_fields_and_reports_partial_scope(self):
+    def test_curated_map_covers_all_declared_curriculum_fields(self):
         curriculum = json.loads(CURRICULUM_PATH.read_text(encoding="utf-8"))
         data = json.loads(PREREQUISITES_PATH.read_text(encoding="utf-8"))
         mapping = load_curriculum_prerequisites()
@@ -23,9 +23,9 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 167)
+        self.assertEqual(mapping.mapped_topic_count, 197)
         self.assertEqual(mapping.source_topic_count, 197)
-        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 30)
+        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
         mapping = load_curriculum_prerequisites()
@@ -70,10 +70,18 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("numerical_integration", "ODE_numerical_methods"))
         self.assertTrue(mapping.is_prerequisite("probability_spaces", "Monte_Carlo_methods"))
 
-    def test_unmapped_curriculum_topic_is_not_assumed_to_have_prerequisites(self):
+    def test_unknown_topic_does_not_get_inferred_prerequisites(self):
         mapping = load_curriculum_prerequisites()
         with self.assertRaisesRegex(ValueError, "no curated prerequisite mapping"):
-            mapping.prerequisites_for("manifolds_intro")
+            mapping.prerequisites_for("not_a_curriculum_topic")
+
+    def test_geometry_applied_and_advanced_edges(self):
+        mapping = load_curriculum_prerequisites()
+        self.assertTrue(mapping.is_prerequisite("topological_spaces", "manifolds_intro"))
+        self.assertTrue(mapping.is_prerequisite("sequences_and_series", "Fourier_series_and_transforms"))
+        self.assertTrue(mapping.is_prerequisite("systems_of_ODEs", "control_theory_intro"))
+        self.assertTrue(mapping.is_prerequisite("Lp_spaces", "functional_analysis_intro"))
+        self.assertTrue(mapping.is_prerequisite("proof_methods", "mathematical_logic_advanced"))
 
     def test_validator_rejects_cycles(self):
         curriculum = {"topics": [{"topic": "a", "field": "F"}, {"topic": "b", "field": "F"}]}
