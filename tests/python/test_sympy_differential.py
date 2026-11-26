@@ -86,7 +86,10 @@ class SympyDifferential(unittest.TestCase):
    elif op=="mul":z,w=amul(a,b),sp.sqrt(m)*sp.sqrt(n)
    else:z,w=adiv(a,b),sp.sqrt(m)/sp.sqrt(n)
    self.assertEqual(sp.simplify(spoly(z.polynomial).as_expr().subs(X,w)),0,msg=f"seed=A16EB case={i} sqrt({m}) {op} sqrt({n})")
-   self.assertTrue(sp.Gt(w,sp.Rational(z.lower)) and sp.Lt(w,sp.Rational(z.upper)),msg=f"seed=A16EB case={i} interval={z.lower},{z.upper}")
+   if z.is_rational:
+    self.assertEqual(sp.simplify(w-sp.Rational(z.rational_value)),0,msg=f"seed=A16EB case={i} rational result={z.rational_value}")
+   else:
+    self.assertTrue(sp.Gt(w,sp.Rational(z.lower)) and sp.Lt(w,sp.Rational(z.upper)),msg=f"seed=A16EB case={i} interval={z.lower},{z.upper}")
  def test_polynomial_identity_1000(self):
   r=random.Random(0x9011)
   for i in range(N):
