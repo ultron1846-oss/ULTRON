@@ -1,6 +1,6 @@
 const MAX_EXPRESSION_LENGTH = 240;
 const MAX_TOKENS = 120;
-const tokenPattern = /\s*(?:(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|([()+\-*/^×÷]))/gy;
+const tokenPattern = /\s*(((?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)|([()+\-*/^×÷]))/gy;
 
 export function tokenize(source) {
   if (typeof source !== 'string' || source.trim() === '') {
@@ -89,14 +89,14 @@ function tokenizeEquationSide(source) {
   if (source.length > MAX_EXPRESSION_LENGTH) {
     throw new Error(`Equation is too long (maximum ${MAX_EXPRESSION_LENGTH} characters).`);
   }
-  const pattern = /\s*(?:(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|([xX])|([()+\-*/^×÷]))/gy;
+  const pattern = /\s*(((?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)|([xX])|([()+\-*/^×÷]))/gy;
   const tokens = [];
   let cursor = 0;
   while (cursor < source.length) {
     pattern.lastIndex = cursor;
     const match = pattern.exec(source);
     if (!match) throw new Error(`Unsupported equation character or format at position ${cursor + 1}.`);
-    tokens.push(match[1] ?? (match[2] ? 'x' : match[3]));
+    tokens.push(match[1] ?? (match[3] ? 'x' : match[4]));
     if (tokens.length > MAX_TOKENS) throw new Error(`Equation has too many parts (maximum ${MAX_TOKENS}).`);
     cursor = pattern.lastIndex;
   }
