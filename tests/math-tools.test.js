@@ -14,12 +14,31 @@ test('command directory has unique registered names and useful help',()=>{
   for(const name of names)assert.ok(mathToolHelp().includes(name));
 });
 
-test('calculator commands evaluate and reject malformed expressions',()=>{
-  assert.equal(executeMathToolCommand('/calc (12+8)/4').output,'Result: 5');
+test('calculator commands check learner attempts and reject malformed expressions',()=>{
+  assert.equal(executeMathToolCommand('/calc (12+8)/4').output.includes('without revealing the result'),true);
+  assert.equal(executeMathToolCommand('/calc (12+8)/4 = 5').output,'Your calculation is correct.');
+  assert.match(executeMathToolCommand('/calc (12+8)/4 = 4').output,/Not quite/);
   assert.equal(executeMathToolCommand('/gcd 84 30').output,'GCD: 6');
   assert.equal(executeMathToolCommand('/lcm 12 18').output,'LCM: 36');
   assert.equal(executeMathToolCommand('/factor 360').output,'360 = 2^3 × 3^2 × 5');
   assert.match(executeMathToolCommand('/calc 1/0').output,/Tool error/);
+});
+
+test('equation commands teach or check attempts without revealing final answers',()=>{
+  const solveHint=executeMathToolCommand('/solve 2x + 3 = 11').output;
+  assert.match(solveHint,/First step/);
+  assert.doesNotMatch(solveHint,/x\s*=\s*4/);
+  assert.equal(executeMathToolCommand('/solve 2x + 3 = 11 | x=4').output,'Your value satisfies the equation.');
+  assert.match(executeMathToolCommand('/solve 2x + 3 = 11 | x=5').output,/Not yet/);
+
+  assert.match(executeMathToolCommand('/quadratic 1 -3 2').output,/discriminant/);
+  assert.equal(executeMathToolCommand('/quadratic 1 -3 2 | 1,2').output,'Both roots are correct.');
+  assert.equal(executeMathToolCommand('/quadratic 1 2 1 | -1,-1').output,'Both roots are correct.');
+  assert.match(executeMathToolCommand('/quadratic 1 -3 2 | 0,3').output,/I will not reveal the roots/);
+
+  assert.match(executeMathToolCommand('/system 2 1 1 -1 5 1').output,/eliminate/);
+  assert.equal(executeMathToolCommand('/system 2 1 1 -1 5 1 | 2,1').output,'Your pair satisfies the system.');
+  assert.match(executeMathToolCommand('/system 2 1 1 -1 5 1 | 3,2').output,/I will not reveal the solution/);
 });
 
 test('table of values validates direction and bounds',()=>{
