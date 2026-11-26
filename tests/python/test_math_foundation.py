@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from fractions import Fraction
 
 import torch
@@ -412,6 +413,17 @@ class TrainingPreflightTests(unittest.TestCase):
         self.assertEqual(report["model_adamw_moments_fp32_bytes"], 494608384)
         self.assertEqual(report["model_persistent_state_fp32_bytes"], 995514380)
         self.assertEqual(report["model_grad_and_adamw_state_fp32_bytes"], 995514380)
+
+    def test_preflight_accepts_exact_foundation_parameter_floor(self):
+        with patch("ultron_core.preflight.count_parameters",
+                   return_value=60_000_000), patch(
+                "ultron_core.preflight.count_total_parameters",
+                return_value=60_000_000):
+            report = preflight_training_plan(self.config, self.splits)
+
+        self.assertTrue(report["validated"])
+        self.assertEqual(report["trainable_parameter_count"], 60_000_000)
+        self.assertEqual(report["minimum_trainable_parameter_count"], 60_000_000)
 
     def test_preflight_rejects_small_model_and_vocab_mismatch(self):
         small = NeuroSparseConfig(vocab_size=len(self.vocabulary), hidden_size=32,
