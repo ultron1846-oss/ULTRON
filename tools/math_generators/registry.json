@@ -3,6 +3,62 @@
   "coverage_through": "G1-12 + university mathematics curriculum catalog (generator status explicit)",
   "topics": [
     {
+      "topic": "arithmetic",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "rational_arithmetic",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "linear_equations",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "polynomial_derivative",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "polynomial_definite_integral",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "matrix_determinant_2x2",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "linear_system_2x2",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
+      "topic": "matrix_inverse_2x2",
+      "source": "ultron_core.data_generation",
+      "grade_band": "Core",
+      "word_problems": false,
+      "status": "generator_available_not_mastered"
+    },
+    {
       "topic": "counting",
       "grade_band": "G1-2",
       "word_problems": false
