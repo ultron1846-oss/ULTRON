@@ -57,6 +57,7 @@ test('classifies identities and contradictions', () => {
 test('rejects nonlinear, multi-variable, malformed and unsafe equations', () => {
   for (const value of [
     'x^2 = 4',
+    'x^0 = 1',
     'x*x = 4',
     '(x + 1)(x - 1) = 0',
     'x + y = 3',
