@@ -67,6 +67,36 @@ def normalize_row(dataset_id: str, row: dict[str, Any], index: int,
         if license_name is None or contains_program_or_tool_output(answer, normalize_text(raw_source)):
             return None
         source_name = normalize_text(raw_source)
+    elif dataset_id == "basic_arithmetic":
+        question = normalize_text(row.get("question"))
+        raw_answer = row.get("answer")
+        raw_a, raw_b, op = row.get("a"), row.get("b"), normalize_text(row.get("op"))
+        if (not isinstance(raw_a, int) or isinstance(raw_a, bool)
+                or not isinstance(raw_b, int) or isinstance(raw_b, bool)
+                or abs(raw_a) > 10000 or abs(raw_b) > 10000
+                or op not in {"+", "-", "*", "/"}):
+            return None
+        if op == "+":
+            expected = raw_a + raw_b
+        elif op == "-":
+            expected = raw_a - raw_b
+        elif op == "*":
+            expected = raw_a * raw_b
+        else:
+            if raw_b == 0 or raw_a % raw_b != 0:
+                return None
+            expected = raw_a // raw_b
+        try:
+            from decimal import Decimal, InvalidOperation
+            if isinstance(raw_answer, bool) or not Decimal(str(raw_answer)).is_finite():
+                return None
+            if Decimal(str(raw_answer)) != Decimal(expected):
+                return None
+        except (InvalidOperation, ValueError, TypeError):
+            return None
+        answer = str(expected)
+        source_name = "basic_arithmetic:" + op
+        license_name = "MIT"
     else:
         raise ValueError("Unsupported configured dataset: " + dataset_id)
 
@@ -82,8 +112,13 @@ def normalize_row(dataset_id: str, row: dict[str, Any], index: int,
     return {
         "schema_version": 1, "record_id": record_id, "question": question,
         "reasoning_answer": answer, "dataset_id": dataset_id,
-        "dataset_repo": "meta-math/MetaMathQA" if dataset_id == "metamathqa" else "TIGER-Lab/MathInstruct",
+        "dataset_repo": {
+            "metamathqa": "meta-math/MetaMathQA",
+            "mathinstruct": "TIGER-Lab/MathInstruct",
+            "basic_arithmetic": "ChrisMcCormick/basic-arithmetic",
+        }[dataset_id],
         "dataset_revision": revision, "source": source_name, "source_license": license_name,
+        "target_kind": "answer_only" if dataset_id == "basic_arithmetic" else "reasoning_answer",
         "question_sha256": qhash, "answer_sha256": sha256_text(answer),
     }
 
