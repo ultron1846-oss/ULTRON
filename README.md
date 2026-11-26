@@ -88,3 +88,7 @@ The Level 1 arithmetic and linear-equation package is an exact, deterministic to
 ## Seed importer CI safety regression — 2026-11-26
 
 The importer test suite now verifies that the workflow has no push trigger and is skipped unless both the dispatch confirmation and owner-controlled repository variable are enabled. This test uses the checked-in workflow text only; it does not dispatch or download data.
+
+## Seed-data import authorization boundary — 2026-11-26
+
+The Hugging Face seed importer is available as tooling only. Its workflow has no push trigger and runs only when the manual confirm_download input is true and the owner-controlled repository variable ULTRON_SEED_IMPORT_ENABLED is set to true. That variable remains unset. Offline mocked tests validate the importer; no dataset download, corpus import, optimizer step, or training run was performed. Do not enable the variable or dispatch the workflow until separate explicit authorization is given.
