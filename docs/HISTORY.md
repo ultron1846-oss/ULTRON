@@ -1015,3 +1015,10 @@ The code-bearing revision `b138f2f8ba3abee2a50a299e69e74c986ab58dfe` passed all 
 PR #169 enforces the configured polynomial resource limits on inputs to addition, scaling, multiplication, and power operations, not only on the resulting polynomial. Before the fix, an already-created polynomial above a caller's stricter budget could bypass that budget if addition cancelled its terms, scaling used zero, multiplication used the zero polynomial, or the exponent was zero. Focused regression tests cover each path and confirm valid within-budget operations remain exact.
 
 The code/test revision `fa1ca6a5158d79bbb7cdc4716fc602a287d5422a` passed Node Tests run `45824836936`, Python AI Core run `45824836974` (full Python regression suite and CPU forward/backward smoke), and Level 1 Math Tooling run `45824837375` (including 5,000 randomized cases). A final README/history-only update is now being validated before merge. No local execution is claimed. No training, optimizer steps, corpus/dataset/calibration generation, dataset downloads, or remote execution were performed. The change does not touch the website, Supabase, authentication, or Pages implementation.
+
+
+## Foundation parameter-floor guard alignment — PR #170 (2026-11-26)
+
+PR #170 makes the foundation parameter requirement consistent across configuration, preflight, and the training controller. All three now use the shared MIN_FOUNDATION_TRAINABLE_PARAMETERS constant (60,000,000), with an inclusive at-least comparison. This removes the controller's stale 40,000,000 threshold and preflight's 60,000,001 off-by-one. Regression coverage checks the published preflight minimum, the small-model rejection message, and that the controller rejects a below-floor report before consuming any batch or calling the optimizer.
+
+CI validation is pending on the PR revision. No model was instantiated at foundation size for this change; tests use the existing lightweight controller mock. No training, optimizer steps, corpus/dataset generation, external data import, or remote execution was performed.
