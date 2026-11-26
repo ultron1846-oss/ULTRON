@@ -1040,3 +1040,18 @@ The training controller now validates the optimizer's `param_groups` against the
 Controller tests use a no-op mock optimizer with explicit parameter groups and meta-device model parameters. Regression cases prove each invalid optimizer configuration is rejected without consuming input batches or calling `step()`.
 
 The first PR CI revision `e02d18f63251a88071b129417bb60e12db020a8a` passed Node Tests run `45833768404` and Level 1 Math Tooling run `45833768528`, but Python AI Core run `45833768433` found one test-fixture mismatch in the existing non-finite-loss test: it passed an optimizer constructed for a different mock model. The new identity check correctly rejected that pairing. Commit `1a0e6868a8b9b189709c4ae804fc2245644169b0` fixes the fixture by constructing its no-op optimizer from the local model's trainable parameters. That corrected code/test revision passed Node Tests run `45834204104`, Python AI Core run `45834203997`, and Level 1 Math Tooling run `45834204069`. The final README/history revision `f5a2524c2bf333facf27914af43d446dc18817a6` also passed Node Tests run `45834360621`, Python AI Core run `45834360563`, and Level 1 Math Tooling run `45834360523`. No real training, optimizer step on ULTRON weights, dataset/corpus generation, calibration-data generation, external data import, or remote execution was performed.
+
+
+## Optimizer parameter-coverage guard — merged PR #173 (2026-11-26)
+
+PR #173 was squash-merged as `7d7c1e0a8d55fd3c0e8d17a3a9f4e780e5188883`. The final PR revision `11daab3909b1c89e288aaed42a92beb49af038c5` passed Node Tests `45834790696`, Python AI Core `45834790686`, and Level 1 Math Tooling `45834790647`. All six post-merge checks passed on main: Node `45835187658`, Python `45835187556`, Level 1 `45835187678`, and Pages build, status report, and deployment jobs in `45835186871`.
+
+No real training or optimizer step was performed.
+
+## Canonical math task serialization — PR #174 candidate (2026-11-26)
+
+The `feat/canonical-math-task-record-2026-11-26` branch adds schema-v1 canonical `MathTaskRecord` and `VerificationReceipt` types. It keeps the source `Problem` (prompt, derivation steps, answer, generator identity and metadata) separate from verifier outcome/scope metadata. Exact schema validation, duplicate-key rejection, deterministic JSON, content-bound SHA-256 receipt/task IDs, and strict `Problem.from_dict` restoration are included.
+
+Verifier scope is explicit. The default scope is problem+answer; neither the core exact verifier nor replay verifiers claim derivation coverage by default. A caller must explicitly declare derivation coverage, and its verifier callback must actually check the steps. Target export is allowlisted to prompt, derivation, and answer only, and is refused unless the receipt declares all three fields verified. Receipt hashes are integrity bindings, not signatures or formal proof receipts; the verifier's trustworthiness and declared scope still require code review.
+
+Regression coverage includes canonical JSON round-trip, hash tampering, receipt-to-problem binding, duplicate JSON keys, unknown fields, rejected/non-boolean verifier results, answer-only scope rejection, explicit worked-derivation scope, cross-generator round-trips, and callback mutation isolation. CI validation is pending on the final PR revision. No dataset/corpus generation, training, optimizer steps, external data import, calibration-data generation, or remote execution was performed.
