@@ -60,6 +60,8 @@ These checks validate the covered implementation and workflow behavior only. The
 - Latest merged engineering change: [PR #166 — compression toolkit](https://github.com/ultron1846-oss/ULTRON/pull/166). The post-merge Python AI Core and Level 1 Math Tooling runs above both succeeded.
 - The requested pre-training engineering checklist A–G has been reviewed. The implemented math-engine, generator, verification, Lean-stub, Level 1, and word-problem coverage is summarized above; detailed dated milestones are archived in [docs/HISTORY.md](docs/HISTORY.md).
 - Remaining owner-side acceptance includes manual iPad Safari testing. Automated responsive checks are not a substitute for testing on an actual iPad.
+
+- Current math-engine hardening: [PR #169 — enforce polynomial operand limits](https://github.com/ultron1846-oss/ULTRON/pull/169) adds input-budget checks to polynomial addition, scaling, multiplication, and powers, with regression tests for cancellation/zero-operation bypasses. Required CI is pending; do not merge until all checks pass.
 - Recent validation change: [PR #168 — rational-function division differential coverage](https://github.com/ultron1846-oss/ULTRON/pull/168) adds 1,000 fixed-seed SymPy comparison cases for exact rational-function division and a regression for divisor-domain preservation. See [docs/HISTORY.md](docs/HISTORY.md) for the validation scope and recorded CI runs.
 - Continue with small, independently reviewable math-engine or readiness tasks. Preserve the no-training authorization boundary.
 
