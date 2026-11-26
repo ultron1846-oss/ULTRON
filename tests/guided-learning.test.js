@@ -17,7 +17,7 @@ test('ordinary learner input is routed through hints rather than final answers',
   assert.doesNotMatch(answerAgent, /wordProblem\.result/);
   assert.doesNotMatch(answerAgent, /solveLinearEquation\(/);
   assert.doesNotMatch(answerAgent, /evaluateExpression\(/);
-  assert.doesNotMatch(answerAgent, /Answer:\\s*\$\{/);
+  assert.doesNotMatch(answerAgent, /Answer:\s*\$\{/);
 });
 
 test('the learner must explicitly invoke a slash tool', () => {
