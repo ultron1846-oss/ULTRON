@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
-  "source_commit": "787b38bc5cd232a1452a90b7da9ffaf8caf42d6e",
+  "source_commit": "f10e8e4ee2c4757b617ffc4486040b1f70d326b5",
   "source_topic_count": 197,
-  "mapped_topic_count": 167,
+  "mapped_topic_count": 197,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -18,9 +18,12 @@
     "Statistics",
     "Differential equations",
     "Optimization and operations research",
-    "Numerical and computational mathematics"
+    "Numerical and computational mathematics",
+    "Geometry",
+    "Applied mathematics and mathematical physics",
+    "Advanced and interdisciplinary"
   ],
-  "scope_note": "Curated prerequisite edges for Foundations and logic, Linear algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, Number theory, Topology, Discrete mathematics and combinatorics, Probability, Statistics, Differential equations, Optimization and operations research, and Numerical and computational mathematics. The other 30 curriculum topics are intentionally unmapped in this version.",
+  "scope_note": "Curated prerequisite edges for all 197 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -651,6 +654,135 @@
     "Monte_Carlo_methods": [
       "probability_spaces",
       "expectation_and_variance"
+    ],
+    "Euclidean_geometry_proofs": [
+      "proof_methods",
+      "sets_and_functions"
+    ],
+    "analytic_geometry": [
+      "vectors_and_vector_spaces",
+      "systems_linear_equations"
+    ],
+    "affine_geometry": [
+      "analytic_geometry",
+      "vectors_and_vector_spaces"
+    ],
+    "projective_geometry_intro": [
+      "affine_geometry",
+      "linear_transformations"
+    ],
+    "differential_geometry_curves": [
+      "derivative_theory",
+      "linear_transformations"
+    ],
+    "surfaces_and_curvature": [
+      "differential_geometry_curves",
+      "partial_derivatives"
+    ],
+    "manifolds_intro": [
+      "topological_spaces",
+      "multivariable_limits"
+    ],
+    "Riemannian_geometry_intro": [
+      "manifolds_intro",
+      "inner_product_spaces",
+      "surfaces_and_curvature"
+    ],
+    "tensor_calculus_intro": [
+      "manifolds_intro",
+      "linear_transformations",
+      "inner_product_spaces"
+    ],
+    "dimensional_analysis": [
+      "sets_and_functions",
+      "proof_methods"
+    ],
+    "Fourier_series_and_transforms": [
+      "sequences_and_series",
+      "Riemann_integral"
+    ],
+    "Laplace_transforms_applications": [
+      "Laplace_transform",
+      "first_order_ODEs"
+    ],
+    "calculus_of_variations": [
+      "derivative_theory",
+      "definite_integral_polynomial",
+      "unconstrained_optimization"
+    ],
+    "Hamiltonian_and_Lagrangian_mechanics": [
+      "calculus_of_variations",
+      "systems_of_ODEs"
+    ],
+    "mathematical_modeling": [
+      "dimensional_analysis",
+      "first_order_ODEs"
+    ],
+    "fluid_dynamics_math_intro": [
+      "vector_calculus",
+      "systems_of_ODEs",
+      "surfaces_and_curvature"
+    ],
+    "elasticity_math_intro": [
+      "tensor_calculus_intro",
+      "boundary_value_problems"
+    ],
+    "control_theory_intro": [
+      "systems_of_ODEs",
+      "linear_transformations",
+      "unconstrained_optimization"
+    ],
+    "information_theory_intro": [
+      "probability_spaces",
+      "discrete_distributions"
+    ],
+    "cryptography_math_foundations": [
+      "congruences",
+      "groups_and_subgroups",
+      "Euclidean_algorithm"
+    ],
+    "category_theory_intro": [
+      "sets_and_functions",
+      "groups_and_subgroups"
+    ],
+    "order_and_lattice_theory": [
+      "sets_and_functions",
+      "relations_and_equivalence"
+    ],
+    "representation_theory_intro": [
+      "groups_and_subgroups",
+      "linear_transformations"
+    ],
+    "algebraic_topology_intro": [
+      "topological_spaces",
+      "fundamental_group_intro"
+    ],
+    "homological_algebra_intro": [
+      "rings_and_ideals",
+      "category_theory_intro"
+    ],
+    "functional_analysis_intro": [
+      "metric_spaces",
+      "inner_product_spaces",
+      "Lp_spaces"
+    ],
+    "operator_theory_intro": [
+      "functional_analysis_intro",
+      "linear_transformations"
+    ],
+    "harmonic_analysis_intro": [
+      "Fourier_series_and_transforms",
+      "measure_intro",
+      "functional_analysis_intro"
+    ],
+    "partial_order_and_fixed_points": [
+      "order_and_lattice_theory",
+      "topological_spaces"
+    ],
+    "mathematical_logic_advanced": [
+      "predicate_logic",
+      "proof_methods",
+      "mathematical_induction"
     ]
   }
 }
