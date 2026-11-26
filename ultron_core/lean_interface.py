@@ -31,10 +31,12 @@ class ProofCheckResult:
             raise TypeError("status must be a ProofCheckStatus")
         if not isinstance(self.theorem_name, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_'.]*", self.theorem_name):
             raise ValueError("theorem_name must be a Lean identifier")
-        for name in ("source_sha256", "environment_sha256", "receipt_sha256"):
+        for name in ("source_sha256", "environment_sha256"):
             value = getattr(self, name)
-            if value is not None and (not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value)):
-                raise ValueError(f"{name} must be a lowercase SHA-256 digest")
+            if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
+                raise ValueError(f"{name} must be a required lowercase SHA-256 digest")
+        if self.receipt_sha256 is not None and (not isinstance(self.receipt_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", self.receipt_sha256)):
+            raise ValueError("receipt_sha256 must be a lowercase SHA-256 digest when supplied")
         if not isinstance(self.checker_version, str) or not self.checker_version:
             raise ValueError("checker_version must be non-empty")
         if not isinstance(self.diagnostics, tuple) or any(not isinstance(x, str) for x in self.diagnostics):
