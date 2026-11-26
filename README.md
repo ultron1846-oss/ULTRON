@@ -212,7 +212,7 @@ Compression quality can only be judged on a trained model with a verified benchm
 
 ## Compression toolkit — implementation prepared for review (2026-11-26)
 
-The remaining compression toolkit has been implemented on branch `feat/compression-toolkit-pr2-5` as one PR-sized change with separate commits for expert usage counting, expert pruning, representative-based expert merging, SVD low-rank factorization, simulated int8 sensitivity reporting, the rollback/versioned-artifact pipeline, and this documentation update. The feature branch has not been merged. Required PR CI and full-diff review are the next gates.
+PR #166 implements the remaining compression toolkit as one reviewable change with separate commits for expert usage counting, expert pruning, representative-based expert merging, SVD low-rank factorization, simulated int8 sensitivity reporting, the rollback/versioned-artifact pipeline, and documentation. See the PR history for the recorded CI and merge status.
 
 - Expert usage is measured by reversible forward hooks and counts token rows dispatched to each expert.
 - Pruning and merging return new model copies. Merging retains a real usage-selected representative in each group; weights are not averaged and ridge refit is disabled.
