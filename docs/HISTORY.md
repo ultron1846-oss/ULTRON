@@ -1007,4 +1007,4 @@ The change is tests-only: no runtime math code, dependency configuration, websit
 
 ### PR #168 initial code-revision validation
 
-The code-bearing revision `b138f2f8ba3abee2a50a299e69e74c986ab58dfe` passed all three PR workflows: Node Tests run `45823028937`, Python AI Core run `45823029115`, and Level 1 Math Tooling run `45823029261`. The Python job ran the full regression suite and CPU forward/backward smoke; the Level 1 job ran its regression suite including 5,000 randomized cases. A subsequent documentation-only handoff update changed README/history text, so the final PR head is being validated again before merge.
+The code-bearing revision `b138f2f8ba3abee2a50a299e69e74c986ab58dfe` passed all three PR workflows: Node Tests run `45823028937`, Python AI Core run `45823029115`, and Level 1 Math Tooling run `45823029261`. The Python job ran the full regression suite and CPU forward/backward smoke; the Level 1 job ran its regression suite including 5,000 randomized cases. A subsequent documentation-only handoff update changed README/history text, so a fresh CI cycle was requested on that final documentation revision before merge.
