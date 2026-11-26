@@ -575,7 +575,7 @@
     ],
     "Lagrange_multipliers": [
       "unconstrained_optimization",
-      "linear_equations"
+      "systems_linear_equations"
     ],
     "KKT_conditions": [
       "Lagrange_multipliers",
