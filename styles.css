@@ -11,7 +11,6 @@
 @media(min-width:761px) and (max-width:1100px){.topic-grid{grid-template-columns:1fr}}
 
 /* Optional owner sign-in panel */
-.owner-form{display:grid;gap:10px;margin-top:18px;max-width:520px}.owner-form .field-label{margin-top:8px}.owner-form[hidden]{display:none}.owner-form .agent-actions{flex-wrap:wrap}.owner-form button:disabled{opacity:.55;cursor:wait}
 
 
 /* Tablet/mobile finishing: safe areas, stable viewport sizing and reduced motion. */
