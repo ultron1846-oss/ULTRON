@@ -192,7 +192,7 @@ class MathTaskRecord:
         return _sha256_json(payload)
 
     @property
-    def training_eligible(self) -> bool:
+    def target_export_eligible(self) -> bool:
         return (
             self.verification.outcome == "verified"
             and self.verification.verified_fields == _ALLOWED_VERIFIED_FIELDS
@@ -238,7 +238,7 @@ class MathTaskRecord:
 
     def to_training_target_dict(self) -> dict[str, Any]:
         """Export only allowlisted supervised fields; verifier metadata is excluded."""
-        if not self.training_eligible:
+        if not self.target_export_eligible:
             raise ValueError(
                 "training target requires verified problem, derivation, and answer fields"
             )
