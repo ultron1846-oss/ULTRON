@@ -181,18 +181,42 @@ class CoreExactVerifier(ProblemVerifier):
 
 
 class ReplayGeneratorVerifier(ProblemVerifier):
-    def __init__(self, source_record: Mapping[str, Any],
-                 verify_fn: Callable[[dict], bool], *, source: str):
+    def __init__(
+        self,
+        source_record: Mapping[str, Any],
+        verify_fn: Callable[[dict], bool],
+        *,
+        source: str,
+        verified_fields: tuple[str, ...] = ("problem", "answer"),
+    ):
+        if not isinstance(source_record, Mapping):
+            raise TypeError("source_record must be a mapping")
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError("source must be non-empty text")
+        if not callable(verify_fn):
+            raise TypeError("verify_fn must be callable")
+        if not isinstance(verified_fields, (tuple, list)):
+            raise TypeError("verified_fields must be a tuple or list")
+        fields = tuple(verified_fields)
+        allowed = ("problem", "derivation", "answer")
+        if (any(not isinstance(field, str) or field not in allowed for field in fields)
+                or len(set(fields)) != len(fields)
+                or fields != tuple(field for field in allowed if field in fields)
+                or not {"problem", "answer"} <= set(fields)):
+            raise ValueError(
+                "verified_fields must be an ordered subset containing problem and answer"
+            )
         self._record = dict(source_record)
         self._verify_fn = verify_fn
         self._source = source
+        self._verified_fields = fields
 
     def verified_fields(self, problem: Problem) -> tuple[str, ...]:
         if not isinstance(problem, Problem):
             raise TypeError("problem must be a Problem")
-        if problem.steps:
-            return ("problem", "derivation", "answer")
-        return ("problem", "answer")
+        if "derivation" in self._verified_fields and not problem.steps:
+            raise ValueError("derivation scope requires non-empty problem steps")
+        return self._verified_fields
 
     def verify(self, problem: Problem) -> bool:
         try:
