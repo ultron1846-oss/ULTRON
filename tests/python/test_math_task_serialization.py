@@ -57,7 +57,7 @@ class MathTaskSerializationTests(unittest.TestCase):
         self.assertEqual(restored.to_dict(), task.to_dict())
         self.assertEqual(restored.task_id, task.task_id)
         self.assertEqual(restored.to_json(), encoded)
-        self.assertTrue(restored.training_eligible)
+        self.assertTrue(restored.target_export_eligible)
 
     def test_training_target_contains_only_problem_derivation_and_answer(self):
         problem, verifier = _worked_problem()
@@ -85,7 +85,7 @@ class MathTaskSerializationTests(unittest.TestCase):
         )
 
         self.assertEqual(task.verification.verified_fields, ("problem", "answer"))
-        self.assertFalse(task.training_eligible)
+        self.assertFalse(task.target_export_eligible)
         with self.assertRaisesRegex(ValueError, "verified problem, derivation, and answer"):
             task.to_training_target_dict()
 
@@ -110,7 +110,7 @@ class MathTaskSerializationTests(unittest.TestCase):
         )
 
         self.assertEqual(task.verification.verified_fields, ("problem", "answer"))
-        self.assertFalse(task.training_eligible)
+        self.assertFalse(task.target_export_eligible)
         with self.assertRaisesRegex(ValueError, "verified problem, derivation, and answer"):
             task.to_training_target_dict()
 
@@ -162,7 +162,7 @@ class MathTaskSerializationTests(unittest.TestCase):
         )
 
         self.assertEqual(task.verification.outcome, "rejected")
-        self.assertFalse(task.training_eligible)
+        self.assertFalse(task.target_export_eligible)
         with self.assertRaisesRegex(ValueError, "verified problem, derivation, and answer"):
             task.to_training_target_json()
 
