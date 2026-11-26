@@ -55,7 +55,7 @@ The generator now has deterministic prompt-disjoint train/validation/test partit
 ## Required before training
 
 1. Audit tokenizer/vocabulary compatibility and special-token IDs.
-2. Decide serialization for problem, derivation, answer, and verifier result.
+2. Freeze canonical task serialization for problem, derivation, answer, and verifier receipt. Implementation is under review in PR #174; validation is pending. See [Task serialization schema v1](TASK_SERIALIZATION.md).
 3. Create leakage-safe deterministic train/validation/test splits and evaluate generator coverage.
 4. Implement bounded training with gradient accumulation, finite-loss/gradient checks, cancellation, and explicit opt-in.
 5. Validate checkpoint resume equivalence, optimizer/scheduler/RNG restoration, and interrupted-save recovery.
