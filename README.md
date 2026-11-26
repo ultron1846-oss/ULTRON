@@ -31,7 +31,7 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 ### Not implemented or not accepted
 - No trained ULTRON weights or demonstrated grade/university-level competence.
 - No approved training run, optimizer steps, corpus generation, or cloud execution.
-- No Lean proof-kernel receipt flow; no theorem-proving capability claim.
+- Lean remains design-only: an abstract checker interface and integration plan exist, but no Lean toolchain, proof receipt, or theorem-proving capability is claimed.
 - Generator implementations still use source-specific record formats internally; the common Problem adapter normalizes them at the boundary.
 - No claim that lexical tokenizer coverage means semantic/parser/model support.
 - No distributed multi-host trainer or guaranteed free GPU capacity.
