@@ -23,15 +23,16 @@
 Automated frontend hardening and the disabled Training Control readiness page are merged, but manual iPad acceptance is **not recorded**.
 
 - [x] Add Training Control page with generic public status only; no job, checkpoint mutation, or pairing control is exposed.
-- [ ] Verify navigation, fallback/error states, and honest untrained status.
-- [ ] Test supported/unsupported Math Agent inputs and equation edge cases.
-- [ ] Verify explicit memory save/retry, vault display, export/import, and local persistence.
+- [x] Add automated regression coverage for navigation state, fallback/error contract, and honest untrained status (browser/device rendering remains a separate manual check).
+- [x] Add math-engine tests for supported/unsupported Math Agent inputs, arithmetic edge cases, equation grammar, malformed input, unsafe symbols, and no-fabrication behavior.
+- [x] Add automated Memory Vault coverage for save/retry, record display/list, export/import, duplicate handling, merge-by-ID and IndexedDB persistence simulation. Real Safari persistence remains part of manual acceptance.
 - [x] Verify account-free frontend contract: no login/sign-up/owner route; private backend records are not exposed.
 - [x] Verify the 2–10 GB workload slider persists as a browser-local preference and does not allocate physical RAM.
 - [x] Add automated responsive checks for viewport metadata, mobile breakpoint, safe-area inset, and 44 px touch-target minimum.
-- [ ] Complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md.
+- [ ] Complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md (owner device test required).
 - [ ] Connect requested memory budget to an approved runtime configuration and enforce live RAM/VRAM limits; no runtime allocation exists yet.
-- [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore.
+- [x] Add automated responsive/keyboard/storage contract checks for narrow layout, narrow landscape, touch target, focus, navigation, IndexedDB and backup/restore.
+- [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore on an actual iPad.
 - [ ] Record device/browser/date/pass-fail; do not mark untested as passed.
 
 ## Phase 3 — Security audit
@@ -41,8 +42,10 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Inspect public table RLS and role grants.
 - [x] Review deployed Edge Function auth/owner checks and retired device-control endpoint.
 - [x] Revoke and verify TRUNCATE on six owner-linked tables.
-- [ ] Owner: enable Supabase Auth leaked-password protection and re-run advisors.
-- [ ] Final deployed-policy/endpoint review after dashboard change.
+- [x] Re-run security advisor after live policy/endpoint review (2026-11-26); three retired-table INFO findings and the leaked-password WARN remain.
+- [ ] Owner: enable Supabase Auth leaked-password protection and re-run advisors after the dashboard change.
+- [x] Recheck deployed public table grants, owner policies, TRUNCATE privileges, SECURITY DEFINER function grants and deployed Edge Function contracts (2026-11-26).
+- [ ] Final deployed-policy/endpoint review after the owner changes leaked-password protection.
 
 ## Phase 4 — Architecture and model sizing
 
