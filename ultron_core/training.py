@@ -6,7 +6,7 @@ import re
 import time
 from dataclasses import dataclass
 
-from .config import NeuroSparseConfig, count_parameters
+from .config import MIN_FOUNDATION_TRAINABLE_PARAMETERS, NeuroSparseConfig, count_parameters
 from .resumable_sampler import ResumableRandomSampler
 import torch
 from torch.nn import functional as F
@@ -193,8 +193,12 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise ValueError("preflight report must be non-authorizing and local-only")
 
     count = preflight_report.get("trainable_parameter_count", preflight_report.get("parameter_count"))
-    if isinstance(count, bool) or not isinstance(count, int) or count < 40_000_000:
-        raise ValueError("preflight model must meet the 40M trainable parameter minimum")
+    if (isinstance(count, bool) or not isinstance(count, int)
+            or count < MIN_FOUNDATION_TRAINABLE_PARAMETERS):
+        raise ValueError(
+            "preflight model must meet the "
+            f"{MIN_FOUNDATION_TRAINABLE_PARAMETERS:,} trainable parameter minimum"
+        )
     if preflight_report.get("parameter_count") != count:
         raise ValueError("preflight parameter_count must equal trainable_parameter_count")
     total_count = preflight_report.get("total_parameter_count")
