@@ -4,6 +4,9 @@ import torch
 
 from ultron_core.compress import (
     ExpertUsageCounter,
+    LowRankLinear,
+    factorize_linear,
+    factorize_model,
     merge_experts,
     prune_experts,
 )
@@ -131,6 +134,48 @@ class ExpertMergeTests(unittest.TestCase):
         model = small_model()
         with self.assertRaisesRegex(ValueError, "partition every"):
             merge_experts(model, [[0, 1], [1, 2]])
+
+class LowRankFactorizationTests(unittest.TestCase):
+    def test_svd_selects_rank_within_relative_frobenius_error_limit(self):
+        torch.manual_seed(2718)
+        linear = nn.Linear(13, 10, bias=True)
+        original_weight = linear.weight.detach().clone()
+        result, report = factorize_linear(linear, max_relative_error=0.25)
+        self.assertIsInstance(result, LowRankLinear)
+        self.assertLessEqual(report["relative_frobenius_error"], 0.25 + 1e-6)
+        self.assertTrue(torch.equal(linear.weight, original_weight))
+        reconstructed = result.up.weight @ result.down.weight
+        actual_error = torch.linalg.vector_norm(original_weight - reconstructed) / torch.linalg.vector_norm(original_weight)
+        self.assertAlmostEqual(float(actual_error), report["relative_frobenius_error"], places=5)
+
+    def test_zero_matrix_is_handled_without_nan(self):
+        layer = nn.Linear(5, 4, bias=False)
+        with torch.no_grad():
+            layer.weight.zero_()
+        factor, report = factorize_linear(layer, max_relative_error=0.0)
+        self.assertEqual(factor.rank, 1)
+        self.assertEqual(report["relative_frobenius_error"], 0.0)
+
+    def test_model_factorization_is_copy_only_and_keeps_forward_contract(self):
+        model = small_model().eval()
+        original = model.blocks[0].experts[0].net[0].weight.detach().clone()
+        result, report = factorize_model(
+            model,
+            max_relative_error=0.1,
+            target_modules=["blocks.0.experts.0.net.0"],
+        )
+        self.assertIsNot(result, model)
+        self.assertIsInstance(result.blocks[0].experts[0].net[0], LowRankLinear)
+        self.assertTrue(torch.equal(model.blocks[0].experts[0].net[0].weight, original))
+        self.assertEqual(report["factorized_layer_count"], 1)
+        with torch.inference_mode():
+            output = result(torch.tensor([[1, 2]], dtype=torch.long))
+        self.assertEqual(tuple(output["logits"].shape), (1, 2, 64))
+
+    def test_rejects_unknown_target_module(self):
+        with self.assertRaisesRegex(ValueError, "unknown target"):
+            factorize_model(small_model(), target_modules=["missing.layer"])
+
 
 if __name__ == "__main__":
     unittest.main()
