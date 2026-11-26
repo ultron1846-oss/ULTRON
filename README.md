@@ -58,7 +58,7 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#155 are merged; issue #135 is closed as completed.
+- PRs #136–#156 are merged; issue #135 is closed as completed.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
