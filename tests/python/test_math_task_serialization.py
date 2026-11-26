@@ -22,8 +22,22 @@ def _worked_problem():
         "ingredients": {"operands": [2, 2], "operator": "+"},
     }
     problem = Problem.from_generator(source_record, source="test.fixture")
+    def verify_worked_steps(record):
+        return (
+            record["problem"] == "Calculate 2 + 2."
+            and record["steps"] == [
+                "Identify the two addends.",
+                "Add 2 and 2 to obtain 4.",
+            ]
+            and 2 + 2 == 4
+            and record["answer"] == "4"
+        )
+
     verifier = ReplayGeneratorVerifier(
-        source_record, lambda record: record["answer"] == "4", source="test.fixture"
+        source_record,
+        verify_worked_steps,
+        source="test.fixture",
+        verified_fields=("problem", "derivation", "answer"),
     )
     return problem, verifier
 
@@ -74,6 +88,66 @@ class MathTaskSerializationTests(unittest.TestCase):
         self.assertFalse(task.training_eligible)
         with self.assertRaisesRegex(ValueError, "verified problem, derivation, and answer"):
             task.to_training_target_dict()
+
+    def test_replay_verifier_defaults_to_conservative_answer_only_scope(self):
+        problem, _ = _worked_problem()
+        source_record = {
+            "problem": problem.prompt,
+            "answer": problem.answer,
+            "topic": problem.topic,
+            "seed": problem.seed,
+            "difficulty": problem.difficulty,
+            "steps": list(problem.steps),
+            "ingredients": {"operands": [2, 2], "operator": "+"},
+        }
+        verifier = ReplayGeneratorVerifier(
+            source_record, lambda record: record["answer"] == "4", source="test.fixture"
+        )
+        task = MathTaskRecord.from_verifier(
+            problem, verifier,
+            verifier_id="test.answer_only_replay",
+            verifier_version="1",
+        )
+
+        self.assertEqual(task.verification.verified_fields, ("problem", "answer"))
+        self.assertFalse(task.training_eligible)
+        with self.assertRaisesRegex(ValueError, "verified problem, derivation, and answer"):
+            task.to_training_target_dict()
+
+    def test_replay_verifier_scope_rejects_invalid_declarations(self):
+        problem, _ = _worked_problem()
+        for scope in (
+            ("problem", "answer", "derivation"),
+            ("problem", "problem", "answer"),
+            ("answer",),
+            ("problem", "derivation", "answer", "verifier"),
+        ):
+            with self.subTest(scope=scope), self.assertRaises(ValueError):
+                ReplayGeneratorVerifier(
+                    problem.to_dict(),
+                    lambda record: True,
+                    source="test.fixture",
+                    verified_fields=scope,
+                )
+
+    def test_replay_verifier_rejects_non_boolean_result(self):
+        problem, _ = _worked_problem()
+        source_record = {
+            "problem": problem.prompt,
+            "answer": problem.answer,
+            "topic": problem.topic,
+            "seed": problem.seed,
+            "difficulty": problem.difficulty,
+            "steps": list(problem.steps),
+            "ingredients": {"operands": [2, 2], "operator": "+"},
+        }
+        verifier = ReplayGeneratorVerifier(
+            source_record,
+            lambda record: "true",
+            source="test.fixture",
+            verified_fields=("problem", "answer"),
+        )
+        self.assertFalse(verifier.verify(problem))
 
     def test_rejected_verifier_result_cannot_be_exported(self):
         class RejectingVerifier(ProblemVerifier):
