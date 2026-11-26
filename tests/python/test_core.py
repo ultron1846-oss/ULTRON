@@ -578,6 +578,36 @@ class CoreTests(unittest.TestCase):
             self.assertEqual(metadata["training_settings"], settings)
             self.assertEqual(metadata["step"], 7)
 
+    def test_checkpoint_reports_optimizer_and_scheduler_restoration(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=2)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "optimizer-state.pt"
+            save_checkpoint(path, model, config, optimizer=optimizer,
+                           scheduler=scheduler, step=0)
+
+            restored_model = NeuroSparseModel(config)
+            restored_optimizer = torch.optim.AdamW(restored_model.parameters(), lr=1e-3)
+            restored_scheduler = torch.optim.lr_scheduler.StepLR(
+                restored_optimizer, step_size=2
+            )
+            metadata = load_checkpoint(path, restored_model,
+                optimizer=restored_optimizer, scheduler=restored_scheduler,
+                restore_rng=False)
+            self.assertTrue(metadata["optimizer_state_present"])
+            self.assertTrue(metadata["optimizer_restored"])
+            self.assertTrue(metadata["scheduler_state_present"])
+            self.assertTrue(metadata["scheduler_restored"])
+
+            model_only = NeuroSparseModel(config)
+            model_only_metadata = load_checkpoint(path, model_only, restore_rng=False)
+            self.assertTrue(model_only_metadata["optimizer_state_present"])
+            self.assertFalse(model_only_metadata["optimizer_restored"])
+            self.assertTrue(model_only_metadata["scheduler_state_present"])
+            self.assertFalse(model_only_metadata["scheduler_restored"])
+
     def test_checkpoint_rejects_invalid_training_precision_metadata(self):
         config = self.config()
         model = NeuroSparseModel(config)
