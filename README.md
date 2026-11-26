@@ -66,7 +66,7 @@ The shared Problem contract and generated combined registry were added in merged
 - PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md; PR #158 refreshed the README handoff. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
 - The 2–10 GB slider is a browser-local preference only. It does not allocate physical RAM or control a hosted runtime; connecting it to an approved runtime configuration and live memory cap remains unfinished.
 - Latest Pages deployment run #146 succeeded for commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; the deployment job reported success. The public URL and interactive behavior have not been independently verified from this session.
-- Owner to-dos (not attempted): open https://ultron1846-oss.github.io/ULTRON/ in iPad Safari and complete docs/IPAD_FRONTEND_ACCEPTANCE.md; enable Supabase Auth leaked-password protection in the dashboard; verify free-runtime access and checkpoint transfer from a clean iPad session.
+- Owner to-do (manual, not attempted): open https://ultron1846-oss.github.io/ULTRON/ in iPad Safari and complete docs/IPAD_FRONTEND_ACCEPTANCE.md. Later runtime readiness must verify free-runtime availability and safe checkpoint portability through a separate approved runtime design; the current account-free website has no checkpoint transfer controls. Supabase Auth leaked-password protection is a separate backend dashboard security setting and is not required for the public frontend.
 
 ## Brief dated history
 
