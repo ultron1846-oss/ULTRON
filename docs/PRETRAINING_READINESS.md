@@ -148,4 +148,4 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
 5. Extend concept/prerequisite mapping from the eight core generator topics to the full curriculum; curate and independently verify a frozen transfer benchmark with near-duplicate review.
 6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
-6. Keep real-weight training and remote execution disabled until separate explicit authorization.
+7. Keep real-weight training and remote execution disabled until separate explicit authorization.
