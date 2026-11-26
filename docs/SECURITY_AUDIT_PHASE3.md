@@ -51,3 +51,34 @@ The live security advisor reported leaked-password protection disabled. This can
 ## Remaining action
 
 Enable Supabase Auth leaked-password protection in the dashboard and verify it is active. Re-run security advisors after that change. Do not enable device pairing or training as part of this audit.
+
+
+## Follow-up live verification — 2026-11-26
+
+A read-only follow-up was performed against the active `ultron-memory` project after the previous mitigation. No table rows were read or changed, and no schema or Auth settings were mutated.
+
+### Database policy and privilege results
+
+- All nine tables in the `public` schema inspected in this check have RLS enabled.
+- The six owner-linked data tables (`experiences`, `knowledge`, `mistakes`, `checkpoints`, `backups`, and `memory_imports`) each have an `authenticated` owner policy with both `USING (auth.uid() = user_id)` and `WITH CHECK (auth.uid() = user_id)`.
+- The `anon` role has no SELECT privilege on any of the nine inspected public tables.
+- `authenticated` has no TRUNCATE privilege on any of the nine inspected public tables. This re-confirms the earlier six-table revocation.
+- The only `SECURITY DEFINER` function found in the `public` schema is `rls_auto_enable`; the current privilege check returned no EXECUTE privilege for `anon` or `authenticated`.
+- The three retired pairing/device tables remain RLS-enabled and inaccessible to `anon` and `authenticated`. They have no policies; the advisor finding is informational and should not be “fixed” by adding broad policies.
+
+### Current deployed Edge Function review
+
+- `training-control` is deployed as version 8. The public `public_status` action requires the publishable API key, accepts only the configured GitHub Pages Origin, limits the body to 4 KiB, and returns generic untrained/training-disabled/remote-execution-disabled status.
+- Owner-only actions require a bearer token and API key, validate the token with Supabase Auth, and compare the verified user ID to the server-side owner secret. Its `start` action dispatches the configured CPU diagnostic workflow only; the reviewed workflow installs CPU PyTorch and does not start model training or touch checkpoints. The public static site exposes no owner controls.
+- `device-control` is deployed as version 4 and returns HTTP 410 for all requests; it cannot create pairing credentials or accept heartbeats. Its CORS origin still references the retired Pages domain, but the endpoint is fail-closed and has no active action. Do not re-enable pairing.
+
+### Current security advisor results
+
+The 2026-11-26 security advisor returned:
+
+- **WARN:** leaked-password protection is still disabled. This is an Auth dashboard setting, not a repository or SQL change. Owner action remains required: enable Supabase Auth leaked-password protection and verify it in the dashboard, then re-run security advisors.
+- **INFO (3):** RLS enabled without policies on the three retired pairing/device tables listed above. These are intentionally inaccessible and should remain fail-closed.
+
+Remediation reference: [Supabase leaked-password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+
+The security advisor was re-run after the read-only policy review. No data or configuration changes were made during this follow-up.
