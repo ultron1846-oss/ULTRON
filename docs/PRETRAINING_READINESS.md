@@ -22,12 +22,15 @@
 
 Automated frontend hardening and the disabled Training Control readiness page are merged, but manual iPad acceptance is **not recorded**.
 
-- [x] Add Training Control readiness page with generic public status and disabled execution buttons; no job action is wired.
+- [x] Add Training Control page with generic public status only; no job, checkpoint mutation, or pairing control is exposed.
 - [ ] Verify navigation, fallback/error states, and honest untrained status.
 - [ ] Test supported/unsupported Math Agent inputs and equation edge cases.
 - [ ] Verify explicit memory save/retry, vault display, export/import, and local persistence.
-- [ ] Verify owner sign-in, refresh, sign-out, and server-side non-owner rejection.
+- [x] Verify account-free frontend contract: no login/sign-up/owner route; private backend records are not exposed.
 - [x] Verify the 2–10 GB workload slider persists as a browser-local preference and does not allocate physical RAM.
+- [x] Add automated responsive checks for viewport metadata, mobile breakpoint, safe-area inset, and 44 px touch-target minimum.
+- [ ] Complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md.
+- [ ] Connect requested memory budget to an approved runtime configuration and enforce live RAM/VRAM limits; no runtime allocation exists yet.
 - [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore.
 - [ ] Record device/browser/date/pass-fail; do not mark untested as passed.
 
