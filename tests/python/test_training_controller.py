@@ -46,9 +46,10 @@ class MockModel(torch.nn.Module):
 
 
 class MockOptimizer:
-    def __init__(self):
+    def __init__(self, parameters=()):
         self.steps = 0
         self.zero_calls = 0
+        self.param_groups = [{"params": list(parameters)}]
 
     def zero_grad(self, set_to_none=True):
         self.zero_calls += 1
@@ -64,7 +65,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def setUp(self):
         self.model = MockModel()
-        self.optimizer = MockOptimizer()
+        self.optimizer = MockOptimizer(
+            parameter for parameter in self.model.parameters() if parameter.requires_grad
+        )
         trainable = count_parameters(self.model.config)
         self.report = {
             "status": "PREFLIGHT_ONLY",
@@ -98,6 +101,61 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                                settings=self.settings, training_authorized=False)
         self.assertEqual(consumed, [])
         self.assertEqual(self.optimizer.steps, 0)
+
+    def _assert_optimizer_rejected_before_batches(self, optimizer, message):
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex((TypeError, ValueError), message):
+            run_training_steps(
+                self.model, batches(), optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+            )
+
+        self.assertEqual(consumed, [])
+        self.assertEqual(optimizer.steps, 0)
+
+    def test_optimizer_rejects_missing_trainable_parameters_before_batches(self):
+        optimizer = MockOptimizer()
+        optimizer.param_groups = [{"params": []}]
+        self._assert_optimizer_rejected_before_batches(
+            optimizer, "optimizer parameters must match"
+        )
+
+    def test_optimizer_rejects_unrelated_parameters_before_batches(self):
+        optimizer = MockOptimizer([
+            torch.nn.Parameter(torch.empty(1, device="meta"))
+        ])
+        self._assert_optimizer_rejected_before_batches(
+            optimizer, "optimizer parameters must match"
+        )
+
+    def test_optimizer_rejects_frozen_parameters_before_batches(self):
+        optimizer = MockOptimizer([
+            parameter for parameter in self.model.parameters()
+        ])
+        self._assert_optimizer_rejected_before_batches(
+            optimizer, "optimizer parameters must match"
+        )
+
+    def test_optimizer_rejects_duplicate_parameters_before_batches(self):
+        trainable = next(
+            parameter for parameter in self.model.parameters() if parameter.requires_grad
+        )
+        optimizer = MockOptimizer([trainable, trainable])
+        self._assert_optimizer_rejected_before_batches(
+            optimizer, "duplicate model parameter"
+        )
+
+    def test_optimizer_requires_parameter_groups_before_batches(self):
+        optimizer = MockOptimizer()
+        del optimizer.param_groups
+        self._assert_optimizer_rejected_before_batches(
+            optimizer, "optimizer must expose non-empty param_groups"
+        )
 
     def test_controller_rejects_actual_trainable_parameter_count_mismatch_before_batches(self):
         self.model.extra_trainable = torch.nn.Parameter(torch.empty(1, device="meta"))
