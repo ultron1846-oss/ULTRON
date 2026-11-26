@@ -55,7 +55,7 @@ test('memory uses IndexedDB and has export/import recovery contracts', async () 
 
 test('automated checks explicitly preserve manual iPad Safari acceptance as pending', async () => {
   const acceptance = await read('docs/IPAD_FRONTEND_ACCEPTANCE.md');
-  assert.match(acceptance, /Manual Safari acceptance:\s*pending/i);
+  assert.match(acceptance, /Manual Safari acceptance:\*\* pending/i);
   assert.match(acceptance, /actual iPad/);
   assert.match(acceptance, /portrait and landscape/);
 });
