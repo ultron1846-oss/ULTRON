@@ -143,7 +143,7 @@ function runAgentCommand(raw){
  const command=raw.trim().split(/\s+/)[0].toLowerCase();
  if(command==='/help'||command==='/menu'||command==='/commands'||command==='/tools'){
   const list=[...mathToolHelp().split('\n'),...topics.map(topic=>topic.command+' — '+topic.name)];
-  addChat('assistant','ULTRON Math Agent commands:\n'+list.join('\n')+'\n\nEnter a supported arithmetic expression or a limited linear equation normally. Commands provide topic references; they do not activate unsupported solvers.','LOCAL COMMAND DIRECTORY');
+  addChat('assistant','ULTRON Math Agent commands:\n'+list.join('\n')+'\n\nOrdinary questions receive hints and step checks, not final answers. Calculator, graph and numerical commands run only when explicitly typed; they are tools for a specific step, not automatic word-problem answers.','LOCAL COMMAND DIRECTORY');
   return true;
  }
  if(command==='/status'){
@@ -178,21 +178,31 @@ function runAgentCommand(raw){
 function answerAgent(){
  const input=document.querySelector('#agent-input');const raw=input.value.trim();if(!raw)return;
  addChat('user',raw);input.value='';
+ // Explicit slash commands are tools the learner chooses to invoke. Ordinary
+ // questions are handled in guided mode and never auto-reveal the final result.
  if(runAgentCommand(raw))return;
  const wordProblem=parseWordProblem(raw);
  if(wordProblem.kind==='solved'){
-  const text=`Answer: ${wordProblem.result}.\n\nI identified ${wordProblem.operation} from the wording.\n${wordProblem.expression} = ${wordProblem.result}.\n${wordProblem.explanation}`;
-  const node=addChat('assistant',text,'ENGLISH WORD-PROBLEM PARSER · TEMPLATE-BASED · VERIFIED ARITHMETIC');
-  attachSaveButton(node,raw,text,'English word problem parsed into a supported arithmetic operation and evaluated by the structured parser.');
+  const hint={
+   addition:'Hint: identify the two quantities being combined. Write an addition expression, then calculate it yourself.',
+   subtraction:'Hint: identify the starting amount and the amount removed or the difference requested. Set up a subtraction expression.',
+   multiplication:'Hint: look for equal groups or “each”/“per”. Write the number of groups × amount in each group.',
+   division:'Hint: identify the total and how many equal groups (or the size of each group). Choose the matching division setup.'
+  }[wordProblem.operation]||'Hint: underline the known quantities and identify what the question asks you to find';
+  addChat('assistant','Let’s solve it together. '+hint+'\\n\\nTry the first calculation and send me your answer. I’ll check your work and give the next hint without jumping straight to the final answer.','GUIDED LEARNING · ANSWER WITHHELD');
   return;
  }
- const equation=raw.match(/(?:solve\s+)?([0-9xX+*/().\s^=-]+=[0-9xX+*/().\s^=-]+)/i);
- const expression=raw.replace(/^(what is|calculate|compute)\s+/i,'').replace(/[?]$/,'').trim();
- try{
-  if(equation){const result=solveLinearEquation(equation[1].replace(/\s+/g,''));const text=result.kind==='unique'?`Solution: x = ${result.value}.`:result.kind==='none'?'This equation has no solution.':'Every real value of x is a solution.';const node=addChat('assistant',text,'Solved by the deterministic linear-equation routine.');attachSaveButton(node,raw,text,'Linear equation solved by the deterministic ULTRON engine.');}
-  else if(/^[0-9+*/().\s^×÷−-]+$/.test(expression)){const value=evaluateExpression(expression);const text=`Result: ${value}`;const node=addChat('assistant',text,`Expression: ${expression}. Evaluated by the deterministic arithmetic parser.`);attachSaveButton(node,raw,text,'Arithmetic expression evaluated by the deterministic ULTRON parser.');}
-  else addChat('assistant','I cannot safely identify a supported arithmetic expression or linear equation in that message. Try an expression such as (12 + 8) / 4 or an equation such as 2x + 3 = 11.','Unsupported requests are not guessed.');
- }catch(error){addChat('assistant',`I could not solve that input: ${error.message}`,'Check the syntax and supported-operation limits.');}
+ const equation=raw.match(/(?:solve\\s+)?([0-9xX+*/().\\s^=-]+=[0-9xX+*/().\\s^=-]+)/i);
+ const expression=raw.replace(/^(what is|calculate|compute)\\s+/i,'').replace(/[?]$/,'').trim();
+ if(equation){
+  addChat('assistant','Let’s solve this step by step. First, simplify each side and collect the terms containing x on one side. Then isolate x by undoing the remaining operation.\\n\\nTry that first step and tell me what equation you get; I’ll check it.','GUIDED EQUATION MODE · FINAL VALUE WITHHELD');
+  return;
+ }
+ if(/^[0-9+*/().\\s^×÷−-]+$/.test(expression)){
+  addChat('assistant','I’ll help you work it out rather than give the result immediately.\\n\\n1. Follow the order of operations: parentheses, powers, multiplication/division, then addition/subtraction.\\n2. Calculate the first operation you can do.\\n\\nSend me your intermediate result and I’ll check it.','GUIDED CALCULATION · FINAL RESULT WITHHELD');
+  return;
+ }
+ addChat('assistant','I’ll act as a tutor, not an answer key. Tell me what you have tried or which step is confusing, and I’ll give a hint, check your work, or explain the next step without revealing the final answer immediately.','GUIDED LEARNING · TRY FIRST');
 }
 async function loadTrainingStatus(){
  const control=document.querySelector('#training-control-plane');
