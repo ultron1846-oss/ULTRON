@@ -134,7 +134,8 @@ class Problem:
         metadata = []
         for pair in raw_metadata:
             if (not isinstance(pair, (list, tuple)) or len(pair) != 2
-                    or not all(isinstance(item, str) for item in pair)):
+                    or not all(isinstance(item, str) for item in pair)
+                    or not pair[0]):
                 raise ValueError("problem metadata must contain only string pairs")
             metadata.append((pair[0], pair[1]))
         if tuple(metadata) != tuple(sorted(metadata)) or len({key for key, _ in metadata}) != len(metadata):
