@@ -58,7 +58,7 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#161 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
+- PRs #136–#162 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
@@ -177,3 +177,16 @@ No phase status above supersedes the training authorization gate. Keep actual tr
 ## Model capacity requirement — 2026-11-26
 
 ULTRON's foundation model target is **at least 60,000,000 trainable parameters**. The configuration code must enforce that minimum using the parameter-count formula; it must not rely on a descriptive label. Model capacity is expandable by increasing hidden width, depth, expert count, or expert width through validated configurations. The parameter-count formula was cross-checked against an instantiated small model in PR #160 CI. The 60M foundation itself was not instantiated by that regression; expanded sizes are not resource-tested. This is an architecture requirement only: the model remains untrained, and no optimizer step or training was performed.
+
+
+## Phase 2 Math Agent, Memory Vault and security recheck — 2026-11-26
+
+A follow-up implementation branch adds comprehensive math parser coverage, expands the deterministic linear equation grammar to support fractional/decimal coefficients and grouped linear expressions, and explicitly rejects nonlinear or unsupported equations without fabricating a result. See [Math Agent input contract](docs/MATH_AGENT_INPUTS.md). The conversational Math Agent remains tutor-first and does not reveal final answers.
+
+The local Memory Vault implementation now validates backup size and store names, rejects malformed generic record IDs, deduplicates duplicate IDs in an imported backup (last entry wins), and preserves merge-by-ID behavior. Automated IndexedDB contract tests cover save/list/reload persistence, simulated storage-write failure and retry, export/import round-trip, duplicate handling, malformed/oversized backup rejection, and local merge behavior. Browser real-world persistence still requires manual Safari testing.
+
+Responsive/keyboard contract tests cover narrow layouts, portrait and landscape CSS, touch-target minimums, focus visibility, navigation dismissal and fallback states. These are automated static contract checks, not a real-device browser run. Manual iPad Safari acceptance remains pending.
+
+The live Supabase policy and deployed-function review was repeated read-only on 2026-11-26. All nine inspected public tables have RLS enabled; the six owner-linked tables retain owner-only policies with both USING and WITH CHECK; anon has no SELECT grants; authenticated has no TRUNCATE; and the inspected public SECURITY DEFINER function is not executable by anon/authenticated. The security advisor still reports leaked-password protection disabled (owner dashboard action required) and three informational RLS-without-policy findings for retired pairing/device tables. See [Phase 3 security audit](docs/SECURITY_AUDIT_PHASE3.md).
+
+No Supabase configuration was changed, no dataset was imported, and no training, optimizer step, corpus generation, or remote execution was performed.
