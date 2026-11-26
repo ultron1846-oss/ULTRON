@@ -200,3 +200,12 @@ No Supabase configuration was changed, no dataset was imported, and no training,
 - Phase 2 automated work is complete for Math Agent parser/input validation, Memory Vault import/export hardening, and responsive/keyboard/storage contract tests. These do not substitute for manual Safari acceptance.
 - Remaining owner/device actions: (1) enable Supabase Auth leaked-password protection in the project dashboard, then re-run security advisors and final policy/endpoint review; (2) test the deployed site on an actual iPad Safari in portrait and landscape and record results.
 - Continue the remaining Phase 1 specification and Phase 4 task-serialization/architecture items before any training. No training, optimizer step, dataset import/generation, or remote execution was performed.
+
+
+## Compression parameter reporting — 2026-11-26
+
+PR #165 adds parameter accounting only; it does not implement compression transformations. The report reuses the existing no-allocation configuration counters, **count_total_parameters(config)** and **count_parameters(config)**, and checks the foundation result against **63,400,451 total / 61,826,048 trainable** parameters. Model enumeration deduplicates tied parameters by Python object identity (id(parameter)), not storage address. The real foundation module structure is checked so category totals cover the full count and the other bucket contains only explicitly named normalization parameters.
+
+The 60M trainable-parameter floor applies only to the foundation training checkpoint. Compressed models are separate, versioned deployment artifacts that record their parent checkpoint and the steps applied; they never replace the foundation checkpoint and are never described as meeting that floor. See [docs/COMPRESSION.md](docs/COMPRESSION.md).
+
+Compression quality can only be judged on a trained model with a verified benchmark. **No calibration corpus has been generated**, and no compression-quality result is claimed. PR #165 remains unmerged pending all required CI checks. No training, optimizer step, corpus/calibration generation, cloud execution, or remote execution was performed. Do not start PR 2 until separately instructed.
