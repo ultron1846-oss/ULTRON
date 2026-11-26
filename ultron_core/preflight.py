@@ -5,12 +5,13 @@ import math
 import re
 from typing import Iterable, Mapping
 
-from .config import NeuroSparseConfig, count_parameters, count_total_parameters
+from .config import (MIN_FOUNDATION_TRAINABLE_PARAMETERS, NeuroSparseConfig,
+                     count_parameters, count_total_parameters)
 from .data_generation import MathExample, validate_example_text
 from .math_tokenizer import MathVocabulary
 
 _REQUIRED_SPLITS = ("train", "validation", "test")
-_MINIMUM_PARAMETERS = 60_000_001
+_MINIMUM_PARAMETERS = MIN_FOUNDATION_TRAINABLE_PARAMETERS
 
 def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256,
                             gradient_accumulation_steps=1, memory_budget_gib=None, dataset_manifest_sha256=None):
@@ -37,7 +38,7 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
     if parameter_count < _MINIMUM_PARAMETERS:
-        raise ValueError(f"model has {parameter_count} trainable parameters; minimum is {_MINIMUM_PARAMETERS} (>60M target)")
+        raise ValueError(f"model has {parameter_count} trainable parameters; minimum is {_MINIMUM_PARAMETERS} (at least 60M)")
     if not isinstance(splits, Mapping) or set(splits) != set(_REQUIRED_SPLITS):
         raise ValueError("splits must contain exactly train, validation, and test")
     seen_prompts, seen_ids = set(), set()
