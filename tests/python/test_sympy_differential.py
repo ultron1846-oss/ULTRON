@@ -64,8 +64,10 @@ class SympyDifferential(unittest.TestCase):
   r=random.Random(0xD1A1DE)
   for i in range(N):
    p,ps=rp(r,r.randint(2,5));q,qs=rp(r,r.randint(1,3));quo,rem=p.divide_univariate(q,variable="x");sq,sr=sp.div(ps,qs)
-   self.assertEqual(spoly(quo),sq,msg=f"seed=D1A1DE case={i} dividend={ps} divisor={qs}")
-   self.assertEqual(spoly(rem),sr,msg=f"seed=D1A1DE case={i} dividend={ps} divisor={qs}")
+   got_quo=sp.Poly(spoly(quo).as_expr(),X,domain=sp.QQ);want_quo=sp.Poly(sq.as_expr(),X,domain=sp.QQ)
+   got_rem=sp.Poly(spoly(rem).as_expr(),X,domain=sp.QQ);want_rem=sp.Poly(sr.as_expr(),X,domain=sp.QQ)
+   self.assertEqual(got_quo,want_quo,msg=f"seed=D1A1DE case={i} dividend={ps} divisor={qs}")
+   self.assertEqual(got_rem,want_rem,msg=f"seed=D1A1DE case={i} dividend={ps} divisor={qs}")
    got_gcd=sp.Poly(spoly(p.gcd_univariate(q,variable="x")).as_expr(),X,domain=sp.QQ)
    want_gcd=sp.Poly(sp.gcd(ps,qs).monic().as_expr(),X,domain=sp.QQ)
    self.assertEqual(got_gcd,want_gcd,msg=f"seed=D1A1DE case={i} p={ps} q={qs}")
