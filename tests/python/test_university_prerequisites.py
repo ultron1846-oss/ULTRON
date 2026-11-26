@@ -13,7 +13,7 @@ PREREQUISITES_PATH = Path("tools/math_generators/university/prerequisites.json")
 
 
 class UniversityPrerequisiteTests(unittest.TestCase):
-    def test_curated_map_covers_declared_fields_and_reports_partial_scope(self):
+    def test_curated_map_covers_all_declared_curriculum_fields(self):
         curriculum = json.loads(CURRICULUM_PATH.read_text(encoding="utf-8"))
         data = json.loads(PREREQUISITES_PATH.read_text(encoding="utf-8"))
         mapping = load_curriculum_prerequisites()
