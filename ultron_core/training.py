@@ -346,6 +346,26 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         from .config import count_total_parameters
         if count_total_parameters(config) != total_count:
             raise ValueError("preflight total parameter count does not match model config")
+
+    parameter_iterator = getattr(model, "parameters", None)
+    if not callable(parameter_iterator):
+        raise TypeError("model must expose parameters() for parameter-count validation")
+    model_parameters = tuple(parameter_iterator())
+    if not model_parameters or any(not isinstance(parameter, torch.Tensor)
+                                    for parameter in model_parameters):
+        raise ValueError("model parameters are missing or malformed")
+    actual_trainable_count = sum(
+        parameter.numel() for parameter in model_parameters if parameter.requires_grad
+    )
+    actual_total_count = sum(parameter.numel() for parameter in model_parameters)
+    if actual_trainable_count != count:
+        raise ValueError(
+            "actual model trainable parameter count does not match preflight report"
+        )
+    if actual_total_count != total_count:
+        raise ValueError(
+            "actual model total parameter count does not match preflight report"
+        )
     reset_memory = getattr(model, "reset_memory", None)
     if not callable(reset_memory):
         raise ValueError("model must implement reset_memory() for example isolation")
