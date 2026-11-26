@@ -1,40 +1,226 @@
 {
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
-  "source_commit": "8e22b307b808a5a2ab8b2d95afbd6fee570fc399",
+  "source_commit": "b328a9c76c89ba9ed7adf4ae9828274aa08cb22d",
   "source_topic_count": 197,
-  "mapped_topic_count": 26,
+  "mapped_topic_count": 57,
   "coverage_fields": [
     "Foundations and logic",
-    "Linear algebra"
+    "Linear algebra",
+    "Calculus",
+    "Real analysis"
   ],
-  "scope_note": "Curated initial prerequisite edges for Foundations and logic plus Linear algebra only. The other 171 curriculum topics are intentionally unmapped in this version.",
+  "scope_note": "Curated initial prerequisite edges for Foundations and logic, Linear algebra, Calculus, and Real analysis. The other 140 curriculum topics are intentionally unmapped in this version.",
   "prerequisites": {
     "sets_and_functions": [],
-    "propositional_logic": ["sets_and_functions"],
-    "predicate_logic": ["propositional_logic", "sets_and_functions"],
-    "quantifiers": ["predicate_logic"],
-    "proof_methods": ["propositional_logic", "predicate_logic"],
-    "mathematical_induction": ["proof_methods"],
-    "relations_and_equivalence": ["sets_and_functions", "predicate_logic"],
-    "cardinality": ["sets_and_functions", "relations_and_equivalence"],
-    "countable_and_uncountable_sets": ["cardinality", "proof_methods"],
-    "axiom_of_choice_intro": ["sets_and_functions", "cardinality", "proof_methods"],
-    "vectors_and_vector_spaces": ["sets_and_functions", "proof_methods"],
-    "subspaces_and_span": ["vectors_and_vector_spaces"],
-    "linear_independence": ["vectors_and_vector_spaces"],
-    "basis_and_dimension": ["subspaces_and_span", "linear_independence"],
-    "linear_transformations": ["vectors_and_vector_spaces", "subspaces_and_span"],
-    "matrix_rank": ["linear_independence", "systems_linear_equations"],
-    "systems_linear_equations": ["vectors_and_vector_spaces"],
-    "determinants": ["systems_linear_equations"],
-    "eigenvalues_and_eigenvectors": ["linear_transformations", "determinants"],
-    "diagonalization": ["eigenvalues_and_eigenvectors", "basis_and_dimension"],
-    "inner_product_spaces": ["vectors_and_vector_spaces"],
-    "orthogonality_and_projection": ["inner_product_spaces"],
-    "least_squares": ["orthogonality_and_projection", "systems_linear_equations"],
-    "spectral_theorem": ["inner_product_spaces", "eigenvalues_and_eigenvectors"],
-    "Jordan_form": ["eigenvalues_and_eigenvectors", "linear_transformations", "basis_and_dimension"],
-    "bilinear_and_quadratic_forms": ["vectors_and_vector_spaces", "determinants"]
+    "propositional_logic": [
+      "sets_and_functions"
+    ],
+    "predicate_logic": [
+      "propositional_logic",
+      "sets_and_functions"
+    ],
+    "quantifiers": [
+      "predicate_logic"
+    ],
+    "proof_methods": [
+      "propositional_logic",
+      "predicate_logic"
+    ],
+    "mathematical_induction": [
+      "proof_methods"
+    ],
+    "relations_and_equivalence": [
+      "sets_and_functions",
+      "predicate_logic"
+    ],
+    "cardinality": [
+      "sets_and_functions",
+      "relations_and_equivalence"
+    ],
+    "countable_and_uncountable_sets": [
+      "cardinality",
+      "proof_methods"
+    ],
+    "axiom_of_choice_intro": [
+      "sets_and_functions",
+      "cardinality",
+      "proof_methods"
+    ],
+    "vectors_and_vector_spaces": [
+      "sets_and_functions",
+      "proof_methods"
+    ],
+    "subspaces_and_span": [
+      "vectors_and_vector_spaces"
+    ],
+    "linear_independence": [
+      "vectors_and_vector_spaces"
+    ],
+    "basis_and_dimension": [
+      "subspaces_and_span",
+      "linear_independence"
+    ],
+    "linear_transformations": [
+      "vectors_and_vector_spaces",
+      "subspaces_and_span"
+    ],
+    "matrix_rank": [
+      "linear_independence",
+      "systems_linear_equations"
+    ],
+    "systems_linear_equations": [
+      "vectors_and_vector_spaces"
+    ],
+    "determinants": [
+      "systems_linear_equations"
+    ],
+    "eigenvalues_and_eigenvectors": [
+      "linear_transformations",
+      "determinants"
+    ],
+    "diagonalization": [
+      "eigenvalues_and_eigenvectors",
+      "basis_and_dimension"
+    ],
+    "inner_product_spaces": [
+      "vectors_and_vector_spaces"
+    ],
+    "orthogonality_and_projection": [
+      "inner_product_spaces"
+    ],
+    "least_squares": [
+      "orthogonality_and_projection",
+      "systems_linear_equations"
+    ],
+    "spectral_theorem": [
+      "inner_product_spaces",
+      "eigenvalues_and_eigenvectors"
+    ],
+    "Jordan_form": [
+      "eigenvalues_and_eigenvectors",
+      "linear_transformations",
+      "basis_and_dimension"
+    ],
+    "bilinear_and_quadratic_forms": [
+      "vectors_and_vector_spaces",
+      "determinants"
+    ],
+    "limits_and_continuity": [
+      "sets_and_functions"
+    ],
+    "derivative_theory": [
+      "limits_and_continuity"
+    ],
+    "mean_value_theorems": [
+      "derivative_theory",
+      "limits_and_continuity"
+    ],
+    "Taylor_series": [
+      "derivative_theory",
+      "power_series"
+    ],
+    "Riemann_integral": [
+      "limits_and_continuity"
+    ],
+    "improper_integrals": [
+      "Riemann_integral",
+      "sequences_and_series"
+    ],
+    "sequences_and_series": [
+      "limits_and_continuity"
+    ],
+    "power_series": [
+      "sequences_and_series"
+    ],
+    "multivariable_limits": [
+      "limits_and_continuity"
+    ],
+    "partial_derivatives": [
+      "multivariable_limits",
+      "derivative_theory"
+    ],
+    "gradient_and_directional_derivatives": [
+      "partial_derivatives"
+    ],
+    "chain_rule_multivariable": [
+      "partial_derivatives"
+    ],
+    "multiple_integrals": [
+      "multivariable_limits",
+      "Riemann_integral"
+    ],
+    "change_of_variables": [
+      "multiple_integrals",
+      "partial_derivatives"
+    ],
+    "line_integrals": [
+      "partial_derivatives",
+      "multiple_integrals"
+    ],
+    "surface_integrals": [
+      "multiple_integrals",
+      "partial_derivatives"
+    ],
+    "vector_calculus": [
+      "partial_derivatives",
+      "gradient_and_directional_derivatives"
+    ],
+    "Green_stokes_divergence_theorems": [
+      "vector_calculus",
+      "line_integrals",
+      "surface_integrals"
+    ],
+    "metric_spaces": [
+      "sets_and_functions",
+      "proof_methods"
+    ],
+    "convergence_of_sequences": [
+      "metric_spaces",
+      "sequences_and_series"
+    ],
+    "Cauchy_sequences": [
+      "convergence_of_sequences"
+    ],
+    "pointwise_and_uniform_convergence": [
+      "convergence_of_sequences",
+      "Cauchy_sequences",
+      "metric_spaces"
+    ],
+    "compactness": [
+      "metric_spaces"
+    ],
+    "connectedness": [
+      "metric_spaces"
+    ],
+    "continuity_metric_spaces": [
+      "metric_spaces",
+      "convergence_of_sequences"
+    ],
+    "differentiation_real_analysis": [
+      "continuity_metric_spaces",
+      "derivative_theory",
+      "mean_value_theorems"
+    ],
+    "measure_intro": [
+      "sets_and_functions",
+      "countable_and_uncountable_sets"
+    ],
+    "Lebesgue_measure": [
+      "measure_intro"
+    ],
+    "Lebesgue_integral": [
+      "Lebesgue_measure",
+      "measure_intro",
+      "Riemann_integral"
+    ],
+    "Lp_spaces": [
+      "Lebesgue_integral",
+      "measure_intro"
+    ],
+    "functional_sequences": [
+      "pointwise_and_uniform_convergence",
+      "metric_spaces"
+    ]
   }
 }
