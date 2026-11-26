@@ -286,6 +286,28 @@ class CompressionArtifactAndPipelineTests(unittest.TestCase):
             for name, value in model.state_dict().items():
                 self.assertTrue(torch.equal(value, before[name]))
 
+    def test_artifact_paths_are_immutable(self):
+        model = small_model().eval()
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "artifact.pt"
+            save_compression_artifact(
+                target,
+                model,
+                parent_checkpoint_id="parent-immutable",
+                artifact_version="1.0.0",
+                compression_steps=[{"name": "test-only", "options": {}}],
+            )
+            original_bytes = target.read_bytes()
+            with self.assertRaisesRegex(FileExistsError, "cannot be overwritten"):
+                save_compression_artifact(
+                    target,
+                    model,
+                    parent_checkpoint_id="different-parent",
+                    artifact_version="1.0.1",
+                    compression_steps=[{"name": "test-only", "options": {}}],
+                )
+            self.assertEqual(target.read_bytes(), original_bytes)
+
     def test_artifact_state_hash_detects_tampering(self):
         model = small_model().eval()
         with tempfile.TemporaryDirectory() as directory:

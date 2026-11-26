@@ -60,12 +60,11 @@ def save_compression_artifact(
     parent_checkpoint_id: str,
     artifact_version: str,
     compression_steps: list[dict],
-    overwrite: bool = False,
 ) -> dict:
     """Write an independent, atomic compressed deployment artifact.
 
     This never writes to a source checkpoint unless the caller explicitly
-    chooses that path. Existing artifact paths are protected unless overwrite=True.
+    chooses that path. Existing artifact paths are immutable and always rejected.
     """
     if not isinstance(model, nn.Module):
         raise TypeError("model must be a torch.nn.Module")
@@ -98,8 +97,8 @@ def save_compression_artifact(
 
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    if target.exists() and not overwrite:
-        raise FileExistsError(f"artifact already exists: {target}")
+    if target.exists():
+        raise FileExistsError(f"artifact already exists and cannot be overwritten: {target}")
     descriptor, temporary_name = tempfile.mkstemp(
         prefix=f".{target.name}.", suffix=".tmp", dir=target.parent
     )
@@ -109,8 +108,8 @@ def save_compression_artifact(
             torch.save(payload, stream)
             stream.flush()
             os.fsync(stream.fileno())
-        if target.exists() and not overwrite:
-            raise FileExistsError(f"artifact already exists: {target}")
+        if target.exists():
+            raise FileExistsError(f"artifact already exists and cannot be overwritten: {target}")
         os.replace(temporary, target)
     finally:
         temporary.unlink(missing_ok=True)

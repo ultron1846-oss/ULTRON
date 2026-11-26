@@ -23,10 +23,21 @@ class ExpertUsageCounter:
         self._closed = False
         self._lock = Lock()
 
+        expert_layers = []
         for layer_index, block in enumerate(blocks):
             experts = getattr(block, "experts", None)
             if experts is None or not hasattr(experts, "__iter__") or len(experts) == 0:
                 raise TypeError(f"model block {layer_index} must expose a non-empty experts sequence")
+            expert_layers.append(tuple(experts))
+        if not expert_layers:
+            raise ValueError("model must contain at least one expert layer")
+        if any(not callable(getattr(expert, "register_forward_pre_hook", None))
+               for experts in expert_layers for expert in experts):
+            raise TypeError("every expert must be a torch module supporting forward pre-hooks")
+
+        # Validate the complete layout before registering any hook. This avoids
+        # leaving partial instrumentation behind if a later layer is malformed.
+        for layer_index, experts in enumerate(expert_layers):
             self._counts.append([0 for _ in experts])
             for expert_index, expert in enumerate(experts):
                 self._handles.append(
@@ -34,9 +45,6 @@ class ExpertUsageCounter:
                         self._make_hook(layer_index, expert_index)
                     )
                 )
-
-        if not self._counts:
-            raise ValueError("model must contain at least one expert layer")
 
     def _make_hook(self, layer_index: int, expert_index: int):
         def count_input(_module, inputs):
