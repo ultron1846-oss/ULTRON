@@ -398,7 +398,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         metadata = {"format_version": 4, "rng_restored": True,
             "optimizer_state_present": True, "optimizer_restored": True,
             "scheduler_state_present": False, "scheduler_restored": False,
-                    "dataset_hash_verified": True,
+            "dataset_hash_verified": True,
                     "step": 12, "seed": 0, "gradient_accumulation_steps": 2,
                     "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0,
                                    "gradient_accumulation_steps": 2,
