@@ -72,7 +72,8 @@ class VerificationReceipt:
         if self.outcome not in ("verified", "rejected"):
             raise ValueError("verification outcome must be verified or rejected")
         if (not isinstance(self.verified_fields, tuple)
-                or any(field not in _ALLOWED_VERIFIED_FIELDS for field in self.verified_fields)
+                or any(not isinstance(field, str) or field not in _ALLOWED_VERIFIED_FIELDS
+                       for field in self.verified_fields)
                 or len(set(self.verified_fields)) != len(self.verified_fields)
                 or self.verified_fields != tuple(
                     field for field in _ALLOWED_VERIFIED_FIELDS
