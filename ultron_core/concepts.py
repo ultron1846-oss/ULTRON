@@ -10,7 +10,7 @@ import random
 import re
 from typing import Iterable, Mapping
 
-from .data_generation import SUPPORTED_TOPICS, normalize_problem_text if False else SUPPORTED_TOPICS
+from .data_generation import SUPPORTED_TOPICS
 
 
 @dataclass(frozen=True)
