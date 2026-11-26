@@ -26,7 +26,7 @@ class SharedProblemContractTests(unittest.TestCase):
         restored = MathTaskRecord.from_json(task.to_json())
         self.assertEqual(restored.task_id, task.task_id)
         self.assertEqual(restored.verification.verified_fields, ("problem", "answer"))
-        self.assertFalse(restored.training_eligible)
+        self.assertFalse(restored.target_export_eligible)
 
     def test_grade_and_university_records_share_problem_and_verifier_interface(self):
         cases = [
@@ -53,7 +53,7 @@ class SharedProblemContractTests(unittest.TestCase):
                 self.assertEqual(
                     restored_task.verification.verified_fields, ("problem", "answer")
                 )
-                self.assertFalse(restored_task.training_eligible)
+                self.assertFalse(restored_task.target_export_eligible)
 
 
 if __name__ == "__main__":
