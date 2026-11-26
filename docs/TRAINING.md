@@ -53,3 +53,10 @@ The model routes its existing fused Q/K/V and output-projection parameters throu
 ## Bounded training loss metrics
 
 The training controller retains only the current gradient-accumulation group's detached losses for finite-value validation and checkpoint metrics. The session-wide mean is tracked with a single on-device scalar sum and a count, then materialized once at finalization. This prevents a long training session from retaining one CUDA scalar tensor per microbatch or constructing a full-session stack at the end. The metric remains the arithmetic mean of all processed microbatch losses, including a final incomplete group that is discarded from optimizer updates. Regression coverage simulates 20 microbatches and asserts that stack sizes remain bounded by the accumulation group. This is a memory-growth fix; no training or device benchmark was run.
+
+
+## Tool-independence acceptance — 2026-11-26
+
+Issue #135's engineering acceptance is implemented: model-only inference with no tools passed to the model; separate model-only/tool-assisted reports; tool-disabled and target-leakage regression tests; explicit generator/verifier provenance; concept-aware sampling; a validated concept-transfer split protocol; and prerequisite edges for all 197 university curriculum topics.
+
+This does not authorize or report dataset import, benchmark row generation, optimizer steps, or model training. The frozen concept-transfer benchmark and grade-band mapping remain pre-training readiness tasks.
