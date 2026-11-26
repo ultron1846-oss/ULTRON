@@ -18,6 +18,32 @@ from .resumable_sampler import ResumableRandomSampler
 from tools.level1_math.ultron_level1 import DIFFICULTIES, generate_problem, verify
 
 
+TARGET_SOURCE = "ultron_level1.generate_problem"
+TARGET_TYPE = "generator_worked_solution"
+VERIFIER_ROLE = "independent_exact_validation_only"
+
+
+def _serialize_generator_problem(problem: dict) -> str:
+    """Serialize only allowlisted generator fields into the supervised sequence.
+
+    Unknown fields (including any accidental tool_output/tool_answer field) are
+    intentionally ignored and never become model targets.
+    """
+    if not isinstance(problem, dict):
+        raise TypeError("generator problem must be a dictionary")
+    prompt, answer = problem.get("prompt"), problem.get("answer")
+    steps = problem.get("steps")
+    if not isinstance(prompt, str) or not prompt.strip():
+        raise ValueError("generator problem prompt must be non-empty text")
+    if not isinstance(answer, str) or not answer.strip():
+        raise ValueError("generator problem answer must be non-empty text")
+    if (not isinstance(steps, list) or not steps
+            or any(not isinstance(step, str) or not step.strip() for step in steps)):
+        raise ValueError("generator problem must contain non-empty worked steps")
+    return ("Question: " + prompt + "\\nWorking:\\n"
+            + "\\n".join(steps) + "\\nAnswer: " + answer)
+
+
 class Level1TrainingDataset(Dataset):
     """Create verified arithmetic/linear examples for a future training run.
 
@@ -49,7 +75,10 @@ class Level1TrainingDataset(Dataset):
             examples.append({"input_ids": torch.tensor(token_ids, dtype=torch.long),
                              "example_index": index,
                              "topic": problem["kind"],
-                             "difficulty": problem["difficulty"]})
+                             "difficulty": problem["difficulty"],
+                             "target_source": TARGET_SOURCE,
+                             "target_type": TARGET_TYPE,
+                             "verifier_role": VERIFIER_ROLE})
         self.examples = tuple(examples)
         self.seed = seed
         vocab_sha256 = hashlib.sha256(self.tokenizer.vocabulary.to_json().encode("utf-8")).hexdigest()
@@ -60,6 +89,12 @@ class Level1TrainingDataset(Dataset):
             "seed": seed,
             "count": count,
             "vocabulary_sha256": vocab_sha256,
+            "target_contract": {
+                "source": TARGET_SOURCE,
+                "target_type": TARGET_TYPE,
+                "verifier_role": VERIFIER_ROLE,
+                "tool_outputs_in_targets": False,
+            },
             "examples": [item["input_ids"].tolist() for item in self.examples],
         }
         canonical = json.dumps(manifest_payload, sort_keys=True, separators=(",", ":"))
