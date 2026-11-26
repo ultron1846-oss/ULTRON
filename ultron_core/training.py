@@ -119,6 +119,47 @@ def make_optimizer(model: torch.nn.Module, learning_rate: float = 3e-4,
     return torch.optim.AdamW(trainable_parameters, lr=learning_rate, weight_decay=weight_decay)
 
 
+def _validate_optimizer_parameter_coverage(model_parameters, optimizer) -> None:
+    """Require optimizer groups to contain every trainable model parameter once.
+
+    A preflight report and matching model are not sufficient if the supplied
+    optimizer silently omits trainable parameters or updates unrelated tensors.
+    """
+    parameter_groups = getattr(optimizer, "param_groups", None)
+    if not isinstance(parameter_groups, list) or not parameter_groups:
+        raise TypeError("optimizer must expose non-empty param_groups")
+
+    expected = {
+        id(parameter)
+        for parameter in model_parameters
+        if parameter.requires_grad
+    }
+    selected = {}
+    for group_index, group in enumerate(parameter_groups):
+        if not isinstance(group, dict):
+            raise TypeError(f"optimizer param_groups[{group_index}] must be a dictionary")
+        parameters = group.get("params")
+        if not isinstance(parameters, (list, tuple)):
+            raise TypeError(
+                f"optimizer param_groups[{group_index}].params must be a list or tuple"
+            )
+        for parameter in parameters:
+            if not isinstance(parameter, torch.Tensor):
+                raise TypeError("optimizer parameter groups may contain only tensors")
+            identity = id(parameter)
+            if identity in selected:
+                raise ValueError("optimizer contains a duplicate model parameter")
+            selected[identity] = parameter
+
+    missing = expected.difference(selected)
+    unexpected = set(selected).difference(expected)
+    if missing or unexpected:
+        raise ValueError(
+            "optimizer parameters must match the model's trainable parameter set "
+            f"(missing={len(missing)}, unexpected={len(unexpected)})"
+        )
+
+
 
 @dataclass(frozen=True)
 class TrainingSettings:
@@ -366,6 +407,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise ValueError(
             "actual model total parameter count does not match preflight report"
         )
+    _validate_optimizer_parameter_coverage(model_parameters, optimizer)
     reset_memory = getattr(model, "reset_memory", None)
     if not callable(reset_memory):
         raise ValueError("model must implement reset_memory() for example isolation")
