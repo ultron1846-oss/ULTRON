@@ -15,11 +15,11 @@ ULTRON's causal attention now uses PyTorch scaled-dot-product attention with the
 
 ## Pre-training readiness — Phase 1 specification
 
-The current model specification sets a **minimum of 60,000,001 trainable parameters (strictly greater than 60 million)**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
+The current model specification sets a **minimum of 60,000,000 trainable parameters (at least 60 million)**. The previous 3–5M prototype target is superseded. Architecture, parameter count, and resource estimates must be documented and verified before training. See [the phased pre-training readiness plan](docs/PRETRAINING_READINESS.md).
 
 ## Foundation model sizing — Phase 4
 
-The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the >60M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
+The repository now defines a proposed foundation configuration of **63,400,451 total parameters, of which 61,826,048 are trainable**, exceeding the ≥60M trainable minimum. The exact count is computed without allocating the large model and cross-checked against a small instantiated model in tests. The configuration has not been trained. See [foundation architecture and resource budget](docs/FOUNDATION_MODEL_SPEC.md).
 
 Source review: ULTRON has an untrained model prototype, a narrow deterministic generator, loss/optimizer helpers, checkpoint utilities, and a bounded local training controller. The controller has only been tested with a mock model/optimizer; no real weights have been updated and the full resume controller remains incomplete. Training remains disabled.
 
