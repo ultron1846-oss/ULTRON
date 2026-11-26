@@ -23,9 +23,9 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 133)
+        self.assertEqual(mapping.mapped_topic_count, 167)
         self.assertEqual(mapping.source_topic_count, 197)
-        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 64)
+        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 30)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
         mapping = load_curriculum_prerequisites()
@@ -61,10 +61,19 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("law_of_large_numbers", "central_limit_theorem"))
         self.assertTrue(mapping.is_prerequisite("Bayes_theorem", "Bayesian_statistics_intro"))
 
+
+    def test_ode_optimization_and_numerical_edges(self):
+        mapping = load_curriculum_prerequisites()
+        self.assertTrue(mapping.is_prerequisite("first_order_ODEs", "second_order_linear_ODEs"))
+        self.assertTrue(mapping.is_prerequisite("Lagrange_multipliers", "KKT_conditions"))
+        self.assertTrue(mapping.is_prerequisite("root_finding", "Newton_and_secant_methods"))
+        self.assertTrue(mapping.is_prerequisite("numerical_integration", "ODE_numerical_methods"))
+        self.assertTrue(mapping.is_prerequisite("probability_spaces", "Monte_Carlo_methods"))
+
     def test_unmapped_curriculum_topic_is_not_assumed_to_have_prerequisites(self):
         mapping = load_curriculum_prerequisites()
         with self.assertRaisesRegex(ValueError, "no curated prerequisite mapping"):
-            mapping.prerequisites_for("heat_equation")
+            mapping.prerequisites_for("manifolds_intro")
 
     def test_validator_rejects_cycles(self):
         curriculum = {"topics": [{"topic": "a", "field": "F"}, {"topic": "b", "field": "F"}]}

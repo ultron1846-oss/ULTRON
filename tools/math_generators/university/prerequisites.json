@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
-  "source_commit": "1b8ab2d517529695741748e182a6e478753d8a74",
+  "source_commit": "787b38bc5cd232a1452a90b7da9ffaf8caf42d6e",
   "source_topic_count": 197,
-  "mapped_topic_count": 133,
+  "mapped_topic_count": 167,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -15,9 +15,12 @@
     "Topology",
     "Discrete mathematics and combinatorics",
     "Probability",
-    "Statistics"
+    "Statistics",
+    "Differential equations",
+    "Optimization and operations research",
+    "Numerical and computational mathematics"
   ],
-  "scope_note": "Curated prerequisite edges for Foundations and logic, Linear algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, Number theory, Topology, Discrete mathematics and combinatorics, Probability, and Statistics. The other 64 curriculum topics are intentionally unmapped in this version.",
+  "scope_note": "Curated prerequisite edges for Foundations and logic, Linear algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, Number theory, Topology, Discrete mathematics and combinatorics, Probability, Statistics, Differential equations, Optimization and operations research, and Numerical and computational mathematics. The other 30 curriculum topics are intentionally unmapped in this version.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -514,6 +517,140 @@
       "probability_spaces",
       "linear_regression",
       "sequences_and_series"
+    ],
+    "first_order_ODEs": [
+      "derivative_theory",
+      "limits_and_continuity"
+    ],
+    "second_order_linear_ODEs": [
+      "first_order_ODEs",
+      "derivative_theory"
+    ],
+    "systems_of_ODEs": [
+      "first_order_ODEs",
+      "linear_transformations"
+    ],
+    "phase_portraits": [
+      "systems_of_ODEs"
+    ],
+    "Laplace_transform": [
+      "sequences_and_series",
+      "improper_integrals"
+    ],
+    "series_solutions_ODE": [
+      "Taylor_series",
+      "second_order_linear_ODEs"
+    ],
+    "boundary_value_problems": [
+      "second_order_linear_ODEs",
+      "Riemann_integral"
+    ],
+    "Fourier_methods_PDE": [
+      "sequences_and_series",
+      "partial_derivatives"
+    ],
+    "heat_equation": [
+      "boundary_value_problems",
+      "Fourier_methods_PDE"
+    ],
+    "wave_equation": [
+      "boundary_value_problems",
+      "Fourier_methods_PDE"
+    ],
+    "Laplace_equation": [
+      "partial_derivatives",
+      "boundary_value_problems"
+    ],
+    "characteristics_PDE": [
+      "partial_derivatives",
+      "first_order_ODEs"
+    ],
+    "convex_sets_and_functions": [
+      "vectors_and_vector_spaces",
+      "limits_and_continuity"
+    ],
+    "unconstrained_optimization": [
+      "derivative_theory",
+      "convex_sets_and_functions"
+    ],
+    "Lagrange_multipliers": [
+      "unconstrained_optimization",
+      "systems_linear_equations"
+    ],
+    "KKT_conditions": [
+      "Lagrange_multipliers",
+      "convex_sets_and_functions"
+    ],
+    "linear_programming": [
+      "systems_linear_equations",
+      "convex_sets_and_functions"
+    ],
+    "simplex_method": [
+      "linear_programming"
+    ],
+    "dualities": [
+      "linear_programming"
+    ],
+    "integer_programming_intro": [
+      "linear_programming",
+      "counting_principles"
+    ],
+    "dynamic_programming": [
+      "recurrence_relations",
+      "unconstrained_optimization"
+    ],
+    "network_optimization": [
+      "graph_theory_basics",
+      "linear_programming"
+    ],
+    "stochastic_optimization_intro": [
+      "expectation_and_variance",
+      "unconstrained_optimization"
+    ],
+    "floating_point_error": [
+      "sets_and_functions",
+      "sequences_and_series"
+    ],
+    "conditioning_and_stability": [
+      "floating_point_error",
+      "linear_transformations"
+    ],
+    "root_finding": [
+      "limits_and_continuity",
+      "derivative_theory"
+    ],
+    "Newton_and_secant_methods": [
+      "root_finding",
+      "derivative_theory"
+    ],
+    "numerical_linear_algebra": [
+      "matrix_rank",
+      "linear_transformations",
+      "conditioning_and_stability"
+    ],
+    "interpolation": [
+      "systems_linear_equations",
+      "linear_independence"
+    ],
+    "numerical_differentiation": [
+      "derivative_theory",
+      "floating_point_error"
+    ],
+    "numerical_integration": [
+      "Riemann_integral",
+      "floating_point_error"
+    ],
+    "ODE_numerical_methods": [
+      "first_order_ODEs",
+      "numerical_integration"
+    ],
+    "iterative_methods": [
+      "root_finding",
+      "conditioning_and_stability"
+    ],
+    "Monte_Carlo_methods": [
+      "probability_spaces",
+      "expectation_and_variance"
     ]
   }
 }

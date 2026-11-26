@@ -58,8 +58,8 @@ The shared Problem contract and generated combined registry were added in merged
 ## Current handoff
 
 - PRs #136–#143 are merged. PR #134 was closed without merge and superseded by merged PR #142.
-- PRs #144–#150 (README handoff, model-only evaluation, target provenance, concept-transfer protocol, and prerequisite expansions) merged on 2026-11-26 after all required CI workflows passed.
-- Issue #135 is being addressed incrementally. Model-only evaluation, source-specific target provenance, and the core concept-transfer protocol are merged. This branch expands the prerequisite graph from 89 to 133 topics across 11 curriculum fields; the remaining 64 topics and a frozen final transfer benchmark remain open.
+- PRs #144–#151 (README handoff, model-only evaluation, target provenance, concept-transfer protocol, and prerequisite expansions) merged on 2026-11-26 after all required CI workflows passed.
+- Issue #135 is being addressed incrementally. Model-only evaluation, source-specific target provenance, and the core concept-transfer protocol are merged. This branch expands the prerequisite graph from 133 to 167 topics across 14 curriculum fields; the remaining 30 topics and a frozen final transfer benchmark remain open.
 - The seed importer and the basic-arithmetic source registration are merged. They provide import tooling only; they do not mean the dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and the owner-controlled `ULTRON_SEED_IMPORT_ENABLED=true` variable.
 - No dataset import artifact, optimizer step, model training, or remote training execution is claimed. Do not enable the import gate or dispatch the workflow without separate explicit authorization.
 - Owner to-dos (not attempted): complete iPad Safari acceptance; enable Supabase Auth leaked-password protection; verify free-runtime access and checkpoint transfer from a clean iPad session.
@@ -126,6 +126,6 @@ This is core-topic readiness infrastructure, not evidence of concept mastery. Th
 
 ## University prerequisite map — 2026-11-26
 
-PRs #148–#150 established prerequisite edges for 89 topics across Foundations, Linear Algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, and Number theory. This branch adds 44 topics from Topology, Discrete mathematics and combinatorics, Probability, and Statistics, bringing coverage to 133/197. The loader validates exact field coverage, rejects dangling edges/cycles, and provides topological ordering.
+PRs #148–#151 established prerequisite edges for 133 topics across 11 curriculum fields. This branch adds 34 topics from Differential equations, Optimization and operations research, and Numerical and computational mathematics, bringing coverage to 167/197. The loader validates exact field coverage, rejects dangling edges/cycles, and provides topological ordering.
 
-The remaining 64 topics are intentionally unmapped. These edges are reviewed starting points, not proof of mastery or a universal course order. See docs/UNIVERSITY_PREREQUISITES.md.
+The remaining 30 topics are intentionally unmapped. These edges are reviewed starting points, not proof of mastery or a universal course order. See docs/UNIVERSITY_PREREQUISITES.md.
