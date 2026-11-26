@@ -80,6 +80,12 @@ class Level1TrainingDataset(Dataset):
         self.examples = tuple(examples)
         self.seed = seed
         vocab_sha256 = hashlib.sha256(self.tokenizer.vocabulary.to_json().encode("utf-8")).hexdigest()
+        self.target_contract = {
+            "source": TARGET_SOURCE,
+            "target_type": TARGET_TYPE,
+            "verifier_role": VERIFIER_ROLE,
+            "tool_outputs_in_targets": False,
+        }
         manifest_payload = {
             "schema_version": 1,
             "generator": "ultron-level1",
@@ -87,12 +93,7 @@ class Level1TrainingDataset(Dataset):
             "seed": seed,
             "count": count,
             "vocabulary_sha256": vocab_sha256,
-            "target_contract": {
-                "source": TARGET_SOURCE,
-                "target_type": TARGET_TYPE,
-                "verifier_role": VERIFIER_ROLE,
-                "tool_outputs_in_targets": False,
-            },
+            "target_contract": self.target_contract,
             "examples": [item["input_ids"].tolist() for item in self.examples],
         }
         canonical = json.dumps(manifest_payload, sort_keys=True, separators=(",", ":"))
