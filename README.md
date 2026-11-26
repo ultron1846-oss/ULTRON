@@ -58,7 +58,7 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#160 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
+- PRs #136–#161 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
@@ -169,7 +169,7 @@ This phase status records the current readiness review; it does not authorize tr
 | 5. Training-control design | **DESIGN DOCUMENTED; RUNTIME NOT CONNECTED** | Generic status/readiness page and runtime research exist. The RAM slider is a local preference, not a live resource cap. Free-runtime and clean-session acceptance remain pending. |
 | 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | PR #160 enforces ≥60M trainable parameters and guarded expansion. CI passed foundation/expansion capacity tests and compared the parameter-count formula with an instantiated small model. Foundation allocation, device resource profiling, and model capability evaluation remain unverified. |
 | 7. Training / scale-up | **NOT AUTHORIZED; NOT STARTED** | No optimizer steps, training runs, generated corpus, or remote training execution. Requires a separate explicit authorization after readiness gates. |
-| 8. Final verification / handoff | **IN PROGRESS** | README handoff updated after PR #160. Complete final verification after owner iPad acceptance; maintain exact verified/unverified boundaries. |
+| 8. Final verification / handoff | **IN PROGRESS** | README handoff updated after PR #161; main is `8d0ecf405a22ff22798b2e3166f830c0fab0175e`. Node, Python AI Core, and Level 1 Math Tooling post-merge workflows passed. Complete final verification after owner iPad acceptance; maintain exact verified/unverified boundaries. |
 
 No phase status above supersedes the training authorization gate. Keep actual training, optimizer steps, corpus generation, and remote execution disabled.
 
