@@ -1,6 +1,6 @@
 # Canonical math task serialization — schema v1
 
-**Status:** implemented and regression-tested in PR #174; final documentation-only PR validation and merge are pending.  
+**Status:** merged in PR #174 as `d62e54e1fd663cbd7c865d26a59faddb6f908b25`; final PR and six post-merge checks passed.  
 **Scope:** task/problem serialization and target projection only. This document does not authorize dataset generation or model training.
 
 ## Design
