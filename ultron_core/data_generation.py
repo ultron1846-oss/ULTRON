@@ -68,6 +68,11 @@ class MathExample:
         value["generation_parameters"] = dict(self.generation_parameters)
         return value
 
+    def to_problem(self):
+        """Adapt this legacy core record to the shared Problem schema."""
+        from ultron_core.problem import Problem
+        return Problem.from_core(self)
+
 
 def _parse_integer_polynomial(text: str) -> dict[int, int]:
     """Parse the bounded integer-polynomial grammar used by generated tasks."""
