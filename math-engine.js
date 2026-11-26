@@ -89,6 +89,7 @@ function tokenizeEquationSide(source) {
   if (source.length > MAX_EXPRESSION_LENGTH) {
     throw new Error(`Equation is too long (maximum ${MAX_EXPRESSION_LENGTH} characters).`);
   }
+  source = source.trim();
   const pattern = /\s*(((?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)|([xX])|([()+\-*/^×÷]))/gy;
   const tokens = [];
   let cursor = 0;
