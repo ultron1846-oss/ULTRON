@@ -33,6 +33,7 @@ test('equation commands teach or check attempts without revealing final answers'
 
   assert.match(executeMathToolCommand('/quadratic 1 -3 2').output,/discriminant/);
   assert.equal(executeMathToolCommand('/quadratic 1 -3 2 | 1,2').output,'Both roots are correct.');
+  assert.equal(executeMathToolCommand('/quadratic 1 2 1 | -1,-1').output,'Both roots are correct.');
   assert.match(executeMathToolCommand('/quadratic 1 -3 2 | 0,3').output,/I will not reveal the roots/);
 
   assert.match(executeMathToolCommand('/system 2 1 1 -1 5 1').output,/eliminate/);
