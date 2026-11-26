@@ -1,4 +1,6 @@
 import unittest
+from unittest.mock import patch
+
 import torch
 from ultron_core.resumable_sampler import ResumableRandomSampler
 
@@ -35,6 +37,51 @@ class Level1TrainingSourceTests(unittest.TestCase):
                 Level1TrainingDataset(count=count, seed=1, training_authorized=True)
         with self.assertRaises(ValueError):
             Level1TrainingDataset(count=1, seed=-1, training_authorized=True)
+
+
+    def test_target_provenance_is_generator_owned_and_manifested(self):
+        dataset = Level1TrainingDataset(count=3, seed=19, training_authorized=True)
+        contract = dataset.target_contract
+        self.assertEqual(contract["source"], "ultron_level1.generate_problem")
+        self.assertEqual(contract["target_type"], "generator_worked_solution")
+        self.assertEqual(contract["verifier_role"], "independent_exact_validation_only")
+        self.assertFalse(contract["tool_outputs_in_targets"])
+        for example in dataset.examples:
+            self.assertEqual(example["target_source"], contract["source"])
+            self.assertEqual(example["target_type"], contract["target_type"])
+            self.assertEqual(example["verifier_role"], contract["verifier_role"])
+
+    def test_unknown_tool_output_field_is_not_serialized_into_target(self):
+        problem = {
+            "kind": "arithmetic",
+            "difficulty": "easy",
+            "prompt": "2 + 2",
+            "expression": "2 + 2",
+            "answer": "4",
+            "steps": ["Add the two values: 4."],
+            "tool_output": "LEAKED_TOOL_RESULT_98765",
+        }
+        with patch("ultron_core.level1_training.generate_problem", return_value=problem), \
+             patch("ultron_core.level1_training.verify", return_value=True):
+            dataset = Level1TrainingDataset(count=1, seed=7, training_authorized=True)
+        decoded = dataset.tokenizer.decode(dataset[0]["input_ids"].tolist())
+        self.assertIn("Add the two values: 4.", decoded)
+        self.assertIn("Answer: 4", decoded)
+        self.assertNotIn("LEAKED_TOOL_RESULT_98765", decoded)
+
+    def test_verifier_must_return_boolean_true(self):
+        problem = {
+            "kind": "arithmetic",
+            "difficulty": "easy",
+            "prompt": "2 + 2",
+            "expression": "2 + 2",
+            "answer": "4",
+            "steps": ["Add the two values: 4."],
+        }
+        with patch("ultron_core.level1_training.generate_problem", return_value=problem), \
+             patch("ultron_core.level1_training.verify", return_value="true"):
+            with self.assertRaisesRegex(RuntimeError, "verifier rejected"):
+                Level1TrainingDataset(count=1, seed=7, training_authorized=True)
 
     def test_training_loader_is_built_only_with_authorization(self):
         with self.assertRaises(PermissionError):
