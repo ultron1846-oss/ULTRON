@@ -34,6 +34,10 @@ class LeanInterfaceContractTests(unittest.TestCase):
         self.assertIsNone(result.receipt_sha256)
         self.assertIn("fake checker", result.diagnostics[0])
 
+    def test_result_requires_source_and_environment_digests(self):
+        with self.assertRaisesRegex(ValueError, "source_sha256"):
+            ProofCheckResult(ProofCheckStatus.TYPECHECKED, "theorem_x", None, "fake")
+
     def test_fake_typecheck_result_does_not_admit_candidate_to_trust(self):
         candidate = FormulaCandidate(Expr(ExprKind.EQUAL, args=(
             Expr(ExprKind.INTEGER, value=1), Expr(ExprKind.INTEGER, value=1),
