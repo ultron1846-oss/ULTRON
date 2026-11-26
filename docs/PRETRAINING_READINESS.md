@@ -99,7 +99,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add model-only inference with command tools unavailable to the model and separate model-only/tool-assisted metric reports.
 - [x] Add core concept/prerequisite taxonomy for all eight generator topics, concept-balanced sampling, and a validated held-out concept-transfer split protocol (see `docs/CONCEPT_TRANSFER_EVALUATION.md`).
 - [x] Add an initial curated prerequisite graph for Foundations and Linear Algebra (26/197 topics) with DAG validation and topological ordering.
-- [ ] Extend concept/prerequisite mapping to the remaining 171 university curriculum topics and relevant grade-band topics.
+- [x] Extend the graph to Calculus and Real analysis (31 additional topics; 57/197 total).
+- [ ] Extend concept/prerequisite mapping to the remaining 140 university curriculum topics and relevant grade-band topics.
 - [ ] Curate a frozen concept-transfer benchmark with semantic near-duplicate review and independent answer verification.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
@@ -147,6 +148,6 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Add measured live RAM/VRAM resource cap enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
-5. Extend concept/prerequisite mapping from the eight core generator topics to the full curriculum; curate and independently verify a frozen transfer benchmark with near-duplicate review.
+5. Extend concept/prerequisite mapping to the remaining 140 university curriculum topics and relevant grade-band topics; curate and independently verify a frozen transfer benchmark with near-duplicate review.
 6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
 7. Keep real-weight training and remote execution disabled until separate explicit authorization.
