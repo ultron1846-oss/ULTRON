@@ -6,9 +6,9 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 
 ## Current status
 
-- The repository contains a Python mathematics core, bounded symbolic/exact arithmetic components, a browser workspace, curriculum generators, and agent/tool interfaces.
+- The repository contains a Python mathematics core, bounded symbolic/exact arithmetic components, an account-free browser workspace, curriculum generators, and agent/tool interfaces.
 - Training remains disabled and has not been authorized in this work. No optimizer steps, training runs, or cloud/remote execution are part of this task.
-- Seed-corpus importer work is tracked separately in open PR #136. The corpora are not claimed to be downloaded or present in the repository unless that PR’s artifact run is confirmed.
+- PRs #136–#143 are merged; issue #135 is closed after its tool-independence and concept-first acceptance requirements were implemented and tested. Seed importer/source registration is tooling only: no corpus upload or import is claimed.
 - Generator packages include Grades 1–4, 5–8, 8–12, university topics, and the core generator. A shared canonical Problem adapter and verifier interface now bridge them; the combined registry includes core topics and is checked against generator declarations. Source generator implementations remain unchanged.
 - The repository includes exact algebra components and identity checkers. These are bounded exact checks, not a formal proof kernel. Lean integration is design-only and not yet connected to a real Lean checker.
 - PR C (#139) added fixed-seed SymPy differential tests: 1,000 cases per engine area passed CI. This is a software cross-check, not a model-capability result.
@@ -26,11 +26,12 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 ### Tests and verification
 - CI contains Node and Python test suites and multiple validation/smoke workflows. Check the latest PR or Actions run for the actual status of each commit.
 - This README does not imply that every test suite was run during the current session.
-- PR C will add fixed-seed SymPy differential tests; those tests must report disagreements with reproducible inputs.
+- Fixed-seed SymPy differential tests are merged and run in CI; they are a software cross-check, not a model-capability result.
 
 ### Not implemented or not accepted
 - No trained ULTRON weights or demonstrated grade/university-level competence.
 - No approved training run, optimizer steps, corpus generation, or cloud execution.
+- The public static website requires no login or sign-up. The owner sign-in route is being removed; private Supabase records remain protected server-side and are not exposed by the frontend.
 - Lean remains design-only: an abstract checker interface and integration plan exist, but no Lean toolchain, proof receipt, or theorem-proving capability is claimed.
 - Generator implementations still use source-specific record formats internally; the common Problem adapter normalizes them at the boundary.
 - No claim that lexical tokenizer coverage means semantic/parser/model support.
@@ -53,16 +54,16 @@ The shared Problem contract and generated combined registry were added in merged
 - Exact algebra checkers emit `EXACT_CHECKED`; this status does not, by itself, admit a candidate to trusted knowledge. Trust remains fail-closed.
 - Bounded exact algebra checkers are not formal proof systems. `FORMALLY_VERIFIED` is reserved for a future genuine proof-kernel receipt.
 - Training, optimizer updates, corpus generation, cloud execution, and remote execution are disabled for the current task.
-- Do not expose secrets, change authentication/Supabase/Pages configuration, or make production changes without separate authorization.
+- Do not expose secrets or change Supabase/Pages configuration without separate authorization. The frontend must not require account authentication.
 
 ## Current handoff
 
-- PRs #136–#143 are merged. PR #134 was closed without merge and superseded by merged PR #142.
-- PRs #144–#153 (README handoff, model-only evaluation, target provenance, concept-transfer protocol, and complete university prerequisite graph) merged on 2026-11-26 after all required CI workflows passed.
-- Issue #135 acceptance implementation is complete: model-only evaluation, separate metrics, tool-disabled regression tests, generator-owned target provenance, concept-aware sampling, a tested transfer-split protocol, and a validated prerequisite graph for all 197 university topics. The issue can be closed after this handoff correction merges; no training or dataset import was performed.
-- The seed importer and the basic-arithmetic source registration are merged. They provide import tooling only; they do not mean the dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and the owner-controlled `ULTRON_SEED_IMPORT_ENABLED=true` variable.
-- No dataset import artifact, optimizer step, model training, or remote training execution is claimed. Do not enable the import gate or dispatch the workflow without separate explicit authorization.
-- Owner to-dos (not attempted): complete iPad Safari acceptance; enable Supabase Auth leaked-password protection; verify free-runtime access and checkpoint transfer from a clean iPad session.
+- PRs #136–#154 are merged; issue #135 is closed as completed.
+- PR #155 removes the owner sign-in route and browser auth module to honor the account-free website requirement; check its status before treating the change as merged.
+- The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, or training/checkpoint controls should be exposed.
+- The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
+- No dataset import artifact, optimizer step, model training, or remote execution is claimed. Do not enable the import gate or dispatch training workflows without separate explicit authorization.
+- Owner to-dos (not attempted): complete iPad Safari acceptance; enable Supabase Auth leaked-password protection in the dashboard; verify free-runtime access and checkpoint transfer from a clean iPad session.
 
 ## Brief dated history
 
@@ -135,3 +136,8 @@ This is core-topic readiness infrastructure, not evidence of concept mastery. Th
 PRs #148–#153 completed and validated the prerequisite graph for all 197 topics across 17 fields. The loader verifies exact coverage, rejects dangling edges/cycles, and provides topological ordering.
 
 These curated edges are learning dependencies, not proof of mastery or a universal course order. Grade-band prerequisite mapping and a frozen concept-transfer benchmark remain future readiness work. See docs/UNIVERSITY_PREREQUISITES.md.
+
+
+## Account-free website contract — 2026-11-26
+
+The public website has no login or sign-up requirement and no owner sign-in page. Private Supabase records remain protected on the backend and are not accessed by the static frontend. The local Memory Vault uses IndexedDB and does not sync to an account. Training remains disabled; no training, checkpoint mutation, or remote job control is exposed.
