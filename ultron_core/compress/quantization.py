@@ -77,24 +77,25 @@ def simulate_int8_quantization(
         max_abs_error = float(difference.abs().max().item()) if difference.numel() else 0.0
 
         output_error = None
+        max_absolute_output_error = None
         if sensitivity_inputs is not None and name in sensitivity_inputs:
             sample = sensitivity_inputs[name].to(
                 device=weight.device, dtype=weight.dtype
             )
             with torch.no_grad():
-                baseline = F.linear(sample, weight, original.bias)
-                perturbed = F.linear(sample, dequantized, original.bias)
-                output_norm = torch.linalg.vector_norm(baseline.to(torch.float32))
+                baseline = F.linear(sample, weight, original.bias).to(torch.float32)
+                perturbed = F.linear(sample, dequantized, original.bias).to(torch.float32)
+                output_difference = perturbed - baseline
+                output_norm = torch.linalg.vector_norm(baseline)
+                difference_norm = torch.linalg.vector_norm(output_difference)
                 output_error = (
-                    float((
-                        torch.linalg.vector_norm(
-                            perturbed.to(torch.float32) - baseline.to(torch.float32)
-                        ) / output_norm
-                    ).item())
+                    float((difference_norm / output_norm).item())
                     if float(output_norm.item()) > 0.0
-                    else float(torch.linalg.vector_norm(
-                        perturbed.to(torch.float32) - baseline.to(torch.float32)
-                    ).item())
+                    else None
+                )
+                max_absolute_output_error = (
+                    float(output_difference.abs().max().item())
+                    if output_difference.numel() else 0.0
                 )
 
         copied_layer = result.get_submodule(name)
@@ -110,6 +111,7 @@ def simulate_int8_quantization(
             "relative_weight_error": relative_weight_error,
             "max_absolute_weight_error": max_abs_error,
             "relative_output_error": output_error,
+            "max_absolute_output_error": max_absolute_output_error,
             "stored_dtype": str(weight.dtype),
         }
 

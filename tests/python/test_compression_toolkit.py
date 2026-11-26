@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 import torch
+from torch import nn
 
 from ultron_core.compress import (
     ExpertUsageCounter,
