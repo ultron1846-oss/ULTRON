@@ -39,14 +39,16 @@ class Problem:
 
     @classmethod
     def from_generator(cls, record: Mapping[str, Any], *, source: str) -> "Problem":
-        if not isinstance(record, Mapping) or not isinstance(source, str) or not source:
-            raise TypeError("record and source are required")
+        if not isinstance(record, Mapping) or not isinstance(source, str) or not source.strip():
+            raise TypeError("record and non-empty source are required")
         prompt = record.get("problem", record.get("input_text"))
         answer = record.get("answer", record.get("target_text", record.get("exact_answer")))
         topic, seed = record.get("topic"), record.get("seed")
         difficulty = record.get("difficulty", 1)
-        if not isinstance(prompt, str) or not isinstance(answer, str) or not isinstance(topic, str):
-            raise ValueError("generator record is missing prompt, answer, or topic")
+        if (not isinstance(prompt, str) or not prompt.strip()
+                or not isinstance(answer, str) or not answer.strip()
+                or not isinstance(topic, str) or not topic.strip()):
+            raise ValueError("generator record is missing non-empty prompt, answer, or topic")
         if isinstance(seed, bool) or not isinstance(seed, int):
             raise ValueError("generator record seed must be an integer")
         if isinstance(difficulty, bool) or not isinstance(difficulty, int) or difficulty < 1:
@@ -62,8 +64,9 @@ class Problem:
             "ingredients_sha256": ingredients_hash,
         }
         steps = record.get("steps", ())
-        if not isinstance(steps, (tuple, list)) or any(not isinstance(x, str) for x in steps):
-            steps = ()
+        if (not isinstance(steps, (tuple, list))
+                or any(not isinstance(item, str) or not item.strip() for item in steps)):
+            raise ValueError("generator steps must be a sequence of non-empty strings")
         metadata = tuple(sorted((str(k), str(v)) for k, v in record.items()
             if k not in {"id", "problem", "input_text", "answer", "target_text",
                           "exact_answer", "seed", "difficulty", "steps",
@@ -82,6 +85,73 @@ class Problem:
             "validation_status": example.validation_status,
         }
         return cls.from_generator(record, source="ultron_core.data_generation")
+
+    @classmethod
+    def from_dict(cls, value: Mapping[str, Any]) -> "Problem":
+        """Restore a problem document and verify its content-derived identity."""
+        required = {
+            "schema_version", "problem_id", "source", "topic", "prompt", "answer",
+            "seed", "difficulty", "normalized_text", "ingredients_sha256",
+            "steps", "metadata",
+        }
+        if not isinstance(value, Mapping) or set(value) != required:
+            raise ValueError("problem document fields do not match schema version 1")
+
+        version = value["schema_version"]
+        if isinstance(version, bool) or not isinstance(version, int) or version != PROBLEM_SCHEMA_VERSION:
+            raise ValueError("unsupported problem schema version")
+        problem_id = value["problem_id"]
+        source, topic = value["source"], value["topic"]
+        prompt, answer = value["prompt"], value["answer"]
+        seed, difficulty = value["seed"], value["difficulty"]
+        normalized, ingredients_hash = value["normalized_text"], value["ingredients_sha256"]
+        if not isinstance(problem_id, str) or not re.fullmatch(r"[0-9a-f]{64}", problem_id):
+            raise ValueError("problem_id must be a lowercase SHA-256 digest")
+        if (not isinstance(source, str) or not source.strip()
+                or not isinstance(topic, str) or not topic.strip()
+                or not isinstance(prompt, str) or not prompt.strip()
+                or not isinstance(answer, str) or not answer.strip()):
+            raise ValueError("problem source, topic, prompt, and answer must be non-empty strings")
+        if normalized != normalize_problem_text(prompt):
+            raise ValueError("normalized_text does not match the problem prompt")
+        if not isinstance(ingredients_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", ingredients_hash):
+            raise ValueError("ingredients_sha256 must be a lowercase SHA-256 digest")
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise ValueError("problem seed must be an integer")
+        if isinstance(difficulty, bool) or not isinstance(difficulty, int) or difficulty < 1:
+            raise ValueError("problem difficulty must be a positive integer")
+
+        raw_steps = value["steps"]
+        if (not isinstance(raw_steps, (list, tuple))
+                or any(not isinstance(item, str) or not item.strip() for item in raw_steps)):
+            raise ValueError("problem steps must be a sequence of non-empty strings")
+        raw_metadata = value["metadata"]
+        if not isinstance(raw_metadata, (list, tuple)):
+            raise ValueError("problem metadata must be a sequence of string pairs")
+        metadata = []
+        for pair in raw_metadata:
+            if (not isinstance(pair, (list, tuple)) or len(pair) != 2
+                    or not all(isinstance(item, str) for item in pair)):
+                raise ValueError("problem metadata must contain only string pairs")
+            metadata.append((pair[0], pair[1]))
+        if tuple(metadata) != tuple(sorted(metadata)) or len({key for key, _ in metadata}) != len(metadata):
+            raise ValueError("problem metadata keys must be unique and sorted")
+
+        identity = {
+            "schema_version": PROBLEM_SCHEMA_VERSION,
+            "source": source,
+            "topic": topic,
+            "seed": seed,
+            "difficulty": difficulty,
+            "normalized_text": normalized,
+            "ingredients_sha256": ingredients_hash,
+        }
+        if canonical_hash(identity) != problem_id:
+            raise ValueError("problem_id does not match the serialized problem identity")
+        return cls(
+            version, problem_id, source, topic, prompt, answer, seed, difficulty,
+            normalized, ingredients_hash, tuple(raw_steps), tuple(metadata),
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -110,8 +180,10 @@ class ReplayGeneratorVerifier(ProblemVerifier):
 
     def verify(self, problem: Problem) -> bool:
         try:
-            return (problem.source == self._source
+            verifier_result = self._verify_fn(self._record)
+            return (type(verifier_result) is bool
+                    and problem.source == self._source
                     and Problem.from_generator(self._record, source=self._source) == problem
-                    and bool(self._verify_fn(self._record)))
+                    and verifier_result is True)
         except (KeyError, TypeError, ValueError, ArithmeticError, ZeroDivisionError):
             return False
