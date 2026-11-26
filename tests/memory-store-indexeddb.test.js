@@ -15,7 +15,7 @@ class FakeStore {
     this.records.set(record.id, structuredClone(record));
     return this.request(record.id);
   }
-  getAll() { return this.request([...this.records.values()].map(structuredClone)); }
+  getAll() { return this.request([...this.records.values()].map(value => structuredClone(value))); }
   count() { return this.request(this.records.size); }
   clear() { this.records.clear(); return this.request(undefined); }
   request(result) {
