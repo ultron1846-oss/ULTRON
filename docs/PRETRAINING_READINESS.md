@@ -98,6 +98,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for all eight generated topics.
 - [x] Add model-only inference with command tools unavailable to the model and separate model-only/tool-assisted metric reports.
 - [x] Add core concept/prerequisite taxonomy for all eight generator topics, concept-balanced sampling, and a validated held-out concept-transfer split protocol (see `docs/CONCEPT_TRANSFER_EVALUATION.md`).
+- [x] Complete issue #135 engineering acceptance: model-only/tool-disabled evaluation, separate metrics, target leakage regression tests, concept-aware sampling, and full university prerequisite mapping. No training is authorized by this completion.
 - [x] Add an initial curated prerequisite graph for Foundations and Linear Algebra (26/197 topics) with DAG validation and topological ordering.
 - [x] Extend the graph to Calculus and Real analysis (31 additional topics; 57/197 total).
 - [x] Extend the graph to Complex analysis, Abstract algebra, and Number theory (32 additional topics; 89/197 total).
