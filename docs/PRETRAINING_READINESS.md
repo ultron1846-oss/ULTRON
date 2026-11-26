@@ -54,7 +54,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Freeze detached memory key/value/gate projections and verify actual trainable count.
 - [x] Document FP32 weights plus trainable gradient/AdamW memory estimate and limitations.
 - [x] Bind foundation vocabulary to canonical tokenizer size (240) and reserved-token IDs.
-- [ ] Freeze task serialization for problem, derivation, answer, and verifier result.
+- [ ] Freeze and validate canonical task serialization for problem, derivation, answer, and scoped verifier receipt (schema v1 implementation is under PR #174; CI validation is pending; see [TASK_SERIALIZATION.md](TASK_SERIALIZATION.md)).
 - [ ] Decide whether experimental memory/refinement remain based on ablations.
 
 **Exit criteria:** architecture reviewed, count independently reproduced, vocabulary/task format frozen.
