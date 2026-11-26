@@ -35,6 +35,29 @@ class ModelCapacityTests(unittest.TestCase):
                 num_attention_heads=8,
             )
 
+    def test_parameter_formula_matches_instantiated_small_model(self):
+        from ultron_core.model import NeuroSparseModel
+
+        config = NeuroSparseConfig(
+            vocab_size=64,
+            hidden_size=32,
+            num_layers=1,
+            num_experts=4,
+            top_k=2,
+            expert_multiplier=2,
+            fast_memory_slots=8,
+            num_attention_heads=4,
+            max_sequence_length=32,
+        )
+        model = NeuroSparseModel(config)
+        actual_total = sum(parameter.numel() for parameter in model.parameters())
+        actual_trainable = sum(
+            parameter.numel() for parameter in model.parameters()
+            if parameter.requires_grad
+        )
+        self.assertEqual(count_total_parameters(config), actual_total)
+        self.assertEqual(count_parameters(config), actual_trainable)
+
 
 if __name__ == "__main__":
     unittest.main()
