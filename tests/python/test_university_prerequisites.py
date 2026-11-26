@@ -23,9 +23,9 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 26)
+        self.assertEqual(mapping.mapped_topic_count, 57)
         self.assertEqual(mapping.source_topic_count, 197)
-        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 171)
+        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 140)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
         mapping = load_curriculum_prerequisites()
@@ -36,6 +36,14 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         for topic, parents in mapping.prerequisites.items():
             for parent in parents:
                 self.assertLess(positions[parent], positions[topic])
+
+
+    def test_calculus_and_real_analysis_edges_are_present(self):
+        mapping = load_curriculum_prerequisites()
+        self.assertTrue(mapping.is_prerequisite("power_series", "Taylor_series"))
+        self.assertTrue(mapping.is_prerequisite("derivative_theory", "Taylor_series"))
+        self.assertTrue(mapping.is_prerequisite("Cauchy_sequences", "pointwise_and_uniform_convergence"))
+        self.assertTrue(mapping.is_prerequisite("Lebesgue_measure", "Lebesgue_integral"))
 
     def test_unmapped_curriculum_topic_is_not_assumed_to_have_prerequisites(self):
         mapping = load_curriculum_prerequisites()
