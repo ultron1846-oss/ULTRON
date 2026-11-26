@@ -17,7 +17,9 @@
 - exact semantic equivalence for supported polynomial derivatives (coefficient-map comparison) and rational/integral answers (exact fractions), even when output formatting differs;
 - per-topic counts, coverage, validity, and accuracy.
 
-The evaluator does not instantiate or run a neural model. Its output sets `model_evaluated=false`, `training_performed=false`, and `proof_verified=false`.
+The offline scorer does not instantiate a model. The new `ultron_core/model_only_evaluation.py` runner performs greedy autoregressive inference by passing only token-ID tensors to the model's `forward` method; it does not import or pass command tools, tool outputs, or a tool registry. The runner sets `tools_available_to_model=false`, reports its prediction map, and scores it with the exact-answer evaluator. It restores the model's prior train/eval mode and resets mutable model memory around each independent example.
+
+`evaluate_prediction_modes` scores caller-supplied model-only and tool-assisted prediction maps separately and reports metric deltas. It does not invoke tools or generate either map. Tool-assisted scores are descriptive and must not be represented as model-only capability or used as training targets. The current CI regression uses a tiny mock model; no foundation-model evaluation or training has been performed.
 
 ## Supported scope
 

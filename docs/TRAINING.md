@@ -12,7 +12,8 @@ The repository contains an **experimental untrained PyTorch model**, an original
 - `ultron_core/checkpoint.py`: versioned model/optimizer/scheduler checkpoint, Python/Torch RNG restoration, optional data cursor bound to dataset manifest SHA-256, expected-dataset validation before state mutation, backup fallback, and transactional restore rollback.
 - `ultron_core/resumable_sampler.py`: deterministic epoch-based shuffled sampler with dataset-manifest-bound state, exact sample cursor restore, and validation against changed dataset size/hash/seed. Exact mid-epoch state requires `DataLoader(num_workers=0)` unless consumed-cursor accounting compensates for prefetch.
 - `ultron_core/benchmark.py`: synthetic-token inference timing; CI now runs a tiny CPU smoke benchmark, not a foundation-model or mathematical-quality baseline.
-- `ultron_core/evaluation.py`: schema-v3 exact-answer scoring for caller-supplied predictions, exact supported polynomial equivalence, and mutually exclusive answer-error classes; no model inference or training.
+- `ultron_core/evaluation.py`: schema-v3 exact-answer scoring for caller-supplied predictions, exact supported polynomial equivalence, and mutually exclusive answer-error classes.
+- `ultron_core/model_only_evaluation.py`: bounded greedy model-only inference with no command-tool interface passed to `forward`, plus separate model-only/tool-assisted metrics for caller-supplied prediction maps. CI tests use a tiny mock model; no foundation-model inference or training has been run.
 
 The small default config is a CI/CPU smoke model, not the >60M trainable target. The foundation config is exactly 63,400,451 total parameters and 61,826,048 trainable parameters by formula; it has not been trained. The generator's matrix tasks are exact synthetic exercises, not broad linear algebra or university-level competence.
 
