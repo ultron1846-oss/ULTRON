@@ -202,7 +202,7 @@ function answerAgent(){
   addChat('assistant','I’ll help you work it out rather than give the result immediately.\\n\\n1. Follow the order of operations: parentheses, powers, multiplication/division, then addition/subtraction.\\n2. Calculate the first operation you can do.\\n\\nSend me your intermediate result and I’ll check it.','GUIDED CALCULATION · FINAL RESULT WITHHELD');
   return;
  }
- addChat('assistant','I’ll act as a tutor, not an answer key. Tell me what you have tried or which step is confusing, and I’ll give a hint, check your work, or explain the next step without revealing the final answer immediately.','GUIDED LEARNING · TRY FIRST');
+ addChat('assistant','I’ll act as a tutor, not an answer key. Tell me what you have tried or which step is confusing, and I’ll give a hint, check your work, or explain the next step without revealing the final answer immediately. Unsupported requests are not guessed.','GUIDED LEARNING · TRY FIRST');
 }
 async function loadTrainingStatus(){
  const control=document.querySelector('#training-control-plane');
