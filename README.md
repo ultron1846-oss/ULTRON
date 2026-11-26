@@ -1044,3 +1044,10 @@ The batch is tested through the existing 300-seed replay/verifier suite plus new
 - No training, training-corpus generation, model-weight update or remote execution was performed.
 
 **Next work:** verify the post-merge main workflows and deployed GitHub Pages. Then expand the remaining university and Grade 1–12 generator gaps in a single planned batch with registry parity and independent mathematical checks. Continue adding real tools only with tests. Training remains disabled pending separate authorization.
+
+
+## Guided learning: no automatic final answers (2026-11-26)
+
+The Math Agent's ordinary learner-input path is now tutor-first. For word problems, arithmetic questions and supported linear equations, it gives a setup hint or first-step strategy and asks the learner to attempt the next step. It does not automatically evaluate the parsed word-problem result, arithmetic expression or equation to reveal the final answer. Unsupported questions receive a prompt to show work or ask for a hint.
+
+Slash commands are opt-in tools: the learner must type a command explicitly. Graphing is a visualization tool; numerical/calculator commands operate on the specific expression or operation requested. They are not automatically called by normal question text. This distinction keeps the conversational tutor from acting as an answer key, while explicit calculator commands can still return the requested calculation. Regression tests assert the normal-answer handler does not call the final-answer arithmetic or equation solvers.
