@@ -75,3 +75,8 @@ See [docs/HISTORY.md](docs/HISTORY.md) for the preserved milestone detail and [d
 ## Guided learning and command independence — 2026-11-26
 
 The Math Agent's ordinary input path gives hints and requests an intermediate attempt instead of automatically revealing arithmetic, word-problem, or equation answers. Slash commands are explicit tools, but equation-solving commands are also tutor-first: they provide a first-step hint or check a learner-submitted attempt without displaying the correct final value. `/calc` requires the learner's proposed result and reports only whether it matches. Graphing and table/numerical tools remain scoped to the requested visualization or operation. See `tests/guided-learning.test.js` and `tests/math-tools.test.js` for regressions. This is deterministic tutoring/tool behavior, not trained-model capability.
+
+
+## Cognitive behavior profile hardening — 2026-11-26
+
+The cognitive behavior profile now rejects non-finite numeric weights (`NaN`, positive infinity, and negative infinity) and exposes factuality, conversational naturalness, creativity, and empathy/context weights in the selected runtime policy. Regression tests cover every numeric weight and customized policy values. This remains a configuration contract—not evidence of trained capability. No training or data import was performed.
