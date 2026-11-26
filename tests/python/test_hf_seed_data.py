@@ -109,6 +109,14 @@ class HuggingFaceSeedDataTests(unittest.TestCase):
             self.assertFalse(output.exists())
             self.assertEqual(list(Path(temp).glob(".ultron-seed-stage-*")), [])
 
+    def test_import_workflow_is_manual_and_disabled_by_default(self):
+        workflow_path = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "import-hf-seed-data.yml"
+        workflow = workflow_path.read_text(encoding="utf-8")
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertNotIn("\n  push:", workflow)
+        self.assertIn("inputs.confirm_download == true", workflow)
+        self.assertIn("vars.ULTRON_SEED_IMPORT_ENABLED == 'true'", workflow)
+
     def test_hash_split_is_deterministic_and_has_all_buckets(self):
         splits = {split_for_question(f"{i:02x}" + "0" * 62, self.config) for i in range(256)}
         self.assertEqual(splits, {"train", "validation", "test"})
