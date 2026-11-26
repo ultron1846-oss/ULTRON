@@ -4,7 +4,7 @@
 
 `ultron_core/rational_verifier.py` verifies identities between supported exact rational functions. It converts both sides to `RationalFunction` objects, preserves their normalized non-zero domain constraints, and cross-multiplies the numerator/denominator pairs using bounded exact polynomial arithmetic.
 
-- `FORMALLY_VERIFIED`: the exact cross-multiplied polynomial difference is zero. The rational functions are equal wherever both expressions are defined.
+- `EXACT_CHECKED`: the exact cross-multiplied polynomial difference is zero. The rational functions are equal wherever both expressions are defined.
 - `REJECTED`: the cross-multiplied polynomial difference is non-zero, so the rational functions are not identical.
 - `UNRESOLVED`: the expression is unsupported, has unparsed assumptions/domain annotations, or exceeds a resource limit.
 
@@ -29,3 +29,6 @@ Canonical JSON records the expression hash, limits, normalized numerator/denomin
 `FormulaCandidate.can_enter_trusted_knowledge()` remains fail-closed. A rational identity result is not itself a candidate-bound trusted-knowledge receipt and does not authorize knowledge promotion.
 
 This is a restricted exact algebraic verifier, not a general theorem prover, and it does not establish autonomous formula discovery or learned mathematical capability.
+
+
+`EXACT_CHECKED` reports exact rational-function equality on the common domain; it is not formal proof-kernel verification. `FORMALLY_VERIFIED` is reserved for a future validated Lean/proof-kernel receipt. Legacy certificates with the former checker status are rejected by canonical revalidation.

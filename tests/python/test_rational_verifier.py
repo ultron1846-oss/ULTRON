@@ -46,7 +46,7 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         x = symbol("x")
         candidate = equal(divide(x, x), integer(1))
         result = verify_rational_identity(candidate)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertEqual(result.difference_terms, ())
         self.assertEqual(len(result.domain_constraints), 1)
         self.assertEqual(result.domain_constraints[0].evaluate({"x": 0}), 0)
@@ -59,7 +59,7 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         x = symbol("x")
         candidate = equal(power(x, -1), divide(integer(1), x))
         result = verify_rational_identity(candidate)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertEqual(len(result.domain_constraints), 1)
 
     def test_rejects_nonidentical_rational_functions(self):
@@ -74,7 +74,7 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         denominator = subtract(x, integer(1))
         expression = divide(integer(1), denominator)
         result = verify_rational_identity(equal(expression, expression))
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertEqual(len(result.domain_constraints), 1)
         self.assertEqual(result.domain_constraints[0].evaluate({"x": 1}), 0)
         with self.assertRaises(RationalDomainError):
@@ -115,8 +115,16 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         x = symbol("x")
         candidate = FormulaCandidate(equal(divide(x, x), integer(1)))
         result = verify_rational_identity(candidate)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertFalse(candidate.can_enter_trusted_knowledge())
+
+    def test_legacy_formal_status_certificate_is_rejected(self):
+        x = symbol("x")
+        candidate = equal(divide(x, x), integer(1))
+        result = verify_rational_identity(candidate)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
+        legacy = result.certificate_json.replace('"status":"exact_checked"', '"status":"formally_verified"')
+        self.assertFalse(validate_rational_identity_certificate(candidate, legacy))
 
 
 if __name__ == "__main__":

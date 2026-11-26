@@ -41,7 +41,7 @@ class PolynomialIdentityVerifierTests(unittest.TestCase):
             add(power(x, 2), multiply(integer(2), x, y), power(y, 2)),
         )
         result = verify_polynomial_identity(candidate)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertEqual(result.difference_terms, ())
         self.assertIn("zero polynomial over Q", result.note)
         self.assertIsNotNone(result.certificate_sha256)
@@ -64,7 +64,7 @@ class PolynomialIdentityVerifierTests(unittest.TestCase):
             x,
         )
         result = verify_polynomial_identity(candidate)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
 
     def test_variable_denominator_is_unresolved_not_assumed_safe(self):
         x = symbol("x")
@@ -126,7 +126,7 @@ class PolynomialIdentityVerifierTests(unittest.TestCase):
         candidate = equal(add(x, integer(1)), add(integer(1), x))
         limits = PolynomialLimits(max_total_degree=16, max_terms=256, max_exponent=16)
         result = verify_polynomial_identity(candidate, limits=limits)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertTrue(validate_polynomial_identity_certificate(candidate, result.certificate_json))
 
     def test_verifier_rejects_limits_above_hard_resource_caps(self):
@@ -141,8 +141,16 @@ class PolynomialIdentityVerifierTests(unittest.TestCase):
         x = symbol("x")
         candidate = FormulaCandidate(equal(add(x, integer(0)), x))
         result = verify_polynomial_identity(candidate)
-        self.assertEqual(result.status, VerificationStatus.FORMALLY_VERIFIED)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
         self.assertFalse(candidate.can_enter_trusted_knowledge())
+
+    def test_legacy_formal_status_certificate_is_rejected(self):
+        x = symbol("x")
+        candidate = equal(add(x, integer(1)), add(integer(1), x))
+        result = verify_polynomial_identity(candidate)
+        self.assertEqual(result.status, VerificationStatus.EXACT_CHECKED)
+        legacy = result.certificate_json.replace('"status":"exact_checked"', '"status":"formally_verified"')
+        self.assertFalse(validate_polynomial_identity_certificate(candidate, legacy))
 
 
 if __name__ == "__main__":

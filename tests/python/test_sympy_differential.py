@@ -101,7 +101,7 @@ class SympyDifferential(unittest.TestCase):
    if i%2:lhs,rhs=p.multiply(q).to_expr(),q.multiply(p).to_expr()
    else:lhs,rhs=p.add(q).to_expr(),p.add(q.scale(-1)).to_expr()
    result=verify_polynomial_identity(Expr(ExprKind.EQUAL,args=(lhs,rhs)));want=sp.expand(sym(lhs)-sym(rhs))==0
-   self.assertEqual(result.status.value=="formally_verified",bool(want),msg=f"seed=9011 case={i} lhs={sym(lhs)} rhs={sym(rhs)}")
+   self.assertEqual(result.status.value=="exact_checked",bool(want),msg=f"seed=9011 case={i} lhs={sym(lhs)} rhs={sym(rhs)}")
  def test_rational_identity_1000(self):
   r=random.Random(0xA471F)
   for i in range(N):
@@ -109,6 +109,6 @@ class SympyDifferential(unittest.TestCase):
    lhs=Expr(ExprKind.DIV,args=(p.to_expr(),q.to_expr()))
    rhs=Expr(ExprKind.DIV,args=(p.multiply(u).to_expr(),q.multiply(u).to_expr())) if i%2 else Expr(ExprKind.DIV,args=(u.to_expr(),v.to_expr()))
    result=verify_rational_identity(Expr(ExprKind.EQUAL,args=(lhs,rhs)));want=sp.cancel(sym(lhs)-sym(rhs))==0
-   self.assertEqual(result.status.value=="formally_verified",bool(want),msg=f"seed=A471F case={i} lhs={sym(lhs)} rhs={sym(rhs)}")
+   self.assertEqual(result.status.value=="exact_checked",bool(want),msg=f"seed=A471F case={i} lhs={sym(lhs)} rhs={sym(rhs)}")
 
 if __name__=="__main__":unittest.main()
