@@ -92,3 +92,10 @@ The importer test suite now verifies that the workflow has no push trigger and i
 ## Seed-data import authorization boundary — 2026-11-26
 
 The Hugging Face seed importer is available as tooling only. Its workflow has no push trigger and runs only when the manual confirm_download input is true and the owner-controlled repository variable ULTRON_SEED_IMPORT_ENABLED is set to true. That variable remains unset. Offline mocked tests validate the importer; no dataset download, corpus import, optimizer step, or training run was performed. Do not enable the variable or dispatch the workflow until separate explicit authorization is given.
+
+
+## Basic arithmetic seed source preparation — 2026-11-26
+
+Added the MIT-licensed `ChrisMcCormick/basic-arithmetic` Hugging Face training split (10,000 source rows) to the seed importer registry. The importer independently validates arithmetic against integer operands, accepts only exact integer division, limits operand magnitude to 10,000, rejects mismatched answers/unsupported operations, and marks these records as answer-only rather than worked reasoning. Validation and test splits are not configured for import.
+
+This is source/importer support only. No dataset rows have been downloaded or uploaded, no workflow was dispatched, and no training or optimizer step occurred. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`. Review the PR and run the gated workflow separately to produce the seed-data artifact.
