@@ -40,8 +40,8 @@ def _serialize_generator_problem(problem: dict) -> str:
     if (not isinstance(steps, list) or not steps
             or any(not isinstance(step, str) or not step.strip() for step in steps)):
         raise ValueError("generator problem must contain non-empty worked steps")
-    return ("Question: " + prompt + "\\nWorking:\\n"
-            + "\\n".join(steps) + "\\nAnswer: " + answer)
+    return ("Question: " + prompt + "\nWorking:\n"
+            + "\n".join(steps) + "\nAnswer: " + answer)
 
 
 class Level1TrainingDataset(Dataset):
@@ -64,11 +64,9 @@ class Level1TrainingDataset(Dataset):
         for index in range(count):
             difficulty = DIFFICULTIES[index % len(DIFFICULTIES)]
             problem = generate_problem(rng, difficulty)
-            if not verify(problem, problem["answer"]):
+            if verify(problem, problem["answer"]) is not True:
                 raise RuntimeError(f"Level 1 verifier rejected generated example at index {index}")
-            text = ("Question: " + problem["prompt"] + "\nWorking:\n"
-                    + "\n".join(problem["steps"]) + "\nAnswer: "
-                    + problem["answer"])
+            text = _serialize_generator_problem(problem)
             token_ids = self.tokenizer.encode(text, add_bos=True, add_eos=True)
             if len(token_ids) < 3:
                 raise RuntimeError("generated training sequence is too short")
