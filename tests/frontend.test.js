@@ -60,21 +60,19 @@ test('math agent uses the existing deterministic math engine', async () => {
 });
 
 
-test('Supabase backend page documents the audited contract without exposing owner-only controls', async () => {
+test('Supabase backend page exposes generic read-only status without login', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const backend = await readFile(new URL('../supabase-integration.js', import.meta.url), 'utf8');
   assert.match(html, /data-page="backend"/);
   assert.match(app, /renderBackend/);
-  assert.match(backend, /device-control/);
-  assert.match(backend, /training-control/);
-  assert.match(backend, /owner-session gated/);
+  assert.match(app, /Account-free public website/);
+  assert.match(app, /training-control public_status action/);
+  assert.doesNotMatch(app, /renderOwner|owner sign in|Owner Sign-in page|protected health action|owner-auth\.js/);
   assert.match(backend, /public_status/);
-  assert.match(backend, /ultron1846-oss\/ULTRON/);
   assert.doesNotMatch(backend, /service_role|sb_secret_|ULTRON_GITHUB_TOKEN/);
   assert.doesNotMatch(app, /functions\.invoke|fetch\([^)]*training-control|fetch\([^)]*device-control/);
 });
-
 
 test('Pages uses the built-in deployment and root runtime assets', async () => {
   await assert.rejects(readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8'), { code: 'ENOENT' });
