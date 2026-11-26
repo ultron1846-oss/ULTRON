@@ -189,17 +189,17 @@ function answerAgent(){
    multiplication:'Hint: look for equal groups or “each”/“per”. Write the number of groups × amount in each group.',
    division:'Hint: identify the total and how many equal groups (or the size of each group). Choose the matching division setup.'
   }[wordProblem.operation]||'Hint: underline the known quantities and identify what the question asks you to find';
-  addChat('assistant','Let’s solve it together. '+hint+'\\n\\nTry the first calculation and send me your answer. I’ll check your work and give the next hint without jumping straight to the final answer.','GUIDED LEARNING · ANSWER WITHHELD');
+  addChat('assistant','Let’s solve it together. '+hint+'\n\nTry the first calculation and send me your answer. I’ll check your work and give the next hint without jumping straight to the final answer.','GUIDED LEARNING · ANSWER WITHHELD');
   return;
  }
  const equation=raw.match(/(?:solve\s+)?([0-9xX+*/().\s^=-]+=[0-9xX+*/().\s^=-]+)/i);
  const expression=raw.replace(/^(what is|calculate|compute)\s+/i,'').replace(/[?]$/,'').trim();
  if(equation){
-  addChat('assistant','Let’s solve this step by step. First, simplify each side and collect the terms containing x on one side. Then isolate x by undoing the remaining operation.\\n\\nTry that first step and tell me what equation you get; I’ll check it.','GUIDED EQUATION MODE · FINAL VALUE WITHHELD');
+  addChat('assistant','Let’s solve this step by step. First, simplify each side and collect the terms containing x on one side. Then isolate x by undoing the remaining operation.\n\nTry that first step and tell me what equation you get; I’ll check it.','GUIDED EQUATION MODE · FINAL VALUE WITHHELD');
   return;
  }
  if(/^[0-9+*/().\s^×÷−-]+$/.test(expression)){
-  addChat('assistant','I’ll help you work it out rather than give the result immediately.\\n\\n1. Follow the order of operations: parentheses, powers, multiplication/division, then addition/subtraction.\\n2. Calculate the first operation you can do.\\n\\nSend me your intermediate result and I’ll check it.','GUIDED CALCULATION · FINAL RESULT WITHHELD');
+  addChat('assistant','I’ll help you work it out rather than give the result immediately.\n\n1. Follow the order of operations: parentheses, powers, multiplication/division, then addition/subtraction.\n2. Calculate the first operation you can do.\n\nSend me your intermediate result and I’ll check it.','GUIDED CALCULATION · FINAL RESULT WITHHELD');
   return;
  }
  addChat('assistant','I’ll act as a tutor, not an answer key. Tell me what you have tried or which step is confusing, and I’ll give a hint, check your work, or explain the next step without revealing the final answer immediately. Unsupported requests are not guessed.','GUIDED LEARNING · TRY FIRST');
