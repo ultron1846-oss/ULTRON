@@ -58,14 +58,14 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#162 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
+- PRs #136–#163 are merged; issue #135 is closed as completed. PR #163 merged at `cca21b1c5d701684a125abbfb4193ef6a04cd121`; its required Node, Python AI Core, and Level 1 Math Tooling checks passed on head `5b3b0eccc669d9ab124b4c9ea49ea8cbb8004247`.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
 - No dataset import artifact, optimizer step, model training, or remote execution is claimed. Do not enable the import gate or dispatch training workflows without separate explicit authorization.
 - PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md; PR #158 refreshed the README handoff. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
 - The 2–10 GB slider is a browser-local preference only. It does not allocate physical RAM or control a hosted runtime; connecting it to an approved runtime configuration and live memory cap remains unfinished.
-- Latest Pages deployment run #146 succeeded for commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; the deployment job reported success. The public URL and interactive behavior have not been independently verified from this session.
+- Latest Pages build/deploy run #45793501681 succeeded for PR #163 merge commit `cca21b1c5d701684a125abbfb4193ef6a04cd121`. The deployment job is verified; actual Safari rendering and iPad interaction remain unverified.
 - Owner to-do (manual, not attempted): open https://ultron1846-oss.github.io/ULTRON/ in iPad Safari and complete docs/IPAD_FRONTEND_ACCEPTANCE.md. Later runtime readiness must verify free-runtime availability and safe checkpoint portability through a separate approved runtime design; the current account-free website has no checkpoint transfer controls. Supabase Auth leaked-password protection is a separate backend dashboard security setting and is not required for the public frontend.
 
 ## Brief dated history
@@ -181,7 +181,7 @@ ULTRON's foundation model target is **at least 60,000,000 trainable parameters**
 
 ## Phase 2 Math Agent, Memory Vault and security recheck — 2026-11-26
 
-A follow-up implementation branch adds comprehensive math parser coverage, expands the deterministic linear equation grammar to support fractional/decimal coefficients and grouped linear expressions, and explicitly rejects nonlinear or unsupported equations without fabricating a result. See [Math Agent input contract](docs/MATH_AGENT_INPUTS.md). The conversational Math Agent remains tutor-first and does not reveal final answers.
+PR #163 adds comprehensive math parser coverage, expands the deterministic linear equation grammar to support fractional/decimal coefficients and grouped linear expressions, and explicitly rejects nonlinear or unsupported equations without fabricating a result. See [Math Agent input contract](docs/MATH_AGENT_INPUTS.md). The conversational Math Agent remains tutor-first and does not reveal final answers.
 
 The local Memory Vault implementation now validates backup size and store names, rejects malformed generic record IDs, deduplicates duplicate IDs in an imported backup (last entry wins), and preserves merge-by-ID behavior. Automated IndexedDB contract tests cover save/list/reload persistence, simulated storage-write failure and retry, export/import round-trip, duplicate handling, malformed/oversized backup rejection, and local merge behavior. Browser real-world persistence still requires manual Safari testing.
 
@@ -190,3 +190,13 @@ Responsive/keyboard contract tests cover narrow layouts, portrait and landscape 
 The live Supabase policy and deployed-function review was repeated read-only on 2026-11-26. All nine inspected public tables have RLS enabled; the six owner-linked tables retain owner-only policies with both USING and WITH CHECK; anon has no SELECT grants; authenticated has no TRUNCATE; and the inspected public SECURITY DEFINER function is not executable by anon/authenticated. The security advisor still reports leaked-password protection disabled (owner dashboard action required) and three informational RLS-without-policy findings for retired pairing/device tables. See [Phase 3 security audit](docs/SECURITY_AUDIT_PHASE3.md).
 
 No Supabase configuration was changed, no dataset was imported, and no training, optimizer step, corpus generation, or remote execution was performed.
+
+
+## Latest handoff — 2026-11-26
+
+- PR #163 is merged; merge commit: `cca21b1c5d701684a125abbfb4193ef6a04cd121`.
+- PR-head checks passed: Node tests, Python AI Core, and Level 1 Math Tooling. Main post-merge checks were re-run; Node and Level 1 passed, Python CPU regression/smoke was still running at the time of this README update.
+- GitHub Pages build/deploy run #45793501681 succeeded for the PR #163 merge commit.
+- Phase 2 automated work is complete for Math Agent parser/input validation, Memory Vault import/export hardening, and responsive/keyboard/storage contract tests. These do not substitute for manual Safari acceptance.
+- Remaining owner/device actions: (1) enable Supabase Auth leaked-password protection in the project dashboard, then re-run security advisors and final policy/endpoint review; (2) test the deployed site on an actual iPad Safari in portrait and landscape and record results.
+- Continue the remaining Phase 1 specification and Phase 4 task-serialization/architecture items before any training. No training, optimizer step, dataset import/generation, or remote execution was performed.
