@@ -195,7 +195,7 @@ No Supabase configuration was changed, no dataset was imported, and no training,
 ## Latest handoff — 2026-11-26
 
 - PR #163 is merged; merge commit: `cca21b1c5d701684a125abbfb4193ef6a04cd121`.
-- PR-head checks passed: Node tests, Python AI Core, and Level 1 Math Tooling. Main post-merge checks were re-run; Node and Level 1 passed, Python CPU regression/smoke was still running at the time of this README update.
+- PR-head checks passed: Node tests, Python AI Core, and Level 1 Math Tooling. Main post-merge checks all passed: Node, Python AI Core (including CPU forward/backward smoke), and Level 1 Math Tooling. Pages build and deploy also passed.
 - GitHub Pages build/deploy run #45793501681 succeeded for the PR #163 merge commit.
 - Phase 2 automated work is complete for Math Agent parser/input validation, Memory Vault import/export hardening, and responsive/keyboard/storage contract tests. These do not substitute for manual Safari acceptance.
 - Remaining owner/device actions: (1) enable Supabase Auth leaked-password protection in the project dashboard, then re-run security advisors and final policy/endpoint review; (2) test the deployed site on an actual iPad Safari in portrait and landscape and record results.
