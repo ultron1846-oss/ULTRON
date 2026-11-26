@@ -17,6 +17,7 @@ from .problem import Problem, ProblemVerifier
 TASK_SCHEMA_VERSION = 1
 VERIFICATION_RECEIPT_SCHEMA_VERSION = 1
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
+_ALLOWED_VERIFIED_FIELDS = ("problem", "derivation", "answer")
 
 
 def _canonical_json(value: Any) -> str:
@@ -50,12 +51,13 @@ def _reject_duplicate_object_keys(pairs):
 
 @dataclass(frozen=True)
 class VerificationReceipt:
-    """Versioned record of one verifier's boolean result for one problem."""
+    """Versioned record of one verifier's result and the fields it checked."""
 
     schema_version: int
     verifier_id: str
     verifier_version: str
     outcome: str
+    verified_fields: tuple[str, ...]
     subject_sha256: str
 
     def __post_init__(self) -> None:
@@ -69,6 +71,17 @@ class VerificationReceipt:
                 raise ValueError(f"{name} must be non-empty text")
         if self.outcome not in ("verified", "rejected"):
             raise ValueError("verification outcome must be verified or rejected")
+        if (not isinstance(self.verified_fields, tuple)
+                or any(field not in _ALLOWED_VERIFIED_FIELDS for field in self.verified_fields)
+                or len(set(self.verified_fields)) != len(self.verified_fields)
+                or self.verified_fields != tuple(
+                    field for field in _ALLOWED_VERIFIED_FIELDS
+                    if field in self.verified_fields
+                )
+                or not {"problem", "answer"} <= set(self.verified_fields)):
+            raise ValueError(
+                "verified_fields must be an ordered subset containing problem and answer"
+            )
         if not isinstance(self.subject_sha256, str) or not _SHA256_RE.fullmatch(self.subject_sha256):
             raise ValueError("subject_sha256 must be a lowercase SHA-256 digest")
 
@@ -85,43 +98,55 @@ class VerificationReceipt:
             raise TypeError("problem must be a Problem")
         if not callable(getattr(verifier, "verify", None)):
             raise TypeError("verifier must provide verify(problem)")
+        scope_provider = getattr(verifier, "verified_fields", None)
+        if not callable(scope_provider):
+            raise TypeError("verifier must declare verified_fields(problem)")
         # Re-validate even directly constructed Problem objects before a receipt
         # is bound to them.
         validated_problem = Problem.from_dict(problem.to_dict())
         result = verifier.verify(validated_problem)
         if type(result) is not bool:
             raise TypeError("problem verifier must return a boolean")
+        verified_fields = scope_provider(validated_problem)
+        if not isinstance(verified_fields, (tuple, list)):
+            raise TypeError("verified_fields must be a tuple or list")
         return cls(
             VERIFICATION_RECEIPT_SCHEMA_VERSION,
             verifier_id,
             verifier_version,
             "verified" if result else "rejected",
+            tuple(verified_fields),
             _problem_subject_sha256(validated_problem),
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        value = asdict(self)
+        value["verified_fields"] = list(self.verified_fields)
+        return value
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "VerificationReceipt":
         required = {
             "schema_version", "verifier_id", "verifier_version",
-            "outcome", "subject_sha256",
+            "outcome", "verified_fields", "subject_sha256",
         }
         if not isinstance(value, Mapping) or set(value) != required:
             raise ValueError("verification receipt fields do not match schema version 1")
+        fields = value["verified_fields"]
+        if not isinstance(fields, (list, tuple)):
+            raise ValueError("verification receipt verified_fields must be a list")
         return cls(
             value["schema_version"], value["verifier_id"], value["verifier_version"],
-            value["outcome"], value["subject_sha256"],
+            value["outcome"], tuple(fields), value["subject_sha256"],
         )
 
 
 @dataclass(frozen=True)
 class MathTaskRecord:
-    """Canonical full task record: problem + derivation/answer + verifier receipt.
+    """Canonical task envelope: source problem, derivation, answer, and receipt.
 
     The problem's `steps` field is the derivation and its `answer` field is the
-    answer. `to_training_target_dict` exports only prompt, derivation and answer.
+    answer. Training export requires the receipt to cover all three target fields.
     """
 
     schema_version: int
@@ -167,7 +192,11 @@ class MathTaskRecord:
 
     @property
     def training_eligible(self) -> bool:
-        return self.verification.outcome == "verified"
+        return (
+            self.verification.outcome == "verified"
+            and self.verification.verified_fields == _ALLOWED_VERIFIED_FIELDS
+            and bool(self.problem.steps)
+        )
 
     def to_dict(self) -> dict[str, Any]:
         payload = {
@@ -209,7 +238,9 @@ class MathTaskRecord:
     def to_training_target_dict(self) -> dict[str, Any]:
         """Export only allowlisted supervised fields; verifier metadata is excluded."""
         if not self.training_eligible:
-            raise ValueError("rejected tasks cannot be exported as training targets")
+            raise ValueError(
+                "training target requires verified problem, derivation, and answer fields"
+            )
         return {
             "problem": self.problem.prompt,
             "derivation": list(self.problem.steps),
