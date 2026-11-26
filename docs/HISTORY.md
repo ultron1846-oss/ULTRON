@@ -854,3 +854,14 @@ Added 20 exact, deterministic, seed-replayable university templates: proof metho
 The batch is tested through the existing 300-seed replay/verifier suite plus new 100–150 seed tests and independent formula checks. These are narrow templates, not general solvers or trained ability. No dataset was generated and no training or remote execution was started.
 
 **PR #133 scope:** calculator/numerical commands, command directory/help, equation tools, and this 20-topic university generator batch. CI must pass on the final PR head before merge. The next work is to inspect any CI failures, fix them, then merge only after checks pass and review is clean. Stage 6 is a broad batch, not complete coverage of the full 197-topic university catalog.
+
+
+## Phase 2 input, memory and security acceptance work — 2026-11-26
+
+- Added a published deterministic Math Agent input contract. Arithmetic parser now supports leading-dot decimals and scientific notation; the linear solver supports affine expressions, fractional/decimal coefficients, grouping, implicit coefficient multiplication, and division by constants while rejecting nonlinear/multi-variable forms. Regression coverage includes precedence, fractions/decimals, negative values, powers/roots, empty and overlong input, unsafe symbols, malformed equations, and non-finite results.
+- Math Agent conversational mode validates equation syntax before giving a tutor hint. Unsupported equations are explicitly labeled and no guessed solution is emitted. It remains answer-withheld for ordinary input.
+- Hardened local Memory Vault backup handling with a 20 MB serialized-size limit, 50,000-record limit, recognized-store validation, required IDs for generic imported records, duplicate-ID deduplication (last record wins), and deterministic merge-by-ID. Added IndexedDB persistence/failure/retry/export/import tests with a simulated storage implementation.
+- Added automated responsive/keyboard/storage contract tests and a narrow-landscape layout rule. These are static contract tests; manual iPad Safari acceptance remains pending.
+- Re-ran Supabase security advisors and read-only SQL policy/grant review. All nine inspected public tables have RLS enabled; anon has no SELECT privileges; authenticated has no TRUNCATE; six owner-linked tables retain owner-only policies with USING and WITH CHECK. The inspected public SECURITY DEFINER function is not executable by anon/authenticated.
+- Deployed training-control v8 was reviewed: public status is generic/read-only; owner actions validate bearer identity and owner ID; start dispatches only the CPU diagnostic workflow, not model training. device-control v4 remains HTTP 410.
+- Security advisor still reports leaked-password protection disabled and three informational no-policy findings on retired pairing/device tables. Owner dashboard action is outstanding. No database/Auth settings were changed.
