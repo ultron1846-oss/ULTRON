@@ -35,6 +35,40 @@ class HuggingFaceSeedDataTests(unittest.TestCase):
         self.assertTrue(contains_program_or_tool_output("The tool returned 42."))
         self.assertFalse(contains_program_or_tool_output("First simplify the fraction, then compare."))
 
+    def test_basic_arithmetic_source_is_registered_and_train_only(self):
+        source = next(item for item in self.config["sources"] if item["id"] == "basic_arithmetic")
+        self.assertEqual(source["repo_id"], "ChrisMcCormick/basic-arithmetic")
+        self.assertEqual(source["split"], "train")
+        self.assertEqual(source["dataset_license"], "MIT")
+        self.assertEqual(source["expected_rows"], 10000)
+
+    def test_basic_arithmetic_accepts_only_exact_verified_operations(self):
+        cases = [
+            ({"question": "What is 12 + 5?", "answer": 17.0, "op": "+", "a": 12, "b": 5}, "17"),
+            ({"question": "What is 7 - 12?", "answer": -5.0, "op": "-", "a": 7, "b": 12}, "-5"),
+            ({"question": "What is 6 * 7?", "answer": 42.0, "op": "*", "a": 6, "b": 7}, "42"),
+            ({"question": "What is 12 / 3?", "answer": 4.0, "op": "/", "a": 12, "b": 3}, "4"),
+        ]
+        for row, expected in cases:
+            record = normalize_row("basic_arithmetic", row, 0, "c" * 40, self.config)
+            self.assertIsNotNone(record)
+            self.assertEqual(record["reasoning_answer"], expected)
+            self.assertEqual(record["target_kind"], "answer_only")
+            self.assertEqual(record["dataset_repo"], "ChrisMcCormick/basic-arithmetic")
+            self.assertEqual(record["source_license"], "MIT")
+
+    def test_basic_arithmetic_rejects_bad_answers_and_unsafe_or_nonbasic_rows(self):
+        invalid_rows = [
+            {"question": "bad answer", "answer": 99, "op": "+", "a": 2, "b": 3},
+            {"question": "fractional division", "answer": 1.5, "op": "/", "a": 3, "b": 2},
+            {"question": "zero divisor", "answer": 0, "op": "/", "a": 3, "b": 0},
+            {"question": "too large", "answer": 20001, "op": "+", "a": 20000, "b": 1},
+            {"question": "unsupported operation", "answer": 2, "op": "^", "a": 1, "b": 2},
+            {"question": "bool operand", "answer": 2, "op": "+", "a": True, "b": 1},
+        ]
+        for row in invalid_rows:
+            self.assertIsNone(normalize_row("basic_arithmetic", row, 0, "d" * 40, self.config))
+
     def test_metamath_row_provenance(self):
         row = {"query":" Solve 2 + 2 ", "response":" Add the numbers. Answer: 4 ", "type":"GSM_Rephrased"}
         normalized = normalize_row("metamathqa", row, 0, "a" * 40, self.config)
