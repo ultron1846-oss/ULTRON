@@ -1,15 +1,16 @@
 /** Typed source for ULTRON's deterministic browser math engine.
  * The compiled math-engine.js remains the static GitHub Pages runtime.
  */
-
-const tokenPattern: RegExp = /\s*(?:(\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)|([()+\-*\/^×÷]))/gy;
+const MAX_EXPRESSION_LENGTH = 240;
+const MAX_TOKENS = 120;
+const tokenPattern: RegExp = /\s*(((?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)|([()+\-*/^×÷]))/gy;
 
 export type LinearEquationSolution =
   | { kind: 'unique'; value: number }
   | { kind: 'all-real' }
   | { kind: 'none' };
 
-interface LinearExpression {
+interface Affine {
   coefficient: number;
   constant: number;
 }
@@ -18,21 +19,22 @@ export function tokenize(source: string): string[] {
   if (typeof source !== 'string' || source.trim() === '') {
     throw new Error('Enter a mathematical expression.');
   }
-  if (source.length > 240) {
-    throw new Error('Expression is too long (maximum 240 characters).');
+  if (source.length > MAX_EXPRESSION_LENGTH) {
+    throw new Error(`Expression is too long (maximum ${MAX_EXPRESSION_LENGTH} characters).`);
   }
-
   source = source.trim();
   const tokens: string[] = [];
   let cursor = 0;
-
   while (cursor < source.length) {
     tokenPattern.lastIndex = cursor;
     const match = tokenPattern.exec(source);
-    if (!match) throw new Error(`Unsupported character at position ${cursor + 1}.`);
-    const token = match[1] ?? match[2];
+    if (!match) throw new Error(`Unsupported character or format at position ${cursor + 1}.`);
+    const token = match[1];
     if (token === undefined) throw new Error('Invalid token.');
     tokens.push(token);
+    if (tokens.length > MAX_TOKENS) {
+      throw new Error(`Expression has too many parts (maximum ${MAX_TOKENS}).`);
+    }
     cursor = tokenPattern.lastIndex;
   }
   return tokens;
@@ -51,14 +53,13 @@ export function evaluateExpression(source: string): number {
       if (take() !== ')') throw new Error('Missing closing parenthesis.');
       return value;
     }
-    if (token === undefined || !/^\d/.test(token)) {
+    if (token === undefined || !/^\d|^\./.test(token)) {
       throw new Error('Expected a number or parenthesized expression.');
     }
     const value = Number(token);
-    if (!Number.isFinite(value)) throw new Error('Number is outside the supported range.');
+    if (!Number.isFinite(value)) throw new Error('Number is outside the supported numeric range.');
     return value;
   }
-
   function power(): number {
     const left = primary();
     if (peek() === '^') {
@@ -67,13 +68,11 @@ export function evaluateExpression(source: string): number {
     }
     return left;
   }
-
   function unary(): number {
     if (peek() === '+') { take(); return unary(); }
     if (peek() === '-') { take(); return -unary(); }
     return power();
   }
-
   function product(): number {
     let value = unary();
     while (peek() === '*' || peek() === '/' || peek() === '×' || peek() === '÷') {
@@ -86,7 +85,6 @@ export function evaluateExpression(source: string): number {
     }
     return value;
   }
-
   function sum(): number {
     let value = product();
     while (peek() === '+' || peek() === '-') {
@@ -103,46 +101,155 @@ export function evaluateExpression(source: string): number {
   return result;
 }
 
+function tokenizeEquationSide(source: string): string[] {
+  if (source.trim() === '') throw new Error('Both sides of the equation must contain an expression.');
+  if (source.length > MAX_EXPRESSION_LENGTH) {
+    throw new Error(`Equation is too long (maximum ${MAX_EXPRESSION_LENGTH} characters).`);
+  }
+  source = source.trim();
+  const pattern: RegExp = /\s*(((?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)|([xX])|([()+\-*/^×÷]))/gy;
+  const tokens: string[] = [];
+  let cursor = 0;
+  while (cursor < source.length) {
+    pattern.lastIndex = cursor;
+    const match = pattern.exec(source);
+    if (!match) throw new Error(`Unsupported equation character or format at position ${cursor + 1}.`);
+    const token = match[2] ?? (match[3] ? 'x' : match[4]);
+    if (token === undefined) throw new Error('Invalid equation token.');
+    tokens.push(token);
+    if (tokens.length > MAX_TOKENS) {
+      throw new Error(`Equation has too many parts (maximum ${MAX_TOKENS}).`);
+    }
+    cursor = pattern.lastIndex;
+  }
+  return tokens;
+}
+
+const constant = (value: number): Affine => ({ coefficient: 0, constant: value });
+function finiteAffine(value: Affine): Affine {
+  if (!Number.isFinite(value.coefficient) || !Number.isFinite(value.constant)) {
+    throw new Error('Equation is outside the supported numeric range.');
+  }
+  return value;
+}
+function addAffine(left: Affine, right: Affine, sign = 1): Affine {
+  return finiteAffine({
+    coefficient: left.coefficient + sign * right.coefficient,
+    constant: left.constant + sign * right.constant
+  });
+}
+function scaleAffine(value: Affine, factor: number): Affine {
+  return finiteAffine({
+    coefficient: value.coefficient * factor,
+    constant: value.constant * factor
+  });
+}
+function multiplyAffine(left: Affine, right: Affine): Affine {
+  if (left.coefficient !== 0 && right.coefficient !== 0) {
+    throw new Error('Nonlinear equations are not supported; the equation must be linear in x.');
+  }
+  if (left.coefficient !== 0) return scaleAffine(left, right.constant);
+  if (right.coefficient !== 0) return scaleAffine(right, left.constant);
+  return constant(left.constant * right.constant);
+}
+
+function parseLinearExpression(source: string): Affine {
+  const tokens = tokenizeEquationSide(source);
+  let position = 0;
+  const peek = (): string | undefined => tokens[position];
+  const take = (): string | undefined => tokens[position++];
+
+  function primary(): Affine {
+    const token = take();
+    if (token === '(') {
+      const value = sum();
+      if (take() !== ')') throw new Error('Missing closing parenthesis in equation.');
+      return value;
+    }
+    if (token === 'x') return { coefficient: 1, constant: 0 };
+    if (token === undefined || !/^\d|^\./.test(token)) {
+      throw new Error('Expected a number, x, or parenthesized expression in the equation.');
+    }
+    const value = Number(token);
+    if (!Number.isFinite(value)) throw new Error('Number is outside the supported range.');
+    return constant(value);
+  }
+  function power(): Affine {
+    const base = primary();
+    if (peek() !== '^') return base;
+    take();
+    const exponent = unary();
+    if (exponent.coefficient !== 0) {
+      throw new Error('The exponent cannot contain x in a linear equation.');
+    }
+    if (base.coefficient !== 0) {
+      if (exponent.constant === 1) return base;
+      throw new Error('Nonlinear powers of x are not supported.');
+    }
+    return constant(base.constant ** exponent.constant);
+  }
+  function unary(): Affine {
+    if (peek() === '+') { take(); return unary(); }
+    if (peek() === '-') { take(); return scaleAffine(unary(), -1); }
+    return power();
+  }
+  function product(): Affine {
+    let value = unary();
+    while (true) {
+      const op = peek();
+      if (op === '*' || op === '×') {
+        take();
+        value = multiplyAffine(value, unary());
+      } else if (op === '/' || op === '÷') {
+        take();
+        const divisor = unary();
+        if (divisor.coefficient !== 0) {
+          throw new Error('Division by an expression containing x is nonlinear or unsupported.');
+        }
+        if (divisor.constant === 0) throw new Error('Division by zero is undefined.');
+        value = scaleAffine(value, 1 / divisor.constant);
+      } else if (op === 'x' || op === '(') {
+        // Coefficient notation such as 2x and grouped products such as 2(x + 1).
+        value = multiplyAffine(value, unary());
+      } else {
+        break;
+      }
+    }
+    return finiteAffine(value);
+  }
+  function sum(): Affine {
+    let value = product();
+    while (peek() === '+' || peek() === '-') {
+      const op = take();
+      value = addAffine(value, product(), op === '+' ? 1 : -1);
+    }
+    return value;
+  }
+
+  const result = sum();
+  if (position !== tokens.length) throw new Error(`Unexpected token “${peek()}” in equation.`);
+  return finiteAffine(result);
+}
+
 export function solveLinearEquation(source: string): LinearEquationSolution {
-  if (typeof source !== 'string' || source.length > 240) {
-    throw new Error('Enter an equation under 240 characters.');
+  if (typeof source !== 'string' || source.trim() === '') {
+    throw new Error('Enter a linear equation using x.');
+  }
+  if (source.length > MAX_EXPRESSION_LENGTH) {
+    throw new Error(`Equation is too long (maximum ${MAX_EXPRESSION_LENGTH} characters).`);
   }
   const sides = source.split('=');
   if (sides.length !== 2 || sides.some(side => !side.trim())) {
-    throw new Error('Enter one equation with exactly one equals sign.');
+    throw new Error('Enter one equation with exactly one equals sign and two non-empty sides.');
   }
-
-  const expression = (side: string): LinearExpression => {
-    const normalized = side.replace(/\s+/g, '')
-      .replace(/(?<![\d.)])x/g, '1*x')
-      .replace(/(?<=[\d.)])x/g, '*x');
-    const pieces = normalized.split(/(?=[+-])/).filter(Boolean);
-    let coefficient = 0;
-    let constant = 0;
-
-    for (const piece of pieces) {
-      if (piece.includes('x')) {
-        const match = piece.match(/^([+-]?(?:\d+(?:\.\d*)?)?)\*?x$/);
-        if (!match) throw new Error('Only linear equations using x are supported.');
-        coefficient += match[1] === '' || match[1] === '+'
-          ? 1
-          : match[1] === '-'
-            ? -1
-            : Number(match[1]);
-      } else {
-        constant += evaluateExpression(piece);
-      }
-    }
-    return { coefficient, constant };
-  };
-
-  const left = expression(sides[0]);
-  const right = expression(sides[1]);
+  const left = parseLinearExpression(sides[0]);
+  const right = parseLinearExpression(sides[1]);
   const coefficient = left.coefficient - right.coefficient;
-  const constant = right.constant - left.constant;
-
-  if (coefficient === 0) return constant === 0 ? { kind: 'all-real' } : { kind: 'none' };
-  const value = constant / coefficient;
+  const constantTerm = right.constant - left.constant;
+  if (coefficient === 0) {
+    return constantTerm === 0 ? { kind: 'all-real' } : { kind: 'none' };
+  }
+  const value = constantTerm / coefficient;
   if (!Number.isFinite(value)) throw new Error('Solution is outside the supported numeric range.');
   return { kind: 'unique', value };
 }
