@@ -120,7 +120,7 @@ def verify_polynomial_identity(
         )
 
     status = (
-        VerificationStatus.FORMALLY_VERIFIED
+        VerificationStatus.EXACT_CHECKED
         if not difference.terms
         else VerificationStatus.REJECTED
     )
@@ -130,7 +130,7 @@ def verify_polynomial_identity(
     note = (
         "Exact sparse-polynomial normalization proves LHS-RHS is the zero "
         "polynomial over Q in the supported grammar."
-        if status == VerificationStatus.FORMALLY_VERIFIED
+        if status == VerificationStatus.EXACT_CHECKED
         else "Exact polynomial normalization found a non-zero LHS-RHS; this is not an identity."
     )
     return PolynomialIdentityResult(
@@ -165,7 +165,7 @@ def validate_polynomial_identity_certificate(
     if canonical != certificate_json:
         return False
     result = verify_polynomial_identity(candidate, limits=limits)
-    if result.status != VerificationStatus.FORMALLY_VERIFIED:
+    if result.status != VerificationStatus.EXACT_CHECKED:
         return False
     return (
         result.certificate_json == certificate_json

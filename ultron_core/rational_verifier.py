@@ -139,7 +139,7 @@ def verify_rational_identity(
         )
 
     status = (
-        VerificationStatus.FORMALLY_VERIFIED
+        VerificationStatus.EXACT_CHECKED
         if not difference.terms
         else VerificationStatus.REJECTED
     )
@@ -149,7 +149,7 @@ def verify_rational_identity(
     note = (
         "Exact cross-multiplication proves the rational functions are equal "
         "where both expressions are defined; domain restrictions are preserved."
-        if status == VerificationStatus.FORMALLY_VERIFIED
+        if status == VerificationStatus.EXACT_CHECKED
         else "Exact cross-multiplication found a non-zero polynomial difference; the rational functions are not identical."
     )
     return RationalIdentityResult(
@@ -184,7 +184,7 @@ def validate_rational_identity_certificate(
     if canonical != certificate_json:
         return False
     result = verify_rational_identity(candidate, limits=limits)
-    if result.status != VerificationStatus.FORMALLY_VERIFIED:
+    if result.status != VerificationStatus.EXACT_CHECKED:
         return False
     return (
         result.certificate_json == certificate_json

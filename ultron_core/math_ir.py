@@ -89,7 +89,8 @@ class Expr:
 
 
 class VerificationStatus(str, Enum):
-    CANDIDATE="candidate"; EXPERIMENTALLY_SUPPORTED="experimentally_supported"; DERIVED="derived"; FORMALLY_VERIFIED="formally_verified"; REJECTED="rejected"; UNRESOLVED="unresolved"
+    """FORMALLY_VERIFIED is reserved for future validated proof-kernel receipts."""
+    CANDIDATE="candidate"; EXPERIMENTALLY_SUPPORTED="experimentally_supported"; DERIVED="derived"; EXACT_CHECKED="exact_checked"; FORMALLY_VERIFIED="formally_verified"; REJECTED="rejected"; UNRESOLVED="unresolved"
 
 @dataclass(frozen=True)
 class FormulaCandidate:

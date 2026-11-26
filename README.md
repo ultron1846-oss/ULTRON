@@ -9,9 +9,9 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 - The repository contains a Python mathematics core, bounded symbolic/exact arithmetic components, a browser workspace, curriculum generators, and agent/tool interfaces.
 - Training remains disabled and has not been authorized in this work. No optimizer steps, training runs, or cloud/remote execution are part of this task.
 - Seed-corpus importer work is tracked separately in open PR #136. The corpora are not claimed to be downloaded or present in the repository unless that PR’s artifact run is confirmed.
-- Generator packages include Grades 1–4, 5–8, 8–12, and university-topic generators under `tools/math_generators/`. They are separate from `ultron_core/data_generation.py` today; PR B is intended to reconcile their schema, IDs, verifier interface, registry, and benchmark split without rewriting generation logic.
+- Generator packages include Grades 1–4, 5–8, 8–12, university topics, and the core generator. A shared canonical Problem adapter and verifier interface now bridge them; the combined registry includes core topics and is checked against generator declarations. Source generator implementations remain unchanged.
 - The repository includes exact algebra components and identity checkers. These are bounded exact checks, not a formal proof kernel. Lean integration is design-only and not yet connected to a real Lean checker.
-- SymPy cross-checks at the requested randomized scale have not yet been completed.
+- PR C (#139) added fixed-seed SymPy differential tests: 1,000 cases per engine area passed CI. This is a software cross-check, not a model-capability result.
 
 ## Implemented / tested / not done
 
@@ -32,7 +32,7 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 - No trained ULTRON weights or demonstrated grade/university-level competence.
 - No approved training run, optimizer steps, corpus generation, or cloud execution.
 - No Lean proof-kernel receipt flow; no theorem-proving capability claim.
-- No unified generator registry/schema/verifier until PR B is reviewed and merged.
+- Generator implementations still use source-specific record formats internally; the common Problem adapter normalizes them at the boundary.
 - No claim that lexical tokenizer coverage means semantic/parser/model support.
 - No distributed multi-host trainer or guaranteed free GPU capacity.
 
@@ -44,14 +44,14 @@ ULTRON is an independent mathematics-learning and reasoning project under develo
 - `docs/`: architecture, mathematical engine, training/preflight, evaluation, security, runtime constraints, and staged Lean design documents.
 - `index.html` and associated frontend assets: browser workspace.
 
-The generator packages currently have multiple schemas and registry sources. See PR B for the intended common Problem contract and generated combined registry.
+The shared Problem contract and generated combined registry were added in merged PR #138. Source records are adapted without rewriting generator logic.
 
 ## Safety and trust boundaries
 
 - No external AI API or pretrained weights are used for the from-scratch model plan.
 - A generated problem or tool result is not evidence of model capability.
-- Exact-checking statuses do not, by themselves, admit a candidate to trusted knowledge. Trust requires the explicit validation/receipt policy.
-- Bounded exact algebra checkers are not formal proof systems. `FORMALLY_VERIFIED` is reserved for a future genuine proof-kernel receipt; PR D will rename the current exact status.
+- Exact algebra checkers emit `EXACT_CHECKED`; this status does not, by itself, admit a candidate to trusted knowledge. Trust remains fail-closed.
+- Bounded exact algebra checkers are not formal proof systems. `FORMALLY_VERIFIED` is reserved for a future genuine proof-kernel receipt.
 - Training, optimizer updates, corpus generation, cloud execution, and remote execution are disabled for the current task.
 - Do not expose secrets, change authentication/Supabase/Pages configuration, or make production changes without separate authorization.
 

@@ -6,7 +6,7 @@
 
 It converts both sides to the existing canonical sparse-polynomial representation, computes \(LHS-RHS\), and returns:
 
-- `FORMALLY_VERIFIED` when the exact canonical difference is the zero polynomial.
+- `EXACT_CHECKED` when the exact canonical difference is the zero polynomial.
 - `REJECTED` when the exact difference is non-zero.
 - `UNRESOLVED` when the expression is outside the supported grammar, carries assumptions/domain restrictions, or exceeds configured resource limits.
 
@@ -37,3 +37,6 @@ print(result.certificate_sha256)
 ```
 
 This is a narrow exact algebraic checker, not a universal formal proof kernel and not evidence that ULTRON has learned or autonomously discovered the identity.
+
+
+The exact algebra checker emits `EXACT_CHECKED`, not a formal proof receipt. `FORMALLY_VERIFIED` is reserved for a future validated Lean/proof-kernel receipt. Legacy certificates carrying the former checker status are rejected because certificate validation reruns the checker and requires byte-for-byte canonical output.
