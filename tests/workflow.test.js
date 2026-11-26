@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 test('redundant custom Pages deployment workflow is removed and root assets remain', async () => {
   await assert.rejects(readFile(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8'), { code: 'ENOENT' });
-  for (const path of ['index.html', 'styles.css', 'app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json', 'owner-auth.js']) {
+  for (const path of ['index.html', 'styles.css', 'app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json']) {
     const content = await readFile(new URL('../' + path, import.meta.url), 'utf8');
     assert.ok(content.trim().length > 0, `missing or empty Pages asset: ${path}`);
   }
