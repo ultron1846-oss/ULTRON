@@ -1,6 +1,8 @@
 const DB_NAME = 'ULTRON_MEMORY';
 const DB_VERSION = 1;
 const STORE_NAMES = ['experiences', 'knowledge', 'mistakes', 'checkpoints'];
+const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
+const MAX_IMPORT_RECORDS = 50000;
 
 function openDatabase() {
   if (!globalThis.indexedDB) {
@@ -17,7 +19,11 @@ function openDatabase() {
         }
       }
     };
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      const db = request.result;
+      db.onversionchange = () => db.close();
+      resolve(db);
+    };
     request.onerror = () => reject(request.error || new Error('Could not open local memory.'));
     request.onblocked = () => reject(new Error('Another ULTRON tab is blocking the memory database upgrade.'));
   });
@@ -65,7 +71,7 @@ function normalizeExperience(entry) {
   if (!prompt || prompt.length > 500) throw new TypeError('Experience prompt must contain 1–500 characters.');
   if (answer.length > 2000) throw new TypeError('Experience answer must be 2,000 characters or fewer.');
   return {
-    id: typeof entry.id === 'string' && entry.id.length <= 120 ? entry.id : makeId(),
+    id: typeof entry.id === 'string' && entry.id.length > 0 && entry.id.length <= 120 ? entry.id : makeId(),
     prompt,
     answer,
     correct: entry.correct === true,
@@ -121,34 +127,68 @@ export async function clearMemory() {
   }
 }
 
+function encodedSize(text) {
+  return typeof TextEncoder === 'function' ? new TextEncoder().encode(text).byteLength : text.length;
+}
+
+function serializeBounded(payload) {
+  let serialized;
+  try {
+    serialized = JSON.stringify(payload);
+  } catch {
+    throw new TypeError('Memory backup must contain only JSON-compatible data.');
+  }
+  if (typeof serialized !== 'string') throw new TypeError('Memory backup is not valid JSON data.');
+  if (encodedSize(serialized) > MAX_IMPORT_BYTES) {
+    throw new TypeError('Memory backup exceeds the 20 MB safety limit.');
+  }
+  return serialized;
+}
+
 export async function exportMemory() {
   const stores = {};
   for (const name of STORE_NAMES) {
     stores[name] = await transactionRequest(name, 'readonly', store => store.getAll());
   }
-  return {
+  const backup = {
     format: 'ultron-local-memory',
     version: DB_VERSION,
     exportedAt: new Date().toISOString(),
     stores
   };
+  serializeBounded(backup);
+  return backup;
 }
 
 export async function importMemory(payload) {
-  if (!payload || payload.format !== 'ultron-local-memory' || payload.version !== DB_VERSION || !payload.stores || typeof payload.stores !== 'object') {
+  if (!payload || payload.format !== 'ultron-local-memory' || payload.version !== DB_VERSION || !payload.stores || typeof payload.stores !== 'object' || Array.isArray(payload.stores)) {
     throw new TypeError('This is not a supported ULTRON memory backup.');
   }
+  serializeBounded(payload);
+  const storeKeys = Object.keys(payload.stores);
+  if (storeKeys.some(name => !STORE_NAMES.includes(name))) {
+    throw new TypeError('Backup contains an unknown memory store.');
+  }
+
   const records = {};
   let total = 0;
   for (const name of STORE_NAMES) {
     const rows = payload.stores[name] ?? [];
     if (!Array.isArray(rows)) throw new TypeError(`Backup section "${name}" must be an array.`);
     total += rows.length;
-    if (total > 50000) throw new TypeError('Backup exceeds the 50,000-record import safety limit.');
-    records[name] = rows.map(row => name === 'experiences' || name === 'mistakes'
+    if (total > MAX_IMPORT_RECORDS) {
+      throw new TypeError('Backup exceeds the 50,000-record import safety limit.');
+    }
+    const normalized = rows.map(row => name === 'experiences' || name === 'mistakes'
       ? normalizeExperience(row)
       : normalizeStoredRecord(row));
+    // IndexedDB put() is an upsert by id. For duplicate ids inside a backup,
+    // keep the last occurrence and report the number of unique records.
+    const byId = new Map();
+    for (const record of normalized) byId.set(record.id, record);
+    records[name] = [...byId.values()];
   }
+
   const db = await openDatabase();
   try {
     await new Promise((resolve, reject) => {
@@ -164,13 +204,16 @@ export async function importMemory(payload) {
   } finally {
     db.close();
   }
-  return { imported: total };
+  return { imported: Object.values(records).reduce((count, rows) => count + rows.length, 0) };
 }
 
 function normalizeStoredRecord(record) {
-  if (!record || typeof record !== 'object' || Array.isArray(record)) throw new TypeError('Backup contains an invalid memory record.');
-  const id = typeof record.id === 'string' && record.id.length <= 120 ? record.id : makeId();
+  if (!record || typeof record !== 'object' || Array.isArray(record)) {
+    throw new TypeError('Backup contains an invalid memory record.');
+  }
+  const id = typeof record.id === 'string' ? record.id.trim() : '';
+  if (!id || id.length > 120) throw new TypeError('Backup record id must contain 1–120 characters.');
   return { ...record, id };
 }
 
-export { DB_NAME, DB_VERSION, STORE_NAMES };
+export { DB_NAME, DB_VERSION, STORE_NAMES, MAX_IMPORT_BYTES, MAX_IMPORT_RECORDS };
