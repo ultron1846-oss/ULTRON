@@ -865,3 +865,136 @@ The batch is tested through the existing 300-seed replay/verifier suite plus new
 - Re-ran Supabase security advisors and read-only SQL policy/grant review. All nine inspected public tables have RLS enabled; anon has no SELECT privileges; authenticated has no TRUNCATE; six owner-linked tables retain owner-only policies with USING and WITH CHECK. The inspected public SECURITY DEFINER function is not executable by anon/authenticated.
 - Deployed training-control v8 was reviewed: public status is generic/read-only; owner actions validate bearer identity and owner ID; start dispatches only the CPU diagnostic workflow, not model training. device-control v4 remains HTTP 410.
 - Security advisor still reports leaked-password protection disabled and three informational no-policy findings on retired pairing/device tables. Owner dashboard action is outstanding. No database/Auth settings were changed.
+
+## Post-archive milestones — 2026-11-26
+
+> The sections below preserve engineering milestones moved out of the root README during the single-handoff cleanup. They are historical records, not current status or instructions. Use the root README for the active handoff.
+
+## Brief dated history
+
+- **2026-11-26:** PR #160 merged; configuration enforces a ≥60M trainable-parameter foundation minimum and validates expandable capacity. Python AI core, Node, and Level 1 tests passed for the PR head. No foundation weight allocation, resource profiling, or training was performed.
+
+- **2026-11-24:** Browser workspace hardening; Python math-core and exact arithmetic foundations; parser/IR, polynomial/rational operations, real-root and algebraic-number utilities; checkpoint, memory, and trust-boundary reviews.
+- **2026-11-25:** Math Agent tools and tutor-first direction; Grades 1–4, 5–8, 8–12 and university generator expansion; university topic registry work; model/training preflight and free-runtime review; exact identity verifier documentation.
+- **2026-11-26:** Requested separate PRs for README consolidation, generator unification, SymPy differential testing, exact-verification status naming, and Lean readiness design.
+
+See [docs/HISTORY.md](docs/HISTORY.md) for the preserved milestone detail and [docs/](docs/) for topic-specific specifications.
+
+## Guided learning and command independence — 2026-11-26
+
+The Math Agent's ordinary input path gives hints and requests an intermediate attempt instead of automatically revealing arithmetic, word-problem, or equation answers. Slash commands are explicit tools, but equation-solving commands are also tutor-first: they provide a first-step hint or check a learner-submitted attempt without displaying the correct final value. `/calc` requires the learner's proposed result and reports only whether it matches. Graphing and table/numerical tools remain scoped to the requested visualization or operation. See `tests/guided-learning.test.js` and `tests/math-tools.test.js` for regressions. This is deterministic tutoring/tool behavior, not trained-model capability.
+
+
+## Cognitive behavior profile hardening — 2026-11-26
+
+The cognitive behavior profile now rejects non-finite numeric weights (`NaN`, positive infinity, and negative infinity) and exposes factuality, conversational naturalness, creativity, and empathy/context weights in the selected runtime policy. Regression tests cover every numeric weight and customized policy values. This remains a configuration contract—not evidence of trained capability. No training or data import was performed.
+
+## Model/tool independence — 2026-11-26
+
+ULTRON's deterministic slash commands are external support and verification tools; their outputs are not evidence that the neural model has learned a skill and must not be treated as the model's supervised reasoning target. The model-only evaluator passes token IDs directly to the model with no command tools or tool-result context. Model-only and tool-assisted scores are reported separately. The Level 1 training source serializes only allowlisted ULTRON-generated prompt, worked steps, and answer fields; the exact verifier is validation-only.
+
+Issue #135's engineering acceptance requirements are implemented and tested. No external dataset was downloaded/imported, no corpus was generated as part of this work, and no optimizer step or training was run.
+
+## Level 1 exact math tooling — CI scope (2026-11-26)
+
+The Level 1 arithmetic and linear-equation package is an exact, deterministic tooling prototype with SymPy differential tests and a separately defined 500-item held-out evaluation benchmark. CI runs the package regression suite only; it no longer generates or writes the held-out benchmark. The benchmark scripts remain opt-in for a separately authorized local evaluation and must never be used as training data. The training-source adapter is a guarded interface, not a training run. No optimizer step, corpus generation, model training, or remote training execution was performed.
+
+## Seed importer CI safety regression — 2026-11-26
+
+The importer test suite now verifies that the workflow has no push trigger and is skipped unless both the dispatch confirmation and owner-controlled repository variable are enabled. This test uses the checked-in workflow text only; it does not dispatch or download data.
+
+## Seed-data import authorization boundary — 2026-11-26
+
+The Hugging Face seed importer is available as tooling only. Its workflow has no push trigger and runs only when the manual confirm_download input is true and the owner-controlled repository variable ULTRON_SEED_IMPORT_ENABLED is set to true. That variable remains unset. Offline mocked tests validate the importer; no dataset download, corpus import, optimizer step, or training run was performed. Do not enable the variable or dispatch the workflow until separate explicit authorization is given.
+
+
+## Basic arithmetic seed source preparation — 2026-11-26
+
+Added the MIT-licensed `ChrisMcCormick/basic-arithmetic` Hugging Face training split (10,000 source rows) to the seed importer registry. The importer independently validates arithmetic against integer operands, accepts only exact integer division, limits operand magnitude to 10,000, rejects mismatched answers/unsupported operations, and marks these records as answer-only rather than worked reasoning. Validation and test splits are not configured for import.
+
+This is source/importer support only. No dataset rows have been downloaded or uploaded, no workflow was dispatched, and no training or optimizer step occurred. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`. Review the PR and run the gated workflow separately to produce the seed-data artifact.
+
+
+## Model-only evaluation slice — 2026-11-26
+
+PR #145 adds `ultron_core/model_only_evaluation.py`: a bounded greedy inference runner that calls the model with token IDs only, without passing command tools or tool results to the model. It also reports model-only and optional tool-assisted prediction metrics separately. The tool-assisted map is caller-supplied and is not generated by this evaluator.
+
+CI uses a tiny mock model for regression tests. This is evaluation infrastructure only; the foundation model remains untrained, no real-weight inference or training was run, and the issue's target-leakage, concept-curation, and transfer-evaluation acceptance criteria remain unfinished.
+
+
+## Training target provenance boundary — 2026-11-26
+
+PR #146 adds an allowlisted serializer for the existing ULTRON-generated Level 1 training source. The supervised sequence is assembled only from the generator's prompt, worked steps, and answer. Unknown record fields (including `tool_output` or `tool_answer`) are excluded. The verifier must return the literal boolean `True`; its result is validation-only and is not serialized as a target.
+
+The dataset exposes and hashes a target contract identifying the generator, worked-solution target type, and verifier role. Regression tests inject a sentinel tool-output field and verify it does not appear in tokenized targets. This is a source-specific safeguard, not a general external-corpus curation pipeline. No training, corpus generation, or dataset import was performed.
+
+
+## Core concept taxonomy and transfer protocol — 2026-11-26
+
+PR #147 adds `ultron_core/concepts.py`: 10 concept nodes (including prerequisite-only concepts), mapping all eight core exact-synthetic generator topics. The registry validates prerequisite references and acyclicity. Concept-balanced sampling selects only existing examples and creates no new data.
+
+The transfer split validator checks example-ID and normalized-prompt isolation, numeric novelty for the unseen-value category, multi-concept annotations, prerequisite-sensitive labels, and unseen-concept claims. The protocol is documented in `docs/CONCEPT_TRANSFER_EVALUATION.md`.
+
+This is core-topic readiness infrastructure, not evidence of concept mastery. The 197-topic university curriculum still lacks prerequisite mapping, semantic near-duplicate review is required, and no benchmark, training corpus, or model training was run.
+
+
+## University prerequisite map — 2026-11-26
+
+PRs #148–#153 completed and validated the prerequisite graph for all 197 topics across 17 fields. The loader verifies exact coverage, rejects dangling edges/cycles, and provides topological ordering.
+
+These curated edges are learning dependencies, not proof of mastery or a universal course order. Grade-band prerequisite mapping and a frozen concept-transfer benchmark remain future readiness work. See docs/UNIVERSITY_PREREQUISITES.md.
+
+
+## Account-free website contract — 2026-11-26
+
+The public website has no login or sign-up requirement and no owner sign-in page. Private Supabase records remain protected on the backend and are not accessed by the static frontend. The local Memory Vault uses IndexedDB and does not sync to an account. The website exposes only generic read-only status: no job start/pause/stop/resume controls, checkpoint mutation controls, pairing controls, or account-specific training history.
+
+## iPad frontend acceptance — 2026-11-26
+
+Automated static checks cover viewport metadata, responsive breakpoints, safe-area handling, a 44 px touch-target minimum, and local persistence of the 2–10 GB preferred-memory slider. Manual Safari acceptance on an actual iPad remains pending. The slider is a browser-local preference only; it does not allocate physical RAM or change hosted-runner limits. See docs/IPAD_FRONTEND_ACCEPTANCE.md.
+
+
+## GitHub Pages deployment verification — 2026-11-26
+
+The GitHub Pages build-and-deployment run #146 completed successfully for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`. The build, status-report, and deploy jobs all reported success. This verifies the GitHub Actions deployment workflow, not manual browser acceptance or the live site's interactive behavior. Manual iPad Safari acceptance remains pending.
+
+
+## Model capacity requirement — 2026-11-26
+
+ULTRON's foundation model target is **at least 60,000,000 trainable parameters**. The configuration code must enforce that minimum using the parameter-count formula; it must not rely on a descriptive label. Model capacity is expandable by increasing hidden width, depth, expert count, or expert width through validated configurations. The parameter-count formula was cross-checked against an instantiated small model in PR #160 CI. The 60M foundation itself was not instantiated by that regression; expanded sizes are not resource-tested. This is an architecture requirement only: the model remains untrained, and no optimizer step or training was performed.
+
+
+## Phase 2 Math Agent, Memory Vault and security recheck — 2026-11-26
+
+PR #163 adds comprehensive math parser coverage, expands the deterministic linear equation grammar to support fractional/decimal coefficients and grouped linear expressions, and explicitly rejects nonlinear or unsupported equations without fabricating a result. See [Math Agent input contract](docs/MATH_AGENT_INPUTS.md). The conversational Math Agent remains tutor-first and does not reveal final answers.
+
+The local Memory Vault implementation now validates backup size and store names, rejects malformed generic record IDs, deduplicates duplicate IDs in an imported backup (last entry wins), and preserves merge-by-ID behavior. Automated IndexedDB contract tests cover save/list/reload persistence, simulated storage-write failure and retry, export/import round-trip, duplicate handling, malformed/oversized backup rejection, and local merge behavior. Browser real-world persistence still requires manual Safari testing.
+
+Responsive/keyboard contract tests cover narrow layouts, portrait and landscape CSS, touch-target minimums, focus visibility, navigation dismissal and fallback states. These are automated static contract checks, not a real-device browser run. Manual iPad Safari acceptance remains pending.
+
+The live Supabase policy and deployed-function review was repeated read-only on 2026-11-26. All nine inspected public tables have RLS enabled; the six owner-linked tables retain owner-only policies with both USING and WITH CHECK; anon has no SELECT grants; authenticated has no TRUNCATE; and the inspected public SECURITY DEFINER function is not executable by anon/authenticated. The security advisor still reports leaked-password protection disabled (owner dashboard action required) and three informational RLS-without-policy findings for retired pairing/device tables. See [Phase 3 security audit](docs/SECURITY_AUDIT_PHASE3.md).
+
+No Supabase configuration was changed, no dataset was imported, and no training, optimizer step, corpus generation, or remote execution was performed.
+
+
+
+## Compression parameter reporting — 2026-11-26
+
+PR #165 adds parameter accounting only; it does not implement compression transformations. The report reuses the existing no-allocation configuration counters, **count_total_parameters(config)** and **count_parameters(config)**, and checks the foundation result against **63,400,451 total / 61,826,048 trainable** parameters. Model enumeration deduplicates tied parameters by Python object identity (id(parameter)), not storage address. The real foundation module structure is checked so category totals cover the full count and the other bucket contains only explicitly named normalization parameters.
+
+The 60M trainable-parameter floor applies only to the foundation training checkpoint. Compressed models are separate, versioned deployment artifacts that record their parent checkpoint and the steps applied; they never replace the foundation checkpoint and are never described as meeting that floor. See [docs/COMPRESSION.md](docs/COMPRESSION.md).
+
+Compression quality can only be judged on a trained model with a verified benchmark. **No calibration corpus has been generated**, and no compression-quality result is claimed. PR #165 was squash-merged as `a31e5300bfbd6b1ceb7baeb2949fd938c6771f3f` after its three required checks passed. No training, optimizer step, corpus/calibration generation, or remote training execution was performed.
+
+## Compression toolkit — implementation prepared for review (2026-11-26)
+
+PR #166 implements the remaining compression toolkit as one reviewable change with separate commits for expert usage counting, expert pruning, representative-based expert merging, SVD low-rank factorization, simulated int8 sensitivity reporting, the rollback/versioned-artifact pipeline, and documentation. See the PR history for the recorded CI and merge status.
+
+- Expert usage is measured by reversible forward hooks and counts token rows dispatched to each expert.
+- Pruning and merging return new model copies. Merging retains a real usage-selected representative in each group; weights are not averaged and ridge refit is disabled.
+- SVD factorization selects the smallest rank meeting a relative Frobenius **weight reconstruction** error limit. That bound is not a task-quality score and factorization can increase parameter count for strict error limits.
+- Int8 is simulated by quantize/dequantize round-tripping weights; returned weights remain floating point. Optional activation sensitivity uses only caller-supplied inputs; no calibration corpus is created.
+- The pipeline returns a new model and report, rolls back to an untouched copy on failure, and writes immutable, versioned compressed deployment artifacts with parent-checkpoint provenance and a SHA-256 state digest.
+- The compressed artifact is a separate deployment object and explicitly does not inherit or claim the foundation parameter floor. The foundation configuration and its parameter counters were not changed.
+
+New toolkit regression tests use fixed-seed small CPU models only. No model training, optimizer steps, dataset/corpus/calibration generation, cloud/remote training, or external AI API was used. No quality, speed, or memory reduction is claimed. See [docs/COMPRESSION.md](docs/COMPRESSION.md) for the full API and constraints.
