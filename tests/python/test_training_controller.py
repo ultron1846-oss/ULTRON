@@ -350,10 +350,13 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_non_finite_loss_stops_before_optimizer_step(self):
         model = MockModel(non_finite=True)
+        optimizer = MockOptimizer(
+            parameter for parameter in model.parameters() if parameter.requires_grad
+        )
         with self.assertRaisesRegex(FloatingPointError, "loss is non-finite"):
-            run_training_steps(model, self.batches, self.optimizer, self.report,
+            run_training_steps(model, self.batches, optimizer, self.report,
                               settings=self.settings, training_authorized=True)
-        self.assertEqual(self.optimizer.steps, 0)
+        self.assertEqual(optimizer.steps, 0)
 
 
     def test_python_torch_and_dataloader_rng_are_reproducible(self):
