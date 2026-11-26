@@ -25,11 +25,11 @@ The stub's ProofCheckResult records:
 - status and theorem name;
 - SHA-256 of the submitted source;
 - checker version;
-- optional environment SHA-256;
+- required environment SHA-256;
 - optional receipt SHA-256;
 - diagnostic messages.
 
-A future implementation must also identify the exact Lean toolchain and imported package revisions in the validated receipt. TYPECHECKED from the interface alone is not a trust decision.
+A future implementation must also identify the exact Lean toolchain and imported package revisions in the validated receipt. The interface rejects missing source or environment hashes. TYPECHECKED from the interface alone is not a trust decision.
 
 ## Candidate / receipt integration
 
