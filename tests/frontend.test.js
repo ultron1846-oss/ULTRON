@@ -10,7 +10,7 @@ test('control-room shell exposes its eight primary destinations', async () => {
   assert.match(html, /mobile-menu/);
 });
 
-test('training control page is generic, read-only and has disabled execution controls', async () => {
+test('training control page is read-only and exposes no job or checkpoint controls', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /data-page="training"/);
@@ -18,12 +18,11 @@ test('training control page is generic, read-only and has disabled execution con
   assert.match(app, /function renderTraining\(/);
   assert.match(app, /function loadTrainingStatus\(/);
   assert.match(app, /fetchSupabasePublicStatus\(\)/);
-  assert.match(app, /id="training-start"[^>]*disabled/);
-  assert.match(app, /id="training-pause"[^>]*disabled/);
-  assert.match(app, /id="training-stop"[^>]*disabled/);
-  assert.match(app, /id="training-resume"[^>]*disabled/);
-  assert.match(app, /id="training-save"[^>]*disabled/);
-  assert.match(app, /No training, bulk data generation, remote job submission or checkpoint mutation/);
+  assert.match(app, /READ-ONLY CONTROL PLANE/);
+  assert.match(app, /No job controls/);
+  assert.doesNotMatch(app, /id="training-(?:start|pause|stop|resume|save)"/);
+  assert.doesNotMatch(app, /data-page="owner"|data-page="pairing"|id="pairing/);
+  assert.match(app, /No training, bulk data generation, remote job submission, pairing, or checkpoint mutation/);
   assert.doesNotMatch(app, /training-start[^\n]*addEventListener/);
 });
 

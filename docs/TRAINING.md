@@ -60,3 +60,8 @@ The training controller retains only the current gradient-accumulation group's d
 Issue #135's engineering acceptance is implemented: model-only inference with no tools passed to the model; separate model-only/tool-assisted reports; tool-disabled and target-leakage regression tests; explicit generator/verifier provenance; concept-aware sampling; a validated concept-transfer split protocol; and prerequisite edges for all 197 university curriculum topics.
 
 This does not authorize or report dataset import, benchmark row generation, optimizer steps, or model training. The frozen concept-transfer benchmark and grade-band mapping remain pre-training readiness tasks.
+
+
+## Account-free frontend controls — 2026-11-26
+
+The public website displays generic runtime status only. It does not expose Start/Pause/Stop/Resume/Save checkpoint buttons, device pairing controls, or account-specific job/checkpoint history. The local Memory Vault remains browser-local; private Supabase records are not read by the static frontend. Training and remote execution remain disabled.

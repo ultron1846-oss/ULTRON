@@ -13,6 +13,8 @@ test('account-free public frontend security contract stays fail-closed', async (
   assert.ok(html.includes('No login or sign-up required'));
   assert.ok(!app.includes('owner-auth.js'));
   assert.ok(!app.includes('signInOwner') && !app.includes('verifyOwner'));
+  for (const control of ['training-start','training-pause','training-stop','training-resume','training-save']) assert.ok(!app.includes('id="' + control + '"'));
+  assert.ok(!app.includes('data-page="pairing"'));
   assert.ok(!app.includes('functions.invoke'));
   assert.ok(!app.includes('fetch(' + "'training-control'"));
   assert.ok(!app.includes('fetch(' + "'device-control'"));
