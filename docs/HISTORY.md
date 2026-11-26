@@ -1008,3 +1008,10 @@ The change is tests-only: no runtime math code, dependency configuration, websit
 ### PR #168 initial code-revision validation
 
 The code-bearing revision `b138f2f8ba3abee2a50a299e69e74c986ab58dfe` passed all three PR workflows: Node Tests run `45823028937`, Python AI Core run `45823029115`, and Level 1 Math Tooling run `45823029261`. The Python job ran the full regression suite and CPU forward/backward smoke; the Level 1 job ran its regression suite including 5,000 randomized cases. A subsequent documentation-only handoff update changed README/history text, so a fresh CI cycle was requested on that final documentation revision before merge.
+
+
+## Polynomial operand limit bypass fix — PR #169 (2026-11-26)
+
+PR #169 enforces the configured polynomial resource limits on inputs to addition, scaling, multiplication, and power operations, not only on the resulting polynomial. Before the fix, an already-created polynomial above a caller's stricter budget could bypass that budget if addition cancelled its terms, scaling used zero, multiplication used the zero polynomial, or the exponent was zero. Focused regression tests cover each path and confirm valid within-budget operations remain exact.
+
+Validation is pending on the final PR revision. No local execution is claimed. No training, optimizer steps, corpus/dataset/calibration generation, dataset downloads, or remote execution were performed. The change does not touch the website, Supabase, authentication, or Pages implementation.
