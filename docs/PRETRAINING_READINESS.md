@@ -96,6 +96,10 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [ ] Add broader independently verified mathematical task suites.
 - [ ] Keep validation and final test sets separate from training data.
 - [x] Report exact correctness, coverage, abstention, invalid output, and topic-level metrics for all eight generated topics.
+- [x] Add model-only inference with command tools unavailable to the model and separate model-only/tool-assisted metric reports.
+- [x] Add core concept/prerequisite taxonomy for all eight generator topics, concept-balanced sampling, and a validated held-out concept-transfer split protocol (see `docs/CONCEPT_TRANSFER_EVALUATION.md`).
+- [ ] Extend concept/prerequisite mapping to the full grade-band and 197-topic university curriculum.
+- [ ] Curate a frozen concept-transfer benchmark with semantic near-duplicate review and independent answer verification.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
@@ -142,5 +146,6 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Add measured live RAM/VRAM resource cap enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
-5. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
-6. Keep real-weight training and remote execution disabled until separate explicit authorization.
+5. Extend concept/prerequisite mapping from the eight core generator topics to the full curriculum; curate and independently verify a frozen transfer benchmark with near-duplicate review.
+6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
+7. Keep real-weight training and remote execution disabled until separate explicit authorization.
