@@ -84,3 +84,7 @@ The cognitive behavior profile now rejects non-finite numeric weights (`NaN`, po
 ## Level 1 exact math tooling — CI scope (2026-11-26)
 
 The Level 1 arithmetic and linear-equation package is an exact, deterministic tooling prototype with SymPy differential tests and a separately defined 500-item held-out evaluation benchmark. CI runs the package regression suite only; it no longer generates or writes the held-out benchmark. The benchmark scripts remain opt-in for a separately authorized local evaluation and must never be used as training data. The training-source adapter is a guarded interface, not a training run. No optimizer step, corpus generation, model training, or remote training execution was performed.
+
+## Seed-data importer safety — 2026-11-26
+
+PR #136's importer workflow is manual-only. It requires both the confirm_download input and the repository variable ULTRON_SEED_IMPORT_ENABLED=true; with the variable unset, the workflow job is skipped. No push trigger remains. Offline mocked tests cover resolved revision pinning, filtering, deduplication, manifest hashes and failure cleanup. Do not enable the repository variable or dispatch the workflow until the user separately authorizes dataset download and curation. No dataset was downloaded and no training was run.

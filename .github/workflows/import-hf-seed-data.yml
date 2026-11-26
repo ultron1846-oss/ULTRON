@@ -1,0 +1,38 @@
+name: Import Hugging Face seed data
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_download:
+        description: "Confirm the separately authorized seed-data download"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  import-seed-data:
+    if: ${{ inputs.confirm_download == true && vars.ULTRON_SEED_IMPORT_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out ULTRON
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install seed-data importer
+        run: pip install -e ".[seed-data]"
+      - name: Download and curate approved seed datasets
+        run: python -m tools.hf_seed_data.importer --confirm-download --output-dir data/hf_seed
+      - name: Upload curated seed-data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ultron-hf-seed-data
+          path: data/hf_seed/
+          if-no-files-found: error
+          retention-days: 90
