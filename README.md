@@ -58,7 +58,7 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#158 are merged; issue #135 is closed as completed. On 2026-11-26, the latest `main` commit `394ecd1da246c642de2ac3cc3515265358d5da4e` has successful Tests, Python AI Core Tests, Level 1 Math Tooling, and GitHub Pages build/deployment runs.
+- PRs #136–#159 are merged; issue #135 is closed as completed. PR #159 documented successful GitHub Pages deployment run #146 for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; manual iPad acceptance remains pending.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
@@ -161,12 +161,17 @@ This phase status records the current readiness review; it does not authorize tr
 | Phase | Status | Verified boundary / remaining action |
 |---|---|---|
 | 1. Website completion | **BLOCKED — owner device check** | Pages deployment workflow succeeded. Manual iPad Safari acceptance, live-site interaction checks, and runtime connection remain pending. |
-| 2. Deployment documentation | **IN REVIEW** | PR #159 updates the deployment guide and handoff. README stale owner-to-dos were corrected; required checks are rerunning on the latest PR commit. |
+| 2. Deployment documentation | **COMPLETE** | PR #159 merged after required checks passed; deployment guide and README handoff updated. |
 | 3. Math engine / Stage A | **IMPLEMENTED; MODEL EVALUATION PENDING** | Deterministic generators include bounded polynomial derivatives and definite integrals with exact validators. Evaluation and paired-comparison infrastructure exist. No trained-model prediction file or actual Fable 5.2 comparison is available; do not claim a benchmark pass. |
 | 4. Seed-data pipeline | **TOOLING IMPLEMENTED; UPLOAD BLOCKED** | Source registry/importer and validation gates exist. No dataset artifact has been uploaded. Available Hugging Face connection is read-only for dataset file writes; no remote job or dataset duplication was used as a workaround. |
 | 5. Training-control design | **DESIGN DOCUMENTED; RUNTIME NOT CONNECTED** | Generic status/readiness page and runtime research exist. The RAM slider is a local preference, not a live resource cap. Free-runtime and clean-session acceptance remain pending. |
-| 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | NeuroSparse model code and proposed >60M trainable configuration exist. Foundation instantiation, measured resource acceptance, and model capability evaluation are not verified. |
+| 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | Foundation target is at least 60M trainable parameters; expandable configurations are being made explicit and guarded. Foundation instantiation, measured resource acceptance, and model capability evaluation are not verified. |
 | 7. Training / scale-up | **NOT AUTHORIZED; NOT STARTED** | No optimizer steps, training runs, generated corpus, or remote training execution. Requires a separate explicit authorization after readiness gates. |
 | 8. Final verification / handoff | **IN PROGRESS** | README handoff updated. Complete final verification after PR #159 checks and owner iPad acceptance; maintain exact verified/unverified boundaries. |
 
 No phase status above supersedes the training authorization gate. Keep actual training, optimizer steps, corpus generation, and remote execution disabled.
+
+
+## Model capacity requirement — 2026-11-26
+
+ULTRON's foundation model target is **at least 60,000,000 trainable parameters**. The configuration code must enforce that minimum using the parameter-count formula; it must not rely on a descriptive label. Model capacity is expandable by increasing hidden width, depth, expert count, or expert width through validated configurations. Parameter counts are estimates from architecture shapes until checked against an instantiated model; expanded sizes are not resource-tested by this declaration. This is an architecture requirement only: the model remains untrained, and no optimizer step or training was performed.
