@@ -166,6 +166,40 @@ class MathTaskSerializationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "verified problem, derivation, and answer"):
             task.to_training_target_json()
 
+    def test_replay_callback_cannot_mutate_the_stored_source_record(self):
+        problem, _ = _worked_problem()
+        source_record = {
+            "problem": problem.prompt,
+            "answer": problem.answer,
+            "topic": problem.topic,
+            "seed": problem.seed,
+            "difficulty": problem.difficulty,
+            "steps": list(problem.steps),
+            "ingredients": {"operands": [2, 2], "operator": "+"},
+        }
+
+        def mutate_then_verify(record):
+            record["steps"][0] = "mutated callback copy"
+            return record["answer"] == "4"
+
+        verifier = ReplayGeneratorVerifier(
+            source_record, mutate_then_verify, source="test.fixture"
+        )
+        self.assertTrue(verifier.verify(problem))
+        self.assertTrue(verifier.verify(problem))
+
+    def test_verification_receipt_rejects_malformed_scope(self):
+        problem, verifier = _worked_problem()
+        task = MathTaskRecord.from_verifier(
+            problem, verifier,
+            verifier_id="test.replay_verifier",
+            verifier_version="1",
+        )
+        receipt = task.verification.to_dict()
+        receipt["verified_fields"] = ["problem", "answer", "derivation"]
+        with self.assertRaisesRegex(ValueError, "ordered subset"):
+            VerificationReceipt.from_dict(receipt)
+
     def test_verifier_must_return_an_actual_boolean(self):
         class AmbiguousVerifier(ProblemVerifier):
             def verify(self, problem):
@@ -225,6 +259,19 @@ class MathTaskSerializationTests(unittest.TestCase):
         problem_payload["untrusted_extra"] = "ignored?"
         with self.assertRaisesRegex(ValueError, "problem document fields"):
             Problem.from_dict(problem_payload)
+
+    def test_generator_record_requires_string_field_names(self):
+        record = {
+            "problem": "Calculate 2 + 2.",
+            "answer": "4",
+            "topic": "arithmetic",
+            "seed": 17,
+            "difficulty": 1,
+            "steps": [],
+            9: "invalid key",
+        }
+        with self.assertRaisesRegex(ValueError, "keys must be non-empty strings"):
+            Problem.from_generator(record, source="test.fixture")
 
     def test_invalid_derivation_rows_fail_closed(self):
         record = {
