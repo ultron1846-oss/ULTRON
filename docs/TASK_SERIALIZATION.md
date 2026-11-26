@@ -1,6 +1,6 @@
 # Canonical math task serialization — schema v1
 
-**Status:** implemented in the canonical task API; CI validation and merge are pending.  
+**Status:** implemented and regression-tested in PR #174; final documentation-only PR validation and merge are pending.  
 **Scope:** task/problem serialization and target projection only. This document does not authorize dataset generation or model training.
 
 ## Design
