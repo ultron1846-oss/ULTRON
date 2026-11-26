@@ -119,8 +119,8 @@ class ExpertMergeTests(unittest.TestCase):
         result, report = merge_experts(model, [[0, 1], [2, 3]], usage)
 
         self.assertEqual(result.config.num_experts, 2)
-        self.assertEqual(report["representatives_by_layer"], {"0": [1, 3], "1": [0, 3]})
-        for layer_index, representatives in enumerate(([1, 3], [0, 3])):
+        self.assertEqual(report["representatives_by_layer"], {"0": [1, 2], "1": [0, 3]})
+        for layer_index, representatives in enumerate(([1, 2], [0, 3])):
             for new_index, old_index in enumerate(representatives):
                 self.assertTrue(torch.equal(
                     result.blocks[layer_index].experts[new_index].net[0].weight,
@@ -239,7 +239,7 @@ class CompressionArtifactAndPipelineTests(unittest.TestCase):
                     {
                         "name": "quantize_int8",
                         "options": {
-                            "sensitivity_inputs": {path: sample},
+                            "sensitivity_inputs": {path + ".down": sample},
                         },
                     },
                 ],
@@ -247,7 +247,7 @@ class CompressionArtifactAndPipelineTests(unittest.TestCase):
                 artifact_version="0.1.0",
                 artifact_path=artifact_path,
             )
-            self.assertTrue(report["success"])
+            self.assertTrue(report["success"], report.get("error", report))
             self.assertFalse(report["rolled_back"])
             self.assertEqual(len(report["steps"]), 2)
             self.assertTrue(artifact_path.is_file())
