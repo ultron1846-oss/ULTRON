@@ -232,8 +232,8 @@ class MathTaskRecord:
             raise TypeError("math task JSON must be text")
         try:
             parsed = json.loads(value, object_pairs_hook=_reject_duplicate_object_keys)
-        except (json.JSONDecodeError, ValueError) as exc:
-            raise ValueError("invalid or ambiguous math task JSON") from exc
+        except json.JSONDecodeError as exc:
+            raise ValueError("invalid math task JSON") from exc
         return cls.from_dict(parsed)
 
     def to_training_target_dict(self) -> dict[str, Any]:
