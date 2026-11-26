@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import asdict, dataclass
 import hashlib
 import json
@@ -41,6 +42,8 @@ class Problem:
     def from_generator(cls, record: Mapping[str, Any], *, source: str) -> "Problem":
         if not isinstance(record, Mapping) or not isinstance(source, str) or not source.strip():
             raise TypeError("record and non-empty source are required")
+        if any(not isinstance(key, str) or not key for key in record):
+            raise ValueError("generator record keys must be non-empty strings")
         prompt = record.get("problem", record.get("input_text"))
         answer = record.get("answer", record.get("target_text", record.get("exact_answer")))
         topic, seed = record.get("topic"), record.get("seed")
@@ -175,6 +178,8 @@ class ProblemVerifier(ABC):
 
 class CoreExactVerifier(ProblemVerifier):
     def verify(self, problem: Problem) -> bool:
+        if not isinstance(problem, Problem):
+            return False
         from ultron_core.data_generation import validate_example_text
         return (problem.source == "ultron_core.data_generation"
                 and validate_example_text(problem.prompt, problem.answer, problem.topic))
@@ -206,7 +211,7 @@ class ReplayGeneratorVerifier(ProblemVerifier):
             raise ValueError(
                 "verified_fields must be an ordered subset containing problem and answer"
             )
-        self._record = dict(source_record)
+        self._record = deepcopy(dict(source_record))
         self._verify_fn = verify_fn
         self._source = source
         self._verified_fields = fields
@@ -219,11 +224,15 @@ class ReplayGeneratorVerifier(ProblemVerifier):
         return self._verified_fields
 
     def verify(self, problem: Problem) -> bool:
+        if not isinstance(problem, Problem):
+            return False
         try:
-            verifier_result = self._verify_fn(self._record)
-            return (type(verifier_result) is bool
-                    and problem.source == self._source
-                    and Problem.from_generator(self._record, source=self._source) == problem
-                    and verifier_result is True)
+            expected = Problem.from_generator(self._record, source=self._source)
+            if expected != problem:
+                return False
+            # Give custom verifier callbacks an isolated copy so they cannot
+            # mutate the stored source record used for identity comparisons.
+            verifier_result = self._verify_fn(deepcopy(self._record))
+            return type(verifier_result) is bool and verifier_result is True
         except (KeyError, TypeError, ValueError, ArithmeticError, ZeroDivisionError):
             return False
