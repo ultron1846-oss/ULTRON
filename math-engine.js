@@ -159,7 +159,6 @@ function parseLinearExpression(source) {
     }
     if (base.coefficient !== 0) {
       if (exponent.constant === 1) return base;
-      if (exponent.constant === 0) return constant(1);
       throw new Error('Nonlinear powers of x are not supported.');
     }
     return constant(base.constant ** exponent.constant);
