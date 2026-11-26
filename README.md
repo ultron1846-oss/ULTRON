@@ -58,8 +58,8 @@ The shared Problem contract and generated combined registry were added in merged
 ## Current handoff
 
 - PRs #136–#143 are merged. PR #134 was closed without merge and superseded by merged PR #142.
-- PRs #144–#152 (README handoff, model-only evaluation, target provenance, concept-transfer protocol, and prerequisite expansions) merged on 2026-11-26 after all required CI workflows passed.
-- Issue #135 is being addressed incrementally. Model-only evaluation, source-specific target provenance, core concept-transfer validation, and the full 197-topic university prerequisite graph are merged. This branch completes the 197/197 university map; the frozen transfer benchmark and grade-band prerequisite mapping remain open.
+- PRs #144–#153 (README handoff, model-only evaluation, target provenance, concept-transfer protocol, and complete university prerequisite graph) merged on 2026-11-26 after all required CI workflows passed.
+- Issue #135 acceptance implementation is complete: model-only evaluation, separate metrics, tool-disabled regression tests, generator-owned target provenance, concept-aware sampling, a tested transfer-split protocol, and a validated prerequisite graph for all 197 university topics. The issue can be closed after this handoff correction merges; no training or dataset import was performed.
 - The seed importer and the basic-arithmetic source registration are merged. They provide import tooling only; they do not mean the dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and the owner-controlled `ULTRON_SEED_IMPORT_ENABLED=true` variable.
 - No dataset import artifact, optimizer step, model training, or remote training execution is claimed. Do not enable the import gate or dispatch the workflow without separate explicit authorization.
 - Owner to-dos (not attempted): complete iPad Safari acceptance; enable Supabase Auth leaked-password protection; verify free-runtime access and checkpoint transfer from a clean iPad session.
@@ -80,6 +80,12 @@ The Math Agent's ordinary input path gives hints and requests an intermediate at
 ## Cognitive behavior profile hardening — 2026-11-26
 
 The cognitive behavior profile now rejects non-finite numeric weights (`NaN`, positive infinity, and negative infinity) and exposes factuality, conversational naturalness, creativity, and empathy/context weights in the selected runtime policy. Regression tests cover every numeric weight and customized policy values. This remains a configuration contract—not evidence of trained capability. No training or data import was performed.
+
+## Model/tool independence — 2026-11-26
+
+ULTRON's deterministic slash commands are external support and verification tools; their outputs are not evidence that the neural model has learned a skill and must not be treated as the model's supervised reasoning target. The model-only evaluator passes token IDs directly to the model with no command tools or tool-result context. Model-only and tool-assisted scores are reported separately. The Level 1 training source serializes only allowlisted ULTRON-generated prompt, worked steps, and answer fields; the exact verifier is validation-only.
+
+Issue #135's engineering acceptance requirements are implemented and tested. No external dataset was downloaded/imported, no corpus was generated as part of this work, and no optimizer step or training was run.
 
 ## Level 1 exact math tooling — CI scope (2026-11-26)
 
@@ -126,6 +132,6 @@ This is core-topic readiness infrastructure, not evidence of concept mastery. Th
 
 ## University prerequisite map — 2026-11-26
 
-PRs #148–#152 expanded and validated the prerequisite graph across all 197 topics in the university curriculum catalog (17 fields). This branch adds the final 30 Geometry, Applied mathematics and mathematical physics, and Advanced/interdisciplinary topics, completing 197/197 coverage. The loader validates exact field coverage, rejects dangling edges/cycles, and provides topological ordering.
+PRs #148–#153 completed and validated the prerequisite graph for all 197 topics across 17 fields. The loader verifies exact coverage, rejects dangling edges/cycles, and provides topological ordering.
 
-The edges are reviewed starting points, not proof of mastery or a universal course order. Grade-band prerequisite mapping and a frozen transfer benchmark remain separate outstanding work. See docs/UNIVERSITY_PREREQUISITES.md.
+These curated edges are learning dependencies, not proof of mastery or a universal course order. Grade-band prerequisite mapping and a frozen concept-transfer benchmark remain future readiness work. See docs/UNIVERSITY_PREREQUISITES.md.
