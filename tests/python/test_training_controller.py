@@ -12,6 +12,17 @@ class MockModel(torch.nn.Module):
     def __init__(self, non_finite=False):
         super().__init__()
         self.config = NeuroSparseConfig.foundation()
+        # Meta-device parameters model the exact foundation count without
+        # allocating 60M+ real weights in controller unit tests.
+        trainable_count = count_parameters(self.config)
+        total_count = count_total_parameters(self.config)
+        self.foundation_trainable = torch.nn.Parameter(
+            torch.empty(trainable_count, device="meta")
+        )
+        self.foundation_frozen = torch.nn.Parameter(
+            torch.empty(total_count - trainable_count, device="meta"),
+            requires_grad=False,
+        )
         self.reset_calls = 0
         self.non_finite = non_finite
         self.activation_checkpointing = False
@@ -85,6 +96,40 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         with self.assertRaisesRegex(PermissionError, "explicit training authorization"):
             run_training_steps(self.model, batches(), self.optimizer, self.report,
                                settings=self.settings, training_authorized=False)
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_controller_rejects_actual_trainable_parameter_count_mismatch_before_batches(self):
+        self.model.extra_trainable = torch.nn.Parameter(torch.empty(1, device="meta"))
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex(ValueError, "actual model trainable parameter count"):
+            run_training_steps(
+                self.model, batches(), self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+            )
+
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_controller_rejects_frozen_foundation_parameters_before_batches(self):
+        self.model.foundation_trainable.requires_grad_(False)
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex(ValueError, "actual model trainable parameter count"):
+            run_training_steps(
+                self.model, batches(), self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+            )
+
         self.assertEqual(consumed, [])
         self.assertEqual(self.optimizer.steps, 0)
 
