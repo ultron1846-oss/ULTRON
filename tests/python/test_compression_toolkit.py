@@ -1,4 +1,6 @@
+import tempfile
 import unittest
+from pathlib import Path
 
 import torch
 
@@ -10,6 +12,9 @@ from ultron_core.compress import (
     merge_experts,
     prune_experts,
     simulate_int8_quantization,
+    load_compression_artifact,
+    run_compression_pipeline,
+    save_compression_artifact,
 )
 from ultron_core.config import NeuroSparseConfig
 from ultron_core.model import NeuroSparseModel
@@ -210,6 +215,93 @@ class SimulatedInt8QuantizationTests(unittest.TestCase):
         self.assertEqual(report["layers"]["0"]["scale"], 1.0)
         self.assertEqual(report["layers"]["0"]["relative_weight_error"], 0.0)
         self.assertTrue(torch.equal(result[0].weight, model[0].weight))
+
+
+class CompressionArtifactAndPipelineTests(unittest.TestCase):
+    def test_pipeline_writes_versioned_artifact_and_loads_it(self):
+        model = small_model().eval()
+        path = "blocks.0.experts.0.net.0"
+        torch.manual_seed(41)
+        sample = torch.randn(4, 32)
+        with tempfile.TemporaryDirectory() as directory:
+            artifact_path = Path(directory) / "ultron-compressed.pt"
+            result, report = run_compression_pipeline(
+                model,
+                [
+                    {
+                        "name": "factorize",
+                        "options": {
+                            "max_relative_error": 0.15,
+                            "target_modules": [path],
+                        },
+                    },
+                    {
+                        "name": "quantize_int8",
+                        "options": {
+                            "sensitivity_inputs": {path: sample},
+                        },
+                    },
+                ],
+                parent_checkpoint_id="seeded-foundation-checkpoint",
+                artifact_version="0.1.0",
+                artifact_path=artifact_path,
+            )
+            self.assertTrue(report["success"])
+            self.assertFalse(report["rolled_back"])
+            self.assertEqual(len(report["steps"]), 2)
+            self.assertTrue(artifact_path.is_file())
+            self.assertIsNot(result, model)
+
+            artifact = load_compression_artifact(artifact_path)
+            self.assertEqual(artifact["format"], "ultron.compressed-model")
+            self.assertEqual(artifact["format_version"], 1)
+            self.assertEqual(artifact["artifact_version"], "0.1.0")
+            self.assertEqual(artifact["parent_checkpoint_id"], "seeded-foundation-checkpoint")
+            self.assertFalse(artifact["foundation_parameter_floor_applies"])
+            self.assertEqual(len(artifact["compression_steps"]), 2)
+            self.assertIn(path + ".down.weight", artifact["model_state"])
+
+    def test_pipeline_rolls_back_all_steps_on_failure(self):
+        model = small_model().eval()
+        before = {name: value.clone() for name, value in model.state_dict().items()}
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "must-not-exist.pt"
+            result, report = run_compression_pipeline(
+                model,
+                [
+                    {"name": "quantize_int8", "options": {}},
+                    {"name": "not-a-real-compression-step", "options": {}},
+                ],
+                parent_checkpoint_id="seeded-parent",
+                artifact_path=target,
+            )
+            self.assertFalse(report["success"])
+            self.assertTrue(report["rolled_back"])
+            self.assertEqual(report["failed_step"], "not-a-real-compression-step")
+            self.assertFalse(target.exists())
+            self.assertIsNot(result, model)
+            for name, value in result.state_dict().items():
+                self.assertTrue(torch.equal(value, before[name]))
+            for name, value in model.state_dict().items():
+                self.assertTrue(torch.equal(value, before[name]))
+
+    def test_artifact_state_hash_detects_tampering(self):
+        model = small_model().eval()
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "artifact.pt"
+            save_compression_artifact(
+                target,
+                model,
+                parent_checkpoint_id="parent-123",
+                artifact_version="1.2.3",
+                compression_steps=[{"name": "test-only", "options": {}}],
+            )
+            payload = torch.load(target, map_location="cpu", weights_only=True)
+            key = next(iter(payload["model_state"]))
+            payload["model_state"][key].view(-1)[0] += 1
+            torch.save(payload, target)
+            with self.assertRaisesRegex(ValueError, "hash"):
+                load_compression_artifact(target)
 
 
 if __name__ == "__main__":
