@@ -57,7 +57,7 @@ These checks validate the covered implementation and workflow behavior only. The
 ## Current handoff
 
 - Repository: [ultron1846-oss/ULTRON](https://github.com/ultron1846-oss/ULTRON), default branch `main`.
-- Latest merged engineering change: [PR #166 — compression toolkit](https://github.com/ultron1846-oss/ULTRON/pull/166). The post-merge Python AI Core and Level 1 Math Tooling runs above both succeeded.
+- Latest merged engineering change: [PR #169 — polynomial operand limit fix](https://github.com/ultron1846-oss/ULTRON/pull/169). Post-merge Node Tests, Python AI Core, Level 1 Math Tooling, and Pages build/deployment checks all succeeded on `main`.
 - The requested pre-training engineering checklist A–G has been reviewed. The implemented math-engine, generator, verification, Lean-stub, Level 1, and word-problem coverage is summarized above; detailed dated milestones are archived in [docs/HISTORY.md](docs/HISTORY.md).
 - Remaining owner-side acceptance includes manual iPad Safari testing. Automated responsive checks are not a substitute for testing on an actual iPad.
 
@@ -66,3 +66,5 @@ These checks validate the covered implementation and workflow behavior only. The
 - Continue with small, independently reviewable math-engine or readiness tasks. Preserve the no-training authorization boundary.
 
 For current feature-specific requirements, use the relevant documents under [docs/](docs/).
+
+- Current training-gate hardening: [PR #170 — align the foundation parameter floor](https://github.com/ultron1846-oss/ULTRON/pull/170) makes preflight and the training controller use the shared inclusive 60,000,000-trainable-parameter minimum. It removes the controller's stale 40M check and preflight's 60,000,001 off-by-one. Regression tests verify the below-floor controller rejects before consuming batches or stepping an optimizer. CI validation is pending; no training or optimizer steps were run.
