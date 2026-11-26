@@ -6,7 +6,7 @@
 
 ## Manual checklist
 
-- [ ] Open the deployed GitHub Pages URL in Safari on iPad. Confirm the site opens without login or sign-up.
+- [ ] Open https://ultron1846-oss.github.io/ULTRON/ in Safari on iPad. Confirm the site opens without login or sign-up. GitHub Pages deployment run #146 succeeded, but this manual browser check is still required.
 - [ ] Test portrait and landscape orientation; confirm no horizontal page overflow.
 - [ ] Open and close the mobile sidebar; visit each primary page; confirm navigation closes correctly.
 - [ ] Move the preferred training-memory slider from 2 GB to 10 GB; confirm the value label updates and persists after reload.

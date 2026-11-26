@@ -58,14 +58,15 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#157 are merged; issue #135 is closed as completed.
+- PRs #136–#158 are merged; issue #135 is closed as completed. On 2026-11-26, the latest `main` commit `394ecd1da246c642de2ac3cc3515265358d5da4e` has successful Tests, Python AI Core Tests, Level 1 Math Tooling, and GitHub Pages build/deployment runs.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
 - No dataset import artifact, optimizer step, model training, or remote execution is claimed. Do not enable the import gate or dispatch training workflows without separate explicit authorization.
-- PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
+- PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md; PR #158 refreshed the README handoff. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
 - The 2–10 GB slider is a browser-local preference only. It does not allocate physical RAM or control a hosted runtime; connecting it to an approved runtime configuration and live memory cap remains unfinished.
-- Owner to-dos (not attempted): complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md; enable Supabase Auth leaked-password protection in the dashboard; verify free-runtime access and checkpoint transfer from a clean iPad session.
+- Latest Pages deployment run #146 succeeded for commit `394ecd1da246c642de2ac3cc3515265358d5da4e`; the deployment job reported success. The public URL and interactive behavior have not been independently verified from this session.
+- Owner to-do (manual, not attempted): open https://ultron1846-oss.github.io/ULTRON/ in iPad Safari and complete docs/IPAD_FRONTEND_ACCEPTANCE.md. Later runtime readiness must verify free-runtime availability and safe checkpoint portability through a separate approved runtime design; the current account-free website has no checkpoint transfer controls. Supabase Auth leaked-password protection is a separate backend dashboard security setting and is not required for the public frontend.
 
 ## Brief dated history
 
@@ -147,3 +148,25 @@ The public website has no login or sign-up requirement and no owner sign-in page
 ## iPad frontend acceptance — 2026-11-26
 
 Automated static checks cover viewport metadata, responsive breakpoints, safe-area handling, a 44 px touch-target minimum, and local persistence of the 2–10 GB preferred-memory slider. Manual Safari acceptance on an actual iPad remains pending. The slider is a browser-local preference only; it does not allocate physical RAM or change hosted-runner limits. See docs/IPAD_FRONTEND_ACCEPTANCE.md.
+
+
+## GitHub Pages deployment verification — 2026-11-26
+
+The GitHub Pages build-and-deployment run #146 completed successfully for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`. The build, status-report, and deploy jobs all reported success. This verifies the GitHub Actions deployment workflow, not manual browser acceptance or the live site's interactive behavior. Manual iPad Safari acceptance remains pending.
+
+## Phase execution handoff — 2026-11-26
+
+This phase status records the current readiness review; it does not authorize training or claim that manual device acceptance has passed.
+
+| Phase | Status | Verified boundary / remaining action |
+|---|---|---|
+| 1. Website completion | **BLOCKED — owner device check** | Pages deployment workflow succeeded. Manual iPad Safari acceptance, live-site interaction checks, and runtime connection remain pending. |
+| 2. Deployment documentation | **IN REVIEW** | PR #159 updates the deployment guide and handoff. README stale owner-to-dos were corrected; required checks are rerunning on the latest PR commit. |
+| 3. Math engine / Stage A | **IMPLEMENTED; MODEL EVALUATION PENDING** | Deterministic generators include bounded polynomial derivatives and definite integrals with exact validators. Evaluation and paired-comparison infrastructure exist. No trained-model prediction file or actual Fable 5.2 comparison is available; do not claim a benchmark pass. |
+| 4. Seed-data pipeline | **TOOLING IMPLEMENTED; UPLOAD BLOCKED** | Source registry/importer and validation gates exist. No dataset artifact has been uploaded. Available Hugging Face connection is read-only for dataset file writes; no remote job or dataset duplication was used as a workaround. |
+| 5. Training-control design | **DESIGN DOCUMENTED; RUNTIME NOT CONNECTED** | Generic status/readiness page and runtime research exist. The RAM slider is a local preference, not a live resource cap. Free-runtime and clean-session acceptance remain pending. |
+| 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | NeuroSparse model code and proposed >60M trainable configuration exist. Foundation instantiation, measured resource acceptance, and model capability evaluation are not verified. |
+| 7. Training / scale-up | **NOT AUTHORIZED; NOT STARTED** | No optimizer steps, training runs, generated corpus, or remote training execution. Requires a separate explicit authorization after readiness gates. |
+| 8. Final verification / handoff | **IN PROGRESS** | README handoff updated. Complete final verification after PR #159 checks and owner iPad acceptance; maintain exact verified/unverified boundaries. |
+
+No phase status above supersedes the training authorization gate. Keep actual training, optimizer steps, corpus generation, and remote execution disabled.
