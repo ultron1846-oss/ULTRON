@@ -48,7 +48,7 @@ class UniversityPrerequisiteTests(unittest.TestCase):
 
     def test_complex_algebra_and_number_theory_edges_are_present(self):
         mapping = load_curriculum_prerequisites()
-        self.assertTrue(mapping.is_prerequisite("Cauchy_integral_formula", "residues"))
+        self.assertTrue(mapping.is_prerequisite("Taylor_and_Laurent_series", "residues"))
         self.assertTrue(mapping.is_prerequisite("groups_and_subgroups", "cyclic_groups"))
         self.assertTrue(mapping.is_prerequisite("fields_and_extensions", "Galois_theory_intro"))
         self.assertTrue(mapping.is_prerequisite("congruences", "Chinese_remainder_theorem"))
@@ -56,7 +56,7 @@ class UniversityPrerequisiteTests(unittest.TestCase):
     def test_unmapped_curriculum_topic_is_not_assumed_to_have_prerequisites(self):
         mapping = load_curriculum_prerequisites()
         with self.assertRaisesRegex(ValueError, "no curated prerequisite mapping"):
-            mapping.prerequisites_for("holomorphic_functions")
+            mapping.prerequisites_for("topological_spaces")
 
     def test_validator_rejects_cycles(self):
         curriculum = {"topics": [{"topic": "a", "field": "F"}, {"topic": "b", "field": "F"}]}
