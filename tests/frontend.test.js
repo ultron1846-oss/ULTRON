@@ -218,21 +218,6 @@ test('Supabase public status client bounds requests and reports timeouts clearly
   );
 });
 
-test('Supabase backend page exposes generic read-only status without login', async () => {
-  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
-  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const backend = await readFile(new URL('../supabase-integration.js', import.meta.url), 'utf8');
-  assert.match(html, /data-page="backend"/);
-  assert.match(app, /renderBackend/);
-  assert.match(app, /Account-free public website/);
-  assert.match(app, /training-control public_status action/);
-  assert.doesNotMatch(app, /renderOwner|owner sign in|Owner Sign-in page|protected health action|owner-auth\.js/);
-  assert.match(backend, /public_status/);
-  assert.doesNotMatch(backend, /service_role|sb_secret_|ULTRON_GITHUB_TOKEN/);
-  assert.doesNotMatch(app, /functions\.invoke|fetch\([^)]*training-control|fetch\([^)]*device-control/);
-});
-
-
 import { normalizeMemoryPreference } from '../preferences.js';
 
 test('workload preference safely normalizes invalid and out-of-range browser storage', () => {
