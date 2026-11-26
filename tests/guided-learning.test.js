@@ -12,6 +12,7 @@ const answerAgent = source.slice(start, end);
 test('ordinary learner input is routed through hints rather than final answers', () => {
   assert.match(answerAgent, /if\(runAgentCommand\(raw\)\)return;/);
   assert.equal(answerAgent.includes(String.fromCharCode(92, 92, 115)), false, 'regex whitespace escapes must not be doubled');
+  assert.equal(answerAgent.includes(String.fromCharCode(92, 92, 110)), false, 'hint newline escapes must not be doubled');
   assert.match(answerAgent, /GUIDED LEARNING · ANSWER WITHHELD/);
   assert.match(answerAgent, /GUIDED EQUATION MODE · FINAL VALUE WITHHELD/);
   assert.match(answerAgent, /GUIDED CALCULATION · FINAL RESULT WITHHELD/);
