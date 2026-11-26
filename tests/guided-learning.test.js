@@ -18,7 +18,8 @@ test('ordinary learner input is routed through hints rather than final answers',
   assert.match(answerAgent, /GUIDED CALCULATION · FINAL RESULT WITHHELD/);
   assert.doesNotMatch(answerAgent, /wordProblem\.result/);
   assert.match(answerAgent, /solveLinearEquation\(equation\[1\]\)/, 'equation parser is used only to validate support before a hint');
-  assert.doesNotMatch(answerAgent, /evaluateExpression\(/);\n  assert.match(answerAgent, /I will not guess a solution/);
+  assert.doesNotMatch(answerAgent, /evaluateExpression\(/);
+  assert.match(answerAgent, /I will not guess a solution/);
   assert.doesNotMatch(answerAgent, /Answer:\s*\$\{/);
 });
 
