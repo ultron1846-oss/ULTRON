@@ -9,16 +9,16 @@ export const MATH_TOOL_COMMANDS = Object.freeze([
   {name:'/topics',description:'List mathematics topic commands.'},
   {name:'/status',description:'Show deterministic Math Agent capabilities.'},
   {name:'/graph',description:'Plot a supported function locally.'},
-  {name:'/calc',description:'Evaluate a supported arithmetic expression.'},
+  {name:'/calc',description:'Check your attempted calculation: /calc expression = your_answer.'},
   {name:'/gcd',description:'Greatest common divisor of two integers.'},
   {name:'/lcm',description:'Least common multiple of two integers.'},
   {name:'/factor',description:'Prime factorization of a positive integer.'},
   {name:'/table',description:'Table of values: /table expression start end step.'},
   {name:'/derivative',description:'Numerical derivative: /derivative expression at x.'},
   {name:'/integral',description:'Numerical definite integral: /integral expression from a to b.'},
-  {name:'/solve',description:'Solve a supported linear equation.'},
-  {name:'/quadratic',description:'Solve ax²+bx+c=0 using /quadratic a b c.'},
-  {name:'/system',description:'Solve a 2×2 system: /system a b c d e f means ax+by=e, cx+dy=f.'}
+  {name:'/solve',description:'Get a first-step hint or check your attempt: /solve equation | x=value.'},
+  {name:'/quadratic',description:'Get a discriminant hint or check roots: /quadratic a b c | r1,r2.'},
+  {name:'/system',description:'Get an elimination hint or check your attempt: /system a b c d e f | x,y.'}
 ]);
 
 const MAX_SAFE_INPUT = 1e12;
@@ -133,8 +133,12 @@ export function executeMathToolCommand(raw){
   try{
     let output,detail='LOCAL DETERMINISTIC MATH TOOL';
     if(command==='/calc'){
-      if(!args)throw new Error('Usage: /calc expression');
-      output='Result: '+format(evaluateExpression(args));
+      if(!args)throw new Error('Usage: /calc expression = your_answer');
+      const match=args.match(/^([\s\S]+?)\s*=\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)$/);
+      if(!match)throw new Error('Try the calculation first, then enter it as /calc expression = your_answer. The tool checks your attempt without revealing the result.');
+      const expected=evaluateExpression(match[1].trim()),submitted=numeric(match[2]);
+      const tolerance=1e-10*Math.max(1,Math.abs(expected),Math.abs(submitted));
+      output=Math.abs(expected-submitted)<=tolerance?'Your calculation is correct.':'Not quite. Check the order of operations and try again.';
     }else if(command==='/gcd'||command==='/lcm'){
       const parts=args.split(/\s+/);if(parts.length!==2)throw new Error('Usage: '+command+' integer integer');
       const a=integer(parts[0]),b=integer(parts[1]),g=gcd(a,b);
@@ -154,17 +158,38 @@ export function executeMathToolCommand(raw){
     }else if(command==='/integral'){
       const {expression,a,b}=parseFunctionAndBounds(args);output='∫['+format(a)+','+format(b)+'] f(x) dx ≈ '+format(numericalIntegral(expression,a,b))+'\nMethod: composite Simpson rule with 1,000 intervals; numerical estimate.';
     }else if(command==='/solve'){
-      if(!args.includes('='))throw new Error('Usage: /solve linear equation, e.g. /solve 2x + 3 = 11');
-      const result=solveLinearEquation(args);
-      output=result.kind==='unique'?'x = '+format(result.value):result.kind==='none'?'No solution.':'All real values of x satisfy the equation.';
+      const parts=args.split('|'),equation=parts[0].trim();
+      if(!equation.includes('='))throw new Error('Usage: /solve equation | x=value');
+      if(parts.length<2){output='First step: simplify both sides and collect the x-terms on one side. Tell me the equation you get; I will check that step.';}
+      else{
+        const attempt=parts[1].trim().match(/^x\s*=\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)$/i);
+        if(!attempt)throw new Error('Enter your attempted value after |, for example: /solve 2x + 3 = 11 | x=4');
+        const submitted=numeric(attempt[1]),result=solveLinearEquation(equation);
+        output=result.kind==='unique'&&Math.abs(result.value-submitted)<=1e-10*Math.max(1,Math.abs(result.value),Math.abs(submitted))?'Your value satisfies the equation.':'Not yet. Check your inverse operations and substitution; I will not reveal the solution.';
+      }
     }else if(command==='/quadratic'){
-      const p=args.split(/\s+/).map(numeric);if(p.length!==3)throw new Error('Usage: /quadratic a b c for ax²+bx+c=0');
-      const result=solveQuadratic(...p);
-      output=result.kind==='complex'?'Complex roots: '+format(result.real)+' ± '+format(result.imag)+'i':result.kind==='repeated'?'Repeated root: '+format(result.roots[0]):'Roots: '+result.roots.map(format).join(', ');
+      const parts=args.split('|'),coefficients=parts[0].trim().split(/\s+/).map(numeric);
+      if(coefficients.length!==3)throw new Error('Usage: /quadratic a b c | r1,r2');
+      const [a,b,c]=coefficients;
+      if(parts.length<2){output='First step: calculate the discriminant D = b² − 4ac using your coefficients. Send me D and I will check it.';}
+      else{
+        const roots=parts[1].split(',').map(numeric);
+        if(roots.length!==2)throw new Error('Enter your two attempted roots after |, separated by a comma.');
+        const result=solveQuadratic(a,b,c);
+        const correct=result.kind==='real'&&result.roots.every((value,index)=>Math.abs(value-roots.slice().sort((x,y)=>x-y)[index])<=1e-10*Math.max(1,Math.abs(value)));
+        output=correct?'Both roots are correct.':'Not yet. Check the discriminant and quadratic formula; I will not reveal the roots.';
+      }
     }else if(command==='/system'){
-      const p=args.split(/\s+/).map(numeric);if(p.length!==6)throw new Error('Usage: /system a b c d e f (ax+by=e, cx+dy=f)');
-      const result=solveLinearSystem2x2(...p);
-      output=result.kind==='unique'?'x = '+format(result.x)+', y = '+format(result.y):result.kind==='dependent'?'Dependent system: infinitely many solutions.':'Inconsistent system: no solution.';
+      const parts=args.split('|'),coefficients=parts[0].trim().split(/\s+/).map(numeric);
+      if(coefficients.length!==6)throw new Error('Usage: /system a b c d e f | x,y');
+      if(parts.length<2){output='First step: choose x or y to eliminate. Multiply one or both equations so the chosen coefficients match or are opposites, then subtract. Send me the resulting equation.';}
+      else{
+        const attempt=parts[1].split(',').map(numeric);
+        if(attempt.length!==2)throw new Error('Enter your attempted values after | as x,y.');
+        const result=solveLinearSystem2x2(...coefficients);
+        const correct=result.kind==='unique'&&Math.abs(result.x-attempt[0])<=1e-10*Math.max(1,Math.abs(result.x))&&Math.abs(result.y-attempt[1])<=1e-10*Math.max(1,Math.abs(result.y));
+        output=correct?'Your pair satisfies the system.':'Not yet. Check elimination and substitute both values into the original equations; I will not reveal the solution.';
+      }
     }
     return {handled:true,command,output,detail};
   }catch(error){return {handled:true,command,output:'Tool error: '+(error.message||String(error)),detail:'Check command syntax and supported limits.'};}
