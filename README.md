@@ -58,11 +58,13 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-- PRs #136–#156 are merged; issue #135 is closed as completed.
+- PRs #136–#157 are merged; issue #135 is closed as completed.
 - PR #155 removed the owner sign-in route and browser auth module; PR #156 removed disabled job/checkpoint buttons, the checkpoint-count tile, and retired pairing controls from the public UI.
 - The static website requires no login or sign-up. The Memory Vault remains browser-local; no account-specific training history, pairing, job controls, or checkpoint mutation controls are exposed.
 - The seed importer and arithmetic source registration provide tooling only; no dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and `ULTRON_SEED_IMPORT_ENABLED=true`.
 - No dataset import artifact, optimizer step, model training, or remote execution is claimed. Do not enable the import gate or dispatch training workflows without separate explicit authorization.
+- PR #157 added automated responsive checks and docs/IPAD_FRONTEND_ACCEPTANCE.md. Manual iPad Safari acceptance is still pending; CI cannot verify the deployed site on an actual iPad.
+- The 2–10 GB slider is a browser-local preference only. It does not allocate physical RAM or control a hosted runtime; connecting it to an approved runtime configuration and live memory cap remains unfinished.
 - Owner to-dos (not attempted): complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md; enable Supabase Auth leaked-password protection in the dashboard; verify free-runtime access and checkpoint transfer from a clean iPad session.
 
 ## Brief dated history
