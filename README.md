@@ -153,3 +153,20 @@ Automated static checks cover viewport metadata, responsive breakpoints, safe-ar
 ## GitHub Pages deployment verification — 2026-11-26
 
 The GitHub Pages build-and-deployment run #146 completed successfully for main commit `394ecd1da246c642de2ac3cc3515265358d5da4e`. The build, status-report, and deploy jobs all reported success. This verifies the GitHub Actions deployment workflow, not manual browser acceptance or the live site's interactive behavior. Manual iPad Safari acceptance remains pending.
+
+## Phase execution handoff — 2026-11-26
+
+This phase status records the current readiness review; it does not authorize training or claim that manual device acceptance has passed.
+
+| Phase | Status | Verified boundary / remaining action |
+|---|---|---|
+| 1. Website completion | **BLOCKED — owner device check** | Pages deployment workflow succeeded. Manual iPad Safari acceptance, live-site interaction checks, and runtime connection remain pending. |
+| 2. Deployment documentation | **IN REVIEW** | PR #159 updates the deployment guide and handoff. README stale owner-to-dos were corrected; required checks are rerunning on the latest PR commit. |
+| 3. Math engine / Stage A | **IMPLEMENTED; MODEL EVALUATION PENDING** | Deterministic generators include bounded polynomial derivatives and definite integrals with exact validators. Evaluation and paired-comparison infrastructure exist. No trained-model prediction file or actual Fable 5.2 comparison is available; do not claim a benchmark pass. |
+| 4. Seed-data pipeline | **TOOLING IMPLEMENTED; UPLOAD BLOCKED** | Source registry/importer and validation gates exist. No dataset artifact has been uploaded. Available Hugging Face connection is read-only for dataset file writes; no remote job or dataset duplication was used as a workaround. |
+| 5. Training-control design | **DESIGN DOCUMENTED; RUNTIME NOT CONNECTED** | Generic status/readiness page and runtime research exist. The RAM slider is a local preference, not a live resource cap. Free-runtime and clean-session acceptance remain pending. |
+| 6. From-scratch model | **MODEL CODE / CONFIG IMPLEMENTED; UNTRAINED** | NeuroSparse model code and proposed >60M trainable configuration exist. Foundation instantiation, measured resource acceptance, and model capability evaluation are not verified. |
+| 7. Training / scale-up | **NOT AUTHORIZED; NOT STARTED** | No optimizer steps, training runs, generated corpus, or remote training execution. Requires a separate explicit authorization after readiness gates. |
+| 8. Final verification / handoff | **IN PROGRESS** | README handoff updated. Complete final verification after PR #159 checks and owner iPad acceptance; maintain exact verified/unverified boundaries. |
+
+No phase status above supersedes the training authorization gate. Keep actual training, optimizer steps, corpus generation, and remote execution disabled.
