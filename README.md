@@ -58,7 +58,7 @@ The shared Problem contract and generated combined registry were added in merged
 ## Current handoff
 
 - PRs #136–#143 are merged. PR #134 was closed without merge and superseded by merged PR #142.
-- This README handoff refresh is proposed in PR #144; check its current status before treating it as merged.
+- Handoff state was checked against GitHub on 2026-11-26.
 - Issue #135 remains open and defines the next pre-training acceptance work: tool-disabled model-only evaluation, separate model-only/tool-assisted metrics, regression protection against command-output leakage into training targets, concept/prerequisite curation, and held-out concept-transfer evaluation.
 - The seed importer and the basic-arithmetic source registration are merged. They provide import tooling only; they do not mean the dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and the owner-controlled `ULTRON_SEED_IMPORT_ENABLED=true` variable.
 - No dataset import artifact, optimizer step, model training, or remote training execution is claimed. Do not enable the import gate or dispatch the workflow without separate explicit authorization.
