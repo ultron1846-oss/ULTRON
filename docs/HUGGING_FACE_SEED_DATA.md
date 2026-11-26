@@ -47,3 +47,12 @@ Concept annotation may be incomplete or uncertain. Preserve the source record an
 ## Workflow safety gate
 
 The GitHub Actions importer is manual-only and skipped unless the dispatch input confirm_download is true and the repository variable ULTRON_SEED_IMPORT_ENABLED is explicitly set to true. The variable is intentionally absent by default. Do not enable it or dispatch this workflow without separate explicit authorization for external dataset download/curation. Ordinary PR tests use mocked clients and never contact Hugging Face.
+
+
+## Basic arithmetic seed source
+
+The registry now includes the MIT-licensed [ChrisMcCormick/basic-arithmetic](https://huggingface.co/datasets/ChrisMcCormick/basic-arithmetic) dataset as a separate foundation arithmetic source. Only its **10,000-row train split** is configured; validation and test splits are never imported. The source card lists addition, subtraction, multiplication, and division and includes answer-only records.
+
+The importer independently checks each accepted row against its integer operands and operation, requires exact integer division (rejecting zero divisors and non-integer quotients), rejects mismatched answers and unsupported operations, and limits each operand to absolute value 10,000. Accepted records are marked `target_kind: answer_only` so they are not misrepresented as worked reasoning. This is a small foundational arithmetic source, not a complete reasoning corpus.
+
+Import remains behind the manual workflow and owner-controlled repository-variable gate. This PR adds source support only; it does not download or publish dataset rows and does not start training.
