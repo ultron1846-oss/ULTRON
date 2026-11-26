@@ -273,6 +273,14 @@ class MathTaskSerializationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "keys must be non-empty strings"):
             Problem.from_generator(record, source="test.fixture")
 
+    def test_problem_restore_rejects_empty_metadata_key(self):
+        problem, _ = _worked_problem()
+        payload = problem.to_dict()
+        payload["metadata"] = [("", "value")]
+
+        with self.assertRaisesRegex(ValueError, "metadata must contain only string pairs"):
+            Problem.from_dict(payload)
+
     def test_invalid_derivation_rows_fail_closed(self):
         record = {
             "problem": "Calculate 2 + 2.",
