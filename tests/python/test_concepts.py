@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from ultron_core.data_generation import SUPPORTED_TOPICS
 from ultron_core.concepts import (
     CONCEPTS,
+    MathConcept,
     CONCEPT_TRANSFER_CATEGORIES,
     TOPIC_TO_CONCEPT,
     concept_coverage_report,
@@ -21,6 +22,23 @@ class ConceptTaxonomyTests(unittest.TestCase):
         self.assertEqual(set(TOPIC_TO_CONCEPT), set(SUPPORTED_TOPICS))
         self.assertTrue(all(value in CONCEPTS for value in TOPIC_TO_CONCEPT.values()))
         self.assertTrue(all(concept.principle for concept in CONCEPTS.values()))
+
+
+    def test_registry_rejects_prerequisite_cycles(self):
+        original = CONCEPTS["concept.integer_operations"]
+        CONCEPTS["concept.integer_operations"] = MathConcept(
+            original.concept_id,
+            original.title,
+            original.principle,
+            prerequisites=("concept.integer_operations",),
+            assumptions=original.assumptions,
+            misconceptions=original.misconceptions,
+        )
+        try:
+            with self.assertRaisesRegex(ValueError, "contains a cycle"):
+                validate_concept_registry()
+        finally:
+            CONCEPTS["concept.integer_operations"] = original
 
     def test_topic_lookup_rejects_unknown_topic(self):
         with self.assertRaisesRegex(ValueError, "unsupported concept topic"):
