@@ -998,3 +998,9 @@ PR #166 implements the remaining compression toolkit as one reviewable change wi
 - The compressed artifact is a separate deployment object and explicitly does not inherit or claim the foundation parameter floor. The foundation configuration and its parameter counters were not changed.
 
 New toolkit regression tests use fixed-seed small CPU models only. No model training, optimizer steps, dataset/corpus/calibration generation, cloud/remote training, or external AI API was used. No quality, speed, or memory reduction is claimed. See [docs/COMPRESSION.md](docs/COMPRESSION.md) for the full API and constraints.
+
+## Rational-function division differential coverage — prepared for review (2026-11-26)
+
+PR #168 adds a fixed-seed 1,000-case SymPy differential comparison for exact rational-function division. Each accepted case checks points where both operands are defined and the divisor function is non-zero. A focused regression separately checks that quotient evaluation rejects points where the divisor's numerator or denominator vanishes, while evaluating correctly at an admissible point.
+
+The change is tests-only: no runtime math code, dependency configuration, website, Supabase, authentication, or deployment files changed. SymPy remains test-only. Required CI checks were pending when this handoff was written; merge is conditional on full review and all required checks passing. No training, optimizer steps, dataset/corpus/calibration generation, dataset downloads, or remote execution were performed.
