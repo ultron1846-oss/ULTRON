@@ -111,4 +111,21 @@ class SympyDifferential(unittest.TestCase):
    result=verify_rational_identity(Expr(ExprKind.EQUAL,args=(lhs,rhs)));want=sp.cancel(sym(lhs)-sym(rhs))==0
    self.assertEqual(result.status.value=="exact_checked",bool(want),msg=f"seed=A471F case={i} lhs={sym(lhs)} rhs={sym(rhs)}")
 
+ def test_rational_function_division_1000(self):
+  r=random.Random(0xD1A1D1);checked=0;attempts=0
+  while checked<N and attempts<N*100:
+   attempts+=1
+   p,ps=rp(r,3);q,qs=rp(r,3);u,us=rp(r,2);v,vs=rp(r,2);x=r.randint(-8,8)
+   # Division is defined only where both rational functions are defined and
+   # the divisor itself is non-zero.
+   if qs.eval(x)==0 or vs.eval(x)==0 or us.eval(x)==0:continue
+   f,g=RationalFunction(p,q),RationalFunction(u,v);env={"x":Fraction(x)}
+   got=f.divide(g).evaluate(env)
+   want=sp.cancel((ps.as_expr()/qs.as_expr())/(us.as_expr()/vs.as_expr())).subs(X,x)
+   want=sp.Rational(want)
+   self.assertEqual(got,Fraction(int(want.p),int(want.q)),
+                    msg=f"seed=D1A1D1 case={checked} f={ps}/{qs} g={us}/{vs} x={x}")
+   checked+=1
+  self.assertEqual(checked,N,msg=f"seed=D1A1D1 accepted only {checked} cases in {attempts} attempts")
+
 if __name__=="__main__":unittest.main()
