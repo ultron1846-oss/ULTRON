@@ -31,6 +31,30 @@ class PolynomialOperandLimitTests(unittest.TestCase):
         with self.assertRaisesRegex(PolynomialError, "total degree 3"):
             self.over_degree.power(0, limits=self.strict)
 
+    def test_add_rejects_over_budget_term_count_even_when_terms_cancel(self):
+        three_terms = (
+            Polynomial.variable("x")
+            .add(Polynomial.variable("y"))
+            .add(Polynomial.constant(1))
+        )
+        negative = three_terms.scale(-1)
+        limits = PolynomialLimits(
+            max_total_degree=4,
+            max_terms=2,
+            max_exponent=4,
+        )
+        with self.assertRaisesRegex(PolynomialError, "term count 3"):
+            three_terms.add(negative, limits=limits)
+
+    def test_scale_rejects_over_budget_exponent_even_when_scaled_to_zero(self):
+        limits = PolynomialLimits(
+            max_total_degree=10,
+            max_terms=8,
+            max_exponent=2,
+        )
+        with self.assertRaisesRegex(PolynomialError, "monomial exponent"):
+            self.over_degree.scale(0, limits=limits)
+
     def test_within_budget_operations_remain_exact(self):
         x = Polynomial.variable("x")
         square = x.power(2, limits=self.strict)
