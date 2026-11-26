@@ -220,17 +220,20 @@ test('Supabase public status client bounds requests and reports timeouts clearly
   );
 });
 
-test('Supabase backend page exposes generic status and retains owner sign-in', async () => {
+test('Supabase backend page exposes generic read-only status without login', async () => {
   const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
-  assert.match(app, /id="supabase-refresh"/);
-  assert.match(app, /id="supabase-status-checked"/);
-  assert.match(app, /OWNER-GATED/);
-  assert.match(app, /renderOwner/);
-  assert.match(app, /owner sign in/i);
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const backend = await readFile(new URL('../supabase-integration.js', import.meta.url), 'utf8');
+  assert.match(html, /data-page="backend"/);
+  assert.match(app, /renderBackend/);
+  assert.match(app, /Account-free public website/);
   assert.match(app, /training-control public_status action/);
-  assert.match(app, /protected health action/);
-  // Request timeout behavior is asserted in the Supabase client test above.
+  assert.doesNotMatch(app, /renderOwner|owner sign in|Owner Sign-in page|protected health action|owner-auth\.js/);
+  assert.match(backend, /public_status/);
+  assert.doesNotMatch(backend, /service_role|sb_secret_|ULTRON_GITHUB_TOKEN/);
+  assert.doesNotMatch(app, /functions\.invoke|fetch\([^)]*training-control|fetch\([^)]*device-control/);
 });
+
 
 import { normalizeMemoryPreference } from '../preferences.js';
 
