@@ -11,7 +11,6 @@ from .data_generation import MathExample, validate_example_text
 from .math_tokenizer import MathVocabulary
 
 _REQUIRED_SPLITS = ("train", "validation", "test")
-_MINIMUM_PARAMETERS = MIN_FOUNDATION_TRAINABLE_PARAMETERS
 
 def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256,
                             gradient_accumulation_steps=1, memory_budget_gib=None, dataset_manifest_sha256=None):
@@ -37,8 +36,11 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
         raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
-    if parameter_count < _MINIMUM_PARAMETERS:
-        raise ValueError(f"model has {parameter_count} trainable parameters; minimum is {_MINIMUM_PARAMETERS} (at least 60M)")
+    if parameter_count < MIN_FOUNDATION_TRAINABLE_PARAMETERS:
+        raise ValueError(
+            f"model has {parameter_count} trainable parameters; minimum is "
+            f"{MIN_FOUNDATION_TRAINABLE_PARAMETERS} (at least 60M)"
+        )
     if not isinstance(splits, Mapping) or set(splits) != set(_REQUIRED_SPLITS):
         raise ValueError("splits must contain exactly train, validation, and test")
     seen_prompts, seen_ids = set(), set()
@@ -73,8 +75,9 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
         "status": "PREFLIGHT_ONLY", "validated": True, "training_authorized": False,
         "optimizer_steps": 0, "remote_execution_enabled": False,
         "parameter_count": parameter_count, "trainable_parameter_count": parameter_count,
-        "total_parameter_count": total_parameter_count, "minimum_parameter_count": _MINIMUM_PARAMETERS,
-        "minimum_trainable_parameter_count": _MINIMUM_PARAMETERS,
+        "total_parameter_count": total_parameter_count,
+        "minimum_parameter_count": MIN_FOUNDATION_TRAINABLE_PARAMETERS,
+        "minimum_trainable_parameter_count": MIN_FOUNDATION_TRAINABLE_PARAMETERS,
         "vocabulary_size": len(vocab), "split_counts": split_counts, "prompt_disjoint": True,
         "batch_size": batch_size, "sequence_length": sequence_length,
         "gradient_accumulation_steps": gradient_accumulation_steps,
