@@ -101,9 +101,12 @@ def run_model_only_evaluation(
                             raise ValueError("model logits must have shape [batch, sequence, vocabulary]")
                         if logits.shape[0] != 1 or logits.shape[1] != len(sequence):
                             raise ValueError("model logits do not match the input sequence")
-                        if logits.shape[2] != vocabulary_size:
-                            raise ValueError("model output vocabulary does not match tokenizer")
-                        next_logits = logits[0, -1, :]
+                        if logits.shape[2] < vocabulary_size:
+                            raise ValueError("model output vocabulary is smaller than tokenizer vocabulary")
+                        # The default CPU smoke config has extra unused logits
+                        # beyond the canonical math vocabulary. Mask them so the
+                        # model cannot emit unsupported token IDs.
+                        next_logits = logits[0, -1, :vocabulary_size]
                         if not bool(torch.isfinite(next_logits).all()):
                             raise ValueError("model emitted non-finite next-token logits")
                         next_token = int(torch.argmax(next_logits).item())
