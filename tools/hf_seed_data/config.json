@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "description": "Curated Hugging Face math seed sources. This is a source registry, not training authorization.",
+  "sources": [
+    {"id":"metamathqa","repo_id":"meta-math/MetaMathQA","revision":"main","split":"train","expected_rows":395000,"dataset_license":"MIT","question_field":"query","answer_field":"response","source_field":"type","allowed":true,"notes":"Derived from GSM8K and MATH training sets; benchmark contamination review required."},
+    {"id":"mathinstruct","repo_id":"TIGER-Lab/MathInstruct","revision":"main","split":"train","expected_rows":262039,"dataset_license":"mixed; see dataset card","question_field":"instruction","answer_field":"output","source_field":"source","allowed":true,"notes":"Only explicitly allowlisted CoT sources; exclude PoT and incompatible sources."}
+  ],
+  "mathinstruct_source_license_allowlist": {
+    "aqua_rat":"Apache-2.0","math":"MIT","gsm8k":"MIT","theoremqa":"MIT","numglue":"Apache-2.0","mathqa":"Apache-2.0","our_curated":"MIT"
+  },
+  "mathinstruct_source_denylist":["gsm8k_rft","camel_math","camel-math","pot","program_of_thought","program-of-thought"],
+  "split":{"algorithm":"sha256(normalized_question) first byte","validation_percent":1,"test_percent":1,"train_percent":98},
+  "limits":{"max_question_chars":20000,"max_answer_chars":30000}
+}

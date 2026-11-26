@@ -84,3 +84,7 @@ The cognitive behavior profile now rejects non-finite numeric weights (`NaN`, po
 ## Level 1 exact math tooling — CI scope (2026-11-26)
 
 The Level 1 arithmetic and linear-equation package is an exact, deterministic tooling prototype with SymPy differential tests and a separately defined 500-item held-out evaluation benchmark. CI runs the package regression suite only; it no longer generates or writes the held-out benchmark. The benchmark scripts remain opt-in for a separately authorized local evaluation and must never be used as training data. The training-source adapter is a guarded interface, not a training run. No optimizer step, corpus generation, model training, or remote training execution was performed.
+
+## Seed importer CI safety regression — 2026-11-26
+
+The importer test suite now verifies that the workflow has no push trigger and is skipped unless both the dispatch confirmation and owner-controlled repository variable are enabled. This test uses the checked-in workflow text only; it does not dispatch or download data.
