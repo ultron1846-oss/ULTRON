@@ -23,9 +23,9 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 89)
+        self.assertEqual(mapping.mapped_topic_count, 133)
         self.assertEqual(mapping.source_topic_count, 197)
-        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 108)
+        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 64)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
         mapping = load_curriculum_prerequisites()
@@ -53,10 +53,18 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("fields_and_extensions", "Galois_theory_intro"))
         self.assertTrue(mapping.is_prerequisite("congruences", "Chinese_remainder_theorem"))
 
+
+    def test_topology_discrete_probability_and_statistics_edges(self):
+        mapping = load_curriculum_prerequisites()
+        self.assertTrue(mapping.is_prerequisite("fundamental_group_intro", "covering_spaces_intro"))
+        self.assertTrue(mapping.is_prerequisite("mathematical_induction", "recurrence_relations"))
+        self.assertTrue(mapping.is_prerequisite("law_of_large_numbers", "central_limit_theorem"))
+        self.assertTrue(mapping.is_prerequisite("Bayes_theorem", "Bayesian_statistics_intro"))
+
     def test_unmapped_curriculum_topic_is_not_assumed_to_have_prerequisites(self):
         mapping = load_curriculum_prerequisites()
         with self.assertRaisesRegex(ValueError, "no curated prerequisite mapping"):
-            mapping.prerequisites_for("topological_spaces")
+            mapping.prerequisites_for("heat_equation")
 
     def test_validator_rejects_cycles(self):
         curriculum = {"topics": [{"topic": "a", "field": "F"}, {"topic": "b", "field": "F"}]}
