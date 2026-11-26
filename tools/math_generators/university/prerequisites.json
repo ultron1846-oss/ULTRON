@@ -184,6 +184,7 @@
     ],
     "pointwise_and_uniform_convergence": [
       "convergence_of_sequences",
+      "Cauchy_sequences",
       "metric_spaces"
     ],
     "compactness": [
