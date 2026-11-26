@@ -142,3 +142,70 @@ def prune_experts(
         "weight_strategy": "retain_selected_expert_parameters_without_averaging",
     }
     return result, report
+
+
+def merge_experts(
+    model: nn.Module,
+    groups: Sequence[Sequence[int]],
+    usage: Any | None = None,
+) -> tuple[nn.Module, dict[str, Any]]:
+    """Merge expert groups by keeping one real representative per group.
+
+    A group's representative is its most-used member in that layer (ties go
+    to the lowest original expert index). The representative's parameters are
+    retained exactly; weights are never averaged. No ridge refit or optimizer
+    operation is performed.
+    """
+    if not isinstance(model, nn.Module):
+        raise TypeError("model must be a torch.nn.Module")
+    blocks, expert_count, top_k = _expert_layout(model)
+    if not isinstance(groups, (list, tuple)):
+        raise TypeError("groups must be a sequence of expert-index sequences")
+    normalized_groups = []
+    for group_index, group in enumerate(groups):
+        if not isinstance(group, (list, tuple)) or not group:
+            raise ValueError(f"expert group {group_index} must be a non-empty sequence")
+        normalized = []
+        for expert_index in group:
+            if isinstance(expert_index, bool) or not isinstance(expert_index, int):
+                raise TypeError("expert indices must be integers")
+            if not 0 <= expert_index < expert_count:
+                raise ValueError(f"expert index {expert_index} is outside the model")
+            normalized.append(expert_index)
+        if len(set(normalized)) != len(normalized):
+            raise ValueError(f"expert group {group_index} contains duplicate indices")
+        normalized_groups.append(list(normalized))
+
+    flattened = [index for group in normalized_groups for index in group]
+    if sorted(flattened) != list(range(expert_count)):
+        raise ValueError("groups must partition every original expert exactly once")
+    if not top_k <= len(normalized_groups) < expert_count:
+        raise ValueError("merged group count must be at least top_k and less than num_experts")
+
+    rows = _usage_matrix(model, usage, len(blocks), expert_count)
+    representatives_by_layer = [
+        [max(group, key=lambda index: (rows[layer_index][index], -index))
+         for group in normalized_groups]
+        for layer_index in range(len(blocks))
+    ]
+
+    result = copy.deepcopy(model)
+    before = _parameter_totals(model)
+    _replace_experts_and_router(result, representatives_by_layer)
+    after = _parameter_totals(result)
+    report = {
+        "operation": "merge_experts",
+        "expert_count_before": expert_count,
+        "expert_count_after": len(normalized_groups),
+        "groups": [list(group) for group in normalized_groups],
+        "representatives_by_layer": {
+            str(index): list(values)
+            for index, values in enumerate(representatives_by_layer)
+        },
+        "parameter_counts_before": before,
+        "parameter_counts_after": after,
+        "original_model_modified": False,
+        "weight_strategy": "retain_one_real_representative_per_group_no_averaging",
+        "ridge_refit": False,
+    }
+    return result, report

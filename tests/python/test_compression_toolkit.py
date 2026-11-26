@@ -2,7 +2,11 @@ import unittest
 
 import torch
 
-from ultron_core.compress import ExpertUsageCounter, prune_experts
+from ultron_core.compress import (
+    ExpertUsageCounter,
+    merge_experts,
+    prune_experts,
+)
 from ultron_core.config import NeuroSparseConfig
 from ultron_core.model import NeuroSparseModel
 
@@ -96,6 +100,37 @@ class ExpertPruningTests(unittest.TestCase):
         for name, value in model.state_dict().items():
             self.assertTrue(torch.equal(value, before[name]))
 
+
+class ExpertMergeTests(unittest.TestCase):
+    def test_keeps_layer_specific_real_representatives_without_averaging(self):
+        model = small_model().eval()
+        original_state = {name: value.clone() for name, value in model.state_dict().items()}
+        usage = {"layers": {"0": [1, 20, 7, 2], "1": [9, 2, 3, 30]}}
+        result, report = merge_experts(model, [[0, 1], [2, 3]], usage)
+
+        self.assertEqual(result.config.num_experts, 2)
+        self.assertEqual(report["representatives_by_layer"], {"0": [1, 3], "1": [0, 3]})
+        for layer_index, representatives in enumerate(([1, 3], [0, 3])):
+            for new_index, old_index in enumerate(representatives):
+                self.assertTrue(torch.equal(
+                    result.blocks[layer_index].experts[new_index].net[0].weight,
+                    model.blocks[layer_index].experts[old_index].net[0].weight,
+                ))
+                self.assertTrue(torch.equal(
+                    result.blocks[layer_index].router.proj.weight[new_index],
+                    model.blocks[layer_index].router.proj.weight[old_index],
+                ))
+        self.assertFalse(report["ridge_refit"])
+        for name, value in model.state_dict().items():
+            self.assertTrue(torch.equal(value, original_state[name]))
+        with torch.inference_mode():
+            output = result(torch.tensor([[1, 2, 3]], dtype=torch.long))
+        self.assertEqual(tuple(output["logits"].shape), (1, 3, 64))
+
+    def test_rejects_groups_that_do_not_partition_all_experts(self):
+        model = small_model()
+        with self.assertRaisesRegex(ValueError, "partition every"):
+            merge_experts(model, [[0, 1], [1, 2]])
 
 if __name__ == "__main__":
     unittest.main()
