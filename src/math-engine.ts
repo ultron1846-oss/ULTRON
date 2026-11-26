@@ -57,7 +57,7 @@ export function evaluateExpression(source: string): number {
       throw new Error('Expected a number or parenthesized expression.');
     }
     const value = Number(token);
-    if (!Number.isFinite(value)) throw new Error('Number is outside the supported range.');
+    if (!Number.isFinite(value)) throw new Error('Number is outside the supported numeric range.');
     return value;
   }
   function power(): number {
