@@ -208,4 +208,17 @@ PR #165 adds parameter accounting only; it does not implement compression transf
 
 The 60M trainable-parameter floor applies only to the foundation training checkpoint. Compressed models are separate, versioned deployment artifacts that record their parent checkpoint and the steps applied; they never replace the foundation checkpoint and are never described as meeting that floor. See [docs/COMPRESSION.md](docs/COMPRESSION.md).
 
-Compression quality can only be judged on a trained model with a verified benchmark. **No calibration corpus has been generated**, and no compression-quality result is claimed. PR #165 was squash-merged as `a31e5300bfbd6b1ceb7baeb2949fd938c6771f3f` after all three PR checks passed on head `81b4393e3652423aeb37cc1f4830109a33102595`: Node tests (98 passed, 0 failed), Python AI Core (compression regression cases plus CPU forward/backward smoke passed), and Level 1 Math Tooling (5 passed). No training, optimizer step, corpus/calibration generation, or remote training execution was performed. PR 2 remains on hold until separately instructed.
+Compression quality can only be judged on a trained model with a verified benchmark. **No calibration corpus has been generated**, and no compression-quality result is claimed. PR #165 was squash-merged as `a31e5300bfbd6b1ceb7baeb2949fd938c6771f3f` after its three required checks passed. No training, optimizer step, corpus/calibration generation, or remote training execution was performed.
+
+## Compression toolkit — implementation prepared for review (2026-11-26)
+
+PR #166 implements the remaining compression toolkit as one reviewable change with separate commits for expert usage counting, expert pruning, representative-based expert merging, SVD low-rank factorization, simulated int8 sensitivity reporting, the rollback/versioned-artifact pipeline, and documentation. See the PR history for the recorded CI and merge status.
+
+- Expert usage is measured by reversible forward hooks and counts token rows dispatched to each expert.
+- Pruning and merging return new model copies. Merging retains a real usage-selected representative in each group; weights are not averaged and ridge refit is disabled.
+- SVD factorization selects the smallest rank meeting a relative Frobenius **weight reconstruction** error limit. That bound is not a task-quality score and factorization can increase parameter count for strict error limits.
+- Int8 is simulated by quantize/dequantize round-tripping weights; returned weights remain floating point. Optional activation sensitivity uses only caller-supplied inputs; no calibration corpus is created.
+- The pipeline returns a new model and report, rolls back to an untouched copy on failure, and writes immutable, versioned compressed deployment artifacts with parent-checkpoint provenance and a SHA-256 state digest.
+- The compressed artifact is a separate deployment object and explicitly does not inherit or claim the foundation parameter floor. The foundation configuration and its parameter counters were not changed.
+
+New toolkit regression tests use fixed-seed small CPU models only. No model training, optimizer steps, dataset/corpus/calibration generation, cloud/remote training, or external AI API was used. No quality, speed, or memory reduction is claimed. See [docs/COMPRESSION.md](docs/COMPRESSION.md) for the full API and constraints.
