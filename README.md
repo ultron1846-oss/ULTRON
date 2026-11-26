@@ -48,7 +48,7 @@ These results establish the tested code and workflow behavior only. They do not 
 
 - Repository: [ultron1846-oss/ULTRON](https://github.com/ultron1846-oss/ULTRON), default branch `main`.
 - Latest merged engineering change: [PR #166 — compression toolkit](https://github.com/ultron1846-oss/ULTRON/pull/166). The post-merge Python AI Core and Level 1 Math Tooling runs listed above both succeeded.
-- The requested pre-training engineering checklist A–G has been reviewed: shared generator contract/registry and split checks, SymPy differential tests, exact-check status, Lean stub, Level 1 tooling, and PR #127 word-problem/percentage coverage are implemented. The README consolidation is being completed separately in its own PR.
+- The requested pre-training engineering checklist A–G has been reviewed. Its implemented math-engine, generator, verification, Lean-stub, Level 1, and word-problem coverage is summarized above; detailed dated milestones are archived in docs/HISTORY.md.
 - Remaining owner-side acceptance includes manual iPad Safari testing. Automated responsive checks are not a substitute for testing on an actual iPad.
 - Continue with small, independently reviewable math-engine or readiness tasks. Preserve the no-training authorization boundary.
 
