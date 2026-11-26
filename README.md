@@ -57,7 +57,7 @@ The shared Problem contract and generated combined registry were added in merged
 
 ## Current handoff
 
-Work through the requested small PRs in order: A (README/history), B (generator contract and registry), C (SymPy differential tests), D (verification status rename), E (Lean design and fake-checker interface). For each, inspect current main/open PRs first, avoid duplicating existing work, make only scoped changes, review the final diff, and report exact test results. Merge only after the required Node, Python AI Core, CPU smoke, and Python 3.11 CI checks pass. Do not run training, optimizer steps, corpus generation, or cloud/remote execution.
+PRs A–D are merged. PR E adds only the Lean plan and fake-checker interface. Next, review the remaining existing PRs (#136, #134, #125, #98) without starting corpus downloads or training; confirm #136 artifact state separately. No training, optimizer steps, corpus generation, or cloud/remote execution is authorized.
 
 Owner to-dos (not attempted):
 - Enable Supabase leaked-password protection in the dashboard.
