@@ -878,7 +878,7 @@ The batch is tested through the existing 300-seed replay/verifier suite plus new
 - **2026-11-25:** Math Agent tools and tutor-first direction; Grades 1–4, 5–8, 8–12 and university generator expansion; university topic registry work; model/training preflight and free-runtime review; exact identity verifier documentation.
 - **2026-11-26:** Requested separate PRs for README consolidation, generator unification, SymPy differential testing, exact-verification status naming, and Lean readiness design.
 
-See [docs/HISTORY.md](docs/HISTORY.md) for the preserved milestone detail and [docs/](docs/) for topic-specific specifications.
+See [docs/](docs/) for topic-specific specifications; current status and the active handoff are maintained in the root README.
 
 ## Guided learning and command independence — 2026-11-26
 
