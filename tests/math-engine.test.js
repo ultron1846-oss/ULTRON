@@ -72,5 +72,5 @@ test('rejects nonlinear, multi-variable, malformed and unsafe equations', () => 
 });
 
 test('returns only finite equation solutions', () => {
-  assert.throws(() => solveLinearEquation('1e308x = 1e-308'), /numeric range/);
+  assert.throws(() => solveLinearEquation('1e-308x = 1e308'), /numeric range/);
 });
