@@ -54,7 +54,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Freeze detached memory key/value/gate projections and verify actual trainable count.
 - [x] Document FP32 weights plus trainable gradient/AdamW memory estimate and limitations.
 - [x] Bind foundation vocabulary to canonical tokenizer size (240) and reserved-token IDs.
-- [ ] Freeze task serialization for problem, derivation, answer, and verifier result.
+- [x] Freeze and validate canonical task serialization schema v1 for problem, derivation, answer, and scoped verifier receipt in [PR #174](https://github.com/ultron1846-oss/ULTRON/pull/174). Code/test revision `e5f1f86a7852e2422a89828774728d27d66fc6a9` passed Node, Python AI Core, and Level 1 Math Tooling CI; see [TASK_SERIALIZATION.md](TASK_SERIALIZATION.md).
 - [ ] Decide whether experimental memory/refinement remain based on ablations.
 
 **Exit criteria:** architecture reviewed, count independently reproduced, vocabulary/task format frozen.

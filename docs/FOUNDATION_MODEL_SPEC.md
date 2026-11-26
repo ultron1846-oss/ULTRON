@@ -55,7 +55,7 @@ The generator now has deterministic prompt-disjoint train/validation/test partit
 ## Required before training
 
 1. Audit tokenizer/vocabulary compatibility and special-token IDs.
-2. Decide serialization for problem, derivation, answer, and verifier result.
+2. [x] Freeze canonical task serialization schema v1 for problem, derivation, answer, and scoped verifier receipt in [PR #174](https://github.com/ultron1846-oss/ULTRON/pull/174). Its code/test revision `e5f1f86a7852e2422a89828774728d27d66fc6a9` passed Node, Python AI Core, and Level 1 Math Tooling CI. See [Task serialization schema v1](TASK_SERIALIZATION.md).
 3. Create leakage-safe deterministic train/validation/test splits and evaluate generator coverage.
 4. Implement bounded training with gradient accumulation, finite-loss/gradient checks, cancellation, and explicit opt-in.
 5. Validate checkpoint resume equivalence, optimizer/scheduler/RNG restoration, and interrupted-save recovery.
