@@ -1022,3 +1022,12 @@ The code/test revision `fa1ca6a5158d79bbb7cdc4716fc602a287d5422a` passed Node Te
 PR #170 makes the foundation parameter requirement consistent across configuration, preflight, and the training controller. All three now use the shared MIN_FOUNDATION_TRAINABLE_PARAMETERS constant (60,000,000), with an inclusive at-least comparison. This removes the controller's stale 40,000,000 threshold and preflight's 60,000,001 off-by-one. Regression coverage checks that the preflight accepts exactly 60,000,000 trainable parameters, rejects a below-floor model, reports the shared minimum, and that the controller rejects a below-floor report before consuming any batch or calling the optimizer.
 
 The final PR revision `8d9a0dd9d42f21ac7cb86ccac87a67ebbce4f14c` passed Node Tests run `45830279539`, Python AI Core run `45830279637`, and Level 1 Math Tooling run `45830279788`. PR #170 was squash-merged as `ea1e1851a42a2334369bcf26b8bc74037ec98191`. All post-merge checks passed on `main`: Node Tests run `45830648511`, Python AI Core run `45830648531`, Level 1 Math Tooling run `45830648456`, and Pages build, build-status report, and deployment jobs in run `45830648135`. No model was instantiated at foundation size for this change; tests use the existing lightweight controller mock. No training, optimizer steps, corpus/dataset generation, external data import, or remote execution was performed.
+
+
+## Training controller model-parameter count validation — PR #172 (2026-11-26)
+
+The controller previously enforced the 60,000,000 trainable-parameter floor against the preflight report and cross-checked configuration-derived counts only when the model exposed a `NeuroSparseConfig`. A generic model or a model whose instantiated parameters did not match its configuration could therefore pass the report-level check without actually matching the planned model size.
+
+PR #172 enumerates the supplied model's parameters and compares both the actual trainable count and actual total count against the preflight report before batch iteration. Tests use exact-count meta-device parameters to model the foundation configuration without allocating real foundation weights, and verify that an extra trainable parameter or frozen foundation parameters are rejected before batch consumption or optimizer calls.
+
+CI validation is pending on the PR revision. No real model training, real optimizer step, dataset/corpus generation, calibration-data generation, external data import, or remote execution was performed.
