@@ -58,8 +58,8 @@ The shared Problem contract and generated combined registry were added in merged
 ## Current handoff
 
 - PRs #136–#143 are merged. PR #134 was closed without merge and superseded by merged PR #142.
-- PRs #144–#148 (README handoff, model-only evaluation, target provenance, core concept-transfer protocol, and initial university prerequisites) merged on 2026-11-26 after all required CI workflows passed.
-- Issue #135 is being addressed incrementally. Model-only evaluation, the source-specific target provenance guard, and the core concept-transfer protocol are merged. This branch expands the curated prerequisite graph from 26 to 57 topics across Foundations, Linear Algebra, Calculus, and Real analysis; the remaining 140 curriculum topics and a frozen final transfer benchmark remain open.
+- PRs #144–#149 (README handoff, model-only evaluation, target provenance, core concept-transfer protocol, and university prerequisite expansion) merged on 2026-11-26 after all required CI workflows passed.
+- Issue #135 is being addressed incrementally. Model-only evaluation, the source-specific target provenance guard, and the core concept-transfer protocol are merged. This branch expands the curated prerequisite graph from 57 to 89 topics across Foundations, Linear Algebra, Calculus, Real analysis, Complex analysis, Abstract algebra, and Number theory; the remaining 108 curriculum topics and a frozen final transfer benchmark remain open.
 - The seed importer and the basic-arithmetic source registration are merged. They provide import tooling only; they do not mean the dataset has been downloaded or uploaded. The manual importer remains gated by `confirm_download=true` and the owner-controlled `ULTRON_SEED_IMPORT_ENABLED=true` variable.
 - No dataset import artifact, optimizer step, model training, or remote training execution is claimed. Do not enable the import gate or dispatch the workflow without separate explicit authorization.
 - Owner to-dos (not attempted): complete iPad Safari acceptance; enable Supabase Auth leaked-password protection; verify free-runtime access and checkpoint transfer from a clean iPad session.
@@ -126,6 +126,6 @@ This is core-topic readiness infrastructure, not evidence of concept mastery. Th
 
 ## University prerequisite map — 2026-11-26
 
-PR #148 added `tools/math_generators/university/prerequisites.json` and a validated loader for Foundations and logic plus Linear algebra. This branch adds 31 more topics from Calculus and Real analysis, bringing coverage to 57/197. The loader verifies exact field coverage, rejects dangling edges/cycles, and provides topological ordering.
+PRs #148–#149 added a validated prerequisite graph for 57 topics in Foundations, Linear Algebra, Calculus, and Real analysis. This branch adds 32 topics from Complex analysis, Abstract algebra, and Number theory, bringing coverage to 89/197. The loader verifies exact field coverage, rejects dangling edges/cycles, and provides topological ordering.
 
-The remaining 140 topics are intentionally unmapped. These prerequisite edges are a reviewed starting sequence, not proof of mastery or a universal course order. See `docs/UNIVERSITY_PREREQUISITES.md`.
+The remaining 108 topics are intentionally unmapped. These prerequisite edges are a reviewed starting sequence, not proof of mastery or a universal course order. See docs/UNIVERSITY_PREREQUISITES.md.

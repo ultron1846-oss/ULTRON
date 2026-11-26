@@ -23,9 +23,9 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 57)
+        self.assertEqual(mapping.mapped_topic_count, 89)
         self.assertEqual(mapping.source_topic_count, 197)
-        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 140)
+        self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 108)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
         mapping = load_curriculum_prerequisites()
@@ -45,10 +45,18 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("Cauchy_sequences", "pointwise_and_uniform_convergence"))
         self.assertTrue(mapping.is_prerequisite("Lebesgue_measure", "Lebesgue_integral"))
 
+
+    def test_complex_algebra_and_number_theory_edges_are_present(self):
+        mapping = load_curriculum_prerequisites()
+        self.assertTrue(mapping.is_prerequisite("Taylor_and_Laurent_series", "residues"))
+        self.assertTrue(mapping.is_prerequisite("groups_and_subgroups", "cyclic_groups"))
+        self.assertTrue(mapping.is_prerequisite("fields_and_extensions", "Galois_theory_intro"))
+        self.assertTrue(mapping.is_prerequisite("congruences", "Chinese_remainder_theorem"))
+
     def test_unmapped_curriculum_topic_is_not_assumed_to_have_prerequisites(self):
         mapping = load_curriculum_prerequisites()
         with self.assertRaisesRegex(ValueError, "no curated prerequisite mapping"):
-            mapping.prerequisites_for("holomorphic_functions")
+            mapping.prerequisites_for("topological_spaces")
 
     def test_validator_rejects_cycles(self):
         curriculum = {"topics": [{"topic": "a", "field": "F"}, {"topic": "b", "field": "F"}]}
