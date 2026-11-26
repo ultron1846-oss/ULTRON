@@ -16,7 +16,7 @@ class FakeStore {
     return this.request(record.id);
   }
   getAll() { return this.request([...this.records.values()].map(value => structuredClone(value))); }
-  count() { return this.request(this.records.size); }
+  count() { return this.request(this.records.size); }\n  createIndex() { return {}; }
   clear() { this.records.clear(); return this.request(undefined); }
   request(result) {
     const req = new FakeRequest();
