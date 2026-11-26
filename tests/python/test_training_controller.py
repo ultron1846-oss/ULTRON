@@ -2,7 +2,8 @@ import unittest
 from unittest.mock import patch
 import torch
 
-from ultron_core.config import NeuroSparseConfig, count_parameters, count_total_parameters
+from ultron_core.config import (MIN_FOUNDATION_TRAINABLE_PARAMETERS, NeuroSparseConfig,
+                                count_parameters, count_total_parameters)
 from ultron_core.training import (TrainingSettings, run_training_steps, seed_training_rng, make_seeded_generator)
 import random
 
@@ -84,6 +85,27 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         with self.assertRaisesRegex(PermissionError, "explicit training authorization"):
             run_training_steps(self.model, batches(), self.optimizer, self.report,
                                settings=self.settings, training_authorized=False)
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_controller_enforces_foundation_floor_before_consuming_batches(self):
+        report = dict(self.report)
+        below_floor = MIN_FOUNDATION_TRAINABLE_PARAMETERS - 1
+        report["parameter_count"] = below_floor
+        report["trainable_parameter_count"] = below_floor
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex(
+                ValueError, "60,000,000 trainable parameter minimum"):
+            run_training_steps(
+                self.model, batches(), self.optimizer, report,
+                settings=self.settings, training_authorized=True,
+            )
+
         self.assertEqual(consumed, [])
         self.assertEqual(self.optimizer.steps, 0)
 

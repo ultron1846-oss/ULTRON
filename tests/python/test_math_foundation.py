@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from fractions import Fraction
 
 import torch
@@ -405,19 +406,30 @@ class TrainingPreflightTests(unittest.TestCase):
         self.assertFalse(report["budget_covers_persistent_state"])
         self.assertEqual(report["parameter_count"], 61826048)
         self.assertEqual(report["total_parameter_count"], 63400451)
-        self.assertEqual(report["minimum_parameter_count"], 60000001)
-        self.assertEqual(report["minimum_trainable_parameter_count"], 60000001)
+        self.assertEqual(report["minimum_parameter_count"], 60000000)
+        self.assertEqual(report["minimum_trainable_parameter_count"], 60000000)
         self.assertEqual(report["model_weights_fp32_bytes"], 253601804)
         self.assertEqual(report["model_gradients_fp32_bytes"], 247304192)
         self.assertEqual(report["model_adamw_moments_fp32_bytes"], 494608384)
         self.assertEqual(report["model_persistent_state_fp32_bytes"], 995514380)
         self.assertEqual(report["model_grad_and_adamw_state_fp32_bytes"], 995514380)
 
+    def test_preflight_accepts_exact_foundation_parameter_floor(self):
+        with patch("ultron_core.preflight.count_parameters",
+                   return_value=60_000_000), patch(
+                "ultron_core.preflight.count_total_parameters",
+                return_value=60_000_000):
+            report = preflight_training_plan(self.config, self.splits)
+
+        self.assertTrue(report["validated"])
+        self.assertEqual(report["trainable_parameter_count"], 60_000_000)
+        self.assertEqual(report["minimum_trainable_parameter_count"], 60_000_000)
+
     def test_preflight_rejects_small_model_and_vocab_mismatch(self):
         small = NeuroSparseConfig(vocab_size=len(self.vocabulary), hidden_size=32,
             num_layers=1, num_experts=4, top_k=2, max_refinements=2,
             fast_memory_slots=8, num_attention_heads=4)
-        with self.assertRaisesRegex(ValueError, "minimum is 60000001"):
+        with self.assertRaisesRegex(ValueError, "minimum is 60000000"):
             preflight_training_plan(small, self.splits)
         wrong_vocab = self.config.to_dict()
         wrong_vocab["vocab_size"] += 1
