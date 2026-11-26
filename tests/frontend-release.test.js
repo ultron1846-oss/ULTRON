@@ -11,6 +11,15 @@ test('static frontend requires no login or sign-up and has no owner authenticati
   assert.match(html, /No login or sign-up required/);
   assert.match(app, /Account-free public website/);
 });
+test('account-free frontend exposes no job, checkpoint mutation or pairing controls', async () => {
+  const app = await read('app.js');
+  const html = await read('index.html');
+  assert.doesNotMatch(app, /id="training-(?:start|pause|stop|resume|save)"/);
+  assert.doesNotMatch(app, /data-page="owner"|data-page="pairing"|id="pairing/);
+  assert.doesNotMatch(html, /data-page="owner"|data-page="pairing"|Owner sign in/i);
+  assert.match(app, /READ-ONLY CONTROL PLANE/);
+  assert.match(app, /No job controls/);
+});
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
   assert.match(html, /aria-controls="sidebar"/);
