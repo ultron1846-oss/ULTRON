@@ -4,6 +4,10 @@
 
 **Manual Safari acceptance:** pending. CI cannot substitute for testing the deployed GitHub Pages site on an actual iPad.
 
+## Automated contract coverage
+
+The Node release suite statically checks the responsive viewport, narrow-screen and narrow-landscape CSS, 44 px touch-target minimum, visible keyboard focus, Escape/outside-click navigation dismissal, active navigation state, IndexedDB transaction/error contracts, backup import validation, and save-retry UI. These checks do not simulate Safari rendering or device storage.
+
 ## Manual checklist
 
 - [ ] Open https://ultron1846-oss.github.io/ULTRON/ in Safari on iPad. Confirm the site opens without login or sign-up. GitHub Pages deployment run #146 succeeded, but this manual browser check is still required.
