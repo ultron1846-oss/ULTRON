@@ -176,7 +176,9 @@ export function executeMathToolCommand(raw){
         const roots=parts[1].split(',').map(value=>numeric(value.trim()));
         if(roots.length!==2)throw new Error('Enter your two attempted roots after |, separated by a comma.');
         const result=solveQuadratic(a,b,c);
-        const correct=result.kind==='real'&&result.roots.every((value,index)=>Math.abs(value-roots.slice().sort((x,y)=>x-y)[index])<=1e-10*Math.max(1,Math.abs(value)));
+        const submittedRoots=roots.slice().sort((x,y)=>x-y);
+        const expectedRoots=result.kind==='repeated'?[result.roots[0],result.roots[0]]:result.kind==='real'?result.roots:null;
+        const correct=expectedRoots!==null&&expectedRoots.length===2&&expectedRoots.every((value,index)=>Math.abs(value-submittedRoots[index])<=1e-10*Math.max(1,Math.abs(value),Math.abs(submittedRoots[index])));
         output=correct?'Both roots are correct.':'Not yet. Check the discriminant and quadratic formula; I will not reveal the roots.';
       }
     }else if(command==='/system'){
