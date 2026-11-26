@@ -20,6 +20,17 @@ test('account-free frontend exposes no job, checkpoint mutation or pairing contr
   assert.match(app, /READ-ONLY CONTROL PLANE/);
   assert.match(app, /No job controls/);
 });
+test('iPad responsive contract includes viewport, safe areas, touch targets and local RAM preference', async () => {
+  const [html, css, app] = await Promise.all([read('index.html'), read('styles.css'), read('app.js')]);
+  assert.match(html, /name="viewport"/);
+  assert.match(css, /@media\(max-width:760px\)/);
+  assert.match(css, /env\(safe-area-inset-bottom\)/);
+  assert.match(css, /min-height:44px/);
+  assert.match(app, /id="memory-slider" type="range" min="2" max="10" step="1"/);
+  assert.match(app, /safeSet\('ultron-memory-level',slider.value\)/);
+  assert.match(app, /does not allocate device RAM/);
+  assert.match(app, /Saved in this browser only/);
+});
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
   assert.match(html, /aria-controls="sidebar"/);
