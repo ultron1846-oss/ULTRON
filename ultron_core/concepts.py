@@ -82,7 +82,7 @@ CONCEPTS: dict[str, MathConcept] = {
     "concept.linear_system_2x2": MathConcept(
         "concept.linear_system_2x2", "Two-by-two linear system",
         "Find a pair that satisfies both equations; a nonzero coefficient determinant gives a unique solution.",
-        prerequisites=("concept.linear_equation_balance", "concept.rational_operations"),
+        prerequisites=("concept.linear_equation_balance", "concept.rational_operations", "concept.determinant_2x2"),
         assumptions=("The system is consistent; uniqueness requires nonzero determinant.",),
         misconceptions=("Solving one equation alone does not guarantee satisfying the second.",),
     ),
