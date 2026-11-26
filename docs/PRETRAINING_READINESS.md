@@ -27,7 +27,7 @@ Automated frontend hardening and the disabled Training Control readiness page ar
 - [ ] Test supported/unsupported Math Agent inputs and equation edge cases.
 - [ ] Verify explicit memory save/retry, vault display, export/import, and local persistence.
 - [ ] Verify owner sign-in, refresh, sign-out, and server-side non-owner rejection.
-- [ ] Verify workload slider is a preference, not actual RAM allocation.
+- [x] Verify the 2–10 GB workload slider persists as a browser-local preference and does not allocate physical RAM.
 - [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore.
 - [ ] Record device/browser/date/pass-fail; do not mark untested as passed.
 
