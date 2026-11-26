@@ -65,3 +65,8 @@ This does not authorize or report dataset import, benchmark row generation, opti
 ## Account-free frontend controls — 2026-11-26
 
 The public website displays generic runtime status only. It does not expose Start/Pause/Stop/Resume/Save checkpoint buttons, device pairing controls, or account-specific job/checkpoint history. The local Memory Vault remains browser-local; private Supabase records are not read by the static frontend. Training and remote execution remain disabled.
+
+
+## iPad and memory preference status — 2026-11-26
+
+Automated static frontend checks verify the viewport, mobile breakpoint, safe-area inset, 44 px touch-target minimum, and local persistence of the 2–10 GB preferred training-memory slider. Manual Safari acceptance on an iPad remains pending. The slider is a local preference only; it is not connected to live RAM/VRAM allocation or a training runtime.
