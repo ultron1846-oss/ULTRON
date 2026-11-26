@@ -19,16 +19,16 @@ to the uncompressed foundation training checkpoint only.
 
 ## Implemented operations
 
-The public Python API is exported from \`ultron_core.compress\`. Each transform
+The public Python API is exported from `ultron_core.compress`. Each transform
 returns a **new model plus a report**; the supplied model is not edited in
 place.
 
 ### Expert usage counter
 
-\`ExpertUsageCounter(model)\` installs reversible forward pre-hooks on each
+`ExpertUsageCounter(model)` installs reversible forward pre-hooks on each
 expert. Each hook counts the number of token rows actually passed to that
-expert. \`snapshot()\` returns JSON-compatible per-layer counts and totals;
-\`reset()\` clears counts; \`close()\` removes hooks. The counter is intended for
+expert. `snapshot()` returns JSON-compatible per-layer counts and totals;
+`reset()` clears counts; `close()` removes hooks. The counter is intended for
 an explicitly scoped inference/analysis pass, not training.
 
 The measurement is dispatch frequency only. It does not indicate expert
@@ -36,16 +36,16 @@ quality, mathematical competence, or future utility.
 
 ### Expert pruning
 
-\`prune_experts(model, usage, keep_experts=N)\` returns a copied model with the
-least-used experts removed. Usage can be an \`ExpertUsageCounter\` or its
-\`snapshot()\` mapping. Per-expert usage is summed across layers, then the same
+`prune_experts(model, usage, keep_experts=N)` returns a copied model with the
+least-used experts removed. Usage can be an `ExpertUsageCounter` or its
+`snapshot()` mapping. Per-expert usage is summed across layers, then the same
 expert indices are retained in every layer so the model's uniform expert-count
 configuration remains valid. Router projection rows are sliced to match the
-retained experts. \`keep_experts\` must be at least the router's \`top_k\`.
+retained experts. `keep_experts` must be at least the router's `top_k`.
 
 ### Expert merging
 
-\`merge_experts(model, groups, usage=None)\` requires \`groups\` to partition all
+`merge_experts(model, groups, usage=None)` requires `groups` to partition all
 original expert indices exactly once. For each group and each layer, it retains
 the real expert with the highest observed usage in that layer; ties select the
 lowest original index. Router rows are selected from the same representative.
@@ -57,18 +57,18 @@ outputs; no quality preservation is implied.
 
 ### SVD low-rank factorization
 
-\`factorize_linear(linear, max_relative_error=...)\` returns a \`LowRankLinear\`
-and a report. \`factorize_model(model, ...)\` applies that conversion to chosen
-module paths on a copied model. Without \`target_modules\`, all non-tied
-\`nn.Linear\` modules are candidates. Tied weights are skipped rather than
+`factorize_linear(linear, max_relative_error=...)` returns a `LowRankLinear`
+and a report. `factorize_model(model, ...)` applies that conversion to chosen
+module paths on a copied model. Without `target_modules`, all non-tied
+`nn.Linear` modules are candidates. Tied weights are skipped rather than
 silently breaking parameter sharing.
 
 The rank is the smallest singular-value truncation rank meeting the requested
 relative Frobenius weight error:
 
-\`\`\`
+```
 ||W - W_hat||_F / ||W||_F <= max_relative_error
-\`\`\`
+```
 
 This bound is measured on the weight tensor only. It is not an output
 distribution bound, model-quality score, benchmark result, or proof of retained
@@ -79,7 +79,7 @@ assuming every factorization reduces parameter count.
 
 ### Simulated int8 quantization and sensitivity
 
-\`simulate_int8_quantization(model, sensitivity_inputs=None)\` returns a copied
+`simulate_int8_quantization(model, sensitivity_inputs=None)` returns a copied
 model and per-linear-layer report. It uses symmetric per-layer scaling to map
 weights to signed int8 values, then dequantizes those values back into the
 original floating dtype. The returned model therefore contains floating-point
@@ -88,50 +88,51 @@ evidence of speed or memory savings. Tied parameters are skipped.
 
 Every processed layer reports weight reconstruction sensitivity. Optional
 output sensitivity is calculated only for module paths with explicitly
-caller-supplied \`sensitivity_inputs\`. A zero-norm baseline output has no
-defined relative output error, so the relative field is \`null\` and the
+caller-supplied `sensitivity_inputs`. A zero-norm baseline output has no
+defined relative output error, so the relative field is `null` and the
 absolute maximum output error is reported separately. This API never creates
 calibration data or samples.
 
 ### Pipeline, rollback, and artifact format
 
-\`run_compression_pipeline(model, steps, parent_checkpoint_id=...)\` supports
+`run_compression_pipeline(model, steps, parent_checkpoint_id=...)` supports
 the following step names:
 
-- \`prune_experts\` — options passed to \`prune_experts\`.
-- \`merge_experts\` — options passed to \`merge_experts\`.
-- \`factorize\` — options passed to \`factorize_model\`.
-- \`quantize_int8\` — options passed to \`simulate_int8_quantization\`.
+- `prune_experts` — options passed to `prune_experts`.
+- `merge_experts` — options passed to `merge_experts`.
+- `factorize` — options passed to `factorize_model`.
+- `quantize_int8` — options passed to `simulate_int8_quantization`.
 
 Use expert pruning/merging before factorization: these expert operations expect
-the original router projection to be an \`nn.Linear\`. Quantization may follow
-factorization and will process the remaining \`nn.Linear\` factors. Every stage
+the original router projection to be an `nn.Linear`. Quantization may follow
+factorization and will process the remaining `nn.Linear` factors. Every stage
 works on a copy. If any step or artifact write fails, the function returns a
-fresh copy of the original model and a report with \`success=false\` and
-\`rolled_back=true\`; no partial result is returned as successful.
+fresh copy of the original model and a report with `success=false` and
+`rolled_back=true`; no partial result is returned as successful.
 
-When \`artifact_path\` is supplied, the pipeline writes an immutable artifact
+When `artifact_path` is supplied, the pipeline writes an immutable artifact
 only after every transformation succeeds. Existing files are never overwritten.
-The version 1 format is named \`ultron.compressed-model\` and includes:
+The version 1 format is named `ultron.compressed-model` and includes:
 
-- \`artifact_version\`, \`parent_checkpoint_id\`, and \`model_scope\`.
+- `artifact_version`, `parent_checkpoint_id`, and `model_scope`.
 - The updated model configuration and ordered compression-step manifests.
-- CPU \`state_dict\` tensors and a SHA-256 digest of the serialized model state.
-- \`foundation_parameter_floor_applies=false\`, preventing the deployment
+- CPU `state_dict` tensors and a SHA-256 digest of the serialized model state.
+- `foundation_parameter_floor_applies=false`, preventing the deployment
   artifact from being described as the foundation training checkpoint.
 
-\`load_compression_artifact(path)\` validates the format metadata and state
+`load_compression_artifact(path)` validates the format metadata and state
 digest and returns the artifact payload. It is not a universal model factory:
 a consumer must construct the compatible module layout (including any
-\`LowRankLinear\` replacements) before loading the returned state. Keep the
+`LowRankLinear` replacements) before loading the returned state. Keep the
 parent checkpoint and artifact provenance together.
 
 ## Safe use example
 
-\`\`\`python
+```python
+import torch
+
 from ultron_core.compress import (
     ExpertUsageCounter,
-    factorize_model,
     prune_experts,
     run_compression_pipeline,
 )
@@ -154,7 +155,7 @@ compressed, pipeline_report = run_compression_pipeline(
 )
 if not pipeline_report["success"]:
     raise RuntimeError(pipeline_report["error"])
-\`\`\`
+```
 
 The example assumes the model, token IDs, and checkpoint identifier already
 exist. It does not create data or initiate training. Choose the operation order
