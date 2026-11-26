@@ -96,7 +96,7 @@ function tokenizeEquationSide(source) {
     pattern.lastIndex = cursor;
     const match = pattern.exec(source);
     if (!match) throw new Error(`Unsupported equation character or format at position ${cursor + 1}.`);
-    tokens.push(match[1] ?? (match[3] ? 'x' : match[4]));
+    tokens.push(match[2] ?? (match[3] ? 'x' : match[4]));
     if (tokens.length > MAX_TOKENS) throw new Error(`Equation has too many parts (maximum ${MAX_TOKENS}).`);
     cursor = pattern.lastIndex;
   }
