@@ -111,6 +111,20 @@ class RationalIdentityVerifierTests(unittest.TestCase):
         tampered = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         self.assertFalse(validate_rational_identity_certificate(candidate, tampered))
 
+    def test_division_preserves_divisor_numerator_and_denominator_domains(self):
+        x = symbol("x")
+        divisor = RationalFunction.from_expr(
+            divide(subtract(x, integer(1)), add(x, integer(2)))
+        )
+        quotient = RationalFunction.one().divide(divisor)
+
+        self.assertEqual(quotient.evaluate({"x": 0}), -2)
+        with self.assertRaises(RationalDomainError):
+            quotient.evaluate({"x": 1})
+        with self.assertRaises(RationalDomainError):
+            quotient.evaluate({"x": -2})
+        self.assertEqual(len(quotient.nonzero_constraints), 2)
+
     def test_verified_candidate_still_cannot_enter_trusted_knowledge(self):
         x = symbol("x")
         candidate = FormulaCandidate(equal(divide(x, x), integer(1)))
