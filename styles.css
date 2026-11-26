@@ -23,3 +23,5 @@ html{min-height:100%;min-height:100svh}body{min-height:100vh;min-height:100svh}.
 .graph-axis{stroke:#777782;stroke-width:1.4}
 .graph-curve{stroke:#ff4057;stroke-width:2.8;vector-effect:non-scaling-stroke}
 .graph-label{fill:#a7a7b2;font-size:11px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+@media(max-width:760px) and (orientation:landscape){.topbar{height:64px}.sidebar{top:64px;max-height:calc(100dvh - 76px)}.main-area{padding-top:14px}.page-heading h1{font-size:clamp(24px,4vw,32px)}}
