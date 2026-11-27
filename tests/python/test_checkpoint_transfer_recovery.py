@@ -68,7 +68,12 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
     def test_fresh_objects_restore_model_optimizer_scheduler_and_sampler_cursor(self):
         dataset = _IndexDataset()
         source_model = _TinyModel(3.25)
-        source_optimizer = torch.optim.SGD(source_model.parameters(), lr=0.037)
+        source_optimizer = torch.optim.SGD(
+            source_model.parameters(), lr=0.037, momentum=0.9
+        )
+        # Seed optimizer state directly: this exercises serialization without
+        # performing an optimizer step on any model weights.
+        source_optimizer.state[source_model.weight]["momentum_buffer"] = torch.tensor([0.125])
         source_scheduler = torch.optim.lr_scheduler.StepLR(
             source_optimizer, step_size=3, gamma=0.5
         )
@@ -89,7 +94,9 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
             )
 
             restored_model = _TinyModel(-4.0)
-            restored_optimizer = torch.optim.SGD(restored_model.parameters(), lr=0.9)
+            restored_optimizer = torch.optim.SGD(
+                restored_model.parameters(), lr=0.9, momentum=0.9
+            )
             restored_scheduler = torch.optim.lr_scheduler.StepLR(
                 restored_optimizer, step_size=1, gamma=0.1
             )
@@ -119,6 +126,14 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
             self.assertEqual(metadata["data_state"], cursor)
             self.assertEqual(float(restored_model.weight.detach().item()), 3.25)
             self.assertAlmostEqual(restored_optimizer.param_groups[0]["lr"], 0.037)
+            self.assertAlmostEqual(restored_optimizer.param_groups[0]["momentum"], 0.9)
+            self.assertTrue(torch.equal(
+                restored_optimizer.state[restored_model.weight]["momentum_buffer"],
+                torch.tensor([0.125]),
+            ))
+            self.assertEqual(
+                restored_scheduler.state_dict(), source_scheduler.state_dict()
+            )
             self.assertEqual(restored_loader.num_workers, 0)
             self.assertEqual(remaining_indices, expected_order[2:])
 
