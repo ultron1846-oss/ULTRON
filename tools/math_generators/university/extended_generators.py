@@ -19,6 +19,10 @@ EXTENDED_BANDS = {
     "Cauchy_sequences":"University", "pointwise_and_uniform_convergence":"University",
     "compactness":"University", "connectedness":"University",
     "continuity_metric_spaces":"University", "measure_intro":"University",
+    "Lebesgue_measure":"University", "Lebesgue_integral":"University", "Lp_spaces":"University",
+    "complex_numbers_and_topology":"University", "holomorphic_functions":"University",
+    "Cauchy_Riemann_equations":"University", "contour_integrals":"University",
+    "singularities":"University", "conformal_maps":"University", "groups_and_subgroups":"University",
 }
 GENERATOR_METADATA = {
     topic: {"grade_band":"University Foundation", "word_templates":[]}
@@ -153,6 +157,89 @@ def build(topic: str, rng: random.Random, difficulty: int):
         problem=f"Find the Lebesgue measure of the interval [{left},{right}]."
         answer=str(measure);steps=[f"The measure of an interval is its length: {right}−({left})={measure}."]
         check=lambda:measure==right-left
+    elif topic=="Lebesgue_measure":
+        left,right=sorted((n(-10*d,10*d),n(1,10*d)))
+        if right==left:right=left+1
+        measure=right-left
+        data.update(interval=[left,right],Lebesgue_measure=measure)
+        problem=f"Find the Lebesgue measure of [{left},{right}] in R."
+        answer=str(measure)
+        steps=[f"The Lebesgue measure of an interval is its length.",f"m([{left},{right}])={right}−({left})={measure}."]
+        check=lambda:measure==right-left and measure>0
+    elif topic=="Lebesgue_integral":
+        left,right=sorted((n(-8*d,8*d),n(1,8*d)))
+        if right==left:right=left+1
+        value=n(-8*d,8*d);integral=value*(right-left)
+        data.update(interval=[left,right],constant_value=value,integral=integral)
+        problem=f"Evaluate the Lebesgue integral of f(x)={value} on [{left},{right}]."
+        answer=str(integral)
+        steps=[f"For a constant function, ∫_[a,b] c dx=c(b−a).",f"{value}×({right}−({left}))={integral}."]
+        check=lambda:integral==value*(right-left)
+    elif topic=="Lp_spaces":
+        values=[n(-8*d,8*d) for _ in range(4)]
+        norm=sum(abs(value) for value in values)
+        data.update(values=values,p=1,lp_norm=norm,measure="counting")
+        problem=f"On a four-point space with counting measure, compute the L1 norm of {values}."
+        answer=str(norm)
+        steps=[f"For p=1, ||v||_1=Σ|v_i|.",f"Σ|v_i|={'+'.join(map(str,map(abs,values)))}={norm}."]
+        check=lambda:norm==sum(abs(value) for value in values)
+    elif topic=="complex_numbers_and_topology":
+        m=n(2,5*d+2);k=n(1,m-1)
+        dx=m*m-k*k;dy=2*m*k;distance=m*m+k*k
+        x,y=n(-8*d,8*d),n(-8*d,8*d)
+        points=[[x,y],[x+dx,y+dy]]
+        data.update(points=points,coordinate_difference=[dx,dy],distance=distance)
+        problem=f"Find the Euclidean distance in C between {x}+{y}i and {x+dx}+{y+dy}i."
+        answer=str(distance)
+        steps=[f"Distance²=({dx})²+({dy})².",f"Using the Pythagorean triple, distance={distance}."]
+        check=lambda:distance*distance==dx*dx+dy*dy
+    elif topic=="holomorphic_functions":
+        x,y=n(-8*d,8*d),n(-8*d,8*d)
+        ux=2*x;uy=-2*y;vx=2*y;vy=2*x
+        derivative=f"{2*x}+{2*y}i"
+        data.update(function="f(z)=z^2",point=[x,y],partials={"u_x":ux,"u_y":uy,"v_x":vx,"v_y":vy},derivative=derivative,holomorphic=True)
+        problem=f"For f(z)=z² at z={x}+{y}i, find f'(z) and state whether f is holomorphic."
+        answer=f"f'(z)={derivative}; holomorphic"
+        steps=[f"f'(z)=2z=2({x}+{y}i)={derivative}.","A polynomial is holomorphic everywhere."]
+        check=lambda:ux==vy and uy==-vx and derivative==f"{2*x}+{2*y}i"
+    elif topic=="Cauchy_Riemann_equations":
+        x,y=n(-8*d,8*d),n(-8*d,8*d)
+        ux=2*x;uy=-2*y;vx=2*y;vy=2*x
+        data.update(function="f(z)=z^2",point=[x,y],u_x=ux,u_y=uy,v_x=vx,v_y=vy,cr_satisfied=(ux==vy and uy==-vx))
+        problem=f"Check the Cauchy–Riemann equations for f(z)=z² at ({x},{y})."
+        answer="satisfied"
+        steps=[f"u_x={ux}=v_y={vy}.",f"u_y={uy}=−v_x={-vx}.","Both Cauchy–Riemann equations hold."]
+        check=lambda:ux==vy and uy==-vx
+    elif topic=="contour_integrals":
+        x0,y0,x1,y1=[n(-6*d,6*d) for _ in range(4)]
+        real=(x1*x1-y1*y1)-(x0*x0-y0*y0)
+        imag=2*x1*y1-2*x0*y0
+        data.update(function="F'(z)=2z",start=[x0,y0],end=[x1,y1],integral=[real,imag])
+        problem=f"Evaluate ∫_C 2z dz along any contour from {x0}+{y0}i to {x1}+{y1}i."
+        answer=f"real={real}; imag={imag}"
+        steps=["Since 2z is the derivative of z², the integral is endpoint evaluation.",f"z_1²−z_0²={real}+{imag}i."]
+        check=lambda:real==(x1*x1-y1*y1)-(x0*x0-y0*y0) and imag==2*x1*y1-2*x0*y0
+    elif topic=="singularities":
+        order=n(1,4*d);data.update(function=f"1/(z-a)^{order}",point="a",singularity_type="pole",pole_order=order)
+        problem=f"Classify the isolated singularity of f(z)=1/(z−a)^{order} at z=a."
+        answer=f"pole of order {order}"
+        steps=["The denominator has a zero of order m at z=a.",f"Therefore the singularity is a pole of order {order}."]
+        check=lambda:order>=1 and data["pole_order"]==order
+    elif topic=="conformal_maps":
+        a,b,c0,d0=[n(-6*d,6*d) for _ in range(4)]
+        if a==0 and b==0:a=1
+        data.update(map=f"f(z)=({a}+{b}i)z+({c0}+{d0}i)",derivative=[a,b],conformal=True)
+        problem=f"Is the affine complex map f(z)=({a}+{b}i)z+({c0}+{d0}i) conformal?"
+        answer=f"conformal; derivative={a}+{b}i"
+        steps=[f"f'(z)={a}+{b}i, which is nonzero.", "A nonzero complex affine linear map preserves angles."]
+        check=lambda:a*a+b*b>0
+    elif topic=="groups_and_subgroups":
+        order=n(2,30*d);element=n(0,order-1);subgroup_order=order//math.gcd(order,element)
+        data.update(group=f"Z/{order}Z",group_order=order,generator=element,subgroup_order=subgroup_order)
+        problem=f"Find the order of the subgroup generated by [{element}] in the additive group Z/{order}Z."
+        answer=str(subgroup_order)
+        steps=[f"The subgroup order is n/gcd(n,k).",f"{order}/gcd({order},{element})={subgroup_order}."]
+        check=lambda:subgroup_order==order//math.gcd(order,element) and (element*subgroup_order)%order==0
     else:
         raise ValueError("unknown extended topic: "+str(topic))
     fields={"grade_band":"University","topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
