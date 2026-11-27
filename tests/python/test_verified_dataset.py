@@ -48,8 +48,9 @@ class VerifiedDatasetTests(unittest.TestCase):
    original=split_module.verify_dataset
    def verify_then_mutate(path):
     manifest=original(path)
-    with Path(path).open("ab") as stream:
-     stream.write(b"temporary unit-test fixture".replace(b"temporary", b"Temporary"))
+    raw=Path(path).read_bytes()
+    raw=raw.replace(b"temporary unit-test fixture",b"Temporary unit-test fixture",1)
+    Path(path).write_bytes(raw)
     return manifest
    with patch("ultron_core.dataset_split_manifest.verify_dataset",side_effect=verify_then_mutate):
     with self.assertRaisesRegex(ValueError,"changed while being read"):
