@@ -42,20 +42,65 @@ def _validate_parameters(seed,val,test):
     if val+test>=1.0: raise ValueError("validation_fraction + test_fraction must be less than 1")
 
 def _read_dataset(path):
-    path=Path(path)
-    if not path.is_file(): raise FileNotFoundError(f"dataset file not found: {path}")
-    if path.stat().st_size>_MAX_DATA: raise ValueError("dataset exceeds the 1 GiB preflight limit")
-    manifest=verify_dataset(path)
-    digest=manifest.get("sha256")
-    if not _valid_hash(digest): raise ValueError("verified dataset SHA-256 is invalid")
-    content=path.read_bytes()
-    if hashlib.sha256(content).hexdigest()!=digest: raise ValueError("dataset changed while being read")
+    """Semantically verify, then stream one bounded row at a time for split use.
+
+    Only parsed row objects are retained for deterministic split construction;
+    the raw dataset bytes and a decoded full-file string are never copied.
+    The digest is recomputed during the second pass to detect path/content
+    changes between semantic verification and row selection.
+    """
+    path = Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(f"dataset file not found: {path}")
+    before = path.stat()
+    if before.st_size > _MAX_DATA:
+        raise ValueError("dataset exceeds the 1 GiB preflight limit")
+    manifest = verify_dataset(path)
+    digest_expected = manifest.get("sha256")
+    if not _valid_hash(digest_expected):
+        raise ValueError("verified dataset SHA-256 is invalid")
+
+    digest = hashlib.sha256()
+    rows = []
+    bytes_seen = 0
     try:
-        rows=[json.loads(line,object_pairs_hook=_strict_object) for line in content.decode("utf-8").splitlines()]
-    except (UnicodeDecodeError,json.JSONDecodeError,ValueError) as exc:
-        raise ValueError("dataset JSONL malformed or contains duplicate keys") from exc
-    if len(rows)!=manifest["example_count"]: raise ValueError("dataset row count changed after verification")
-    return manifest,rows
+        with path.open("rb") as stream:
+            while True:
+                line = stream.readline(_MAX_LINE_BYTES + 1)
+                if not line:
+                    break
+                if len(line) > _MAX_LINE_BYTES:
+                    raise ValueError("dataset JSONL row exceeds the 8 MiB line limit")
+                bytes_seen += len(line)
+                if bytes_seen > _MAX_DATA:
+                    raise ValueError("dataset exceeds the 1 GiB preflight limit")
+                digest.update(line)
+                if not line.endswith(b"\\n"):
+                    raise ValueError("dataset JSONL must end with a newline")
+                encoded = line[:-1]
+                if not encoded:
+                    raise ValueError("dataset JSONL contains blank rows")
+                try:
+                    row = json.loads(
+                        encoded.decode("utf-8"),
+                        object_pairs_hook=_strict_object,
+                    )
+                except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                    raise ValueError("dataset JSONL malformed or contains duplicate keys") from exc
+                rows.append(row)
+                if len(rows) > manifest["example_count"] or len(rows) > 100_000:
+                    raise ValueError("dataset row count exceeds verified manifest or preflight limit")
+    except OSError as exc:
+        raise ValueError("dataset could not be read safely after verification") from exc
+
+    after = path.stat()
+    if (bytes_seen != before.st_size or after.st_size != before.st_size
+            or after.st_mtime_ns != before.st_mtime_ns
+            or digest.hexdigest() != digest_expected):
+        raise ValueError("dataset changed while being read")
+    if len(rows) != manifest["example_count"]:
+        raise ValueError("dataset row count changed after verification")
+    return manifest, rows
 
 def _expected(rows,seed,val,test):
     groups={}
