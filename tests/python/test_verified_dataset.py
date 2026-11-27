@@ -3,7 +3,7 @@ import tempfile,unittest
 from pathlib import Path
 from test_dataset_split_manifest import fixture
 from ultron_core.dataset_split_manifest import prepare_dataset_split_manifest
-from ultron_core.verified_dataset import VerifiedMathDataset,build_verified_split_loader,collate_verified_math_batch
+from ultron_core.verified_dataset import (VerifiedMathDataset, build_verified_split_loader, build_verified_split_loaders, collate_verified_math_batch)
 
 class VerifiedDatasetTests(unittest.TestCase):
  def setup_data(self,root):
@@ -35,6 +35,16 @@ class VerifiedDatasetTests(unittest.TestCase):
   import torch
   batch=collate_verified_math_batch([{"input_ids":torch.tensor([1,4,2])},{"input_ids":torch.tensor([1,5,6,2])}])
   self.assertEqual(tuple(batch["input_ids"].shape),(2,4)); self.assertEqual(batch["attention_mask"][0].tolist(),[True,True,True,False])
+ def test_combined_build_constructs_all_loaders_with_one_shared_digest(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,contract=self.setup_data(Path(d))
+   loaders=build_verified_split_loaders(data,split,batch_size=4,seed=0,max_sequence_length=256)
+   self.assertEqual(set(loaders),{"train","validation","test"})
+   self.assertEqual({loader.dataset_manifest_sha256 for loader in loaders.values()},{contract.dataset_sha256})
+   self.assertEqual({loader.split_manifest_sha256 for loader in loaders.values()},{contract.split_manifest_sha256})
+   self.assertEqual(type(loaders["validation"].sampler).__name__,"SequentialSampler")
+   self.assertEqual(type(loaders["test"].sampler).__name__,"SequentialSampler")
+   self.assertEqual(loaders["train"].sampler.state_dict()["next_index"],0)
  def test_oversize_sequence_rejected_without_truncation(self):
   with tempfile.TemporaryDirectory() as d:
    data,split,_=self.setup_data(Path(d))
