@@ -112,8 +112,9 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 - PR #196 merged as `faa4b8ea31415598355afa36414092482b1a8e00`: read-only indexed-dataset benchmark, deterministic scan/random-access metrics, 2,000-row synthetic integrity stress, and direct/symlink/hard-link output collision protection. Post-merge Node, Python AI Core, Level 1, and GitHub Pages build/deploy checks passed (runs 45999719213, 45999719007, 45999719034, and 45999718336).
 - PR #197 merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`: independent mathematical invariant checks across all 20 existing extended university templates, 2,000 deterministic seed/difficulty cases. This adds validator coverage; it does not add generators for the 138 catalog topics still missing implementation.
-- Batch 2 tokenizer/model audit is underway in branch `audit/tokenizer-model-architecture-v2-2026-11-27`: model config now carries tokenizer version; explicit config/vocabulary compatibility checks and checkpoint legacy-v1 normalization are being tested; deterministic model shape, mask, gradient, and numerical tests are added.
-- No ULTRON training, optimizer step, full corpus generation/download, or remote compute was performed. Continue the tokenizer/model audit, then proceed to training-engine recovery and evaluation work only after the relevant PRs are verified.
+- Prompt 2 — tokenizer/model architecture audit: PR #203 is open. Its code/test revision passed Python AI Core (695 tests plus CPU forward/backward smoke), Node Tests, and Level 1 Math Tooling (5/5); review/merge remains pending. The audit preserves 63,400,451 total / 61,826,048 trainable foundation parameters.
+- Prompt 3 — training recovery and evaluation: implementation is in branch `reliability/evaluation-batch-5-2026-11-27`; exact-head CI/review is pending. It adds clean-process CPU RNG and sampler-tail replay, failed restore rollback checks, a bounded eight-topic evaluation suite, opt-in numeric tolerance/error taxonomy, and a frozen three-way evaluation manifest.
+- No ULTRON training, optimizer step, full training-corpus generation/download, or remote compute was performed. Prompt 3 uses only small deterministic evaluation fixtures and synthetic checkpoint tests.
 
 
 ## Batch 1 engineering handoff — PR #201 merged
@@ -122,3 +123,13 @@ PR #201 was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It adds
 
 
 **Dataset memory boundary:** The indexed loader bounds snapshot copying and record iteration, but it is not constant-memory: split-manifest ID arrays are parsed in Python memory up to the 100,000-row preflight cap. The benchmark's `tracemalloc` measurement excludes native SQLite allocations and process RSS/device memory. A production dataset benchmark remains owner-dependent.
+
+
+## Prompt 3 handoff — training recovery and evaluation
+
+- Working branch: `reliability/evaluation-batch-5-2026-11-27` (ahead of current `main`, no base divergence at branch creation).
+- Audit report: [docs/TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md](docs/TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md).
+- Frozen evaluation contract: [docs/FROZEN_EVALUATION_PROTOCOL.md](docs/FROZEN_EVALUATION_PROTOCOL.md).
+- Checkpoint tests verify a separate Python process restores model weights, Python/Torch CPU RNG continuation and the exact remaining sampler sequence; rollback is tested after a deliberately malformed RNG state. These use a small model and synthetic data only.
+- Evaluation additions include a bounded in-memory task suite across the eight currently supported topics, opt-in exact-rational tolerance scoring with separate exact/tolerance metrics, and a three-way frozen manifest that checks train/validation/evaluation ID, prompt and generation-ingredient isolation.
+- Exact-head CI and review remain required. CUDA RNG replay, real free-runtime checkpoint transfer, owner-curated semantic near-duplicate review, and a valid trained checkpoint remain unavailable. Do not report model performance or begin training without separate authorization.
