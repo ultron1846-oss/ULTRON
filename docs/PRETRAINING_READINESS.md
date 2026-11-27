@@ -139,6 +139,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
 - [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
 - [ ] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188; in progress, metadata validation only).
+- [ ] Validate complete cursor metadata at checkpoint save/load boundaries and add SHA-bound metadata sidecar plus metadata-only compatibility inspection (implementation added on stacked branch; CI pending).
 - [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
 - [ ] Verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
@@ -162,7 +163,7 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. The trainer and preflight now share a pure data-cursor contract. Next: persist the validated metadata through the checkpoint callback and validate it at the checkpoint boundary. Actual checkpoint save/load/restore remains untested here and separately gated; no example generation/download is allowed.
+1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. The pure data-cursor contract is integrated in PR #188. A stacked checkpoint-metadata batch adds strict save/load cursor validation, a SHA-bound JSON sidecar, and a metadata-only compatibility report in the notebook; its CI is pending. The inspector hashes checkpoint bytes but does not deserialize weights. Actual restoration and valid training remain separately gated; no example generation/download is allowed.
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
