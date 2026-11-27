@@ -1,7 +1,7 @@
 # ULTRON owner notebook setup
 
 **Artifact:** [notebooks/ULTRON_OWNER_PREFLIGHT.ipynb](../notebooks/ULTRON_OWNER_PREFLIGHT.ipynb)  
-**Scope:** runtime config, formula-based capacity, and manifest-bound dataset/split preflight only.
+**Scope:** runtime config, formula-based capacity, manifest-bound split verification, tokenization limits, and non-authorizing dataset preflight only.
 
 ## What it does
 
@@ -9,7 +9,9 @@
 2. Validates the website-exported schema-v1 runtime config and non-authorizing flags.
 3. Calculates foundation parameter counts by formula without allocating weights.
 4. Verifies an existing ULTRON JSONL dataset and sidecar manifest.
-5. Writes deterministic, prompt-disjoint split-ID metadata bound to the exact dataset SHA-256, then validates it again.
+5. Writes deterministic, prompt-disjoint split-ID metadata bound to the exact dataset SHA-256.
+6. Adapts verified records to MathExample, checks canonical tokenization and sequence limits, and produces a readiness report with model parameter and persistent-state memory estimates.
+7. Constructs train/validation/test DataLoaders from one verified split snapshot; the train sampler state is included in the initial data cursor.
 
 The split operation writes metadata only. It does not create, edit, or download dataset rows. It rejects changed dataset bytes, tampered split metadata, duplicate JSON keys, mismatched membership, empty splits, and prompt-group leakage.
 
@@ -26,6 +28,8 @@ This is a manual file handoff. The static website is not connected to the notebo
 
 The notebook does not generate/download examples, edit dataset rows, instantiate the model, allocate weights, create an optimizer, load or save a checkpoint, consume batches, perform optimizer steps, train, or dispatch remote jobs. The split file is metadata, not training data.
 
-PR #186 adds a read-only tokenized dataset view and constructs train/validation/test DataLoaders. The train loader uses ResumableRandomSampler bound to the verified full-dataset SHA-256; validation/test loaders are sequential. All loaders use `num_workers=0` and `drop_last=False`, and overlong examples are rejected rather than silently truncated. The notebook records the initial sampler cursor but does not consume batches or save a checkpoint.
+PR #186 added a read-only tokenized dataset view and DataLoader contract. PR #187 adds `build_verified_training_preflight`, which validates exact MathExample semantics and tokenizes every selected prompt/answer before constructing all three loaders from the same verified split snapshot. The train loader uses ResumableRandomSampler bound to the full-dataset SHA-256; validation/test loaders are sequential. All loaders use `num_workers=0` and `drop_last=False`. No sequence is silently truncated. The readiness report returns formula-based model parameter/memory estimates and clearly marks unmeasured dataset/activation/allocator costs.
 
-Next engineering stage: connect the verified train loader and sampler state to the bounded trainer's checkpoint callback, then validate metadata-only checkpoint round-tripping. Actual checkpoint restoration, batch consumption, optimizer steps, and clean-runtime equivalence remain separately gated.
+The split seed is independent from sampler seed. The default sampler seed is 0 and is part of `initial_data_state`; it must match `TrainingSettings.seed` if a separately authorized trainer run is configured.
+
+Next engineering stage: connect the preflight cursor and sampler state to the bounded trainer's checkpoint callback, then test checkpoint metadata round-tripping. Actual checkpoint restoration, batch consumption, optimizer steps, and clean-runtime equivalence remain separately gated.

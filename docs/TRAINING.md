@@ -91,3 +91,13 @@ The notebook validates the exported schema-v1 config, calculates foundation para
 ## Verified split DataLoader scaffold — PR #186
 
 `ultron_core/verified_dataset.py` adds a read-only tokenized dataset view bound to the verified corpus and split manifest. The train loader uses `ResumableRandomSampler`; validation/test use sequential samplers. All loaders use `num_workers=0` and `drop_last=False`; sequences exceeding the configured limit are rejected rather than silently truncated. The notebook constructs these loaders and prints the initial sampler/checkpoint cursor metadata without iterating batches. No model or optimizer is created, and no training occurs.
+
+
+
+## Verified dataset readiness report — PR #187
+
+`build_verified_training_preflight(...)` consumes only an existing verified JSONL dataset and its manifest-bound split metadata. It adapts the selected rows to the existing `MathExample` schema, rechecks exact topic semantics, tokenizes every prompt/answer with the canonical `MathTokenizer`, and rejects any sequence longer than the selected runtime limit rather than truncating it. It calculates model parameter counts without allocating the model, runs the existing non-authorizing memory/readiness preflight, and constructs train/validation/test DataLoaders from one verified split snapshot.
+
+The returned report explicitly records `training_authorized: false`, zero optimizer steps, remote execution disabled, token counts, split/dataset digests, and the limited scope of memory estimates. The estimate covers FP32 model weights, gradients, and AdamW moments only; it does not include dataset Python-object residency, activations, attention workspaces, temporary tensors, runtime overhead, or allocator fragmentation. DataLoader construction does not request a batch.
+
+The prompt-group split seed is not the sampler seed. The readiness package defaults the sampler seed to 0 and records it in `initial_data_state`; any future `TrainingSettings.seed` must match. The static website remains a file-export surface, not a live runtime bridge. No model weights/optimizer/checkpoint are created or restored and no training/optimizer step is performed.
