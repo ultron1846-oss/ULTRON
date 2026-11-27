@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
 
 import ultron_core.checkpoint as checkpoint_module
 from ultron_core.checkpoint import (
@@ -73,12 +73,11 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
             source_optimizer, step_size=3, gamma=0.5
         )
         source_sampler = ResumableRandomSampler(
-            dataset, seed=19, dataset_manifest_sha256=self.DATASET_HASH
+            dataset, seed=19, dataset_manifest_sha256=self.DATASET_HASH,
+            next_index=2,
         )
         cursor = _cursor(self.DATASET_HASH)
         cursor["sampler_state"] = source_sampler.state_dict()
-        cursor["next_sample_index"] = 0
-        cursor["next_batch_index"] = 0
 
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "clean-runtime.pt"
@@ -102,6 +101,15 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
                 scheduler=restored_scheduler, expected_dataset_manifest_sha256=self.DATASET_HASH,
             )
             restored_sampler.load_state_dict(metadata["data_state"]["sampler_state"])
+            restored_loader = DataLoader(
+                dataset, batch_size=2, sampler=restored_sampler,
+                num_workers=0, drop_last=False,
+            )
+            expected_sampler = ResumableRandomSampler(
+                dataset, seed=19, dataset_manifest_sha256=self.DATASET_HASH
+            )
+            expected_order = list(iter(expected_sampler))
+            remaining_indices = list(iter(restored_loader.sampler))
 
             self.assertEqual(metadata["step"], 17)
             self.assertTrue(metadata["optimizer_restored"])
@@ -109,7 +117,9 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
             self.assertEqual(metadata["data_state"], cursor)
             self.assertEqual(float(restored_model.weight.detach().item()), 3.25)
             self.assertAlmostEqual(restored_optimizer.param_groups[0]["lr"], 0.037)
-            self.assertEqual(restored_sampler.state_dict(), cursor["sampler_state"])
+            self.assertEqual(restored_sampler.state_dict()["next_index"], 2)
+            self.assertEqual(restored_loader.num_workers, 0)
+            self.assertEqual(remaining_indices, expected_order[2:])
 
     def test_checkpoint_bundle_copies_and_restores_from_another_directory(self):
         source_model = _TinyModel(2.5)
