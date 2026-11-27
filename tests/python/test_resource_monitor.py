@@ -1,9 +1,14 @@
 import unittest
 
-from ultron_core.resource_monitor import MemoryUsage, RuntimeMemoryMonitor
+from ultron_core.resource_monitor import MemoryUsage, RuntimeMemoryMonitor, sample_memory_usage
 
 
 class RuntimeMemoryMonitorTests(unittest.TestCase):
+    def test_native_sampler_reports_positive_process_rss(self):
+        usage = sample_memory_usage()
+        self.assertGreater(usage.process_rss_bytes, 0)
+        self.assertGreaterEqual(usage.cuda_reserved_bytes, 0)
+
     def test_usage_combines_process_rss_and_cuda_reserved_bytes(self):
         usage = MemoryUsage(process_rss_bytes=700, cuda_reserved_bytes=250)
         self.assertEqual(usage.total_bytes, 950)
