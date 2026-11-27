@@ -43,13 +43,13 @@ def _validate_parameters(seed,val,test):
         if not math.isfinite(value) or not 0.0<value<1.0: raise ValueError(f"{name} must be in (0, 1)")
     if val+test>=1.0: raise ValueError("validation_fraction + test_fraction must be less than 1")
 
-def _read_dataset(path):
-    """Semantically verify, then stream one bounded row at a time for split use.
+def _read_dataset(path, *, selected_ids=None, include_full_rows=False):
+    """Verify the dataset and retain only the row data needed by the caller.
 
-    Only parsed row objects are retained for deterministic split construction;
-    the raw dataset bytes and a decoded full-file string are never copied.
-    The digest is recomputed during the second pass to detect path/content
-    changes between semantic verification and row selection.
+    The semantic verifier remains authoritative. This second bounded pass binds
+    returned rows to the verified digest and detects changes between passes.
+    Split validation retains only (example_id, input_text); row loaders may
+    request full records, optionally filtered to one verified split.
     """
     path = Path(path)
     if not path.is_file():
@@ -62,22 +62,27 @@ def _read_dataset(path):
     if not _valid_hash(digest_expected):
         raise ValueError("verified dataset SHA-256 is invalid")
 
+    selected = None if selected_ids is None else set(selected_ids)
     digest = hashlib.sha256()
     rows = []
     bytes_seen = 0
+    rows_seen = 0
     try:
         with path.open("rb") as stream:
             while True:
                 line = stream.readline(_MAX_LINE_BYTES + 1)
                 if not line:
                     break
+                rows_seen += 1
+                if rows_seen > _MAX_ROWS or rows_seen > manifest["example_count"]:
+                    raise ValueError("dataset row count exceeds verified manifest or preflight limit")
                 if len(line) > _MAX_LINE_BYTES:
                     raise ValueError("dataset JSONL row exceeds the 8 MiB line limit")
                 bytes_seen += len(line)
                 if bytes_seen > _MAX_DATA:
                     raise ValueError("dataset exceeds the 1 GiB preflight limit")
                 digest.update(line)
-                if not line.endswith(b"\n"):
+                if not line.endswith(b"\\n"):
                     raise ValueError("dataset JSONL must end with a newline")
                 encoded = line[:-1]
                 if not encoded:
@@ -89,9 +94,16 @@ def _read_dataset(path):
                     )
                 except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
                     raise ValueError("dataset JSONL malformed or contains duplicate keys") from exc
-                rows.append(row)
-                if len(rows) > manifest["example_count"] or len(rows) > _MAX_ROWS:
-                    raise ValueError("dataset row count exceeds verified manifest or preflight limit")
+                example_id = row.get("example_id") if isinstance(row, dict) else None
+                if selected is not None and example_id not in selected:
+                    continue
+                if include_full_rows:
+                    rows.append(row)
+                else:
+                    rows.append({
+                        "example_id": example_id,
+                        "input_text": row["input_text"],
+                    })
     except OSError as exc:
         raise ValueError("dataset could not be read safely after verification") from exc
 
@@ -100,8 +112,10 @@ def _read_dataset(path):
             or after.st_mtime_ns != before.st_mtime_ns
             or digest.hexdigest() != digest_expected):
         raise ValueError("dataset changed while being read")
-    if len(rows) != manifest["example_count"]:
+    if rows_seen != manifest["example_count"]:
         raise ValueError("dataset row count changed after verification")
+    if selected is not None and len(rows) != len(selected):
+        raise ValueError("split manifest references missing dataset rows")
     return manifest, rows
 
 def _expected(rows,seed,val,test):
