@@ -178,7 +178,7 @@ class IndexedVerifiedMathDataset(Dataset):
     def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
         example_id, prompt, answer = self._store.get_record(self.split_name, index)
         token_ids = self.tokenizer.encode(
-            f"Question: {prompt}\\nAnswer: {answer}",
+            f"Question: {prompt}\nAnswer: {answer}",
             add_bos=True,
             add_eos=True,
         )
