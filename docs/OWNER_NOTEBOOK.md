@@ -26,4 +26,4 @@ This is a manual file handoff. The static website is not connected to the notebo
 
 The notebook does not generate/download examples, instantiate the model, allocate weights, create an optimizer or DataLoader, load a checkpoint, perform optimizer steps, train, or dispatch remote jobs. The split file is metadata, not training data.
 
-Next: wire verified split IDs into a read-only dataset view and the existing ResumableRandomSampler/DataLoader contract, then persist checkpoint callback `data_state`. Clean-runtime equivalence requires separate authorization for a tiny optimizer-step test.
+PR #186 adds a read-only tokenized dataset view and constructs train/validation/test DataLoaders. The train loader uses ResumableRandomSampler, `num_workers=0`, and `drop_last=False`; evaluation loaders are sequential. The notebook records an initial cursor object but does not consume batches or save a checkpoint. Next: connect the loader and callback metadata to the existing bounded trainer; actual training remains separately gated.

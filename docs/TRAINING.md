@@ -86,3 +86,8 @@ This is a validated file-based configuration handoff—not a live website-to-run
 ## Owner notebook — dataset/split preflight
 
 The notebook validates the exported schema-v1 config, calculates foundation parameter counts without model allocation, verifies an existing JSONL dataset and sidecar, and prepares/revalidates deterministic prompt-disjoint split-ID metadata bound to the dataset SHA-256. The split operation writes metadata only; it does not create or download examples. No model, optimizer, DataLoader, checkpoint, or training operation is invoked. See [OWNER_NOTEBOOK.md](OWNER_NOTEBOOK.md).
+
+
+## Verified split DataLoader scaffold — PR #186
+
+`ultron_core/verified_dataset.py` adds a read-only tokenized dataset view bound to the verified corpus and split manifest. The train loader uses `ResumableRandomSampler`; validation/test use sequential samplers. All loaders use `num_workers=0` and `drop_last=False`; sequences exceeding the configured limit are rejected rather than silently truncated. The notebook constructs these loaders and prints the initial sampler/checkpoint cursor metadata without iterating batches. No model or optimizer is created, and no training occurs.

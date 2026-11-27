@@ -16,7 +16,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - **Compression toolkit:** PR #166 added non-destructive expert pruning/representative merging, SVD factorization, simulated int8 sensitivity reporting, and versioned artifacts.
 - **Static website:** Account-free browser workspace with local memory and a browser-local memory preference.
 - **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; JavaScript and Python validate it independently, with a Python preflight adapter. This is a file handoff only, not a connected runtime.
-- **Owner notebook:** `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` validates the exported config, formula-based capacity, and an existing dataset/split manifest. It writes split-ID metadata only; no examples are generated/downloaded and no weights are allocated. Sampler/DataLoader and checkpoint resume integration remain open.
+- **Owner notebook:** validates runtime config, formula-based capacity, existing dataset/split integrity, and constructs read-only split DataLoaders with a resumable train sampler. It does not consume batches, allocate model weights, or train.
 
 ## Tested
 
@@ -88,3 +88,6 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 - PR #184 — owner notebook preflight scaffold — merged as `041c39d2b37f68a21e45f149c3ef6412c64641bf`; latest-head Python AI Core, Level 1 Math Tooling, and Node checks passed.
 - PR #185 adds manifest-bound split metadata validation/preparation for an existing dataset. It writes split IDs only and does not generate dataset rows. PR CI and post-merge checks pending.
+
+- PR #185 — manifest-bound split preflight — merged as `f189de4d53c56ed7162eebe9a6256d2d899ca2e6`; all latest-head Node, Python AI Core, and Level 1 checks passed. Post-merge main validation is running.
+- PR #186 adds a verified dataset adapter and split DataLoader construction; it is preflight-only and does not iterate batches or train. CI pending.

@@ -136,7 +136,9 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Rewind cursor for uncommitted accumulation groups that are discarded.
 - [x] Add dataset-bound deterministic resumable random sampler with seed/epoch/sample cursor and permutation-tail tests.
 - [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
-- [ ] Owner notebook: construct the sampler/DataLoader, persist callback `data_state`, and verify clean-runtime resume with `num_workers=0`.
+- [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
+- [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
+- [ ] Verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
 
@@ -174,3 +176,8 @@ The preflight notebook checks repository presence, validates the browser-exporte
 ## Manifest-bound split preflight — PR #185 (2026-11-27)
 
 The owner notebook verifies an existing JSONL dataset and sidecar, creates only deterministic split-ID metadata, and validates the result against exact dataset digest and prompt-group hash assignment. It does not generate rows, download data, instantiate model/optimizer/DataLoader, restore checkpoints, or train. Sampler/DataLoader integration and cursor persistence remain open.
+
+
+## Verified split DataLoader scaffold — PR #186 (2026-11-27)
+
+Added a read-only tokenized dataset view and DataLoader builder for verified existing corpus splits. Train uses ResumableRandomSampler bound to the full dataset SHA-256; validation/test are sequential. Notebook only constructs loaders and reports initial cursor state, without iterating or training. Checkpoint callback wiring and actual trainer execution remain open.

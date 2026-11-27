@@ -1093,3 +1093,8 @@ Squash-merged as `87db245d7147690d986535fa6b80f60015634d5e`. PR CI passed on hea
 ## Manifest-bound split preflight — PR #185 (2026-11-27)
 
 Added `ultron_core/dataset_split_manifest.py` to verify an existing ULTRON JSONL dataset and atomically write deterministic prompt-group split-ID metadata only. The contract binds to the exact dataset SHA-256 and canonical split-manifest digest; verification recomputes membership and rejects duplicate prompts crossing splits, duplicate JSON keys, mismatched dataset bytes, tampered IDs, and empty splits. The owner notebook now uses this metadata-only step. Regression tests use temporary synthetic fixtures only. No production corpus was generated/downloaded, no model weights allocated, and no training/optimizer step/remote execution occurred. CI/post-merge results to be recorded after completion.
+
+
+## Verified split DataLoader scaffold — PR #186 (2026-11-27)
+
+Added `ultron_core/verified_dataset.py` to adapt verified existing JSONL records into token sequences and construct split-specific DataLoaders. Train uses a dataset-bound ResumableRandomSampler; validation/test use sequential samplers; all loaders enforce `num_workers=0` and `drop_last=False`. No truncation is allowed. The owner notebook constructs the loaders and records the initial cursor metadata without consuming a batch. No model/optimizer/training/remote execution was performed. CI results pending.
