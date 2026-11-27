@@ -3,7 +3,7 @@
 **Audit date:** 2026-11-27  
 **Work areas:** Prompt 3, work areas 5–6  
 **Implementation branch:** `reliability/evaluation-batch-5-2026-11-27`  
-**Status:** Synthetic regression work and documentation added; exact-head CI/review pending.  
+**Status:** Synthetic regression work passed exact-head CI; PR #204 review/merge pending.  
 **Training:** Not started. No ULTRON optimizer step has been executed.
 
 ## Executive summary
@@ -94,4 +94,4 @@ The suite builder and frozen-manifest builder re-run the existing independent ex
 
 ## Validation gate
 
-The implementation is on the branch listed above. Run the Python AI Core regression suite, Node Tests and Level 1 Math Tooling against the exact PR head. Only after checks pass and review is complete should the PR be merged. Manual clean-runtime checkpoint transfer, CUDA RNG replay, semantic near-duplicate curation and any later real-model evaluation remain separate acceptance items.
+The implementation is submitted in [PR #204](https://github.com/ultron1846-oss/ULTRON/pull/204). Exact-head validation passed: Python AI Core run `46015892965` (696 regression tests plus CPU forward/backward smoke), Node Tests run `46015892752`, and Level 1 Math Tooling run `46015892856` (5/5 tests). The new clean-process RNG/sampler replay, failed RNG restore rollback, deterministic eight-topic suite and three-way frozen-manifest tests executed in the Python run. PR review/merge remains pending. Only after review is complete should the PR be merged. Manual clean-runtime checkpoint transfer, CUDA RNG replay, semantic near-duplicate curation and any later real-model evaluation remain separate acceptance items.
