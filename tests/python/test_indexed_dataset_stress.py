@@ -37,7 +37,7 @@ class IndexedDatasetStressTests(unittest.TestCase):
                     self.assertIn(next(iterator)[0], expected_ids)
                     count = 1 + sum(1 for _ in iterator)
                     self.assertEqual(count, store.split_counts[split_name])
-                    self.assertEqual(expected_ids.__len__(), count)
+                    self.assertEqual(len(expected_ids), count)
                     first = store.get_record(split_name, 0)
                     last = store.get_record(split_name, count - 1)
                     self.assertEqual(first, store.get_record(split_name, 0))
