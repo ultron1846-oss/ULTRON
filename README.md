@@ -87,7 +87,7 @@ For current feature-specific requirements, use the relevant documents under [doc
 - Current owner-notebook scaffold: preflight setup only. It does not load/generate a dataset, allocate model weights, construct a sampler/DataLoader, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).
 
 - PR #184 — owner notebook preflight scaffold — merged as `041c39d2b37f68a21e45f149c3ef6412c64641bf`; latest-head Python AI Core, Level 1 Math Tooling, and Node checks passed.
-- PR #185 adds manifest-bound split metadata validation/preparation for an existing dataset. It writes split IDs only and does not generate dataset rows. PR CI and post-merge checks pending.
+- PR #185 — manifest-bound split preflight — merged as `f189de4d53c56ed7162eebe9a6256d2d899ca2e6`. Final PR checks passed: Node run `45940051111`, Python AI Core `45940051105`, Level 1 Math Tooling `45940051151`. All six post-merge main checks passed: Python `45940271270`, Level 1 `45940271193`, Node `45940271206`, and Pages build/report/deploy `45940270667`. It writes split-ID metadata only; no production dataset rows were generated or downloaded.
 
 - PR #185 — manifest-bound split preflight — merged as `f189de4d53c56ed7162eebe9a6256d2d899ca2e6`; all latest-head Node, Python AI Core, and Level 1 checks passed. Post-merge main validation is running.
 - PR #186 adds a verified dataset adapter and split DataLoader construction; it is preflight-only and does not iterate batches or train. CI pending.
