@@ -9,6 +9,7 @@ from ultron_core.concepts import (
     CONCEPT_TRANSFER_CATEGORIES,
     TOPIC_TO_CONCEPT,
     concept_coverage_report,
+    build_concept_transfer_manifest,
     concept_id_for_topic,
     sample_concept_balanced,
     validate_concept_registry,
@@ -123,6 +124,33 @@ class ConceptTransferProtocolTests(unittest.TestCase):
         })
         self.assertFalse(report["training_performed"])
         self.assertFalse(report["data_generated"])
+
+
+    def test_frozen_manifest_is_order_independent_and_binds_prompt_content(self):
+        first = build_concept_transfer_manifest(
+            self.train, self.test, test_categories=self.categories
+        )
+        reordered = build_concept_transfer_manifest(
+            reversed(self.train), reversed(self.test),
+            test_categories=dict(reversed(list(self.categories.items()))),
+        )
+        self.assertEqual(first["manifest_sha256"], reordered["manifest_sha256"])
+        self.assertEqual(len(first["train_examples"]), len(self.train))
+        self.assertEqual(len(first["test_examples"]), len(self.test))
+        self.assertTrue(first["split_report"]["split_valid"])
+        self.assertFalse(first["data_generated"])
+        self.assertFalse(first["training_performed"])
+        self.assertNotIn("input_text", first["test_examples"][0])
+
+        changed = list(self.test)
+        changed[0] = SimpleNamespace(
+            example_id="test-values", topic="arithmetic",
+            input_text="17 + 23",
+        )
+        changed_manifest = build_concept_transfer_manifest(
+            self.train, changed, test_categories=self.categories
+        )
+        self.assertNotEqual(first["manifest_sha256"], changed_manifest["manifest_sha256"])
 
     def test_rejects_prompt_leakage(self):
         leaked = SimpleNamespace(example_id="test-leak", topic="arithmetic", input_text="3 + 4")
