@@ -85,6 +85,7 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             )
             self.assertEqual(validated, result.initial_data_state)
             self.assertEqual(validated["sampler_state"]["next_index"], 0)
+            self.assertEqual(validated["batch_size"], 2)
 
     def test_sampler_seed_is_independent_of_split_seed(self):
         with tempfile.TemporaryDirectory() as directory:

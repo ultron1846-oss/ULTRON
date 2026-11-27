@@ -36,7 +36,10 @@ def validate_training_data_state(
     """Validate and return a detached copy of a complete resumable data cursor.
 
     The sampler cursor is measured in samples; the trainer cursor is measured
-    in batches. For a non-dropping DataLoader their positions must satisfy:
+    in batches. New cursors persist batch_size so batch grouping cannot silently
+    change on resume. Legacy cursors without batch_size are accepted only when
+    the sampler sample position agrees with the active batch cursor. For a
+    non-dropping DataLoader their positions must satisfy:
     next_sample_index == min(next_batch_index * batch_size, dataset_size).
     Both positions are bound to the same dataset digest, split size, seed, and
     epoch. No runtime state is mutated.
@@ -90,6 +93,14 @@ def validate_training_data_state(
     )
     if saved_size != dataset_size:
         raise ValueError("data_state dataset size does not match")
+
+    saved_batch_size = data_state.get("batch_size")
+    if saved_batch_size is not None:
+        saved_batch_size = _integer(
+            saved_batch_size, name="data_state batch_size", minimum=1, maximum=1024
+        )
+        if saved_batch_size != batch_size:
+            raise ValueError("data_state batch_size does not match the training plan")
 
     saved_seed = _integer(
         data_state["seed"], name="data_state seed", minimum=0, maximum=2**63 - 1
@@ -185,4 +196,5 @@ def validate_training_data_state(
 
     validated = copy.deepcopy(data_state)
     validated.setdefault("next_sample_index", expected_sample_index)
+    validated.setdefault("batch_size", batch_size)
     return validated

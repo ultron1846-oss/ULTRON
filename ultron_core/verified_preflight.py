@@ -147,6 +147,7 @@ def build_verified_training_preflight(
             "next_sample_index": 0,
             "dataset_manifest_sha256": verified.dataset_sha256,
             "dataset_size": len(loaders["train"].dataset),
+            "batch_size": runtime_config.batch_size,
             "seed": sampler_seed,
             "gradient_accumulation_steps": runtime_config.gradient_accumulation_steps,
             "sampler_state": train_sampler.state_dict(),

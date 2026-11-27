@@ -148,6 +148,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "next_sample_index": 0,
             "dataset_manifest_sha256": "a" * 64,
             "dataset_size": 4,
+            "batch_size": 1,
             "seed": self.settings.seed,
             "gradient_accumulation_steps": self.settings.gradient_accumulation_steps,
             "sampler_state": sampler.state_dict(),

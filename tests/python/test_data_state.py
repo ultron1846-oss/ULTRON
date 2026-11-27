@@ -13,6 +13,7 @@ class TrainingDataStateTests(unittest.TestCase):
             "next_sample_index": 5,
             "dataset_manifest_sha256": digest,
             "dataset_size": 5,
+            "batch_size": 2,
             "seed": 17,
             "gradient_accumulation_steps": 4,
             "sampler_state": {
@@ -49,9 +50,12 @@ class TrainingDataStateTests(unittest.TestCase):
     def test_legacy_cursor_derives_sample_index_from_validated_sampler_state(self):
         state = self.valid_state()
         del state["next_sample_index"]
+        del state["batch_size"]
         validated = self.validate(state)
         self.assertEqual(validated["next_sample_index"], 5)
+        self.assertEqual(validated["batch_size"], 2)
         self.assertNotIn("next_sample_index", state)
+        self.assertNotIn("batch_size", state)
 
     def test_valid_cursor_returns_detached_copy(self):
         state = self.valid_state()
@@ -71,6 +75,14 @@ class TrainingDataStateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "sampler sample cursor does not match"):
             self.validate(state)
 
+    def test_legacy_cursor_rejects_sampler_position_mismatch(self):
+        state = self.valid_state()
+        del state["next_sample_index"]
+        del state["batch_size"]
+        state["sampler_state"]["next_index"] = 4
+        with self.assertRaisesRegex(ValueError, "sampler sample cursor does not align"):
+            self.validate(state)
+
     def test_rejects_dataset_hash_or_size_mismatch(self):
         state = self.valid_state()
         state["dataset_manifest_sha256"] = "b" * 64
@@ -79,6 +91,12 @@ class TrainingDataStateTests(unittest.TestCase):
         state = self.valid_state()
         state["sampler_state"]["dataset_size"] = 6
         with self.assertRaisesRegex(ValueError, "sampler dataset size does not match"):
+            self.validate(state)
+
+    def test_rejects_changed_saved_batch_size(self):
+        state = self.valid_state()
+        state["batch_size"] = 1
+        with self.assertRaisesRegex(ValueError, "data_state batch_size does not match"):
             self.validate(state)
 
     def test_rejects_seed_or_accumulation_mismatch(self):

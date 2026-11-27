@@ -379,6 +379,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 raise ValueError("non-zero initial cursor requires sampler_state")
             cursor["sampler_state"] = current_sampler_state
             cursor.setdefault("next_sample_index", current_sampler_state["next_index"])
+            cursor.setdefault("batch_size", planned_batch)
             cursor.setdefault("seed", settings.seed)
             cursor.setdefault(
                 "gradient_accumulation_steps", settings.gradient_accumulation_steps
@@ -621,6 +622,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "next_batch_index": next_batch_index + microbatches_seen,
                         "dataset_manifest_sha256": dataset_hash,
                         "dataset_size": train_size,
+                        "batch_size": planned_batch,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                         "training_settings": checkpoint_training_settings,
@@ -670,6 +672,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "next_batch_index": next_batch_index + committed_microbatches,
         "dataset_manifest_sha256": dataset_hash,
         "dataset_size": train_size,
+        "batch_size": planned_batch,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
