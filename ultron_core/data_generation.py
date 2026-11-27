@@ -722,7 +722,7 @@ def verify_dataset(
                 if bytes_seen > max_bytes:
                     raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
                 digest.update(line)
-                if not line.endswith(b"\\n"):
+                if not line.endswith(b"\n"):
                     raise ValueError("dataset JSONL must end with a newline")
                 encoded = line[:-1]
                 if not encoded:
