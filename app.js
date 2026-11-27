@@ -1,4 +1,5 @@
 import { normalizeMemoryPreference } from './preferences.js?v=20261125-1';
+import { createRuntimeConfig, serializeRuntimeConfig } from './runtime-config.js?v=20261127-1';
 import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=20261126-1';
 import { parseWordProblem } from './word-problems.js?v=20261125-1';
 import { createGraphSvg } from './graph-tool.js?v=20261125-2';
@@ -328,16 +329,8 @@ function bind(page){
   const slider=document.querySelector('#memory-slider');
   slider.addEventListener('input',()=>{document.querySelector('#memory-value').textContent=slider.value+' GB';safeSet('ultron-memory-level',slider.value);});
   document.querySelector('#export-runtime-config').addEventListener('click',()=>{
-   const config={
-    schema_version:1,
-    memory_budget_gib:Number(slider.value),
-    batch_size:1,
-    sequence_length:256,
-    gradient_accumulation_steps:1,
-    training_authorized:false,
-    remote_execution_enabled:false
-   };
-   const blob=new Blob([JSON.stringify(config,null,2)],{type:'application/json'});
+   const config=createRuntimeConfig(Number(slider.value));
+   const blob=new Blob([serializeRuntimeConfig(config)],{type:'application/json'});
    const url=URL.createObjectURL(blob);
    const link=document.createElement('a');
    link.href=url;
