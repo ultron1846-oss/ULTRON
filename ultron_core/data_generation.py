@@ -601,15 +601,65 @@ def write_dataset(path: str | Path, examples: Iterable[MathExample],
     return manifest
 
 
-def verify_dataset(path: str | Path) -> dict:
-    """Verify manifest schema, file digest, row identity and exact answers."""
+_MAX_DATASET_BYTES = 1024 * 1024 * 1024
+_MAX_DATASET_ROWS = 100_000
+_MAX_DATASET_LINE_BYTES = 8 * 1024 * 1024
+_MAX_DATASET_MANIFEST_BYTES = 1024 * 1024
+
+
+def _strict_json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value):
+    raise ValueError(f"non-standard JSON constant is not allowed: {value}")
+
+
+def verify_dataset(
+    path: str | Path,
+    *,
+    max_bytes: int = _MAX_DATASET_BYTES,
+    max_rows: int = _MAX_DATASET_ROWS,
+    max_line_bytes: int = _MAX_DATASET_LINE_BYTES,
+) -> dict:
+    """Verify a dataset incrementally with strict byte, row, and line bounds.
+
+    Exact answer, row identity, duplicate-ID/index, topic-count, and SHA-256
+    validation remain authoritative. The raw dataset and parsed rows are never
+    retained as a full-file byte/string/list copy.
+    """
+    for name, value, maximum in (
+        ("max_bytes", max_bytes, _MAX_DATASET_BYTES),
+        ("max_rows", max_rows, _MAX_DATASET_ROWS),
+        ("max_line_bytes", max_line_bytes, _MAX_DATASET_LINE_BYTES),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise TypeError(f"{name} must be an integer")
+        if not 1 <= value <= maximum:
+            raise ValueError(f"{name} must be in [1, {maximum}]")
+
     target = Path(path)
     manifest_path = target.with_suffix(target.suffix + ".manifest.json")
     try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        content = target.read_bytes()
-    except (OSError, json.JSONDecodeError) as exc:
+        with manifest_path.open("rb") as manifest_stream:
+            manifest_bytes = manifest_stream.read(_MAX_DATASET_MANIFEST_BYTES + 1)
+    except OSError as exc:
         raise ValueError("dataset or manifest is missing or malformed") from exc
+    if len(manifest_bytes) > _MAX_DATASET_MANIFEST_BYTES:
+        raise ValueError("dataset manifest exceeds byte limit")
+    try:
+        manifest = json.loads(
+            manifest_bytes.decode("utf-8"),
+            object_pairs_hook=_strict_json_object,
+            parse_constant=_reject_json_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise ValueError("dataset manifest is missing or malformed") from exc
 
     required = {"schema_version", "generator_version", "seed", "topics",
                 "example_count", "topic_counts", "sha256"}
@@ -626,8 +676,8 @@ def verify_dataset(path: str | Path) -> dict:
             or len(set(topics)) != len(topics)):
         raise ValueError("dataset manifest topics are invalid")
     count = manifest["example_count"]
-    if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
-        raise ValueError("dataset manifest example_count is invalid")
+    if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= max_rows:
+        raise ValueError("dataset manifest example_count is invalid or exceeds row limit")
     topic_counts = manifest["topic_counts"]
     if (not isinstance(topic_counts, dict)
             or any(topic not in topics for topic in topic_counts)
@@ -638,72 +688,143 @@ def verify_dataset(path: str | Path) -> dict:
     digest_expected = manifest["sha256"]
     if not isinstance(digest_expected, str) or not re.fullmatch(r"[0-9a-f]{64}", digest_expected):
         raise ValueError("dataset manifest SHA-256 is invalid")
-    digest = hashlib.sha256(content).hexdigest()
-    if digest != digest_expected:
-        raise ValueError("dataset SHA-256 mismatch")
-    if not content.endswith(b"\n"):
-        raise ValueError("dataset JSONL must end with a newline")
-    try:
-        decoded = content.decode("utf-8")
-        lines = decoded.splitlines()
-        if any(not line for line in lines):
-            raise ValueError("dataset JSONL contains blank rows")
-        rows = [json.loads(line) for line in lines]
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError("dataset JSONL is malformed") from exc
-    if len(rows) != count:
-        raise ValueError("dataset example count does not match manifest")
 
+    try:
+        before = target.stat()
+    except OSError as exc:
+        raise ValueError("dataset file is missing or inaccessible") from exc
+    if not target.is_file():
+        raise ValueError("dataset path is not a file")
+    if before.st_size > max_bytes:
+        raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
+
+    # Preserve integrity-error precedence without materializing the file: hash
+    # a bounded first pass before semantic parsing. The second pass below also
+    # hashes, so a concurrent rewrite between passes is detected.
+    pre_digest = hashlib.sha256()
+    pre_bytes = 0
+    pre_rows = 0
+    ends_with_newline = True
+    try:
+        with target.open("rb") as stream:
+            while True:
+                line = stream.readline(max_line_bytes + 1)
+                if not line:
+                    break
+                pre_rows += 1
+                if pre_rows > max_rows:
+                    raise ValueError(f"dataset exceeds row limit ({max_rows})")
+                if len(line) > max_line_bytes:
+                    raise ValueError(f"dataset row {pre_rows} exceeds line byte limit")
+                pre_bytes += len(line)
+                if pre_bytes > max_bytes:
+                    raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
+                pre_digest.update(line)
+                ends_with_newline = line.endswith(b"\n")
+    except OSError as exc:
+        raise ValueError("dataset could not be read during integrity scan") from exc
+    if pre_bytes != before.st_size:
+        raise ValueError("dataset changed during integrity scan")
+    if pre_digest.hexdigest() != digest_expected:
+        raise ValueError("dataset SHA-256 mismatch")
+    if not ends_with_newline:
+        raise ValueError("dataset JSONL must end with a newline")
+
+    digest = hashlib.sha256()
     counts = Counter()
     identifiers = set()
     indexes = set()
     required_row = {"example_id", "generator_version", "topic", "difficulty",
                     "input_text", "target_text", "exact_answer", "seed", "index",
                     "generation_parameters", "validation_status", "provenance"}
-    for row in rows:
-        if not isinstance(row, dict) or set(row) != required_row:
-            raise ValueError("dataset row schema is invalid")
-        if not isinstance(row["example_id"], str) or not re.fullmatch(r"[0-9a-f]{64}", row["example_id"]):
-            raise ValueError("dataset row example_id is malformed")
-        if row["example_id"] in identifiers:
-            raise ValueError("dataset contains duplicate example IDs")
-        identifiers.add(row["example_id"])
-        if (row["generator_version"] != GENERATOR_VERSION
-                or isinstance(row["seed"], bool) or not isinstance(row["seed"], int)
-                or row["seed"] != manifest["seed"]):
-            raise ValueError("dataset row provenance does not match manifest")
-        if not isinstance(row["topic"], str) or row["topic"] not in topics:
-            raise ValueError("dataset row topic is not declared in manifest")
-        if (isinstance(row["difficulty"], bool) or not isinstance(row["difficulty"], int)
-                or row["difficulty"] <= 0):
-            raise ValueError("dataset row difficulty is invalid")
-        if (not isinstance(row["index"], int) or isinstance(row["index"], bool)
-                or row["index"] < 0 or row["index"] in indexes):
-            raise ValueError("dataset row index is invalid or duplicated")
-        indexes.add(row["index"])
-        if not all(isinstance(row[key], str) for key in ("input_text", "target_text", "exact_answer", "provenance")):
-            raise ValueError("dataset row text/provenance fields are invalid")
-        params = row["generation_parameters"]
-        if (not isinstance(params, dict)
-                or any(not isinstance(key, str) or isinstance(value, bool)
-                       or not isinstance(value, (int, str)) for key, value in params.items())):
-            raise ValueError("dataset row generation_parameters are invalid")
-        if (row["validation_status"] != "semantically_checked"
-                or row["target_text"] != row["exact_answer"]
-                or not validate_example_text(row["input_text"], row["exact_answer"], row["topic"])):
-            raise ValueError("dataset row failed exact semantic validation")
-        identity_payload = {
-            "generator_version": row["generator_version"], "seed": row["seed"],
-            "index": row["index"], "topic": row["topic"],
-            "input_text": row["input_text"], "target_text": row["target_text"],
-            "generation_parameters": params,
-        }
-        canonical = json.dumps(identity_payload, sort_keys=True, separators=(",", ":"),
-                                ensure_ascii=False)
-        expected_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-        if not hmac.compare_digest(row["example_id"], expected_id):
-            raise ValueError("dataset row example_id does not match its content")
-        counts[row["topic"]] += 1
+    rows_seen = 0
+    bytes_seen = 0
+    try:
+        with target.open("rb") as stream:
+            while True:
+                line = stream.readline(max_line_bytes + 1)
+                if not line:
+                    break
+                rows_seen += 1
+                if rows_seen > max_rows:
+                    raise ValueError(f"dataset exceeds row limit ({max_rows})")
+                if len(line) > max_line_bytes:
+                    raise ValueError(f"dataset row {rows_seen} exceeds line byte limit")
+                bytes_seen += len(line)
+                if bytes_seen > max_bytes:
+                    raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
+                digest.update(line)
+                if not line.endswith(b"\n"):
+                    raise ValueError("dataset JSONL must end with a newline")
+                encoded = line[:-1]
+                if not encoded:
+                    raise ValueError(f"dataset JSONL contains blank rows at line {rows_seen}")
+                try:
+                    row = json.loads(
+                        encoded.decode("utf-8"),
+                        object_pairs_hook=_strict_json_object,
+                        parse_constant=_reject_json_constant,
+                    )
+                except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                    raise ValueError(f"dataset JSONL row {rows_seen} is malformed: {exc}") from exc
+
+                if not isinstance(row, dict) or set(row) != required_row:
+                    raise ValueError("dataset row schema is invalid")
+                if not isinstance(row["example_id"], str) or not re.fullmatch(r"[0-9a-f]{64}", row["example_id"]):
+                    raise ValueError("dataset row example_id is malformed")
+                if row["example_id"] in identifiers:
+                    raise ValueError("dataset contains duplicate example IDs")
+                identifiers.add(row["example_id"])
+                if (row["generator_version"] != GENERATOR_VERSION
+                        or isinstance(row["seed"], bool) or not isinstance(row["seed"], int)
+                        or row["seed"] != manifest["seed"]):
+                    raise ValueError("dataset row provenance does not match manifest")
+                if not isinstance(row["topic"], str) or row["topic"] not in topics:
+                    raise ValueError("dataset row topic is not declared in manifest")
+                if (isinstance(row["difficulty"], bool) or not isinstance(row["difficulty"], int)
+                        or row["difficulty"] <= 0):
+                    raise ValueError("dataset row difficulty is invalid")
+                if (not isinstance(row["index"], int) or isinstance(row["index"], bool)
+                        or row["index"] < 0 or row["index"] in indexes):
+                    raise ValueError("dataset row index is invalid or duplicated")
+                indexes.add(row["index"])
+                if not all(isinstance(row[key], str) for key in ("input_text", "target_text", "exact_answer", "provenance")):
+                    raise ValueError("dataset row text/provenance fields are invalid")
+                params = row["generation_parameters"]
+                if (not isinstance(params, dict)
+                        or any(not isinstance(key, str) or isinstance(value, bool)
+                               or not isinstance(value, (int, str)) for key, value in params.items())):
+                    raise ValueError("dataset row generation_parameters are invalid")
+                if (row["validation_status"] != "semantically_checked"
+                        or row["target_text"] != row["exact_answer"]
+                        or not validate_example_text(row["input_text"], row["exact_answer"], row["topic"])):
+                    raise ValueError("dataset row failed exact semantic validation")
+                identity_payload = {
+                    "generator_version": row["generator_version"], "seed": row["seed"],
+                    "index": row["index"], "topic": row["topic"],
+                    "input_text": row["input_text"], "target_text": row["target_text"],
+                    "generation_parameters": params,
+                }
+                canonical = json.dumps(identity_payload, sort_keys=True, separators=(",", ":"),
+                                        ensure_ascii=False)
+                expected_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+                if not hmac.compare_digest(row["example_id"], expected_id):
+                    raise ValueError("dataset row example_id does not match its content")
+                counts[row["topic"]] += 1
+    except OSError as exc:
+        raise ValueError("dataset could not be read during streaming verification") from exc
+
+    try:
+        after = target.stat()
+    except OSError as exc:
+        raise ValueError("dataset changed during verification") from exc
+    if (bytes_seen != before.st_size or after.st_size != before.st_size
+            or after.st_mtime_ns != before.st_mtime_ns):
+        raise ValueError("dataset changed while being verified")
+    if rows_seen != count:
+        raise ValueError("dataset example count does not match manifest")
+    if digest.hexdigest() != digest_expected:
+        raise ValueError("dataset SHA-256 mismatch")
     if dict(sorted(counts.items())) != manifest["topic_counts"]:
         raise ValueError("dataset topic counts do not match manifest")
     return manifest
