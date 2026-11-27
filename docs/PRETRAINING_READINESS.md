@@ -68,7 +68,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
 - [x] Merge bounded semantic JSONL verification in PR #192; preserve exact-answer, identity, duplicate, topic-count, and digest checks with bounded line reads.
 - [x] Merge PR #193 disk-backed prompt-group indexing and filtered split-row loading; exact-head Node, Python AI Core, and Level 1 checks passed. Post-merge Node, Python, Level 1, Pages build, deploy, and report checks passed on main. This reduces split/preflight metadata memory.
-- [ ] Complete PR #194 lazy disk-backed verified dataset loader; initial exact-head Node, Python AI Core, and Level 1 checks passed, with documentation-updated head validation pending. Uses a temporary verified dataset snapshot and SQLite byte-offset index; records are decoded on demand and row hashes checked. Temporary disk usage can approach the existing 1 GiB dataset cap.
+- [x] Merge PR #194 lazy disk-backed verified dataset loader; exact-head Node, Python AI Core, and Level 1 checks passed. It uses a temporary verified snapshot and SQLite byte-offset index; records are decoded on demand and row hashes checked. Temporary disk usage can approach the existing 1 GiB dataset cap.
+- [ ] Integrate indexed disk loaders into the owner preflight path; current batch streams token-length checks from the verified snapshot instead of materializing selected rows and MathExample objects, adds bounded indexed iteration, explicit preflight close(), and notebook cleanup. CI and review pending.
 - [x] Add deterministic corpus-level topic/difficulty balance, duplicate prompt/ID, validation, and split leakage/membership report.
 - [ ] Add independent validators for broader topics.
 - [x] Add bounded polynomial derivative generation with an independent exact polynomial parser/validator.
