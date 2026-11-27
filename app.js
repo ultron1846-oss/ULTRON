@@ -116,7 +116,7 @@ function renderBackend(){
 function renderSettings(){
  const level=normalizeMemoryPreference(safeGet('ultron-memory-level','6'));
  return `${heading('DEVICE MEMORY SETTINGS','Settings','Local interface preferences. No account is required.')}
- ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Training RAM preference</h2><p class="muted">Choose a preferred memory budget for future approved remote workloads. This preference is saved in this browser only; it does not allocate device RAM or change hosted-runner memory.</p><div class="memory-box"><div class="memory-heading"><b>Preferred training memory</b><strong id="memory-value">'+level+' GB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Preferred memory budget"><div class="slider-labels"><span>2 GB · Light</span><span>10 GB · High</span></div></div><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
+ ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Training RAM preference</h2><p class="muted">Choose a preferred memory budget for future approved remote workloads. This preference is saved in this browser only; it does not allocate device RAM or change hosted-runner memory.</p><div class="memory-box"><div class="memory-heading"><b>Preferred training memory</b><strong id="memory-value">'+level+' GB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Preferred memory budget"><div class="slider-labels"><span>2 GB · Light</span><span>10 GB · High</span></div></div><button class="outline-button" id="export-runtime-config" type="button">Export runtime config (JSON)</button><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
  ${card('<div class="eyebrow">LOCAL DATA</div><h2>Browser storage</h2><p class="muted">Interface preferences and a legacy practice counter are stored locally on this device when browser storage is available.</p><button class="outline-button" id="clear-local">Clear local preferences and legacy counter</button><p id="settings-result" class="muted" role="status"></p>')}`;
 }
 function renderMemory(){
@@ -327,6 +327,25 @@ function bind(page){
  if(page==='settings'){
   const slider=document.querySelector('#memory-slider');
   slider.addEventListener('input',()=>{document.querySelector('#memory-value').textContent=slider.value+' GB';safeSet('ultron-memory-level',slider.value);});
+  document.querySelector('#export-runtime-config').addEventListener('click',()=>{
+   const config={
+    schema_version:1,
+    memory_budget_gib:Number(slider.value),
+    batch_size:1,
+    sequence_length:256,
+    gradient_accumulation_steps:1,
+    training_authorized:false,
+    remote_execution_enabled:false
+   };
+   const blob=new Blob([JSON.stringify(config,null,2)+'\\n'],{type:'application/json'});
+   const url=URL.createObjectURL(blob);
+   const link=document.createElement('a');
+   link.href=url;
+   link.download='ultron-runtime-config.json';
+   link.click();
+   setTimeout(()=>URL.revokeObjectURL(url),1000);
+   document.querySelector('#settings-result').textContent='Exported configuration only. It does not start training or connect a runtime.';
+  });
   document.querySelector('#clear-local').addEventListener('click',()=>{try{['ultron-memory-level','ultron-practice-count','ultron-practice-index'].forEach(k=>localStorage.removeItem(k));document.querySelector('#memory-value').textContent='6 GB';slider.value='6';document.querySelector('#settings-result').textContent='Local preferences and practice count cleared.';}catch{document.querySelector('#settings-result').textContent='Browser storage is unavailable.';}});
  }
 }
