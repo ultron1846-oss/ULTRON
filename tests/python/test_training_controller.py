@@ -954,6 +954,36 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["resource_memory"]["last_stage"], "after_optimizer_step")
 
 
+    def test_budget_breach_after_optimizer_step_checkpoints_and_stops_cleanly(self):
+        budget = self.report["memory_budget_bytes"]
+        calls = []
+
+        def provider(device):
+            calls.append(device)
+            # The first four checks are before optimizer.step. Simulate AdamW
+            # state allocation exceeding the cap immediately after its first step.
+            rss = budget + 1 if len(calls) >= 5 else 1024
+            return MemoryUsage(rss, 0)
+
+        monitor = RuntimeMemoryMonitor(budget, usage_provider=provider)
+        saved = []
+        result = run_training_steps(
+            self.model, self.batches[:2], self.optimizer, self.report,
+            settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
+                                     max_seconds=60),
+            training_authorized=True, memory_monitor=monitor,
+            checkpoint_callback=lambda step, metrics: saved.append((step, metrics)),
+        )
+        self.assertEqual(result["stop_reason"], "memory_budget")
+        self.assertEqual(result["steps_completed"], 1)
+        self.assertEqual(self.optimizer.steps, 1)
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(saved[0][0], 1)
+        self.assertEqual(saved[0][1]["data_state"]["next_batch_index"], 2)
+        self.assertEqual(result["resource_memory"]["last_stage"], "after_checkpoint")
+        self.assertGreater(result["resource_memory"]["peak_sampled_bytes"], budget)
+
+
     def test_settings_enforce_step_and_time_caps(self):
         with self.assertRaisesRegex(ValueError, "max_steps"):
             TrainingSettings(max_steps=1001)
