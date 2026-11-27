@@ -97,7 +97,9 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
                 example_id = row.get("example_id") if isinstance(row, dict) else None
                 if selected is not None and example_id not in selected:
                     continue
-                if include_full_rows:
+                if row_callback is not None:
+                    row_callback(row)
+                elif include_full_rows:
                     rows.append(row)
                 else:
                     rows.append((row["input_text"], example_id))
@@ -170,11 +172,12 @@ def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,valid
     dataset=Path(dataset_path).resolve(); output=Path(output_path).resolve()
     if output in (dataset,dataset.with_suffix(dataset.suffix+".manifest.json")):
         raise ValueError("split manifest output must not overwrite dataset or sidecar")
-    manifest,rows=_read_dataset(dataset)
+    manifest, split_ids = _derive_split_ids(
+        dataset, split_seed, validation_fraction, test_fraction
+    )
     payload={"schema_version":1,"split_method":_METHOD,"dataset_sha256":manifest["sha256"],
              "split_seed":split_seed,"validation_fraction":float(validation_fraction),
-             "test_fraction":float(test_fraction),
-             "split_ids":_expected(rows,split_seed,validation_fraction,test_fraction)}
+             "test_fraction":float(test_fraction),"split_ids":split_ids}
     payload["sha256"]=hashlib.sha256(_canonical(payload)).hexdigest()
     encoded=_canonical(payload)+b"\n"
     if len(encoded)>_MAX_SPLIT: raise ValueError("split manifest exceeds 32 MiB")
@@ -190,7 +193,6 @@ def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,valid
 
 def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     """Validate dataset bytes, canonical split digest, exact membership, and prompt-disjointness."""
-    manifest,rows=_read_dataset(dataset_path)
     path=Path(split_manifest_path)
     if not path.is_file(): raise FileNotFoundError(f"split manifest not found: {path}")
     try:
@@ -219,7 +221,7 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     for name,ids in split_ids.items():
         if not isinstance(ids,list) or any(not _valid_hash(item) for item in ids): raise ValueError(f"{name} IDs invalid")
         if ids!=sorted(ids) or len(ids)!=len(set(ids)): raise ValueError(f"{name} IDs must be sorted and unique")
-    expected=_expected(rows,seed,val,test)
+    manifest, expected = _derive_split_ids(dataset_path, seed, val, test)
     if split_ids!=expected: raise ValueError("split membership differs from deterministic prompt-group assignment")
     all_ids=[item for ids in split_ids.values() for item in ids]
     if len(all_ids)!=len(set(all_ids)): raise ValueError("split IDs overlap")
