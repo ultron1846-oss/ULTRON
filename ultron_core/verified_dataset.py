@@ -14,6 +14,7 @@ from .dataset_split_manifest import (
 )
 from .math_tokenizer import MathTokenizer, MathVocabulary
 from .resumable_sampler import ResumableRandomSampler
+from .indexed_verified_dataset import VerifiedIndexedSplitStore
 
 _SPLITS = ("train", "validation", "test")
 
@@ -137,6 +138,64 @@ class VerifiedMathDataset(Dataset):
         return {"input_ids": torch.tensor(token_ids, dtype=torch.long)}
 
 
+
+class IndexedVerifiedMathDataset(Dataset):
+    """Lazy tokenizer adapter over a verified disk-backed split index."""
+
+    def __init__(
+        self,
+        store: VerifiedIndexedSplitStore,
+        *,
+        split_name: str,
+        tokenizer: MathTokenizer | None = None,
+        max_sequence_length: int = 2048,
+        owns_store: bool = False,
+    ):
+        if not isinstance(store, VerifiedIndexedSplitStore):
+            raise TypeError("store must be a VerifiedIndexedSplitStore")
+        if split_name not in _SPLITS:
+            raise ValueError("split_name must be train, validation, or test")
+        if (
+            isinstance(max_sequence_length, bool)
+            or not isinstance(max_sequence_length, int)
+            or not 2 <= max_sequence_length <= 2048
+        ):
+            raise ValueError("max_sequence_length must be in [2, 2048]")
+        self._store = store
+        self._owns_store = bool(owns_store)
+        self.dataset_manifest_sha256 = store.dataset_manifest_sha256
+        self.split_manifest_sha256 = store.split_manifest_sha256
+        self.split_name = split_name
+        self.tokenizer = tokenizer or MathTokenizer(MathVocabulary.default())
+        if not isinstance(self.tokenizer, MathTokenizer):
+            raise TypeError("tokenizer must be MathTokenizer")
+        self.max_sequence_length = max_sequence_length
+        self._length = store.__len_for_split__(split_name)
+
+    def __len__(self) -> int:
+        return self._length
+
+    def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
+        example_id, prompt, answer = self._store.get_record(self.split_name, index)
+        token_ids = self.tokenizer.encode(
+            f"Question: {prompt}\\nAnswer: {answer}",
+            add_bos=True,
+            add_eos=True,
+        )
+        if len(token_ids) > self.max_sequence_length:
+            raise ValueError(
+                f"example {example_id} exceeds {self.max_sequence_length} tokens; "
+                "truncation is disabled"
+            )
+        if len(token_ids) < 3:
+            raise ValueError(f"example {example_id} token sequence is too short")
+        return {"input_ids": torch.tensor(token_ids, dtype=torch.long)}
+
+    def close(self) -> None:
+        if self._owns_store:
+            self._store.close()
+
+
 def collate_verified_math_batch(
     items: list[dict[str, Any]], *, pad_token_id: int = 0
 ) -> dict[str, torch.Tensor]:
@@ -176,7 +235,7 @@ def _validate_loader_settings(batch_size: int, seed: int) -> None:
 
 
 def _build_loader(
-    dataset: VerifiedMathDataset,
+    dataset: Dataset,
     *,
     batch_size: int,
     seed: int,
@@ -249,17 +308,41 @@ def build_verified_split_loaders(
 ) -> dict[str, DataLoader]:
     """Verify/load the corpus once and construct train/validation/test loaders."""
     _validate_loader_settings(batch_size, seed)
-    verified, rows_by_split = load_verified_split_rows_by_split(
-        dataset_path, split_manifest_path
-    )
-    return _build_verified_split_loaders_from_rows(
-        verified,
-        rows_by_split,
-        batch_size=batch_size,
-        seed=seed,
-        max_sequence_length=max_sequence_length,
-        tokenizer=tokenizer,
-    )
+    store = VerifiedIndexedSplitStore(dataset_path, split_manifest_path)
+    try:
+        shared_tokenizer = tokenizer or MathTokenizer(MathVocabulary.default())
+        loaders = {}
+        for split_name in _SPLITS:
+            dataset = IndexedVerifiedMathDataset(
+                store,
+                split_name=split_name,
+                tokenizer=shared_tokenizer,
+                max_sequence_length=max_sequence_length,
+            )
+            loaders[split_name] = _build_loader(
+                dataset,
+                batch_size=batch_size,
+                seed=seed,
+                shuffle=(split_name == "train"),
+            )
+        return loaders
+    except Exception:
+        store.close()
+        raise
+
+
+def close_verified_split_loaders(loaders: Mapping[str, DataLoader]) -> None:
+    """Close temporary snapshot/index storage owned by indexed split loaders."""
+    if not isinstance(loaders, Mapping):
+        raise TypeError("loaders must be a mapping")
+    stores = {
+        id(getattr(loader.dataset, "_store", None)): getattr(loader.dataset, "_store", None)
+        for loader in loaders.values()
+        if getattr(loader, "_dataset", None) is not None
+    }
+    for store in stores.values():
+        if store is not None:
+            store.close()
 
 
 def build_verified_split_loader(
@@ -283,16 +366,21 @@ def build_verified_split_loader(
     if split_name != "train" and shuffle:
         raise ValueError("validation/test loaders must not shuffle")
     _validate_loader_settings(batch_size, seed)
-    dataset = VerifiedMathDataset(
-        dataset_path,
-        split_manifest_path,
-        split_name=split_name,
-        tokenizer=tokenizer,
-        max_sequence_length=max_sequence_length,
-    )
-    return _build_loader(
-        dataset,
-        batch_size=batch_size,
-        seed=seed,
-        shuffle=(split_name == "train" and shuffle),
-    )
+    store = VerifiedIndexedSplitStore(dataset_path, split_manifest_path)
+    try:
+        dataset = IndexedVerifiedMathDataset(
+            store,
+            split_name=split_name,
+            tokenizer=tokenizer,
+            max_sequence_length=max_sequence_length,
+            owns_store=True,
+        )
+        return _build_loader(
+            dataset,
+            batch_size=batch_size,
+            seed=seed,
+            shuffle=(split_name == "train" and shuffle),
+        )
+    except Exception:
+        store.close()
+        raise
