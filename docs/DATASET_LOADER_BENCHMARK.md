@@ -16,3 +16,6 @@ The command validates and snapshots the source dataset, builds the SQLite offset
 **Measurement limits:** `tracemalloc` does not capture native SQLite allocations, PyTorch tensors, total process RSS, GPU memory, or device allocator overhead. This benchmark does not compare against the eager loader and therefore cannot establish a speedup or a complete memory reduction ratio. To make a fair comparison, run both implementations against the same frozen dataset, device/runtime, process conditions, and commit; report all limitations.
 
 The benchmark is read-only with respect to the input dataset. It does not generate or download corpus data, instantiate ULTRON weights, train, restore checkpoints, or dispatch remote jobs. A temporary verified snapshot and SQLite index are created and removed when the run ends.
+
+
+**Output safety:** The CLI rejects output paths that resolve to the dataset or split manifest, including symlink and hard-link aliases, so writing the JSON report cannot overwrite either input. The benchmark only snapshots and reads the input data; the report is written to a separate path.
