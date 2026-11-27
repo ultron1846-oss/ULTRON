@@ -698,6 +698,40 @@ def verify_dataset(
     if before.st_size > max_bytes:
         raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
 
+    # Preserve integrity-error precedence without materializing the file: hash
+    # a bounded first pass before semantic parsing. The second pass below also
+    # hashes, so a concurrent rewrite between passes is detected.
+    pre_digest = hashlib.sha256()
+    pre_bytes = 0
+    pre_rows = 0
+    ends_with_newline = True
+    try:
+        with target.open("rb") as stream:
+            while True:
+                line = stream.readline(max_line_bytes + 1)
+                if not line:
+                    break
+                pre_rows += 1
+                if pre_rows > max_rows:
+                    raise ValueError(f"dataset exceeds row limit ({max_rows})")
+                if len(line) > max_line_bytes:
+                    raise ValueError(f"dataset row {pre_rows} exceeds line byte limit")
+                pre_bytes += len(line)
+                if pre_bytes > max_bytes:
+                    raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
+                pre_digest.update(line)
+                ends_with_newline = line.endswith(b"\\n")
+    except OSError as exc:
+        raise ValueError("dataset could not be read during integrity scan") from exc
+    if pre_bytes != before.st_size:
+        raise ValueError("dataset changed during integrity scan")
+    if pre_digest.hexdigest() != digest_expected:
+        raise ValueError("dataset SHA-256 mismatch")
+    if pre_rows != count:
+        raise ValueError("dataset example count does not match manifest")
+    if not ends_with_newline:
+        raise ValueError("dataset JSONL must end with a newline")
+
     digest = hashlib.sha256()
     counts = Counter()
     identifiers = set()
