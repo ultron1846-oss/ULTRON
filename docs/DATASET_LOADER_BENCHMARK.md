@@ -23,7 +23,7 @@ The benchmark is read-only with respect to the input dataset. It does not genera
 
 ## Stress validation added in PR #201 (pending)
 
-The proposed regression suite exercises a 3,500-row synthetic dataset across all filtered splits, incremental record iteration, first/last random access, and deterministic repeated reads. It also tests a 2,400-row benchmark smoke, tampered snapshot-record rejection, idempotent close/removal, and temporary-directory cleanup after invalid manifest construction. These are correctness/resource-lifecycle tests, not a production memory profile. The benchmark's Python `tracemalloc` value excludes native SQLite, process RSS, PyTorch, and device memory. A production dataset must be supplied before reporting production throughput or memory.
+The proposed regression suite exercises a 3,500-row synthetic dataset across all filtered splits, incremental record iteration, first/last random access, and deterministic repeated reads. It also tests a 2,400-row benchmark smoke, tampered snapshot-record rejection, corrupted dataset/incomplete split-manifest rejection, idempotent close/removal, and temporary-directory cleanup after invalid manifest construction. These are correctness/resource-lifecycle tests, not a production memory profile. The benchmark's Python `tracemalloc` value excludes native SQLite, process RSS, PyTorch, and device memory. A production dataset must be supplied before reporting production throughput or memory.
 
 
 ## Explicit memory-boundary interpretation
