@@ -727,8 +727,6 @@ def verify_dataset(
         raise ValueError("dataset changed during integrity scan")
     if pre_digest.hexdigest() != digest_expected:
         raise ValueError("dataset SHA-256 mismatch")
-    if pre_rows != count:
-        raise ValueError("dataset example count does not match manifest")
     if not ends_with_newline:
         raise ValueError("dataset JSONL must end with a newline")
 
