@@ -155,7 +155,7 @@ def validate_training_data_state(
         minimum=0,
         maximum=dataset_size,
     )
-    if sampler_next_index != next_sample_index:
+    if next_sample_index is not None and sampler_next_index != next_sample_index:
         raise ValueError("sampler sample cursor does not match data_state")
     if sampler_next_index != expected_sample_index:
         raise ValueError("sampler sample cursor does not align with batch cursor")
