@@ -132,6 +132,8 @@ def preflight_verified_indexed_dataset(
     kwargs = runtime_config.preflight_kwargs()
     batch_size = kwargs["batch_size"]
     sequence_length = kwargs["sequence_length"]
+    if sequence_length < 2 or sequence_length > config.max_sequence_length:
+        raise ValueError("sequence_length must be between 2 and config.max_sequence_length")
     gradient_accumulation_steps = kwargs["gradient_accumulation_steps"]
     vocab = MathVocabulary.default()
     if config.vocab_size != len(vocab):
