@@ -199,12 +199,12 @@ The split seed and resumable sampler seed are independent; the sampler seed is s
 PR #189 merged as `582533c7267babf3035f1d4126e96fde4429592e`; exact-head Node, Python AI Core, and Level 1 checks passed (runs `45973714005`, `45973713970`, and `45973713967`). It validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
 
 
-## Resume cursor and checkpoint gate regression batch — 2026-11-27 (PR validation pending)
+## Resume cursor and checkpoint gate regression batch — PR #190 merged as `ab8e08ff9e482fca52cdc801e376212d42a8eb80`
 
 The verified preflight already constructs train/validation/test DataLoaders from one verified split snapshot; train uses `ResumableRandomSampler`, while evaluation loaders are sequential. The existing bounded controller requires that sampler to be the DataLoader's sampler, uses `num_workers=0`, validates the cursor before batch iteration, and supplies committed cursor metadata to the caller-provided checkpoint callback after a completed step. The new regression file tests sampler sequence equivalence across an interrupted/resumed cursor, rejects dataset/seed mismatch, and verifies a wrong expected dataset SHA-256 is rejected before model/optimizer/scheduler state restoration. Tests are synthetic and do not run ULTRON training or optimizer steps.
 
 
-## Checkpoint portability, interrupted-save recovery, and streaming scan — 2026-11-27 (current branch; CI pending)
+## Checkpoint portability, interrupted-save recovery, and streaming scan — PR #191 open; latest-head CI pending
 
 The current four-phase batch adds (1) a fresh-object checkpoint restore regression that rehydrates model, optimizer, scheduler, and sampler cursor without an optimizer step; (2) integrity inspection and restore after copying the checkpoint, SHA-256 manifest, and metadata sidecar to a different directory; (3) fault injection at the checkpoint-manifest commit boundary to verify recovery from the previous integrity-checked backup; and (4) a bounded JSONL structural scanner that hashes and parses one line at a time under explicit byte/row/line limits. The scanner reports only structural checks and intentionally does not verify exact math answers, content-derived IDs, duplicate IDs, or prompt-split leakage. Full dataset semantic verification remains authoritative. No corpus is generated/downloaded, no ULTRON weights are trained, and no remote job is dispatched.
 
