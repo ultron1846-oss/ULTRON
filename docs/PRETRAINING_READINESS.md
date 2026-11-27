@@ -164,13 +164,13 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. The trainer and preflight now share a pure data-cursor contract. Next: persist the validated metadata through the checkpoint callback and validate it at the checkpoint boundary. Actual checkpoint save/load/restore remains untested here and separately gated; no example generation/download is allowed.
-2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
-3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
-4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
-5. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review.
-6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
-7. Keep real-weight training and remote execution disabled until separate explicit authorization.
+1. Finish exact-head CI/review for PR #191. Its mock-only fresh-object restore now asserts model weights, optimizer momentum state, scheduler state, and sampler cursor; it does not execute an optimizer step.
+2. Owner: test a clean-process checkpoint transfer/restore in an actual separate free-cloud session, using `num_workers=0`, and record device/quota/persistence limitations. This is an owner acceptance task, not a training run.
+3. Next code phase after PR #191: refactor verified JSONL ingestion to parse one bounded line at a time, enforcing explicit byte/row/line caps while preserving the existing exact semantic verifier, dataset digest, prompt-disjoint split contract, and fail-closed behavior. Use synthetic temporary fixtures only; do not generate or download a production corpus.
+4. Keep the structural scanner a separate fast integrity report; it must not be treated as semantic answer verification or as proof of dataset split safety.
+5. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
+6. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review; continue broader math/proof-checker metrics.
+7. Keep real-weight training, optimizer steps on ULTRON weights, and remote execution disabled until separate explicit authorization.
 
 
 ## Owner notebook setup scaffold — 2026-11-27
