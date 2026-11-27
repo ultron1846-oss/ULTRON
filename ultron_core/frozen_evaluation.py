@@ -62,13 +62,16 @@ def _generation_ingredient_sha256(example: MathExample) -> str:
         for pair in parameters
     ):
         raise ValueError("generation_parameters contains malformed values")
+    parameter_names = [pair[0] for pair in parameters]
+    if len(parameter_names) != len(set(parameter_names)):
+        raise ValueError("generation_parameters contains duplicate keys")
     identity = {
         "generator_version": example.generator_version,
         "topic": example.topic,
         "difficulty": example.difficulty,
         "seed": example.seed,
         "index": example.index,
-        "generation_parameters": sorted(parameters),
+        "generation_parameters": sorted(parameters, key=lambda pair: pair[0]),
     }
     return _sha256(_canonical(identity))
 
