@@ -224,6 +224,18 @@ class StreamingDatasetScanTests(unittest.TestCase):
         self.assertFalse(report["duplicate_example_ids_checked"])
         self.assertFalse(report["training_performed"])
 
+    def test_stream_scan_rejects_empty_dataset_and_bad_field_types(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "fixture.jsonl"
+            path.write_bytes(b"")
+            with self.assertRaisesRegex(ValueError, "at least one row"):
+                scan_jsonl_structure(path)
+            row = self._row()
+            row["difficulty"] = True
+            path.write_bytes(json.dumps(row, separators=(",", ":")).encode("utf-8") + b"\\n")
+            with self.assertRaisesRegex(ValueError, "invalid difficulty"):
+                scan_jsonl_structure(path)
+
     def test_stream_scan_rejects_hash_mismatch_duplicate_keys_and_limits(self):
         valid = json.dumps(self._row(), separators=(",", ":")).encode("utf-8") + b"\n"
         with tempfile.TemporaryDirectory() as directory:
