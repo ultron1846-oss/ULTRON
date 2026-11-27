@@ -8,7 +8,7 @@ from typing import Any, Sequence
 
 from torch import nn
 
-from .artifact import _json_safe, _validate_artifact_version, save_compression_artifact
+from .artifact import _json_safe, _validate_artifact_version, load_compression_artifact, save_compression_artifact
 from .expert_usage import ExpertUsageCounter
 from .experts import merge_experts, prune_experts
 from .low_rank import factorize_model
@@ -136,3 +136,71 @@ def run_compression_pipeline(
             "parameter_counts_after": original_counts,
             "original_model_modified": False,
         }
+
+
+
+def load_compressed_model_artifact(
+    path: str | Path,
+    parent_model: nn.Module,
+    *,
+    parent_checkpoint_id: str,
+) -> tuple[nn.Module, dict]:
+    """Rebuild a compressed model from its parent model and immutable artifact.
+
+    Compression operations are replayed from the artifact's ordered recipe,
+    then the integrity-checked state is loaded strictly. The parent model is
+    never modified. Quantization sensitivity inputs are measurement-only and
+    are not required to reconstruct the transformed weights.
+    """
+    if not isinstance(parent_model, nn.Module):
+        raise TypeError("parent_model must be a torch.nn.Module")
+    if not isinstance(parent_checkpoint_id, str) or not parent_checkpoint_id.strip():
+        raise ValueError("parent_checkpoint_id must be a non-empty stable identifier")
+    payload = load_compression_artifact(path)
+    if payload["parent_checkpoint_id"] != parent_checkpoint_id:
+        raise ValueError("compressed artifact parent checkpoint identifier does not match")
+
+    working = copy.deepcopy(parent_model)
+    replayed = []
+    for index, step in enumerate(payload["compression_steps"]):
+        if not isinstance(step, Mapping) or set(step) != {"name", "options", "report"}:
+            raise ValueError(f"compressed artifact step {index} is malformed")
+        name = step.get("name")
+        options = step.get("options")
+        if not isinstance(options, Mapping):
+            raise ValueError(f"compressed artifact options for step {index} are malformed")
+        replay_options = dict(options)
+        if name == "quantize_int8":
+            # The original artifact records which layers had caller-provided
+            # sensitivity inputs, not the input tensors themselves. Those
+            # inputs affect the report only, not the quantized weights.
+            paths = replay_options.pop("sensitivity_input_layer_paths", None)
+            if paths is not None and (
+                not isinstance(paths, list)
+                or any(not isinstance(item, str) for item in paths)
+            ):
+                raise ValueError("compressed artifact sensitivity layer paths are malformed")
+        next_model, _ = _dispatch_step(working, name, replay_options)
+        working = next_model
+        replayed.append(name)
+
+    if payload["config"] is not None:
+        config = getattr(working, "config", None)
+        if not callable(getattr(config, "to_dict", None)) or config.to_dict() != payload["config"]:
+            raise ValueError("replayed compression config does not match artifact config")
+    try:
+        working.load_state_dict(payload["model_state"], strict=True)
+    except (RuntimeError, KeyError, ValueError) as exc:
+        raise ValueError("compressed artifact state is incompatible with replayed architecture") from exc
+    return working, {
+        "success": True,
+        "parent_checkpoint_id": parent_checkpoint_id,
+        "artifact_version": payload["artifact_version"],
+        "replayed_steps": replayed,
+        "original_model_modified": False,
+        "quality_claim": False,
+        "speed_claim": False,
+        "memory_claim": False,
+    }
+
+
