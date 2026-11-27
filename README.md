@@ -16,7 +16,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - **Compression toolkit:** PR #166 added non-destructive expert pruning/representative merging, SVD factorization, simulated int8 sensitivity reporting, and versioned artifacts.
 - **Static website:** Account-free browser workspace with local memory and a browser-local memory preference.
 - **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; JavaScript and Python validate it independently, with a Python preflight adapter. This is a file handoff only, not a connected runtime.
-- **Owner notebook:** `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` validates the exported config, formula-based capacity, and an existing dataset/split manifest. It writes split-ID metadata only; no examples are generated/downloaded and no weights are allocated. Sampler/DataLoader and checkpoint resume integration remain open.
+- **Owner notebook:** validates runtime config, formula-based capacity, existing dataset/split integrity, and constructs read-only split DataLoaders with a resumable train sampler. It does not consume batches, allocate model weights, or train.
 
 ## Tested
 
@@ -59,7 +59,7 @@ These checks validate the covered implementation and workflow behavior only. The
 ## Current handoff
 
 - Repository: [ultron1846-oss/ULTRON](https://github.com/ultron1846-oss/ULTRON), default branch `main`.
-- Latest merged engineering change: [PR #181 — record PR #180 runtime memory guard merge](https://github.com/ultron1846-oss/ULTRON/pull/181), squash-merged as `0baab32502a17d50de6f33e57be3e394cd91d72a`. PR #180’s runtime RSS/CUDA memory guard remains merged as `a5b3a4d39d86e12eb1255c06fb050b10a477bc39`; all six post-merge checks passed (Python `45923177570`, Node `45923177573`, Level 1 `45923177527`, Pages build/report/deploy `45923176814`).
+- Earlier runtime-memory milestone: [PR #181 — record PR #180 runtime memory guard merge](https://github.com/ultron1846-oss/ULTRON/pull/181), squash-merged as `0baab32502a17d50de6f33e57be3e394cd91d72a`. PR #180’s runtime RSS/CUDA memory guard remains merged as `a5b3a4d39d86e12eb1255c06fb050b10a477bc39`; all six post-merge checks passed (Python `45923177570`, Node `45923177573`, Level 1 `45923177527`, Pages build/report/deploy `45923176814`).
 - Checkpoint-resume safeguard (merged PR #176): checkpoint load metadata distinguishes optimizer/scheduler state present from state actually restored. The bounded trainer rejects resume unless optimizer state was restored and any saved scheduler state was restored, preventing a model-only load from being accepted as a complete training resume. Exact uninterrupted-versus-resumed numerical equivalence remains unproven and is still a separate acceptance item; no actual optimizer step or model training was performed.
 - Merged checkpoint-cursor integrity guard (PR #178): `save_checkpoint` and `load_checkpoint` reject cursor and nested sampler dataset hashes that differ from the checkpoint's top-level manifest hash. Load-time checks occur before model, optimizer, scheduler, or RNG state restoration; regression tests cover checksum-valid tampering and model-state immutability. PR checks and all six post-merge checks passed. No training or optimizer step was performed.
 - Merged runtime memory guard (PR #180): an injectable monitor checks before training, at batch boundaries, after backward, before/after optimizer steps, and after checkpoint callbacks. It reports sampled peak and measurement limitations; no training or optimizer step on ULTRON weights was performed.
@@ -84,7 +84,10 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 
 - PR #183 — documentation handoff for PR #182 — merged as `0f456b4c92c1381e19cd259d79413df74d053548`; latest-head Node, Python AI Core, and Level 1 checks passed.
-- Current owner-notebook scaffold: preflight setup only. It does not load/generate a dataset, allocate model weights, construct a sampler/DataLoader, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).
+- Current owner notebook (PR #186): validates an already-existing dataset and prompt-disjoint split manifest, then constructs read-only train/validation/test DataLoaders. The train loader uses a dataset-bound resumable sampler; evaluation is sequential. It does not consume batches, allocate model weights, create an optimizer, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).
 
 - PR #184 — owner notebook preflight scaffold — merged as `041c39d2b37f68a21e45f149c3ef6412c64641bf`; latest-head Python AI Core, Level 1 Math Tooling, and Node checks passed.
-- PR #185 adds manifest-bound split metadata validation/preparation for an existing dataset. It writes split IDs only and does not generate dataset rows. PR CI and post-merge checks pending.
+- PR #185 — manifest-bound split preflight — merged as `f189de4d53c56ed7162eebe9a6256d2d899ca2e6`. Final PR checks passed: Node run `45940051111`, Python AI Core `45940051105`, Level 1 Math Tooling `45940051151`. All six post-merge main checks passed: Python `45940271270`, Level 1 `45940271193`, Node `45940271206`, and Pages build/report/deploy `45940270667`. It writes split-ID metadata only; no production dataset rows were generated or downloaded.
+
+
+- PR #186 — verified split DataLoaders — latest validated head `63185a02d3b15e9ca2afe633ea362049ec2192ad`: Node Tests run `45967136544`, Python AI Core run `45967136557` (full Python regression suite and CPU forward/backward smoke), and Level 1 Math Tooling run `45967136332` all passed. The first Python run exposed a stale pre-loader notebook assertion (580/581 tests passed); the test contract and docs were corrected, then the full Python suite passed. PR remains open for final review; no model training, optimizer step on ULTRON weights, production corpus generation/download, checkpoint restore, batch consumption, or remote execution occurred.

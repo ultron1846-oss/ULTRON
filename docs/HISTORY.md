@@ -1093,3 +1093,12 @@ Squash-merged as `87db245d7147690d986535fa6b80f60015634d5e`. PR CI passed on hea
 ## Manifest-bound split preflight — PR #185 (2026-11-27)
 
 Added `ultron_core/dataset_split_manifest.py` to verify an existing ULTRON JSONL dataset and atomically write deterministic prompt-group split-ID metadata only. The contract binds to the exact dataset SHA-256 and canonical split-manifest digest; verification recomputes membership and rejects duplicate prompts crossing splits, duplicate JSON keys, mismatched dataset bytes, tampered IDs, and empty splits. The owner notebook now uses this metadata-only step. Regression tests use temporary synthetic fixtures only. No production corpus was generated/downloaded, no model weights allocated, and no training/optimizer step/remote execution occurred. CI/post-merge results to be recorded after completion.
+
+
+## Verified split DataLoader scaffold — PR #186 (2026-11-27)
+
+Added `ultron_core/verified_dataset.py` to adapt verified existing JSONL records into token sequences and construct split-specific DataLoaders. Train uses a dataset-bound ResumableRandomSampler; validation/test use sequential samplers; all loaders enforce `num_workers=0` and `drop_last=False`. Sequences longer than the configured maximum are rejected rather than silently truncated. The owner notebook constructs the loaders and records the initial sampler cursor without consuming batches. The trainer's existing batch interface accepts the loader's `input_ids` and boolean `attention_mask`.
+
+The first PR head `cd0fd4df56cb7b2104fa64ed0372c0b675b6aba7` passed Node Tests `45940646901` and Level 1 Math Tooling `45940646883`; Python AI Core run `45940646850` found one stale notebook stop-point assertion (580/581 tests passed). The notebook test contract was updated to describe the new loader behavior and now explicitly checks that batches are not consumed and training operations are absent. Documentation was aligned with the implemented notebook.
+
+Corrected head `63185a02d3b15e9ca2afe633ea362049ec2192ad` passed Node Tests `45967136544`, Python AI Core `45967136557` (full regression suite and CPU forward/backward smoke), and Level 1 Math Tooling `45967136332`. PR #186 remains open pending final review and merge. No model weights were allocated, no optimizer step or training run was performed, and no production corpus was generated/downloaded or remote job dispatched. The current loader construction still reads verified dataset content into memory; streaming/indexed data access is a separate scalability follow-up.
