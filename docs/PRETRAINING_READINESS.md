@@ -164,10 +164,11 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Finish exact-head CI/review for PR #191. Its mock-only fresh-object restore now asserts model weights, optimizer momentum state, scheduler state, and sampler cursor; it does not execute an optimizer step.
-2. Owner: test a clean-process checkpoint transfer/restore in an actual separate free-cloud session, using `num_workers=0`, and record device/quota/persistence limitations. This is an owner acceptance task, not a training run.
-3. Next code phase after PR #191: refactor verified JSONL ingestion to parse one bounded line at a time, enforcing explicit byte/row/line caps while preserving the existing exact semantic verifier, dataset digest, prompt-disjoint split contract, and fail-closed behavior. Use synthetic temporary fixtures only; do not generate or download a production corpus.
-4. Keep the structural scanner a separate fast integrity report; it must not be treated as semantic answer verification or as proof of dataset split safety.
+1. PR #191 merged as `ac10b09cb281547e47a2ec82ecd84ae9543a011a` after exact-head Node, Python AI Core, and Level 1 checks passed. Its fresh-object restore test covers model weights, synthetic optimizer momentum, scheduler state, and sampler cursor without an optimizer step.
+2. Current code batch: bounded semantic JSONL ingestion and split-row loading. Exact semantic verification is preserved, while raw full-file byte/string copies are removed and each line is bounded. Synthetic regression tests cover limits, malformed/duplicate content, mutation between passes, and split compatibility; PR CI is pending.
+3. The split builder still retains parsed rows and split ID metadata in memory (hard cap 100,000 rows). This reduces duplicate memory copies but is not constant-memory DataLoader streaming; follow-up should consider a verified index/streaming row-selection design without weakening split checks.
+4. Owner: test clean-process checkpoint transfer/restore in a separate free-cloud session with `num_workers=0`, and record device/quota/persistence limitations. This is owner acceptance, not a training run.
+5. Keep the structural scanner separate from semantic verification and prompt-split safety.
 5. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
 6. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review; continue broader math/proof-checker metrics.
 7. Keep real-weight training, optimizer steps on ULTRON weights, and remote execution disabled until separate explicit authorization.
