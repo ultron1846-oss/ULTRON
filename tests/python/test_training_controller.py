@@ -647,7 +647,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 "gradient_accumulation_steps": 2, "dataset_manifest_sha256": "a" * 64,
                 "dataset_size": 4, "sampler_state": sampler_state},
         }
-        with self.assertRaisesRegex(ValueError, "sample cursor does not match"):
+        with self.assertRaisesRegex(ValueError, "sample cursor does not align"):
             run_training_steps(self.model, loader, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True,
                 resume_metadata=metadata, sampler=sampler)
