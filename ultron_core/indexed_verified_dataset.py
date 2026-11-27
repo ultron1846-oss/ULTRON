@@ -215,7 +215,7 @@ class VerifiedIndexedSplitStore:
                         line = stream.read(length)
                         if len(line) != length or hashlib.sha256(line).hexdigest() != row_digest:
                             raise ValueError("verified snapshot record integrity check failed")
-                        if not line.endswith(b"\\n"):
+                        if not line.endswith(b"\n"):
                             raise ValueError("verified snapshot record newline is malformed")
                         try:
                             row = json.loads(
