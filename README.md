@@ -15,7 +15,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - **Lean integration stub:** An integration plan and abstract checker interface exist.
 - **Compression toolkit:** PR #166 added non-destructive expert pruning/representative merging, SVD factorization, simulated int8 sensitivity reporting, and versioned artifacts.
 - **Static website:** Account-free browser workspace with local memory and a browser-local memory preference.
-- **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; Python strictly validates it and exposes preflight kwargs. This is a file handoff only, not a connected runtime.
+- **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; Python strictly validates it and provides a preflight adapter. This is a file handoff only, not a connected runtime.
 
 ## Tested
 
