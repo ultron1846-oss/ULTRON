@@ -49,7 +49,7 @@ class VerifiedDatasetTests(unittest.TestCase):
    def verify_then_mutate(path):
     manifest=original(path)
     with Path(path).open("ab") as stream:
-     stream.write(b"\\n")
+     stream.write(b"temporary unit-test fixture".replace(b"temporary", b"Temporary"))
     return manifest
    with patch("ultron_core.dataset_split_manifest.verify_dataset",side_effect=verify_then_mutate):
     with self.assertRaisesRegex(ValueError,"changed while being read"):
@@ -65,7 +65,7 @@ class VerifiedDatasetTests(unittest.TestCase):
     payload["split_ids"]["train"].pop()
     unsigned={key:value for key,value in payload.items() if key!="sha256"}
     payload["sha256"]=hashlib.sha256(split_module._canonical(unsigned)).hexdigest()
-    split.write_text(json.dumps(payload,sort_keys=True,separators=(",",":"))+"\\n")
+    split.write_text(json.dumps(payload,sort_keys=True,separators=(",",":"))+"\n")
     return verified
    with patch("ultron_core.dataset_split_manifest.validate_dataset_split_manifest",side_effect=validate_then_rewrite):
     with self.assertRaisesRegex(ValueError,"split manifest changed"):
