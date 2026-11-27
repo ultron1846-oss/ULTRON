@@ -232,7 +232,7 @@ class StreamingDatasetScanTests(unittest.TestCase):
                 scan_jsonl_structure(path)
             row = self._row()
             row["difficulty"] = True
-            path.write_bytes(json.dumps(row, separators=(",", ":")).encode("utf-8") + b"\\n")
+            path.write_bytes(json.dumps(row, separators=(",", ":")).encode("utf-8") + b"\n")
             with self.assertRaisesRegex(ValueError, "invalid difficulty"):
                 scan_jsonl_structure(path)
 
