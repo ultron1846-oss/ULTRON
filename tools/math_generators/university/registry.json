@@ -782,7 +782,8 @@
       "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "generator_topic": "Euclidean_algorithm"
     },
     {
       "topic": "congruences",
