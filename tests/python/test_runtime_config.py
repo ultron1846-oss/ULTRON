@@ -126,3 +126,14 @@ def test_json_rejects_authorization_override():
     payload = valid_payload(training_authorized=True)
     with pytest.raises(ValueError, match="cannot authorize"):
         RuntimeConfig.from_json(json.dumps(payload))
+
+def test_mapping_rejects_non_string_keys():
+    payload = valid_payload()
+    payload[7] = "invalid key"
+    with pytest.raises(TypeError, match="keys must be strings"):
+        RuntimeConfig.from_mapping(payload)
+
+
+def test_json_rejects_unpaired_unicode_surrogate():
+    with pytest.raises(ValueError, match="invalid Unicode"):
+        RuntimeConfig.from_json("\\ud800")
