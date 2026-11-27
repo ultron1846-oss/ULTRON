@@ -38,7 +38,7 @@ def fingerprint(model):
     digest = hashlib.sha256()
     for name, tensor in sorted(model.state_dict().items()):
         digest.update(name.encode("utf-8"))
-        digest.update(tensor.detach().cpu().contiguous().numpy().tobytes())
+        digest.update(bytes(tensor.detach().cpu().contiguous().reshape(-1).view(torch.uint8).tolist()))
     return digest.hexdigest()
 
 
