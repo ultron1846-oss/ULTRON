@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-11-27  
 **Work areas:** Prompt 2, work areas 3–4  
-**Status:** Implementation and regression coverage added on `audit/tokenizer-model-architecture-v3-2026-11-27`; GitHub Actions validation and review pending.  
+**Status:** Implementation and regression coverage added on `audit/tokenizer-model-architecture-v3-2026-11-27`; code/test validation passed on commit `a7f482f`; PR review/merge pending.  
 **Training status:** Not authorized and not performed.
 
 ## Executive findings
@@ -84,7 +84,7 @@ These are structural observations from the implementation, not measured performa
 
 ## Validation and release gates
 
-- Regression tests have been added to the Python suite; the PR's exact-head GitHub Actions results are still pending.
+- Regression tests passed in Python AI Core run `46007787721` (695 tests) and CPU forward/backward smoke. Node Tests run `46007787821` passed. Level 1 Math Tooling run `46007787761` passed 5/5 tests. These runs validate the PR code/test commit `a7f482f`; subsequent branch commits changed documentation only.
 - After PR CI completes, inspect all relevant Python AI Core, Node, Level 1, and any configured static-analysis checks against the exact PR head.
 - No actual model training, optimizer step, full-corpus generation/download, remote compute, pretrained model, or external AI API was used.
 - No trained checkpoint exists or is claimed.
