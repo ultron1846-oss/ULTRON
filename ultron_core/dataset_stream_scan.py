@@ -95,7 +95,7 @@ def scan_jsonl_structure(
                 raise ValueError(f"dataset exceeds scan byte limit ({max_bytes} bytes)")
             digest.update(line)
             maximum_line_seen = max(maximum_line_seen, len(line))
-            if not line.endswith(b"\\n"):
+            if not line.endswith(b"\n"):
                 raise ValueError("dataset JSONL must end every row with a newline")
             encoded = line[:-1]
             if not encoded:
