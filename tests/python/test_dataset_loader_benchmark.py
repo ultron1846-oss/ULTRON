@@ -44,7 +44,8 @@ class IndexedDatasetBenchmarkTests(unittest.TestCase):
             root = Path(directory)
             dataset = root / "fixture.jsonl"
             split = root / "fixture.splits.json"
-            fixture(dataset, 30, True)
+            # The manifest splitter requires all splits to be non-empty.
+            fixture(dataset, 90, True)
             prepare_dataset_split_manifest(dataset, split, split_seed=4)
             for invalid in (True, -1, 10_001):
                 with self.subTest(invalid=invalid):
