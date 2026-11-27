@@ -17,8 +17,8 @@ class MathCoverageAuditTests(unittest.TestCase):
     def test_current_university_catalog_and_generator_status_are_explicit(self):
         report = build_coverage_audit()
         self.assertEqual(report["university_curriculum_topic_count"], 197)
-        self.assertEqual(report["university_generator_available_count"], 59)
-        self.assertEqual(report["university_catalogued_not_implemented_count"], 138)
+        self.assertEqual(report["university_generator_available_count"], 60)
+        self.assertEqual(report["university_catalogued_not_implemented_count"], 137)
         self.assertEqual(
             report["university_prerequisite_mapped_topic_count"],
             report["university_curriculum_topic_count"],

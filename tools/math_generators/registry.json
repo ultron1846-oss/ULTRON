@@ -767,7 +767,7 @@
       "topic": "Euclidean_algorithm",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "congruences",

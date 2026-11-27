@@ -76,6 +76,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add exact definite polynomial-integral generation and independent rational antiderivative evaluation.
 - [x] Add exact 2x2 matrix inverse generation with an independent determinant-based rational validator (generator v0.5.0).
 - [ ] Expand further topics only with independent exact validators.
+- [ ] PR #201 proposes the Euclidean algorithm generator and independent 500-seed gcd/Bézout/quotient-trace tests; mark complete only after merge and verified CI.
 - [ ] Ensure ULTRON-generated data only; no external generated corpus.
 
 **Exit criteria:** reproducible manifest, split audit, zero invalid examples, documented coverage.

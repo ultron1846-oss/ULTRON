@@ -779,10 +779,11 @@
       "topic": "Euclidean_algorithm",
       "title": "Euclidean algorithm",
       "field": "Number theory",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "Euclidean_algorithm",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "congruences",

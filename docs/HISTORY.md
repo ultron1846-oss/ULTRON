@@ -1176,3 +1176,8 @@ PR #196 was squash-merged as `faa4b8ea31415598355afa36414092482b1a8e00`. It adds
 ## Independent university generator validation — PR #197 merged (2026-11-27)
 
 PR #197 was squash-merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`. It adds independent mathematical invariant assertions across all 20 existing extended university exercise templates, with 100 seeds and five difficulty levels per topic (2,000 deterministic cases), plus tampered-answer rejection. Exact-head general tests (`45999535576`), Python AI Core (`45999535506`), and Level 1 (`45999535441`) passed. This improves validation of existing generators; it does not add generators for the 138/197 catalog topics still unimplemented and does not demonstrate model mastery. Post-merge main checks were still running at the time of this entry.
+
+
+## Batch 1: indexed dataset stress and Euclidean algorithm generator — PR #201 pending (2026-11-27)
+
+The proposed branch adds synthetic 3,500-row split/streaming/random-access stress tests, a 2,400-row benchmark smoke, snapshot corruption detection, corrupted/incomplete manifest rejection, explicit close/idempotence and failed-construction cleanup checks. It adds a deterministic Euclidean algorithm generator for an existing catalogued university topic, with independent 500-seed gcd recomputation, Bézout identity, quotient/remainder invariants, and registry synchronization. PR #196's benchmark and PR #197's existing extended-template validators are already merged. This PR is pending CI/review; no production dataset benchmark, corpus generation, ULTRON training, optimizer step, or remote compute was performed.
