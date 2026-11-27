@@ -137,6 +137,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add dataset-bound deterministic resumable random sampler with seed/epoch/sample cursor and permutation-tail tests.
 - [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
 - [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
+- [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
 - [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
 - [ ] Verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
@@ -160,7 +161,7 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset, and creates/revalidates deterministic prompt-disjoint split-ID metadata bound to dataset SHA-256. Next: wire verified split IDs into a read-only dataset view and ResumableRandomSampler/DataLoader, persist callback data_state, and pass expected dataset SHA-256 when loading checkpoints. No example generation/download is allowed.
+1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. Next: persist/restore the initial sampler cursor through the existing checkpoint callback and pass the expected dataset SHA-256 when loading checkpoints. No example generation/download is allowed.
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
@@ -181,3 +182,11 @@ The owner notebook verifies an existing JSONL dataset and sidecar, creates only 
 ## Verified split DataLoader scaffold — PR #186 (2026-11-27)
 
 Added a read-only tokenized dataset view and DataLoader builder for verified existing corpus splits. Train uses ResumableRandomSampler bound to the full dataset SHA-256; validation/test are sequential. Notebook only constructs loaders and reports initial cursor state, without iterating or training. Checkpoint callback wiring and actual trainer execution remain open.
+
+
+
+## Verified dataset readiness report — PR #187 (2026-11-27)
+
+The preflight package validates the existing dataset and split manifest, adapts selected rows into the semantic MathExample contract, checks exact topic answers, verifies canonical tokenization and sequence limits, estimates model persistent-state memory from formula-based parameter counts, and constructs all three loaders from one verified split snapshot. The report is non-authorizing and marks data/activation/workspace/allocator memory as incomplete. It does not instantiate a model or optimizer, consume batches, restore checkpoints, or train.
+
+The split seed and resumable sampler seed are independent; the sampler seed is stored in the initial data cursor and must match TrainingSettings.seed later. Combined loader construction avoids independently rebuilding the verified dataset three times. It still relies on the existing in-memory JSONL parser and does not establish streaming-scale dataset access.

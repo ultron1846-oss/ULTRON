@@ -154,3 +154,58 @@ def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name):
         raise ValueError("split manifest references missing dataset rows")
     selected.sort(key=lambda row: row["example_id"])
     return verified, tuple(selected)
+
+
+
+def load_verified_split_rows_by_split(dataset_path, split_manifest_path):
+    """Load all verified split records from one consistent dataset/split snapshot.
+
+    The existing validator checks the dataset and split contract first. The
+    dataset is then read once more for the returned rows and compared with the
+    validated digest. The split manifest is re-read with a strict size bound and
+    its digest is compared with the validated snapshot, preventing a path swap
+    between validation and row selection.
+    """
+    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
+    dataset_manifest, rows = _read_dataset(dataset_path)
+    if dataset_manifest["sha256"] != verified.dataset_sha256:
+        raise ValueError("dataset changed between split validation and row loading")
+
+    split_path = Path(split_manifest_path)
+    try:
+        if not split_path.is_file():
+            raise FileNotFoundError(f"split manifest not found: {split_path}")
+        raw = split_path.read_bytes()
+    except OSError as exc:
+        raise ValueError("split manifest could not be re-read safely") from exc
+    if len(raw) > _MAX_SPLIT:
+        raise ValueError("split manifest exceeds 32 MiB")
+    try:
+        payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_strict_object)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise ValueError("split manifest malformed or contains duplicate keys") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("split manifest changed between validation and row loading")
+    saved_digest = payload.get("sha256")
+    unsigned = {key: value for key, value in payload.items() if key != "sha256"}
+    if (saved_digest != verified.split_manifest_sha256
+            or hashlib.sha256(_canonical(unsigned)).hexdigest() != saved_digest
+            or payload.get("dataset_sha256") != verified.dataset_sha256):
+        raise ValueError("split manifest changed between validation and row loading")
+
+    split_ids = payload.get("split_ids")
+    if not isinstance(split_ids, dict) or set(split_ids) != {"train", "validation", "test"}:
+        raise ValueError("split manifest changed between validation and row loading")
+    records_by_id = {row["example_id"]: row for row in rows}
+    result = {}
+    for split_name in ("train", "validation", "test"):
+        wanted = split_ids[split_name]
+        if not isinstance(wanted, list):
+            raise ValueError(f"{split_name} split IDs are malformed")
+        selected = [records_by_id[item] for item in wanted if item in records_by_id]
+        if len(selected) != len(wanted):
+            raise ValueError("split manifest references missing dataset rows")
+        selected.sort(key=lambda row: row["example_id"])
+        result[split_name] = tuple(selected)
+    return verified, result
