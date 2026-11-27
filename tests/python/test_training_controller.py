@@ -396,7 +396,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         report = dict(self.report)
         report["split_counts"] = {"train": 8, "validation": 1, "test": 1}
         metadata = {"format_version": 4, "rng_restored": True,
-                    "dataset_hash_verified": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
+            "dataset_hash_verified": True,
                     "step": 12, "seed": 0, "gradient_accumulation_steps": 2,
                     "data_state": {"epoch": 2, "next_batch_index": 3, "seed": 0,
                                    "gradient_accumulation_steps": 2,
@@ -418,10 +420,82 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["data_state"]["next_batch_index"], 5)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 5)
 
+    def test_resume_rejects_checkpoint_without_restored_optimizer_state_before_batches(self):
+        metadata = {
+            "format_version": 5,
+            "rng_restored": True,
+            "dataset_hash_verified": True,
+            "optimizer_state_present": True,
+            "optimizer_restored": False,
+            "scheduler_state_present": False,
+            "scheduler_restored": False,
+            "step": 0,
+            "dataset_manifest_sha256": "a" * 64,
+            "data_state": {
+                "epoch": 0,
+                "next_batch_index": 0,
+                "seed": self.settings.seed,
+                "gradient_accumulation_steps": self.settings.gradient_accumulation_steps,
+                "dataset_manifest_sha256": "a" * 64,
+                "dataset_size": self.report["split_counts"]["train"],
+            },
+        }
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex(ValueError, "optimizer state was not restored"):
+            run_training_steps(
+                self.model, batches(), self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                resume_metadata=metadata,
+            )
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
+    def test_resume_rejects_unrestored_scheduler_state_before_batches(self):
+        metadata = {
+            "format_version": 5,
+            "rng_restored": True,
+            "dataset_hash_verified": True,
+            "optimizer_state_present": True,
+            "optimizer_restored": True,
+            "scheduler_state_present": True,
+            "scheduler_restored": False,
+            "step": 0,
+            "dataset_manifest_sha256": "a" * 64,
+            "data_state": {
+                "epoch": 0,
+                "next_batch_index": 0,
+                "seed": self.settings.seed,
+                "gradient_accumulation_steps": self.settings.gradient_accumulation_steps,
+                "dataset_manifest_sha256": "a" * 64,
+                "dataset_size": self.report["split_counts"]["train"],
+            },
+        }
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex(ValueError, "scheduler state was not restored"):
+            run_training_steps(
+                self.model, batches(), self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                resume_metadata=metadata,
+            )
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_resume_rejects_precision_mismatch_and_legacy_bf16(self):
         from ultron_core.resumable_sampler import ResumableRandomSampler
         metadata = {
             "format_version": 5, "rng_restored": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
             "dataset_hash_verified": True, "step": 4,
             "dataset_manifest_sha256": "a" * 64,
             "training_settings": {"precision": "bf16", "deterministic": False},
@@ -447,6 +521,8 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_rejects_changed_seed_or_accumulation(self):
         metadata = {"format_version": 4, "rng_restored": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
                     "dataset_hash_verified": True, "step": 4,
                     "data_state": {"epoch": 0, "next_batch_index": 2, "seed": 0,
                                    "gradient_accumulation_steps": 2,
@@ -516,6 +592,8 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         sampler_state = sampler.state_dict()
         metadata = {
             "format_version": 4, "step": 0, "rng_restored": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
             "dataset_hash_verified": True,
             "seed": 0, "gradient_accumulation_steps": 2,
             "dataset_manifest_sha256": "a" * 64,
@@ -637,7 +715,10 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             "sampler_state": saved_sampler_state,
         }
         metadata = {
-            "format_version": 4, "rng_restored": True, "dataset_hash_verified": True,
+            "format_version": 4, "rng_restored": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
+            "dataset_hash_verified": True,
             "step": 6, "seed": 0, "gradient_accumulation_steps": 2,
             "data_state": data_state, "dataset_manifest_sha256": "a" * 64,
         }
@@ -747,6 +828,8 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_requires_next_batch_cursor(self):
         metadata = {"format_version": 4, "step": 8, "rng_restored": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
                     "dataset_hash_verified": True,
                     "data_state": {"epoch": 1, "batch": 3},
                     "dataset_manifest_sha256": "a" * 64}
@@ -812,6 +895,8 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
         base = {"format_version": 4, "rng_restored": True,
+            "optimizer_state_present": True, "optimizer_restored": True,
+            "scheduler_state_present": False, "scheduler_restored": False,
                 "dataset_hash_verified": True,
                 "data_state": {"epoch": 0, "next_batch_index": 1},
                 "dataset_manifest_sha256": "b" * 64}

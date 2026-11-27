@@ -267,4 +267,8 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             "dataset_manifest_sha256": dataset_hash, "format_version": version,
             "rng_restored": bool(restore_rng and version >= 3),
             "dataset_hash_verified": dataset_hash_verified,
+            "optimizer_state_present": opt_state is not None,
+            "optimizer_restored": bool(optimizer is not None and opt_state is not None),
+            "scheduler_state_present": sched_state is not None,
+            "scheduler_restored": bool(scheduler is not None and sched_state is not None),
             "training_settings": training_settings}

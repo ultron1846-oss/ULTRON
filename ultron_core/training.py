@@ -308,6 +308,18 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         resume_step = resume_metadata.get("step")
         if isinstance(resume_step, bool) or not isinstance(resume_step, int) or resume_step < 0:
             raise ValueError("resume checkpoint global step is invalid")
+        if (resume_metadata.get("optimizer_state_present") is not True
+                or resume_metadata.get("optimizer_restored") is not True):
+            raise ValueError("resume checkpoint optimizer state was not restored")
+        scheduler_state_present = resume_metadata.get("scheduler_state_present")
+        scheduler_restored = resume_metadata.get("scheduler_restored")
+        if type(scheduler_state_present) is not bool or type(scheduler_restored) is not bool:
+            raise ValueError("resume checkpoint scheduler restoration metadata is malformed")
+        if scheduler_state_present:
+            if scheduler is None or scheduler_restored is not True:
+                raise ValueError("resume checkpoint scheduler state was not restored")
+        elif scheduler is not None or scheduler_restored is not False:
+            raise ValueError("resume checkpoint does not contain scheduler state")
         if initial_data_state is not None and initial_data_state != resume_metadata["data_state"]:
             raise ValueError("initial_data_state must match checkpoint resume cursor")
         cursor = dict(resume_cursor)

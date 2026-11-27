@@ -58,6 +58,7 @@ These checks validate the covered implementation and workflow behavior only. The
 
 - Repository: [ultron1846-oss/ULTRON](https://github.com/ultron1846-oss/ULTRON), default branch `main`.
 - Latest merged engineering change: [PR #174 — canonical verifier-bound task schema](https://github.com/ultron1846-oss/ULTRON/pull/174). Its final Node/Python/Level 1 checks and all six post-merge checks passed on `main`, including Pages build, status report, and deployment.
+- Current checkpoint-resume hardening (PR #176 candidate): checkpoint load metadata now distinguishes optimizer/scheduler state present from state actually restored, and the bounded trainer rejects resume unless optimizer state was loaded and any saved scheduler state was restored. This prevents a model-only restore from being mislabeled as an exact training resume. CI validation pending; no optimizer step or model training is performed.
 - The requested pre-training engineering checklist A–G has been reviewed. The implemented math-engine, generator, verification, Lean-stub, Level 1, and word-problem coverage is summarized above; detailed dated milestones are archived in [docs/HISTORY.md](docs/HISTORY.md).
 - Remaining owner-side acceptance includes manual iPad Safari testing. Automated responsive checks are not a substitute for testing on an actual iPad.
 
