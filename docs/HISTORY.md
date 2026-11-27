@@ -1118,3 +1118,11 @@ No model weights, optimizer, or checkpoint are instantiated/restored. No batches
 ### PR #187 final review validation
 
 Final review head `f531d88e3cbb9279fe56a9a326addb2c3fabb4e0` passed Node Tests `45969867909`, Python AI Core `45969867882` (589 tests plus CPU forward/backward smoke), and Level 1 Math Tooling `45969867929` (5,000 randomized cases). The review made the row-based construction helpers private, cross-checks each split's row count and duplicate IDs against verified manifest metadata, and ensures a single-split loader only loads/builds its requested split. The dedicated single-split regression test passed. PR #187 remains open pending merge and post-merge verification. No DataLoader batch was consumed, no optimizer step/training run or checkpoint restore occurred, and no production corpus was generated/downloaded or remote job dispatched.
+
+
+
+## Canonical resumable data-cursor contract — PR #188 (2026-11-27, in progress)
+
+Adds ultron_core/data_state.py, a pure validator for the checkpoint data cursor and nested ResumableRandomSampler state. It binds both cursors to the same dataset SHA-256, train split size, seed, epoch, batch size, and gradient accumulation setting; verifies sample-cursor/batch-cursor alignment including a final partial batch; rejects missing or malformed sampler metadata; and returns a detached copy. The validator is wired into preflight cursor construction and the trainer's pre-batch sampler validation path.
+
+Tests use synthetic dictionaries and a DataLoader whose dataset records access; malformed cursor metadata must be rejected before any sample is requested and before the mock optimizer records a step. No checkpoint file is read or restored; no valid training invocation, optimizer step, production dataset generation/download, or remote job is run.

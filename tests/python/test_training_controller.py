@@ -119,6 +119,50 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(consumed, [])
         self.assertEqual(optimizer.steps, 0)
 
+    def test_malformed_resumable_cursor_is_rejected_before_batch_access(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        consumed = []
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+
+            def __getitem__(self, index):
+                consumed.append(index)
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(
+            dataset, seed=self.settings.seed,
+            dataset_manifest_sha256="a" * 64,
+        )
+        loader = DataLoader(
+            dataset, batch_size=1, sampler=sampler,
+            num_workers=0, drop_last=False,
+        )
+        invalid_cursor = {
+            "epoch": 0,
+            "next_batch_index": 1,
+            "next_sample_index": 0,
+            "dataset_manifest_sha256": "a" * 64,
+            "dataset_size": 4,
+            "seed": self.settings.seed,
+            "gradient_accumulation_steps": self.settings.gradient_accumulation_steps,
+            "sampler_state": sampler.state_dict(),
+        }
+
+        with self.assertRaisesRegex(ValueError, "sample cursor does not align"):
+            run_training_steps(
+                self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                initial_data_state=invalid_cursor, sampler=sampler,
+            )
+
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_optimizer_rejects_missing_trainable_parameters_before_batches(self):
         optimizer = MockOptimizer()
         optimizer.param_groups = [{"params": []}]
