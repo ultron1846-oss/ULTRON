@@ -9,6 +9,8 @@ _METHOD="prompt_group_hash_v1"
 _SHA=re.compile(r"[0-9a-f]{64}")
 _MAX_SPLIT=32*1024*1024
 _MAX_DATA=1024*1024*1024
+_MAX_LINE_BYTES=8*1024*1024
+_MAX_ROWS=100_000
 _KEYS={"schema_version","split_method","dataset_sha256","split_seed","validation_fraction","test_fraction","split_ids","sha256"}
 
 @dataclass(frozen=True)
@@ -88,7 +90,7 @@ def _read_dataset(path):
                 except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
                     raise ValueError("dataset JSONL malformed or contains duplicate keys") from exc
                 rows.append(row)
-                if len(rows) > manifest["example_count"] or len(rows) > 100_000:
+                if len(rows) > manifest["example_count"] or len(rows) > _MAX_ROWS:
                     raise ValueError("dataset row count exceeds verified manifest or preflight limit")
     except OSError as exc:
         raise ValueError("dataset could not be read safely after verification") from exc
