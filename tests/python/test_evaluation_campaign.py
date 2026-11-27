@@ -80,10 +80,15 @@ class NumericToleranceAndErrorTaxonomyTests(unittest.TestCase):
         )
 
     def test_relative_tolerance_is_supported_for_scalar_topics_only(self):
-        example = generate_examples(20261128, 1, topics=("matrix_determinant_2x2",))[0]
         from fractions import Fraction
         from decimal import Decimal
 
+        example = next(
+            item
+            for seed in range(20261128, 20261160)
+            for item in generate_examples(seed, 1, topics=("matrix_determinant_2x2",))
+            if Fraction(item.exact_answer) != 0
+        )
         expected = Fraction(example.exact_answer)
         approx = (
             Decimal(expected.numerator) / Decimal(expected.denominator)
