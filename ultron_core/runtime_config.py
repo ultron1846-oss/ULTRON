@@ -74,6 +74,8 @@ class RuntimeConfig:
     def from_mapping(cls, value: Mapping[str, Any]) -> "RuntimeConfig":
         if not isinstance(value, Mapping):
             raise TypeError("runtime config must be a mapping")
+        if any(not isinstance(key, str) for key in value):
+            raise TypeError("runtime config keys must be strings")
         keys = set(value)
         missing = _REQUIRED_KEYS - keys
         extra = keys - _REQUIRED_KEYS
@@ -87,7 +89,11 @@ class RuntimeConfig:
     def from_json(cls, source: str) -> "RuntimeConfig":
         if not isinstance(source, str):
             raise TypeError("runtime config JSON must be a string")
-        if len(source.encode("utf-8")) > MAX_CONFIG_JSON_BYTES:
+        try:
+            encoded_size = len(source.encode("utf-8"))
+        except UnicodeEncodeError as error:
+            raise ValueError("runtime config JSON contains invalid Unicode") from error
+        if encoded_size > MAX_CONFIG_JSON_BYTES:
             raise ValueError(f"runtime config JSON exceeds {MAX_CONFIG_JSON_BYTES} bytes")
         try:
             value = json.loads(source, object_pairs_hook=_reject_duplicate_keys)
