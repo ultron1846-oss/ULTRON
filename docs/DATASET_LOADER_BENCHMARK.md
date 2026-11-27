@@ -24,3 +24,8 @@ The benchmark is read-only with respect to the input dataset. It does not genera
 ## Stress validation added in PR #201 (pending)
 
 The proposed regression suite exercises a 3,500-row synthetic dataset across all filtered splits, incremental record iteration, first/last random access, and deterministic repeated reads. It also tests a 2,400-row benchmark smoke, tampered snapshot-record rejection, idempotent close/removal, and temporary-directory cleanup after invalid manifest construction. These are correctness/resource-lifecycle tests, not a production memory profile. The benchmark's Python `tracemalloc` value excludes native SQLite, process RSS, PyTorch, and device memory. A production dataset must be supplied before reporting production throughput or memory.
+
+
+## Explicit memory-boundary interpretation
+
+The indexed path bounds record payload handling, but it is not fully constant-memory with respect to dataset size. The verified snapshot is copied in 1 MiB chunks; each JSONL record is limited to 8 MiB; the SQLite page cache is configured to about 2 MiB; index-build reads use batches of 1,024; and split iteration fetches 256 index rows at a time while decoding one record per yield. The selected row payloads are not accumulated as a full Python list. However, the split-manifest ID arrays are currently parsed into Python memory, bounded by the repository's 100,000-row preflight limit, so metadata memory grows with selected example count. A future manifest/index protocol would be needed to remove that O(N) ID-list component. This distinction must be included in any memory report.
