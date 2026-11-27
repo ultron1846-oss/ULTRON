@@ -57,7 +57,7 @@ test('Memory Vault supports mistake review, safe clear-all and committed transac
   assert.match(app, /setTimeout\(\(\)=>URL\.revokeObjectURL\(url\),1000\)/);
 });
 test('all browser modules pass syntax validation', async () => {
-  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
+  for (const path of ['app.js', 'runtime-config.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
     execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
   }
 });
@@ -104,9 +104,16 @@ test('static shell has no access-mode toggle, login, sign-up or owner route', as
   assert.doesNotMatch(app, /owner-auth\.js|renderOwner|bindOwner|signInOwner|verifyOwner|signOutOwner/);
 });
 test('all required Pages runtime assets exist and are non-empty', async () => {
-  for (const path of ['index.html', 'styles.css', 'app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json', 'command-center.html']) {
+  for (const path of ['index.html', 'styles.css', 'app.js', 'runtime-config.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js', 'servers.json', 'command-center.html']) {
     const content = await read(path);
     assert.ok(content.trim().length > 0, `required static asset is empty: ${path}`);
   }
 });
 
+
+test('settings export loads the new runtime-config module version', async () => {
+  const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
+  assert.match(html, /app\.js\?v=20261127-1/);
+  assert.match(app, /runtime-config\.js\?v=20261127-1/);
+  assert.match(app, /serializeRuntimeConfig\(config\)/);
+});

@@ -70,3 +70,10 @@ The public website displays generic runtime status only. It does not expose Star
 ## iPad and memory preference status — 2026-11-26
 
 Automated static frontend checks verify the viewport, mobile breakpoint, safe-area inset, 44 px touch-target minimum, and local persistence of the 2–10 GB preferred training-memory slider. Manual Safari acceptance on an iPad remains pending. The slider is a local preference only; it is not connected to live RAM/VRAM allocation or a training runtime.
+
+
+## Versioned runtime configuration handoff — PR candidate
+
+The Settings page can export `ultron-runtime-config.json` using schema version 1. The file includes the browser-selected 2–10 GiB memory budget, bounded batch/sequence/accumulation defaults, and explicit `training_authorized: false` / `remote_execution_enabled: false` values. The browser `runtime-config.js` module validates the generated schema, and Python's `RuntimeConfig` parser independently rejects unknown or missing fields, duplicate JSON keys, out-of-range values, oversize input, and any attempt to enable training or remote execution. `preflight_training_plan_from_runtime_config(...)` forwards only the validated workload and budget fields into the existing preflight. Its `preflight_kwargs()` returns only the workload and memory-budget fields accepted by preflight.
+
+This is a validated file-based configuration handoff—not a live website-to-runtime connection. It does not allocate RAM/VRAM, authenticate with a provider, run preflight by itself, authorize training, or start a job. The real runtime integration and device acceptance remain outstanding. See [RUNTIME_CONFIG.md](RUNTIME_CONFIG.md).

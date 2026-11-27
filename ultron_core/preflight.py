@@ -95,3 +95,27 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
             "This is not a training authorization or a training run.",
         ],
     }
+
+
+def preflight_training_plan_from_runtime_config(
+    config,
+    splits,
+    runtime_config,
+    *,
+    dataset_manifest_sha256=None,
+):
+    """Run the existing non-authorizing preflight with validated runtime settings.
+
+    The runtime config supplies only workload bounds and the requested memory
+    budget. It cannot authorize training or enable remote execution.
+    """
+    from .runtime_config import RuntimeConfig
+
+    if not isinstance(runtime_config, RuntimeConfig):
+        raise TypeError("runtime_config must be a validated RuntimeConfig")
+    return preflight_training_plan(
+        config,
+        splits,
+        **runtime_config.preflight_kwargs(),
+        dataset_manifest_sha256=dataset_manifest_sha256,
+    )

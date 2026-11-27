@@ -30,7 +30,8 @@ Automated frontend hardening and the disabled Training Control readiness page ar
 - [x] Verify the 2–10 GB workload slider persists as a browser-local preference and does not allocate physical RAM.
 - [x] Add automated responsive checks for viewport metadata, mobile breakpoint, safe-area inset, and 44 px touch-target minimum.
 - [ ] Complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md (owner device test required).
-- [ ] Connect requested memory budget to an approved runtime configuration and enforce live RAM/VRAM limits; no runtime allocation exists yet.
+- [x] Define strict versioned runtime-config schema and browser JSON export with non-authorizing flags; Python parser maps it to preflight inputs (PR #182 candidate).
+- [ ] Connect exported configuration to an approved runtime and enforce live RAM/VRAM limits; no website-to-runtime connection or runtime allocation exists yet.
 - [x] Add automated responsive/keyboard/storage contract checks for narrow layout, narrow landscape, touch target, focus, navigation, IndexedDB and backup/restore.
 - [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore on an actual iPad.
 - [ ] Record device/browser/date/pass-fail; do not mark untested as passed.
@@ -157,9 +158,9 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook: construct the train-split DataLoader with ResumableRandomSampler, persist callback data_state, and pass the expected dataset SHA-256 when loading checkpoints.
+1. Owner notebook: import the validated schema-v1 runtime config, construct the train-split DataLoader with ResumableRandomSampler, persist callback data_state, and pass the expected dataset SHA-256 when loading checkpoints.
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
-3. Add measured live RAM/VRAM resource cap enforcement and document checkpoint storage/backup limits.
+3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
 5. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review.
 6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.

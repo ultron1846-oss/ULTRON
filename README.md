@@ -15,6 +15,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - **Lean integration stub:** An integration plan and abstract checker interface exist.
 - **Compression toolkit:** PR #166 added non-destructive expert pruning/representative merging, SVD factorization, simulated int8 sensitivity reporting, and versioned artifacts.
 - **Static website:** Account-free browser workspace with local memory and a browser-local memory preference.
+- **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; JavaScript and Python validate it independently, with a Python preflight adapter. This is a file handoff only, not a connected runtime.
 
 ## Tested
 
@@ -33,7 +34,7 @@ These checks validate the covered implementation and workflow behavior only. The
 - **Benchmark evaluation:** The 500-item Level 1 holdout is opt-in and is not training data. Generator availability and test correctness do not establish model mastery.
 - **Lean proof checking:** No Lean toolchain, kernel run, proof receipt validator, or theorem-proving capability.
 - **Compression quality:** No trained-checkpoint quality, speed, or memory-reduction results. Int8 is currently a floating-point quantize/dequantize simulation. Compressed deployment artifacts do not count toward the foundation parameter floor.
-- **Runtime/device acceptance:** No connected training runtime. The bounded trainer now samples process RSS plus CUDA allocator-reserved memory and stops at safe controller boundaries when its preflight budget is exceeded; it cannot interrupt a single tensor operation. The website memory preference still does not allocate physical RAM. Manual iPad Safari acceptance remains pending.
+- **Runtime/device acceptance:** No connected training runtime. The bounded trainer samples process RSS plus CUDA allocator-reserved memory and stops at safe controller boundaries when its preflight budget is exceeded; it cannot interrupt a single tensor operation. The browser can export a validated schema-v1 config file, but that file is not consumed by a runtime yet and the website memory preference does not allocate physical RAM. Manual iPad Safari acceptance remains pending.
 - **External data:** No seed dataset has been downloaded or uploaded as part of this work.
 
 ## Architecture
@@ -57,7 +58,7 @@ These checks validate the covered implementation and workflow behavior only. The
 ## Current handoff
 
 - Repository: [ultron1846-oss/ULTRON](https://github.com/ultron1846-oss/ULTRON), default branch `main`.
-- Latest merged engineering change: [PR #180 — enforce runtime memory budget at training boundaries](https://github.com/ultron1846-oss/ULTRON/pull/180). Squash-merged as `a5b3a4d39d86e12eb1255c06fb050b10a477bc39` after all three PR workflows passed on head `37bd46e7e414e3d3276f00d6f4f51d9fc6ba8947` (Node `45922333917`, Python AI Core `45922333906`, Level 1 Math Tooling `45922333922`). All six post-merge checks passed on `main`: Python AI Core `45923177570`, Node Tests `45923177573`, Level 1 Math Tooling `45923177527`, and Pages build/report/deploy run `45923176814`.
+- Latest merged engineering change: [PR #181 — record PR #180 runtime memory guard merge](https://github.com/ultron1846-oss/ULTRON/pull/181), squash-merged as `0baab32502a17d50de6f33e57be3e394cd91d72a`. PR #180’s runtime RSS/CUDA memory guard remains merged as `a5b3a4d39d86e12eb1255c06fb050b10a477bc39`; all six post-merge checks passed (Python `45923177570`, Node `45923177573`, Level 1 `45923177527`, Pages build/report/deploy `45923176814`).
 - Checkpoint-resume safeguard (merged PR #176): checkpoint load metadata distinguishes optimizer/scheduler state present from state actually restored. The bounded trainer rejects resume unless optimizer state was restored and any saved scheduler state was restored, preventing a model-only load from being accepted as a complete training resume. Exact uninterrupted-versus-resumed numerical equivalence remains unproven and is still a separate acceptance item; no actual optimizer step or model training was performed.
 - Merged checkpoint-cursor integrity guard (PR #178): `save_checkpoint` and `load_checkpoint` reject cursor and nested sampler dataset hashes that differ from the checkpoint's top-level manifest hash. Load-time checks occur before model, optimizer, scheduler, or RNG state restoration; regression tests cover checksum-valid tampering and model-state immutability. PR checks and all six post-merge checks passed. No training or optimizer step was performed.
 - Merged runtime memory guard (PR #180): an injectable monitor checks before training, at batch boundaries, after backward, before/after optimizer steps, and after checkpoint callbacks. It reports sampled peak and measurement limitations; no training or optimizer step on ULTRON weights was performed.
@@ -77,3 +78,5 @@ These checks validate the covered implementation and workflow behavior only. The
 For current feature-specific requirements, use the relevant documents under [docs/](docs/).
 
 - Foundation training-gate hardening: [PR #170 — align the foundation parameter floor](https://github.com/ultron1846-oss/ULTRON/pull/170) merged as `ea1e1851a42a2334369bcf26b8bc74037ec98191`. Preflight and the bounded training controller now use the shared inclusive 60,000,000-trainable-parameter floor; regression tests cover exact-floor acceptance and rejection below the floor before batch consumption or optimizer steps. Final PR checks passed on `8d9a0dd9d42f21ac7cb86ccac87a67ebbce4f14c`: Node Tests run `45830279539`, Python AI Core run `45830279637`, and Level 1 Math Tooling run `45830279788`. All six post-merge checks passed on `main`: Node Tests `45830648511`, Python AI Core `45830648531`, Level 1 Math Tooling `45830648456`, Pages build `45830648135`, build-status report, and Pages deployment (both jobs in run `45830648135`). No model training, optimizer steps, or corpus/dataset generation were performed.
+
+- Current engineering candidate: [PR #182 — versioned runtime-config handoff](https://github.com/ultron1846-oss/ULTRON/pull/182). It exports the browser memory preference as a strict non-authorizing JSON config and validates it in Python; no runtime connection or training.
