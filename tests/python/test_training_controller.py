@@ -285,12 +285,15 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(len(saved), 2)
         self.assertEqual(saved[0][0], 1)
         self.assertEqual(saved[0][1]["data_state"]["next_batch_index"], 2)
+        self.assertEqual(saved[0][1]["data_state"]["batch_size"], 1)
         self.assertEqual(saved[1][0], 2)
         self.assertEqual(saved[1][1]["data_state"]["next_batch_index"], 4)
+        self.assertEqual(saved[1][1]["data_state"]["batch_size"], 1)
         self.assertEqual(saved[1][1]["dataset_manifest_sha256"], "a" * 64)
         self.assertEqual(result["global_step"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 4)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+        self.assertEqual(result["data_state"]["batch_size"], 1)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
     def test_loss_metric_storage_stays_bounded_over_long_session(self):
@@ -620,6 +623,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["steps_completed"], 1)
         self.assertEqual(result["data_state"]["next_batch_index"], 2)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+        self.assertEqual(result["data_state"]["batch_size"], 2)
 
     def test_sampler_cursor_must_match_batch_cursor(self):
         from torch.utils.data import DataLoader, Dataset
@@ -937,6 +941,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             self.assertEqual(metadata["step"], 1)
             self.assertEqual(metadata["data_state"]["next_batch_index"], 2)
             self.assertEqual(metadata["data_state"]["sampler_state"]["next_index"], 2)
+            self.assertEqual(metadata["data_state"]["batch_size"], 1)
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
