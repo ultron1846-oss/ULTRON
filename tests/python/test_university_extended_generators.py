@@ -1,4 +1,5 @@
-import unittest\nimport math
+import unittest
+import math
 from fractions import Fraction
 
 from tools.math_generators.university import generate, verify
@@ -80,9 +81,9 @@ class UniversityExtendedBatchTests(unittest.TestCase):
                         self.assertEqual(v["distance"] ** 2, dx * dx + dy * dy)
                     elif topic in ("holomorphic_functions", "Cauchy_Riemann_equations"):
                         x, y = v["point"]
-                        self.assertEqual(v["partials"]["u_x"], 2 * x) if topic == "holomorphic_functions" else self.assertEqual(v["u_x"], 2 * x)
                         if topic == "holomorphic_functions":
                             p = v["partials"]
+                            self.assertEqual(p["u_x"], 2 * x)
                             self.assertEqual(p["u_x"], p["v_y"])
                             self.assertEqual(p["u_y"], -p["v_x"])
                             self.assertEqual(v["derivative"], f"{2*x}+{2*y}i")
