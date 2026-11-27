@@ -5,7 +5,7 @@ from pathlib import Path
 from test_dataset_split_manifest import fixture
 import ultron_core.dataset_split_manifest as split_module
 from ultron_core.dataset_split_manifest import (prepare_dataset_split_manifest, _read_dataset, load_verified_split_rows)
-from ultron_core.verified_dataset import (VerifiedMathDataset, build_verified_split_loader, build_verified_split_loaders, collate_verified_math_batch)
+from ultron_core.verified_dataset import (VerifiedMathDataset, IndexedVerifiedMathDataset, build_verified_split_loader, build_verified_split_loaders, close_verified_split_loaders, collate_verified_math_batch)
 
 class VerifiedDatasetTests(unittest.TestCase):
  def setup_data(self,root):
@@ -99,6 +99,58 @@ class VerifiedDatasetTests(unittest.TestCase):
   import torch
   batch=collate_verified_math_batch([{"input_ids":torch.tensor([1,4,2])},{"input_ids":torch.tensor([1,5,6,2])}])
   self.assertEqual(tuple(batch["input_ids"].shape),(2,4)); self.assertEqual(batch["attention_mask"][0].tolist(),[True,True,True,False])
+ def test_single_loader_uses_lazy_disk_index_without_full_record_list(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,contract=self.setup_data(Path(d))
+   loader=build_verified_split_loader(data,split,split_name="validation",batch_size=3,seed=4,max_sequence_length=256)
+   ds=loader.dataset
+   self.assertIsInstance(ds,IndexedVerifiedMathDataset)
+   self.assertFalse(hasattr(ds,"_records"))
+   self.assertEqual(len(ds),contract.split_counts["validation"])
+   item=ds[0]
+   self.assertEqual(str(item["input_ids"].dtype),"torch.int64")
+   self.assertGreaterEqual(item["input_ids"].numel(),3)
+   ds.close()
+   with self.assertRaisesRegex(RuntimeError,"closed"):
+    ds[0]
+ def test_lazy_loader_uses_verified_snapshot_after_source_changes(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,_=self.setup_data(Path(d))
+   loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
+   ds=loader.dataset
+   data.write_text("tampered source after verified snapshot\n")
+   self.assertGreaterEqual(ds[0]["input_ids"].numel(),3)
+   ds.close()
+ def test_lazy_index_checks_record_digest_on_random_access(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,_=self.setup_data(Path(d))
+   loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
+   ds=loader.dataset
+   store=ds._store
+   record=store._connection.execute(
+    "SELECT byte_offset,byte_length FROM ordered_records WHERE split_name=? AND seq=0",
+    ("validation",),
+   ).fetchone()
+   store._snapshot_path.chmod(0o600)
+   with store._snapshot_path.open("r+b") as stream:
+    stream.seek(record[0])
+    line=stream.read(record[1])
+    stream.seek(record[0])
+    stream.write(bytes([line[0]^1])+line[1:])
+   with self.assertRaisesRegex(ValueError,"record integrity"):
+    ds[0]
+   ds.close()
+ def test_combined_lazy_loaders_share_index_and_can_close(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,contract=self.setup_data(Path(d))
+   loaders=build_verified_split_loaders(data,split,batch_size=4,seed=4,max_sequence_length=256)
+   stores={id(loader.dataset._store) for loader in loaders.values()}
+   self.assertEqual(len(stores),1)
+   self.assertTrue(all(isinstance(loader.dataset,IndexedVerifiedMathDataset) for loader in loaders.values()))
+   self.assertEqual({loader.dataset.dataset_manifest_sha256 for loader in loaders.values()},{contract.dataset_sha256})
+   close_verified_split_loaders(loaders)
+   with self.assertRaisesRegex(RuntimeError,"closed"):
+    loaders["train"].dataset[0]
  def test_single_loader_does_not_construct_other_splits(self):
   with tempfile.TemporaryDirectory() as d:
    data,split,contract=self.setup_data(Path(d))
