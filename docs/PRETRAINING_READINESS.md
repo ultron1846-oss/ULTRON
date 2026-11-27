@@ -14,7 +14,7 @@
 - [x] Establish ≥60M minimum and add a 63,400,451-total / 61,826,048-trainable candidate configuration.
 - [x] Add exact parameter-count formula and small-model cross-check.
 - [x] Add theoretical FP32/optimizer memory estimate.
-- [ ] Final architecture review and tokenizer-vocabulary compatibility audit.
+- [x] Add tokenizer-version and exact vocabulary compatibility checks to model config/checkpoint and enforce them in model-only inference (PR #198). [ ] Complete export and trained-checkpoint compatibility audit.
 
 **Exit criteria:** reviewed capability/curriculum specification, architecture, exact parameter count, resource estimate, and bounded scope.
 
@@ -117,7 +117,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Extend the graph to Differential equations, Optimization, and Numerical mathematics (34 additional topics; 167/197 total).
 - [x] Complete the prerequisite graph for all 197 university curriculum topics across 17 fields, with exact coverage and DAG validation.
 - [ ] Extend prerequisite mapping to relevant grade-band curricula.
-- [ ] Curate a frozen concept-transfer benchmark with semantic near-duplicate review and independent answer verification.
+- [x] Add a deterministic SHA-256 frozen manifest for validated concept-transfer splits (IDs, normalized prompt hashes, concepts/categories, and registry digest). [ ] Curator semantic near-duplicate review and independent answer verification remain required.
 - [x] Separate attempted-answer coverage from valid-answer rate so invalid outputs are not counted as abstentions.
 - [x] Count malformed non-string predictions as invalid outputs rather than aborting evaluation.
 - [x] Benchmark parameter report separates total, trainable, fixed, and structural expert-active estimates.
@@ -145,6 +145,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188 merged as `7adf369549206eec139bc3fdb1a390631113e662`).
 - [x] Wire the verified loader/sampler cursor into the bounded trainer checkpoint callback and restore the sampler before iterator creation; metadata persistence and resume gates are covered by PRs #186, #190, and existing controller tests.
 - [x] Add mock-only fresh-object model/optimizer/scheduler checkpoint restoration with sampler cursor rehydration; seed and assert synthetic optimizer momentum state plus scheduler state without an optimizer step (PR #191 updated; CI rerunning).
+- [x] Add a clean-process checkpoint restore regression for model, optimizer/scheduler state, and sampler cursor using synthetic fixtures; no optimizer step.
 - [ ] Owner: verify a clean-process/remote-runtime resume with `num_workers=0` and a transferred checkpoint bundle.
 - [ ] Prove numerical resumed-vs-uninterrupted training equivalence within tolerance only after separate authorization for a tiny mock/approved optimizer-step test; this remains distinct from sampler-sequence equivalence.
 - [x] Document checkpoint storage, backup, and integrity limitations (current portability batch; CI pending).

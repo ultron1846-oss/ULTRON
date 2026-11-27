@@ -44,3 +44,16 @@ Before a model-quality evaluation:
 - Transfer categories are curator-supplied; the validator checks their locally verifiable properties but does not infer them.
 - The core taxonomy covers only the current eight exact-synthetic topics. Extend concept/prerequisite coverage across curriculum generators before claiming broad concept transfer.
 - No corpus download/import, data augmentation, optimizer step, training, or remote execution is performed by this protocol.
+
+
+## Frozen manifest fingerprint
+
+`build_concept_transfer_manifest(train, test, test_categories=...)` validates the split using the protocol above and returns a stable SHA-256 fingerprint. The manifest binds:
+
+- the concept registry content;
+- train/test example IDs and topics;
+- normalized prompt hashes (not raw prompt text);
+- concept IDs and curator-supplied test categories;
+- the validated split report.
+
+Input ordering does not change the fingerprint. Changing a normalized prompt, topic, concept mapping, category, or registry content changes the digest. The manifest is metadata only; it does not generate examples, execute evaluation, or train a model. Semantic near-duplicate review is still a human/independent curation requirement.

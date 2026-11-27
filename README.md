@@ -114,3 +114,11 @@ For current feature-specific requirements, use the relevant documents under [doc
 - PR #197 merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`: independent mathematical invariant checks across all 20 existing extended university templates, 2,000 deterministic seed/difficulty cases. This adds validator coverage; it does not add generators for the 138 catalog topics still missing implementation.
 - Batch 2 tokenizer/model audit is underway in branch `audit/tokenizer-model-architecture-v2-2026-11-27`: model config now carries tokenizer version; explicit config/vocabulary compatibility checks and checkpoint legacy-v1 normalization are being tested; deterministic model shape, mask, gradient, and numerical tests are added.
 - No ULTRON training, optimizer step, full corpus generation/download, or remote compute was performed. Continue the tokenizer/model audit, then proceed to training-engine recovery and evaluation work only after the relevant PRs are verified.
+
+
+## Current engineering handoff — 2026-11-27 (Batch 3)
+
+- PR #198 merged as `02e07d85571c38bda532196306654184e9f4cc4e`: model configs include tokenizer version; model-only inference enforces tokenizer/config compatibility; legacy checkpoint configs default safely to tokenizer v1. Exact-head Node, Python AI Core, and Level 1 passed. Post-merge main checks are running.
+- Batch 3 is underway in branch `recovery/frozen-evaluation-batch-3-v2-2026-11-27`: add a deterministic SHA-256 manifest for validated concept-transfer splits and a fresh-process checkpoint restore regression that verifies model weights, optimizer/scheduler restoration, and sampler cursor without an optimizer step.
+- Existing training-engine checkpoint/sampler recovery is implemented; the new subprocess test is engineering validation only. Owner acceptance of checkpoint transfer to a separate free-cloud runtime, actual quotas/persistence, and device limits remains pending.
+- Do not start training. Continue with recovery/evaluation tests, then proceed to inference/compression validation.

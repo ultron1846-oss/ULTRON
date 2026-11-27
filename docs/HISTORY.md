@@ -1176,3 +1176,12 @@ PR #196 was squash-merged as `faa4b8ea31415598355afa36414092482b1a8e00`. It adds
 ## Independent university generator validation — PR #197 merged (2026-11-27)
 
 PR #197 was squash-merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`. It adds independent mathematical invariant assertions across all 20 existing extended university exercise templates, with 100 seeds and five difficulty levels per topic (2,000 deterministic cases), plus tampered-answer rejection. Exact-head general tests (`45999535576`), Python AI Core (`45999535506`), and Level 1 (`45999535441`) passed. This improves validation of existing generators; it does not add generators for the 138/197 catalog topics still unimplemented and does not demonstrate model mastery. Post-merge main checks were still running at the time of this entry.
+
+
+## Tokenizer/model architecture audit — PR #198 merged (2026-11-27)
+
+PR #198 was squash-merged as `02e07d85571c38bda532196306654184e9f4cc4e`. Model configuration now serializes tokenizer version 1; tokenizer/config vocabulary compatibility is checked by model-only inference before forward execution. Checkpoint loading normalizes legacy configs missing the version field to v1 and rejects unsupported/boolean versions. Added deterministic CPU tests for shapes, masks, finite gradients, tied embeddings, parameter immutability, and checkpoint compatibility. Exact-head Node (`46000608237`), Python AI Core (`46000608248`), and Level 1 (`46000608211`) passed. Post-merge main checks were queued at merge time.
+
+## Batch 3 — checkpoint/evaluation hardening in progress (2026-11-27)
+
+Current branch `recovery/frozen-evaluation-batch-3-v2-2026-11-27` adds a stable hash-bound concept-transfer split manifest and a subprocess checkpoint-restore test. The manifest is deterministic across input ordering and binds prompt hashes, example IDs, concepts, categories, and registry contents. The subprocess test is designed to verify model/optimizer/scheduler restoration and sampler cursor without an optimizer step. This work is not merged or validated until PR checks complete; remote runtime acceptance remains owner-dependent.
