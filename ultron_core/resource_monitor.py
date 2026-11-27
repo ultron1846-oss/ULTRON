@@ -86,6 +86,12 @@ def _current_process_rss_bytes() -> int:
             kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
             psapi = ctypes.WinDLL("psapi", use_last_error=True)
             kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+            psapi.GetProcessMemoryInfo.argtypes = [
+                wintypes.HANDLE,
+                ctypes.POINTER(PROCESS_MEMORY_COUNTERS),
+                wintypes.DWORD,
+            ]
+            psapi.GetProcessMemoryInfo.restype = wintypes.BOOL
             counters = PROCESS_MEMORY_COUNTERS()
             counters.cb = ctypes.sizeof(counters)
             success = psapi.GetProcessMemoryInfo(
