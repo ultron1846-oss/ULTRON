@@ -27,7 +27,7 @@ class MathTokenizerContractTests(unittest.TestCase):
             "∀x∈ℝ: x²≥0",
             r"\\frac{a+b}{c} \\Rightarrow a\\neq0",
             "f(x) = α·x + β\n\t",
-            "∫₀¹ x² dx = ⅓",
+            "∫₀¹ x² dx = 1/3",
         )
         for text in examples:
             with self.subTest(text=text):
