@@ -142,6 +142,25 @@ class ModelArchitectureAuditTests(unittest.TestCase):
             )
             self.assertFalse(any("model config does not match" in blocker for blocker in report["blockers"]))
 
+
+    def test_checkpoint_rejects_unsupported_tokenizer_version(self):
+        config = small_config()
+        source = NeuroSparseModel(config)
+        for invalid in (2, True):
+            with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "invalid-tokenizer-version.pt"
+                save_checkpoint(path, source, config, step=0)
+                payload = torch.load(path, map_location="cpu", weights_only=True)
+                payload["config"]["tokenizer_version"] = invalid
+                torch.save(payload, path)
+                digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                path.with_suffix(path.suffix + ".sha256").write_text(
+                    digest + "  " + path.name + "\\n", encoding="utf-8"
+                )
+                target = NeuroSparseModel(config)
+                with self.assertRaisesRegex(ValueError, "tokenizer version is unsupported"):
+                    load_checkpoint(path, target, restore_rng=False)
+
     def test_foundation_parameter_floor_is_not_reduced_by_tokenizer_binding(self):
         config = NeuroSparseConfig.foundation()
         self.assertGreaterEqual(count_parameters(config), 60_000_000)
