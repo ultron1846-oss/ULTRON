@@ -151,11 +151,14 @@ class NeuroSparseBlock(nn.Module):
                 dispatched.index_add_(0, token_pos, values)
 
         mixed = dispatched.reshape_as(x) + self.memory(x, write=write_memory, write_mask=write_mask)
-        refined, error, steps = self.refiner(mixed)
-        # Router top-k guarantees valid, unique indices. Skip redundant
-        # host-visible validation in this performance-critical internal path.
+        refined, error, steps = self.refiner(mixed, valid_mask=write_mask)
+        # Router top-k guarantees valid, unique indices. Exclude padded rows
+        # from the auxiliary balance objective as the main loss does.
         balance = load_balance_loss(
-            logits.reshape(-1, logits.shape[-1]), idx, validate_indices=False
+            logits.reshape(-1, logits.shape[-1]),
+            idx,
+            valid_mask=None if write_mask is None else write_mask.reshape(-1),
+            validate_indices=False,
         )
         return residual + self.dropout(refined), balance, error, steps
 
