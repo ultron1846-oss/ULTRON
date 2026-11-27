@@ -335,14 +335,14 @@ def close_verified_split_loaders(loaders: Mapping[str, DataLoader]) -> None:
     """Close temporary snapshot/index storage owned by indexed split loaders."""
     if not isinstance(loaders, Mapping):
         raise TypeError("loaders must be a mapping")
-    stores = {
-        id(getattr(loader.dataset, "_store", None)): getattr(loader.dataset, "_store", None)
-        for loader in loaders.values()
-        if getattr(loader, "_dataset", None) is not None
-    }
-    for store in stores.values():
+    stores = {}
+    for loader in loaders.values():
+        dataset = getattr(loader, "dataset", None)
+        store = getattr(dataset, "_store", None)
         if store is not None:
-            store.close()
+            stores[id(store)] = store
+    for store in stores.values():
+        store.close()
 
 
 def build_verified_split_loader(
