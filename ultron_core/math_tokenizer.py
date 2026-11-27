@@ -143,6 +143,13 @@ class MathTokenizer:
             return "identifier"
         return "symbol"
 
+    def assert_compatible_config(self, config) -> None:
+        """Fail closed when a model/checkpoint config uses another tokenizer asset."""
+        if getattr(config, "tokenizer_version", None) != self.vocabulary.version:
+            raise ValueError("model config tokenizer version does not match vocabulary")
+        if getattr(config, "vocab_size", None) != len(self.vocabulary):
+            raise ValueError("model config vocabulary size does not match vocabulary")
+
     def tokenize(self, text: str) -> tuple[MathToken, ...]:
         if not isinstance(text, str):
             raise TypeError("mathematical input must be a string")
