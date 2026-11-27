@@ -200,7 +200,7 @@ class FrozenEvaluationManifestTests(unittest.TestCase):
 
     def test_rejects_duplicate_generation_ingredients_even_if_surface_form_changes(self):
         original = self.train[0]
-        match = re.search(r"(?<![A-Za-z0-9_])(\d+)(?![A-Za-z0-9_])", original.input_text)
+        match = re.search(r"(?<![A-Za-z0-9_+\-])(\d+)(?![A-Za-z0-9_])", original.input_text)
         self.assertIsNotNone(match)
         altered_prompt = (
             original.input_text[:match.start()]
