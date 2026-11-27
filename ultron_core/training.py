@@ -12,6 +12,7 @@ import torch
 from torch.nn import functional as F
 
 from .precision import training_autocast, validate_training_precision
+from .resource_monitor import RuntimeMemoryMonitor
 
 
 def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
@@ -208,7 +209,7 @@ class TrainingSettings:
 def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                        training_authorized=False, scheduler=None,
                        checkpoint_callback=None, cancellation_check=None,
-                       resume_metadata=None, initial_data_state=None, sampler=None):
+                       resume_metadata=None, initial_data_state=None, sampler=None, memory_monitor=None):
     """Run bounded local training after explicit authorization.
 
     If a resumable sampler is supplied, it must be attached to a DataLoader
@@ -391,6 +392,12 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         raise ValueError("training requires a positive preflight memory budget")
     if preflight_report.get("budget_covers_persistent_state") is not True:
         raise MemoryError("preflight memory budget does not cover persistent model state")
+    if memory_monitor is None:
+        memory_monitor = RuntimeMemoryMonitor(budget)
+    elif not isinstance(memory_monitor, RuntimeMemoryMonitor):
+        raise TypeError("memory_monitor must be RuntimeMemoryMonitor or None")
+    elif memory_monitor.budget_bytes != budget:
+        raise ValueError("runtime memory monitor budget must match preflight memory_budget_bytes")
 
     config = getattr(model, "config", None)
     if isinstance(config, NeuroSparseConfig):
@@ -463,6 +470,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         return time.monotonic() - started >= settings.max_seconds
 
     try:
+        memory_monitor.check("before_training")
         for batch in batches:
             if cancellation_check is not None and cancellation_check():
                 stop_reason = "cancelled"
@@ -493,6 +501,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     step_profile_tokens += int(mask[:, 1:].sum().detach().cpu())
                 else:
                     step_profile_tokens += max(0, ids.numel() - ids.shape[0])
+            memory_monitor.check("before_batch", device=ids.device)
             reset_memory()
             try:
                 # BF16 is opt-in; loss accumulation remains FP32 for stability.
@@ -507,6 +516,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                     stop_reason = "time_limit"
                     break
                 (loss / settings.gradient_accumulation_steps).backward()
+                memory_monitor.check("after_backward", device=ids.device)
                 if settings.profile_performance and ids.device.type == "cuda":
                     torch.cuda.synchronize(ids.device)
                 accumulated += 1
@@ -551,9 +561,19 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 if time_expired():
                     stop_reason = "time_limit"
                     break
+                memory_monitor.check("before_optimizer_step", device=ids.device)
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
+                # AdamW may allocate moment tensors on its first step. If this
+                # sample exceeds budget, finish accounting and checkpoint the
+                # completed step before stopping; never lose its cursor silently.
+                memory_limit_reached = False
+                try:
+                    memory_monitor.check("after_optimizer_step", device=ids.device)
+                except MemoryError:
+                    memory_limit_reached = True
+                    stop_reason = "memory_budget"
                 if settings.profile_performance:
                     if profile_device.type == "cuda":
                         torch.cuda.synchronize(profile_device)
@@ -601,7 +621,14 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "dataset_manifest_sha256": dataset_hash,
                         "training_settings": checkpoint_training_settings,
                     })
+                    try:
+                        memory_monitor.check("after_checkpoint", device=ids.device)
+                    except MemoryError:
+                        memory_limit_reached = True
+                        stop_reason = "memory_budget"
                 recent_losses.clear()
+                if memory_limit_reached:
+                    break
                 if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
                     break
@@ -652,7 +679,8 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "dataset_manifest_sha256": dataset_hash,
         "training_authorized": True,
         "remote_execution_enabled": False,
-        "resource_monitoring": "preflight_budget_only",
+        "resource_monitoring": "process_rss_plus_cuda_reserved_at_controller_boundaries",
+        "resource_memory": memory_monitor.summary(),
         "resumed_from_checkpoint": resume_metadata is not None,
         "performance": ({
             "profiled": True,

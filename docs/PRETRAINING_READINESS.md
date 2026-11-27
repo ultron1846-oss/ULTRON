@@ -87,7 +87,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Check expected dataset hash inside checkpoint loader before mutating model/optimizer/scheduler/RNG state.
 - [x] Require the loader's dataset_hash_verified flag at trainer resume; fail closed if a checkpoint data cursor is loaded without an expected manifest hash.
 - [ ] Restore sampler/data-loader cursor and verify exact reproducibility across a clean runtime restart.
-- [ ] Add measured resource cap enforcement (current controller checks only the preflight budget; no live RAM/VRAM monitor).
+- [x] Add sampled process RSS + CUDA allocator-reserved budget enforcement at controller boundaries (PR #180 candidate; cannot interrupt an individual tensor operation; measurement sources and limitations documented in docs/RESOURCE_MONITORING.md).
 - [x] Add model-level reset for mutable memory and reject multi-example training writes; trainer must reset between independent examples.
 - [x] Reset mutable memory before and after each independent batch; memory writing defaults off.
 - [ ] Implement and test validation-set isolation and real-model trainer execution.
