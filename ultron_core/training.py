@@ -565,9 +565,15 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
-                # AdamW may allocate moment tensors on its first step; sample
-                # immediately afterward so an over-budget run stops before another batch.
-                memory_monitor.check("after_optimizer_step", device=profile_device or ids.device)
+                # AdamW may allocate moment tensors on its first step. If this
+                # sample exceeds budget, finish accounting and checkpoint the
+                # completed step before stopping; never lose its cursor silently.
+                memory_limit_reached = False
+                try:
+                    memory_monitor.check("after_optimizer_step", device=profile_device or ids.device)
+                except MemoryError:
+                    memory_limit_reached = True
+                    stop_reason = "memory_budget"
                 if settings.profile_performance:
                     if profile_device.type == "cuda":
                         torch.cuda.synchronize(profile_device)
@@ -615,8 +621,14 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "dataset_manifest_sha256": dataset_hash,
                         "training_settings": checkpoint_training_settings,
                     })
-                    memory_monitor.check("after_checkpoint", device=profile_device or ids.device)
+                    try:
+                        memory_monitor.check("after_checkpoint", device=profile_device or ids.device)
+                    except MemoryError:
+                        memory_limit_reached = True
+                        stop_reason = "memory_budget"
                 recent_losses.clear()
+                if memory_limit_reached:
+                    break
                 if session_steps >= settings.max_steps:
                     stop_reason = "step_limit"
                     break
