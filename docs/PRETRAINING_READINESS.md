@@ -195,3 +195,8 @@ The split seed and resumable sampler seed are independent; the sampler seed is s
 ## Checkpoint metadata compatibility batch — stacked branch (2026-11-27; CI pending)
 
 The current batch validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The owner notebook can optionally print compatibility status and blockers. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
+
+
+## Resume cursor and checkpoint gate regression batch — 2026-11-27 (PR validation pending)
+
+The verified preflight already constructs train/validation/test DataLoaders from one verified split snapshot; train uses `ResumableRandomSampler`, while evaluation loaders are sequential. The existing bounded controller requires that sampler to be the DataLoader's sampler, uses `num_workers=0`, validates the cursor before batch iteration, and supplies committed cursor metadata to the caller-provided checkpoint callback after a completed step. The new regression file tests sampler sequence equivalence across an interrupted/resumed cursor, rejects dataset/seed mismatch, and verifies a wrong expected dataset SHA-256 is rejected before model/optimizer/scheduler state restoration. Tests are synthetic and do not run ULTRON training or optimizer steps.
