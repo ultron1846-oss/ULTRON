@@ -88,7 +88,7 @@ class OwnerPreflightNotebookTests(unittest.TestCase):
             "no model weights or optimizer are allocated",
             "no checkpoint is restored",
             "no optimizer step",
-            "no remote job is performed",
+            "dispatch remote jobs",
             "memory estimate",
             "must match",
         ):
