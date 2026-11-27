@@ -30,7 +30,7 @@ Supported ranges:
 - Sequence length: 2–2,048
 - Gradient accumulation: 1–128
 
-Use `RuntimeConfig.from_json(text)` to parse a downloaded/configured JSON string, then `config.preflight_kwargs()` to obtain only `memory_budget_gib`, `batch_size`, `sequence_length`, and `gradient_accumulation_steps` for `preflight_training_plan`.
+Use `RuntimeConfig.from_json(text)` to parse a downloaded/configured JSON string, then call `preflight_training_plan_from_runtime_config(model_config, splits, runtime_config, dataset_manifest_sha256=...)`. This adapter forwards only validated `memory_budget_gib`, `batch_size`, `sequence_length`, and `gradient_accumulation_steps` into the existing non-authorizing preflight. It does not bypass any model, dataset, split, or verifier checks.
 
 ## Security and limitations
 
