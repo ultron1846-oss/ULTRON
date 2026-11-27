@@ -62,7 +62,7 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
     if not _valid_hash(digest_expected):
         raise ValueError("verified dataset SHA-256 is invalid")
 
-    selected = None if selected_ids is None else set(selected_ids)
+    selected = None if selected_ids is None else (selected_ids if isinstance(selected_ids, (set, frozenset, dict)) else set(selected_ids))
     digest = hashlib.sha256()
     rows = []
     bytes_seen = 0
@@ -209,7 +209,6 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     version=payload["schema_version"]
     if isinstance(version,bool) or not isinstance(version,int) or version!=1: raise ValueError("unsupported split schema")
     if payload["split_method"]!=_METHOD: raise ValueError("unsupported split method")
-    if payload["dataset_sha256"]!=manifest["sha256"]: raise ValueError("split manifest belongs to another dataset")
     seed=payload["split_seed"]; val=payload["validation_fraction"]; test=payload["test_fraction"]
     _validate_parameters(seed,val,test)
     saved=payload["sha256"]
@@ -222,6 +221,7 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
         if not isinstance(ids,list) or any(not _valid_hash(item) for item in ids): raise ValueError(f"{name} IDs invalid")
         if ids!=sorted(ids) or len(ids)!=len(set(ids)): raise ValueError(f"{name} IDs must be sorted and unique")
     manifest, expected = _derive_split_ids(dataset_path, seed, val, test)
+    if payload["dataset_sha256"]!=manifest["sha256"]: raise ValueError("split manifest belongs to another dataset")
     if split_ids!=expected: raise ValueError("split membership differs from deterministic prompt-group assignment")
     all_ids=[item for ids in split_ids.values() for item in ids]
     if len(all_ids)!=len(set(all_ids)): raise ValueError("split IDs overlap")
