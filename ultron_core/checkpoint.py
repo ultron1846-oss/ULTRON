@@ -3,6 +3,7 @@ import copy, hashlib, hmac, json, os, random, shutil, tempfile
 from pathlib import Path
 import torch
 from .config import NeuroSparseConfig
+from .math_tokenizer import TOKENIZER_VERSION
 from .data_state import validate_training_data_state
 
 _FORMAT_VERSION = 5
@@ -77,6 +78,18 @@ def _restore_rng(state: dict) -> None:
         if not torch.cuda.is_available() or len(cuda) != torch.cuda.device_count():
             raise ValueError("checkpoint CUDA RNG state does not match available devices")
         torch.cuda.set_rng_state_all(cuda)
+
+
+def _normalize_saved_config(config: dict) -> dict:
+    """Interpret pre-tokenizer-version checkpoint configs as tokenizer v1."""
+    if not isinstance(config, dict):
+        return config
+    normalized = dict(config)
+    normalized.setdefault("tokenizer_version", TOKENIZER_VERSION)
+    version = normalized["tokenizer_version"]
+    if isinstance(version, bool) or not isinstance(version, int) or version != TOKENIZER_VERSION:
+        raise ValueError("checkpoint config tokenizer version is unsupported")
+    return normalized
 
 def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
     expected = model.state_dict()
@@ -302,7 +315,19 @@ def inspect_checkpoint_resume_metadata(
         blockers.append("checkpoint or integrity manifest is missing")
     if metadata.get("dataset_manifest_sha256") != expected_dataset_manifest_sha256:
         blockers.append("checkpoint dataset hash does not match expected dataset")
-    if expected_config is not None and metadata.get("config") != expected_config:
+    try:
+        saved_config = _normalize_saved_config(metadata.get("config", {}))
+    except ValueError:
+        saved_config = {}
+        blockers.append("checkpoint config tokenizer version is unsupported")
+    try:
+        normalized_expected_config = (
+            _normalize_saved_config(expected_config) if expected_config is not None else None
+        )
+    except ValueError:
+        normalized_expected_config = None
+        blockers.append("requested config tokenizer version is unsupported")
+    if normalized_expected_config is not None and saved_config != normalized_expected_config:
         blockers.append("checkpoint model config does not match requested config")
     if not metadata.get("optimizer_state_present"):
         blockers.append("checkpoint has no optimizer state for resume")
@@ -361,6 +386,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     saved_config, model_state, step = payload.get("config"), payload.get("model"), payload.get("step")
     if not isinstance(saved_config, dict) or not isinstance(model_state, dict):
         raise ValueError("checkpoint config/model state is malformed")
+    saved_config = _normalize_saved_config(saved_config)
     if isinstance(step, bool) or not isinstance(step, int) or step < 0:
         raise ValueError("checkpoint step must be a non-negative integer")
     model_config = getattr(model, "config", None)

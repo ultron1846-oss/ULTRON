@@ -106,3 +106,11 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 
 - PR #191 — [checkpoint portability recovery and bounded JSONL scan](https://github.com/ultron1846-oss/ULTRON/pull/191) — squash-merged as `ac10b09cb281547e47a2ec82ecd84ae9543a011a`; exact-head Node, Python AI Core, and Level 1 checks passed. Adds fresh-object model/optimizer/scheduler and sampler-cursor restore; checkpoint bundle copy/restore integrity; interrupted-save recovery; and a bounded structural JSONL scan. Restore coverage includes synthetic momentum-buffer and scheduler-state assertions without an optimizer step. The scanner does not generate data or validate mathematical answers. No ULTRON training or optimizer step was performed.
+
+
+## Current engineering handoff — 2026-11-27
+
+- PR #196 merged as `faa4b8ea31415598355afa36414092482b1a8e00`: read-only indexed-dataset benchmark, deterministic scan/random-access metrics, 2,000-row synthetic integrity stress, and direct/symlink/hard-link output collision protection. Post-merge Node, Python AI Core, Level 1, and GitHub Pages build/deploy checks passed (runs 45999719213, 45999719007, 45999719034, and 45999718336).
+- PR #197 merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`: independent mathematical invariant checks across all 20 existing extended university templates, 2,000 deterministic seed/difficulty cases. This adds validator coverage; it does not add generators for the 138 catalog topics still missing implementation.
+- Batch 2 tokenizer/model audit is underway in branch `audit/tokenizer-model-architecture-v2-2026-11-27`: model config now carries tokenizer version; explicit config/vocabulary compatibility checks and checkpoint legacy-v1 normalization are being tested; deterministic model shape, mask, gradient, and numerical tests are added.
+- No ULTRON training, optimizer step, full corpus generation/download, or remote compute was performed. Continue the tokenizer/model audit, then proceed to training-engine recovery and evaluation work only after the relevant PRs are verified.
