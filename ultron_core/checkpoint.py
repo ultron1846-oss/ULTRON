@@ -1,5 +1,5 @@
 from __future__ import annotations
-import copy, hashlib, hmac, os, random, shutil, tempfile
+import copy, hashlib, hmac, json, os, random, shutil, tempfile
 from pathlib import Path
 import torch
 from .config import NeuroSparseConfig
@@ -16,6 +16,23 @@ def _digest(path: Path) -> str:
 
 def _manifest(path: Path) -> Path:
     return path.with_suffix(path.suffix + ".sha256")
+
+def _metadata_path(path: Path) -> Path:
+    return Path(str(path) + ".metadata.json")
+
+
+def _atomic_write_json(path: Path, payload: dict) -> None:
+    fd, name = tempfile.mkstemp(prefix="." + path.name + ".", suffix=".tmp", dir=path.parent)
+    temporary = Path(name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream, sort_keys=True, separators=(",", ":"))
+            stream.write("\\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 def _backup(path: Path) -> Path:
     return Path(str(path) + ".bak")
@@ -191,9 +208,13 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
     target.parent.mkdir(parents=True, exist_ok=True)
     manifest = _manifest(target)
     backup_path, backup_manifest = _backup(target), _backup(manifest)
+    metadata_path = _metadata_path(target)
+    backup_metadata = _backup(metadata_path)
     if _valid_pair(target, manifest):
         _atomic_copy(target, backup_path)
         _atomic_copy(manifest, backup_manifest)
+        if metadata_path.is_file():
+            _atomic_copy(metadata_path, backup_metadata)
     payload = {
         "format_version": _FORMAT_VERSION, "config": config.to_dict(),
         "model": model.state_dict(), "step": step,
@@ -220,11 +241,103 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(manifest_temporary, manifest)
+        _atomic_write_json(metadata_path, {
+            "schema_version": 1,
+            "checkpoint_sha256": digest,
+            "format_version": _FORMAT_VERSION,
+            "step": step,
+            "config": config.to_dict(),
+            "dataset_manifest_sha256": dataset_manifest_sha256,
+            "data_state": data_state,
+            "training_settings": training_settings,
+            "optimizer_state_present": optimizer is not None,
+            "scheduler_state_present": scheduler is not None,
+            "rng_state_present": True,
+        })
         return {"path": str(target), "sha256": digest, "step": step}
     finally:
         temporary.unlink(missing_ok=True)
         if manifest_temporary is not None:
             manifest_temporary.unlink(missing_ok=True)
+
+
+def inspect_checkpoint_resume_metadata(
+    path,
+    *,
+    expected_dataset_manifest_sha256: str,
+    expected_dataset_size: int,
+    expected_batch_size: int,
+    expected_seed: int,
+    expected_gradient_accumulation_steps: int,
+    expected_config: dict | None = None,
+) -> dict:
+    """Return a metadata-only resume compatibility report without torch.load.
+
+    The JSON sidecar is advisory. It is bound to the checkpoint bytes by SHA-256;
+    actual restore must still use load_checkpoint and revalidate the payload.
+    """
+    target = Path(path)
+    blockers = []
+    try:
+        metadata = json.loads(_metadata_path(target).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {
+            "compatible": False,
+            "blockers": ["checkpoint metadata sidecar is missing or invalid"],
+            "metadata_only": True,
+            "checkpoint_deserialized": False,
+            "weights_loaded": False,
+        }
+    if not isinstance(metadata, dict) or metadata.get("schema_version") != 1:
+        blockers.append("checkpoint metadata schema is unsupported")
+        metadata = metadata if isinstance(metadata, dict) else {}
+    try:
+        manifest_fields = _manifest(target).read_text(encoding="utf-8").split()
+        actual_digest = _digest(target)
+        if not manifest_fields or not hmac.compare_digest(manifest_fields[0], actual_digest):
+            blockers.append("checkpoint integrity manifest does not match checkpoint bytes")
+        if metadata.get("checkpoint_sha256") != actual_digest:
+            blockers.append("metadata sidecar is not bound to the current checkpoint bytes")
+    except OSError:
+        blockers.append("checkpoint or integrity manifest is missing")
+    if metadata.get("dataset_manifest_sha256") != expected_dataset_manifest_sha256:
+        blockers.append("checkpoint dataset hash does not match expected dataset")
+    if expected_config is not None and metadata.get("config") != expected_config:
+        blockers.append("checkpoint model config does not match requested config")
+    if not metadata.get("optimizer_state_present"):
+        blockers.append("checkpoint has no optimizer state for resume")
+    if not metadata.get("rng_state_present"):
+        blockers.append("checkpoint has no RNG state for resume")
+    data_state = metadata.get("data_state")
+    try:
+        validate_training_data_state(
+            data_state,
+            dataset_manifest_sha256=expected_dataset_manifest_sha256,
+            dataset_size=expected_dataset_size,
+            batch_size=expected_batch_size,
+            seed=expected_seed,
+            gradient_accumulation_steps=expected_gradient_accumulation_steps,
+        )
+    except (TypeError, ValueError) as exc:
+        blockers.append("checkpoint data cursor is incompatible: " + str(exc))
+    settings = metadata.get("training_settings")
+    if isinstance(settings, dict):
+        if settings.get("seed", expected_seed) != expected_seed:
+            blockers.append("checkpoint training seed does not match")
+        if settings.get("gradient_accumulation_steps", expected_gradient_accumulation_steps) != expected_gradient_accumulation_steps:
+            blockers.append("checkpoint gradient accumulation setting does not match")
+    return {
+        "compatible": not blockers,
+        "blockers": blockers,
+        "step": metadata.get("step"),
+        "format_version": metadata.get("format_version"),
+        "dataset_manifest_sha256": metadata.get("dataset_manifest_sha256"),
+        "metadata_only": True,
+        "checkpoint_deserialized": False,
+        "weights_loaded": False,
+    }
+
+
 
 def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="cpu",
                    scheduler=None, restore_rng: bool = True, expected_dataset_manifest_sha256=None):
