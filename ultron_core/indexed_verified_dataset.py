@@ -120,7 +120,7 @@ class VerifiedIndexedSplitStore:
                     bytes_seen += len(line)
                     if bytes_seen > _MAX_DATA:
                         raise ValueError("dataset exceeds the 1 GiB preflight limit")
-                    if not line.endswith(b"\\n"):
+                    if not line.endswith(b"\n"):
                         raise ValueError("dataset JSONL must end with a newline")
                     digest.update(line)
                     try:
