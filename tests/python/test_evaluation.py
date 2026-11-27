@@ -24,7 +24,7 @@ class ExactAnswerEvaluationTests(unittest.TestCase):
         self.assertFalse(report["proof_verified"])
         self.assertFalse(report["model_evaluated"])
         self.assertFalse(report["training_performed"])
-        self.assertEqual(report["schema_version"], 3)
+        self.assertEqual(report["schema_version"], 4)
         self.assertEqual(report["error_class_counts"], {
             "abstention": 1, "correct_answer": 27, "incorrect_answer": 1,
             "malformed_output": 1,
