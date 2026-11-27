@@ -70,6 +70,8 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         valid_targets &= attention_mask[:, :-1] & attention_mask[:, 1:]
     valid_count = valid_targets.sum()
     if not bool(valid_targets.any()):
+        if attention_mask is None and ignore_index == 0:
+            raise ValueError("all next-token targets are padding; loss is undefined")
         raise ValueError("all next-token targets are masked; loss is undefined")
 
     loss_sum = None
