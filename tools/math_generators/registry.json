@@ -605,19 +605,19 @@
       "topic": "Lebesgue_measure",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Lebesgue_integral",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Lp_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "functional_sequences",
@@ -629,25 +629,25 @@
       "topic": "complex_numbers_and_topology",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "holomorphic_functions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Cauchy_Riemann_equations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "contour_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "Cauchy_integral_formula",
@@ -671,13 +671,13 @@
       "topic": "singularities",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "conformal_maps",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "maximum_modulus_principle",
@@ -689,7 +689,7 @@
       "topic": "groups_and_subgroups",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered"
     },
     {
       "topic": "cyclic_groups",
