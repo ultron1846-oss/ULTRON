@@ -86,6 +86,9 @@ def _normalize_saved_config(config: dict) -> dict:
         return config
     normalized = dict(config)
     normalized.setdefault("tokenizer_version", TOKENIZER_VERSION)
+    version = normalized["tokenizer_version"]
+    if isinstance(version, bool) or not isinstance(version, int) or version != TOKENIZER_VERSION:
+        raise ValueError("checkpoint config tokenizer version is unsupported")
     return normalized
 
 def _validate_model_state(model: torch.nn.Module, model_state: dict) -> None:
@@ -312,8 +315,18 @@ def inspect_checkpoint_resume_metadata(
         blockers.append("checkpoint or integrity manifest is missing")
     if metadata.get("dataset_manifest_sha256") != expected_dataset_manifest_sha256:
         blockers.append("checkpoint dataset hash does not match expected dataset")
-    saved_config = _normalize_saved_config(metadata.get("config", {}))
-    normalized_expected_config = _normalize_saved_config(expected_config) if expected_config is not None else None
+    try:
+        saved_config = _normalize_saved_config(metadata.get("config", {}))
+    except ValueError:
+        saved_config = {}
+        blockers.append("checkpoint config tokenizer version is unsupported")
+    try:
+        normalized_expected_config = (
+            _normalize_saved_config(expected_config) if expected_config is not None else None
+        )
+    except ValueError:
+        normalized_expected_config = None
+        blockers.append("requested config tokenizer version is unsupported")
     if normalized_expected_config is not None and saved_config != normalized_expected_config:
         blockers.append("checkpoint model config does not match requested config")
     if not metadata.get("optimizer_state_present"):
