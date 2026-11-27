@@ -136,4 +136,4 @@ def test_mapping_rejects_non_string_keys():
 
 def test_json_rejects_unpaired_unicode_surrogate():
     with pytest.raises(ValueError, match="invalid Unicode"):
-        RuntimeConfig.from_json("\\ud800")
+        RuntimeConfig.from_json(chr(0xD800))
