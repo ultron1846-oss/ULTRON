@@ -54,6 +54,7 @@ test('settings exports a versioned runtime config without enabling execution', a
   ]);
   assert.ok(app.includes('export-runtime-config'));
   assert.ok(app.includes('ultron-runtime-config.json'));
+  assert.ok(app.includes('document.body.append(link)'));
   assert.ok(app.includes('createRuntimeConfig(Number(slider.value))'));
   assert.ok(app.includes('serializeRuntimeConfig(config)'));
   assert.ok(app.includes('runtime-config.js?v=20261127-1'));
