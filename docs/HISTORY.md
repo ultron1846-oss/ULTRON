@@ -1139,3 +1139,8 @@ Tests use synthetic dictionaries and a DataLoader whose dataset records access; 
 ## Resume-cursor correctness batch (2026-11-27; PR validation pending)
 
 Reviewed the existing owner notebook's train/validation/test loader construction and the bounded trainer's checkpoint callback contract. The callback receives a committed `data_state` containing the verified dataset digest, dataset size, batch size, epoch/batch cursor, sampler state, seed, accumulation setting, and training settings. Added a regression test that rejects a different expected dataset digest before model, optimizer, or scheduler restoration; added mock-only uninterrupted/resumed sampler sequence equivalence and dataset/seed mismatch tests. These tests do not execute a model forward pass, optimizer step, or training loop. No production data or remote job was used.
+
+
+## Checkpoint portability and bounded dataset scan batch (2026-11-27; PR/CI pending)
+
+Added mock-only fresh-object checkpoint restoration for model, optimizer, scheduler, and resumable sampler cursor; a copied checkpoint bundle integrity/restore test; and a fault-injected interrupted manifest commit test that confirms the previous verified backup remains recoverable. Added `ultron_core/dataset_stream_scan.py`, a one-line-at-a-time bounded structural JSONL scanner with digest, row-count, topic-count, strict duplicate-key parsing, and byte/row/line limits. It explicitly does not replace the exact semantic verifier or check duplicate example IDs/prompt leakage. README and pre-training readiness handoff updated. No training, optimizer step on ULTRON weights, production data generation/download, or remote job was performed.
