@@ -84,11 +84,11 @@ class OwnerPreflightNotebookTests(unittest.TestCase):
             "does not train",
             "generates **no dataset examples**",
             "writes split-id metadata only",
-            "does not consume batches",
+            "no batch is consumed",
             "no model weights or optimizer are allocated",
             "no checkpoint is restored",
             "no optimizer step",
-            "no remote job",
+            "no remote job is performed",
             "memory estimate",
             "must match",
         ):
