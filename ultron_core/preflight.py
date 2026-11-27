@@ -31,9 +31,11 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
             not isinstance(dataset_manifest_sha256, str)
             or not re.fullmatch(r"[0-9a-f]{64}", dataset_manifest_sha256)):
         raise ValueError("dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
-    tokenizer = MathTokenizer(MathVocabulary.default())
+    vocab = MathVocabulary.default()
+    if config.vocab_size != len(vocab):
+        raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
+    tokenizer = MathTokenizer(vocab)
     tokenizer.assert_compatible_config(config)
-    vocab = tokenizer.vocabulary
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
     if parameter_count < MIN_FOUNDATION_TRAINABLE_PARAMETERS:
@@ -135,9 +137,11 @@ def preflight_verified_indexed_dataset(
     if sequence_length < 2 or sequence_length > config.max_sequence_length:
         raise ValueError("sequence_length must be between 2 and config.max_sequence_length")
     gradient_accumulation_steps = kwargs["gradient_accumulation_steps"]
-    tokenizer = MathTokenizer(MathVocabulary.default())
+    vocab = MathVocabulary.default()
+    if config.vocab_size != len(vocab):
+        raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
+    tokenizer = MathTokenizer(vocab)
     tokenizer.assert_compatible_config(config)
-    vocab = tokenizer.vocabulary
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
     if parameter_count < MIN_FOUNDATION_TRAINABLE_PARAMETERS:
