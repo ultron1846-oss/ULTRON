@@ -966,12 +966,26 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             return MemoryUsage(rss, 0)
 
         monitor = RuntimeMemoryMonitor(budget, usage_provider=provider)
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+
+            def __getitem__(self, index):
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(dataset, seed=0,
+            dataset_manifest_sha256="a" * 64)
+        loader = DataLoader(dataset, batch_size=1, sampler=sampler, num_workers=0)
         saved = []
         result = run_training_steps(
-            self.model, self.batches[:2], self.optimizer, self.report,
+            self.model, loader, self.optimizer, self.report,
             settings=TrainingSettings(max_steps=2, gradient_accumulation_steps=2,
                                      max_seconds=60),
-            training_authorized=True, memory_monitor=monitor,
+            training_authorized=True, memory_monitor=monitor, sampler=sampler,
             checkpoint_callback=lambda step, metrics: saved.append((step, metrics)),
         )
         self.assertEqual(result["stop_reason"], "memory_budget")
