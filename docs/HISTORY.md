@@ -1072,6 +1072,5 @@ Regression tests cover mismatched cursor and sampler hashes at save time and tam
 
 No training, optimizer step, corpus generation, dataset generation, or remote execution was performed.
 
-The current candidate validates that a saved data cursor's `dataset_manifest_sha256` and any nested resumable sampler's `dataset_manifest_sha256` match the checkpoint's top-level dataset hash. The same checks run during load before model, optimizer, scheduler, or RNG state is restored. This prevents a checksum-valid but internally inconsistent checkpoint from mutating runtime state before the bounded trainer later rejects its cursor.
 
 
