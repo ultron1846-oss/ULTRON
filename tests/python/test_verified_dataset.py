@@ -3,7 +3,8 @@ import tempfile,unittest
 from unittest.mock import patch
 from pathlib import Path
 from test_dataset_split_manifest import fixture
-import ultron_core.dataset_split_manifest as split_module\nfrom ultron_core.dataset_split_manifest import (prepare_dataset_split_manifest, _read_dataset, load_verified_split_rows)
+import ultron_core.dataset_split_manifest as split_module
+from ultron_core.dataset_split_manifest import (prepare_dataset_split_manifest, _read_dataset, load_verified_split_rows)
 from ultron_core.verified_dataset import (VerifiedMathDataset, build_verified_split_loader, build_verified_split_loaders, collate_verified_math_batch)
 
 class VerifiedDatasetTests(unittest.TestCase):
