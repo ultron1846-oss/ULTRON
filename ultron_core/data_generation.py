@@ -720,7 +720,7 @@ def verify_dataset(
                 if pre_bytes > max_bytes:
                     raise ValueError(f"dataset exceeds byte limit ({max_bytes} bytes)")
                 pre_digest.update(line)
-                ends_with_newline = line.endswith(b"\\n")
+                ends_with_newline = line.endswith(b"\n")
     except OSError as exc:
         raise ValueError("dataset could not be read during integrity scan") from exc
     if pre_bytes != before.st_size:
