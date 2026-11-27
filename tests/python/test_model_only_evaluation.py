@@ -81,7 +81,6 @@ class ModelOnlyEvaluationTests(unittest.TestCase):
         model = _TinyModel()
         model.config.vocab_size = 6
         tokenizer = _Tokenizer(example.exact_answer)
-        tokenizer.assert_compatible_config = _StrictTokenizer(example.exact_answer).assert_compatible_config
         with self.assertRaisesRegex(ValueError, "vocabulary size does not match tokenizer"):
             run_model_only_evaluation(model, tokenizer, [example])
         self.assertEqual(model.forward_calls, 0)
