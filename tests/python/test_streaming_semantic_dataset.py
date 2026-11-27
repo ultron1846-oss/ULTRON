@@ -91,7 +91,7 @@ class StreamingSemanticDatasetTests(unittest.TestCase):
 
             def verify_then_mutate(path):
                 result = original_verify(path)
-                dataset.write_bytes(dataset.read_bytes() + b" ")
+                dataset.write_bytes(dataset.read_bytes().replace(b"1 + 2", b"9 + 2", 1))
                 return result
 
             with patch.object(split_module, "verify_dataset", side_effect=verify_then_mutate):
