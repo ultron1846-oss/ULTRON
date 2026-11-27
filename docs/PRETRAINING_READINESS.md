@@ -224,7 +224,7 @@ For transfer between sessions, copy the current checkpoint, `.sha256`, and `.met
 
 ## Tokenizer and model architecture audit — PR #203 (2026-11-27)
 
-The audit implementation is in [PR #203](https://github.com/ultron1846-oss/ULTRON/pull/203); it is not merged and exact-head CI is pending. The detailed findings are in [TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md](TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md).
+The audit implementation is in [PR #203](https://github.com/ultron1846-oss/ULTRON/pull/203); it is not merged; the code/test commit `a7f482f` passed Python AI Core (695 tests and CPU forward/backward smoke), Node Tests, and Level 1 Math Tooling (5/5). Later branch changes were documentation-only; PR review/merge remains pending. The detailed findings are in [TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md](TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md).
 
 - Canonical tokenizer v1 is 240 tokens with PAD/BOS/EOS IDs 0/1/2. Tests cover lexical round trips, supported math Unicode/whitespace, unsupported Unicode offsets, longest-match command boundaries, fixed-vocabulary behavior, strict serialization, and checkpoint version compatibility.
 - Default model config now uses the canonical vocabulary size; config/preflight compatibility also checks the reserved PAD ID. The verified dataset path still right-pads and rejects over-length examples rather than truncating.
@@ -232,4 +232,4 @@ The audit implementation is in [PR #203](https://github.com/ultron1846-oss/ULTRO
 - Foundation capacity remains 63,400,451 total / 61,826,048 trainable parameters. Meta-device enumeration checks the full foundation module shapes without allocating its weights.
 - Small deterministic backward and numerical tests compute gradients but perform no optimizer step. No ULTRON training, corpus generation/download, remote compute, or trained checkpoint is claimed.
 
-**Gate:** mark the architecture/tokenizer review complete only after exact-head Python AI Core, Node, Level 1, and configured checks pass and the PR is reviewed/merged. CUDA performance qualification, production inference profiling, actual iPad acceptance, and clean-runtime checkpoint transfer remain separate gates.
+**Gate:** the submitted code/test revision passed Python AI Core (run `46007787721`), Node Tests (run `46007787821`), and Level 1 Math Tooling (run `46007787761`). Later branch commits changed documentation only. PR review/merge remains pending; CUDA performance qualification, production inference profiling, actual iPad acceptance, and clean-runtime checkpoint transfer remain separate gates. CUDA performance qualification, production inference profiling, actual iPad acceptance, and clean-runtime checkpoint transfer remain separate gates.
