@@ -215,7 +215,7 @@ class VerifiedIndexedSplitStore:
                         line = stream.read(length)
                         if len(line) != length or hashlib.sha256(line).hexdigest() != row_digest:
                             raise ValueError("verified snapshot record integrity check failed")
-                        if not line.endswith(b"\n"):
+                        if not line.endswith(b"\\n"):
                             raise ValueError("verified snapshot record newline is malformed")
                         try:
                             row = json.loads(
@@ -232,6 +232,8 @@ class VerifiedIndexedSplitStore:
                         yield example_id, row["input_text"], row["target_text"]
         except OSError as exc:
             raise ValueError("verified snapshot records could not be streamed") from exc
+        finally:
+            cursor.close()
 
     def __len_for_split__(self, split_name):
         self._ensure_open()
