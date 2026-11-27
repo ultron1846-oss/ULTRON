@@ -56,7 +56,7 @@ class MathTokenizerContractTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "duplicate vocabulary JSON key"):
             MathVocabulary.from_json(duplicate)
-        document["tokens"] = list(reversed(document["tokens"]))
+        document["tokens"][3], document["tokens"][4] = document["tokens"][4], document["tokens"][3]
         with self.assertRaisesRegex(ValueError, "canonical version-1 order"):
             MathVocabulary.from_dict(document)
 
