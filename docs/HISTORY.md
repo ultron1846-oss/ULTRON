@@ -1105,9 +1105,9 @@ Corrected head `63185a02d3b15e9ca2afe633ea362049ec2192ad` passed Node Tests `459
 
 
 
-## Verified dataset readiness report — PR #187 (2026-11-27, in progress)
+## Verified dataset readiness report — PR #187 (2026-11-27)
 
-The next owner-notebook stage is being implemented as a non-authorizing readiness package. It adapts the manifest-verified train/validation/test records into the existing MathExample contract, re-runs the exact topic validator, checks every selected prompt/answer through the canonical tokenizer against the configured sequence limit, and reuses the same verified split snapshot to construct all three DataLoaders. The report includes formula-based parameter counts, FP32 persistent-state memory estimates, split/dataset digests, token counts, sampler cursor metadata, and explicit unmeasured-memory caveats.
+Implemented a non-authorizing owner-notebook readiness package. It adapts the manifest-verified train/validation/test records into the existing MathExample contract, re-runs the exact topic validator, checks every selected prompt/answer through the canonical tokenizer against the configured sequence limit, and reuses the same verified split snapshot to construct all three DataLoaders. The report includes formula-based parameter counts, FP32 persistent-state memory estimates, split/dataset digests, token counts, sampler cursor metadata, and explicit unmeasured-memory caveats.
 
 The split seed and sampler seed are independent. The default sampler seed is 0 and is included in the initial cursor; it must match TrainingSettings.seed in any future separately authorized trainer call. The combined loader path avoids three independent full dataset verifications/loads from the notebook. It still uses the current JSONL verifier's bounded in-memory parse (up to 1 GiB file size), so truly streaming/indexed access remains a separate scalability task.
 
@@ -1115,6 +1115,6 @@ No model weights, optimizer, or checkpoint are instantiated/restored. No batches
 
 
 
-### PR #187 review hardening update
+### PR #187 final review validation
 
-The first complete CI pass on code head `a80c77e1c304e2bb8c7cde571f422402511fbeac` passed Node `45969401240`, Python AI Core `45969401312` (588 tests and CPU forward/backward smoke), and Level 1 `45969401247` (5,000 randomized cases). Final code review tightened the dataset API: the already-verified-row constructor/builder are now private package helpers, row counts and duplicate IDs are cross-checked against split manifest metadata, and the single-split loader now constructs only its requested split instead of loading/building all three. A focused regression test guards the single-split path. This review update needs a fresh exact-head CI run before merge.
+Final review head `f531d88e3cbb9279fe56a9a326addb2c3fabb4e0` passed Node Tests `45969867909`, Python AI Core `45969867882` (589 tests plus CPU forward/backward smoke), and Level 1 Math Tooling `45969867929` (5,000 randomized cases). The review made the row-based construction helpers private, cross-checks each split's row count and duplicate IDs against verified manifest metadata, and ensures a single-split loader only loads/builds its requested split. The dedicated single-split regression test passed. PR #187 remains open pending merge and post-merge verification. No DataLoader batch was consumed, no optimizer step/training run or checkpoint restore occurred, and no production corpus was generated/downloaded or remote job dispatched.
