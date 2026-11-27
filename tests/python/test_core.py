@@ -542,6 +542,66 @@ class CoreTests(unittest.TestCase):
                 save_checkpoint(path, model, config, data_state={"cursor": 0},
                                dataset_manifest_sha256="bad")
 
+    def test_checkpoint_rejects_cursor_dataset_hash_mismatch_at_save(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "cursor-hash-mismatch.pt"
+            with self.assertRaisesRegex(ValueError, "data_state dataset manifest hash does not match"):
+                save_checkpoint(path, model, config,
+                    data_state={"dataset_manifest_sha256": "b" * 64},
+                    dataset_manifest_sha256="a" * 64)
+
+    def test_checkpoint_rejects_sampler_dataset_hash_mismatch_at_save(self):
+        config = self.config()
+        model = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "sampler-hash-mismatch.pt"
+            with self.assertRaisesRegex(ValueError, "sampler dataset manifest hash does not match"):
+                save_checkpoint(path, model, config,
+                    data_state={
+                        "dataset_manifest_sha256": "a" * 64,
+                        "sampler_state": {"dataset_manifest_sha256": "b" * 64},
+                    },
+                    dataset_manifest_sha256="a" * 64)
+
+    def test_checkpoint_rejects_cursor_or_sampler_hash_mismatch_before_model_mutation(self):
+        import hashlib
+
+        config = self.config()
+        source = NeuroSparseModel(config)
+        dataset_hash = "a" * 64
+        for corrupt_field in ("cursor", "sampler"):
+            with self.subTest(corrupt_field=corrupt_field), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "corrupt-cursor.pt"
+                save_checkpoint(path, source, config,
+                    data_state={
+                        "dataset_manifest_sha256": dataset_hash,
+                        "sampler_state": {"dataset_manifest_sha256": dataset_hash},
+                    },
+                    dataset_manifest_sha256=dataset_hash)
+                payload = torch.load(path, map_location="cpu", weights_only=True)
+                if corrupt_field == "cursor":
+                    payload["data_state"]["dataset_manifest_sha256"] = "b" * 64
+                    expected_message = "data_state dataset manifest hash does not match"
+                else:
+                    payload["data_state"]["sampler_state"]["dataset_manifest_sha256"] = "b" * 64
+                    expected_message = "sampler dataset manifest hash does not match"
+                torch.save(payload, path)
+                digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                path.with_suffix(path.suffix + ".sha256").write_text(
+                    digest + "  " + path.name + "\n", encoding="utf-8"
+                )
+
+                target = NeuroSparseModel(config)
+                before = {name: value.detach().clone() for name, value in target.state_dict().items()}
+                with self.assertRaisesRegex(ValueError, expected_message):
+                    load_checkpoint(path, target,
+                        expected_dataset_manifest_sha256=dataset_hash)
+                for name, value in target.state_dict().items():
+                    self.assertTrue(torch.equal(value, before[name]), name)
+
+
     def test_checkpoint_rejects_invalid_step_and_config_mismatch(self):
         config = self.config()
         model = NeuroSparseModel(config)
