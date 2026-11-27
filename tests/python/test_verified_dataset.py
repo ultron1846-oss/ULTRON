@@ -118,7 +118,7 @@ class VerifiedDatasetTests(unittest.TestCase):
    data,split,_=self.setup_data(Path(d))
    loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
    ds=loader.dataset
-   data.write_text("tampered source after verified snapshot\\n")
+   data.write_text("tampered source after verified snapshot\n")
    self.assertGreaterEqual(ds[0]["input_ids"].numel(),3)
    ds.close()
  def test_lazy_index_checks_record_digest_on_random_access(self):
