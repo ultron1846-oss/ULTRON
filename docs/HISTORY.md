@@ -1167,3 +1167,12 @@ It also adds `python -m tools.math_generators.coverage_audit`, a deterministic a
 ## Indexed dataset benchmark — PR #196 open (2026-11-27)
 
 PR #196 is being rebased onto main after PR #195's squash merge to avoid duplicate implementation commits in the review diff. It adds `tools/benchmark_verified_dataset.py` for a caller-supplied existing dataset and split manifest. It measures verified snapshot/index construction time, bounded full-split scan throughput, deterministic random-access median/p95 latency, snapshot/index disk size, and Python `tracemalloc` peak. It binds dataset and split digests and records sample indices. It does not modify or generate data, train, or dispatch remote compute. `tracemalloc` excludes native SQLite, PyTorch, process RSS, and device memory; no eager-vs-indexed speedup is claimed. Tests include a 2,000-row synthetic fixture. A benchmark on an owner-supplied production dataset remains pending.
+
+
+## Read-only indexed dataset benchmark — PR #196 merged (2026-11-27)
+
+PR #196 was squash-merged as `faa4b8ea31415598355afa36414092482b1a8e00`. It adds a read-only benchmark for an existing dataset and split manifest, reporting verified snapshot/index build time, bounded sequential scan throughput, deterministic random-access latency, disk bytes, and Python `tracemalloc` peak. Output path validation prevents the report from overwriting input files through direct, symlink, or hard-link aliases. The 2,000-row synthetic stress fixture is not a production RSS/device benchmark. Exact-head CI passed; post-merge Node (`45999719213`), Python AI Core (`45999719007`), Level 1 (`45999719034`), and Pages build/deploy (`45999718336`) passed. A benchmark against an owner-supplied production dataset remains pending.
+
+## Independent university generator validation — PR #197 merged (2026-11-27)
+
+PR #197 was squash-merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`. It adds independent mathematical invariant assertions across all 20 existing extended university exercise templates, with 100 seeds and five difficulty levels per topic (2,000 deterministic cases), plus tampered-answer rejection. Exact-head general tests (`45999535576`), Python AI Core (`45999535506`), and Level 1 (`45999535441`) passed. This improves validation of existing generators; it does not add generators for the 138/197 catalog topics still unimplemented and does not demonstrate model mastery. Post-merge main checks were still running at the time of this entry.

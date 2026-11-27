@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary, SPECIAL_TOKENS
+from ultron_core.config import NeuroSparseConfig
 
 
 class MathTokenizerContractTests(unittest.TestCase):
@@ -68,6 +69,24 @@ class MathTokenizerContractTests(unittest.TestCase):
             loaded = MathVocabulary.load(path)
             self.assertEqual(loaded.to_json(), vocab.to_json())
             self.assertEqual(loaded.tokens, vocab.tokens)
+
+
+    def test_foundation_config_is_bound_to_canonical_tokenizer(self):
+        tokenizer = MathTokenizer()
+        config = NeuroSparseConfig.foundation()
+        tokenizer.assert_compatible_config(config)
+        self.assertEqual(config.tokenizer_version, tokenizer.vocabulary.version)
+        self.assertEqual(config.vocab_size, len(tokenizer.vocabulary))
+
+    def test_tokenizer_rejects_model_config_vocab_size_mismatch(self):
+        tokenizer = MathTokenizer()
+        config = NeuroSparseConfig(vocab_size=len(tokenizer.vocabulary) + 1)
+        with self.assertRaisesRegex(ValueError, "vocabulary size"):
+            tokenizer.assert_compatible_config(config)
+
+    def test_model_config_rejects_unsupported_tokenizer_version(self):
+        with self.assertRaisesRegex(ValueError, "unsupported tokenizer version"):
+            NeuroSparseConfig(tokenizer_version=2)
 
     def test_decode_rejects_boolean_and_out_of_range_token_ids(self):
         tokenizer = MathTokenizer()

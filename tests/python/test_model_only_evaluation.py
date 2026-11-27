@@ -24,6 +24,10 @@ class _Tokenizer:
     def __init__(self, answer):
         self.answer = answer
 
+    def assert_compatible_config(self, config):
+        if config.tokenizer_version != 1 or config.vocab_size != len(self.vocabulary):
+            raise ValueError("model config vocabulary size does not match tokenizer")
+
     def encode(self, text, *, add_bos=False):
         return [1, 4] if add_bos else [4]
 
@@ -37,7 +41,9 @@ class _TinyModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.anchor = nn.Parameter(torch.zeros(()))
-        self.config = type("Config", (), {"max_sequence_length": 16})()
+        self.config = type("Config", (), {
+            "max_sequence_length": 16, "vocab_size": 5, "tokenizer_version": 1
+        })()
         self.reset_count = 0
         self.forward_calls = 0
 
@@ -72,6 +78,16 @@ class ModelOnlyEvaluationTests(unittest.TestCase):
         self.assertEqual(model.reset_count, 2)
         self.assertTrue(model.training, "runner should restore the model's original mode")
         self.assertTrue(model.assert_inference)
+
+
+    def test_model_only_inference_rejects_tokenizer_config_mismatch_before_forward(self):
+        example = generate_examples(104, 1, topics=("arithmetic",))[0]
+        model = _TinyModel()
+        model.config.vocab_size = 6
+        tokenizer = _Tokenizer(example.exact_answer)
+        with self.assertRaisesRegex(ValueError, "vocabulary size does not match tokenizer"):
+            run_model_only_evaluation(model, tokenizer, [example])
+        self.assertEqual(model.forward_calls, 0)
 
     def test_tool_assisted_and_model_only_metrics_are_separate(self):
         example = generate_examples(102, 1, topics=("arithmetic",))[0]

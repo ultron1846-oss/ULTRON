@@ -2,12 +2,15 @@ from dataclasses import asdict, dataclass, replace
 import math
 from typing import Any
 
+from .math_tokenizer import TOKENIZER_VERSION
+
 MIN_FOUNDATION_TRAINABLE_PARAMETERS = 60_000_000
 
 
 @dataclass(frozen=True)
 class NeuroSparseConfig:
     vocab_size: int = 256
+    tokenizer_version: int = TOKENIZER_VERSION
     hidden_size: int = 128
     num_layers: int = 2
     num_experts: int = 8
@@ -23,7 +26,7 @@ class NeuroSparseConfig:
 
     def __post_init__(self) -> None:
         integer_fields = (
-            "vocab_size", "hidden_size", "num_layers", "num_experts", "top_k",
+            "vocab_size", "tokenizer_version", "hidden_size", "num_layers", "num_experts", "top_k",
             "expert_multiplier", "max_refinements", "fast_memory_slots", "pad_token_id",
             "num_attention_heads", "max_sequence_length",
         )
@@ -34,6 +37,8 @@ class NeuroSparseConfig:
         for name in integer_fields:
             if name != "pad_token_id" and getattr(self, name) <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.tokenizer_version != TOKENIZER_VERSION:
+            raise ValueError(f"unsupported tokenizer version: {self.tokenizer_version}")
         if self.hidden_size % self.num_attention_heads != 0:
             raise ValueError("hidden_size must be divisible by num_attention_heads")
         if self.top_k > self.num_experts:
