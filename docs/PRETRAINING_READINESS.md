@@ -138,11 +138,12 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
 - [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
 - [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
-- [ ] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188; in progress, metadata validation only).
-- [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
-- [ ] Verify clean-runtime resume with `num_workers=0`.
-- [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
-- [ ] Document storage and backup limits.
+- [x] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188 merged as `7adf369549206eec139bc3fdb1a390631113e662`).
+- [x] Wire the verified loader/sampler cursor into the bounded trainer checkpoint callback and restore the sampler before iterator creation; metadata persistence and resume gates are covered by PRs #186, #190, and existing controller tests.
+- [x] Add mock-only fresh-object model/optimizer/scheduler checkpoint restoration with sampler cursor rehydration (current portability batch; CI pending). This does not run an optimizer step.
+- [ ] Owner: verify a clean-process/remote-runtime resume with `num_workers=0` and a transferred checkpoint bundle.
+- [ ] Prove numerical resumed-vs-uninterrupted training equivalence within tolerance only after separate authorization for a tiny mock/approved optimizer-step test; this remains distinct from sampler-sequence equivalence.
+- [x] Document checkpoint storage, backup, and integrity limitations (current portability batch; CI pending).
 
 ## Phase 9 — Free runtime and operations
 
@@ -152,7 +153,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Record that free Hugging Face ZeroGPU quota is short/shared and not a dependable long training host.
 - [ ] Owner: verify actual Colab access, hardware, quotas, idle timeout, and persistence from a clean iPad session.
 - [ ] Owner: test notebook setup without phone verification or payment activation.
-- [ ] Validate checkpoint transfer and resume across sessions.
+- [x] Add automated checkpoint bundle copy/restore integrity coverage (current portability batch; CI pending).
+- [ ] Owner: validate actual checkpoint transfer and resume across separate free-cloud sessions.
 - [ ] Keep website status read-only and never expose secrets.
 - [ ] Confirm zero-cost compute/storage/time limits before any run.
 
@@ -200,3 +202,8 @@ PR #189 merged as `582533c7267babf3035f1d4126e96fde4429592e`; exact-head Node, P
 ## Resume cursor and checkpoint gate regression batch — 2026-11-27 (PR validation pending)
 
 The verified preflight already constructs train/validation/test DataLoaders from one verified split snapshot; train uses `ResumableRandomSampler`, while evaluation loaders are sequential. The existing bounded controller requires that sampler to be the DataLoader's sampler, uses `num_workers=0`, validates the cursor before batch iteration, and supplies committed cursor metadata to the caller-provided checkpoint callback after a completed step. The new regression file tests sampler sequence equivalence across an interrupted/resumed cursor, rejects dataset/seed mismatch, and verifies a wrong expected dataset SHA-256 is rejected before model/optimizer/scheduler state restoration. Tests are synthetic and do not run ULTRON training or optimizer steps.
+
+
+## Checkpoint portability, interrupted-save recovery, and streaming scan — 2026-11-27 (current branch; CI pending)
+
+The current four-phase batch adds (1) a fresh-object checkpoint restore regression that rehydrates model, optimizer, scheduler, and sampler cursor without an optimizer step; (2) integrity inspection and restore after copying the checkpoint, SHA-256 manifest, and metadata sidecar to a different directory; (3) fault injection at the checkpoint-manifest commit boundary to verify recovery from the previous integrity-checked backup; and (4) a bounded JSONL structural scanner that hashes and parses one line at a time under explicit byte/row/line limits. The scanner reports only structural checks and intentionally does not verify exact math answers, content-derived IDs, duplicate IDs, or prompt-split leakage. Full dataset semantic verification remains authoritative. No corpus is generated/downloaded, no ULTRON weights are trained, and no remote job is dispatched.
