@@ -51,6 +51,10 @@ def run_model_only_evaluation(
         raise TypeError("tokenizer.vocabulary must provide token_id()")
     bos_id, eos_id = token_id("<BOS>"), token_id("<EOS>")
     vocabulary_size = len(vocabulary)
+    compatibility_check = getattr(tokenizer, "assert_compatible_config", None)
+    model_config = getattr(model, "config", None)
+    if callable(compatibility_check) and model_config is not None:
+        compatibility_check(model_config)
 
     try:
         parameter = next(model.parameters())
