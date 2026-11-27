@@ -1134,3 +1134,8 @@ Tests use synthetic dictionaries and a DataLoader whose dataset records access; 
 - Added synthetic tests for valid metadata, dataset/cursor mismatches, sidecar absence, and checkpoint-byte tampering.
 - Updated `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` to optionally display a metadata-only compatibility report and blockers.
 - No model training, optimizer step, production data generation/download, or remote job was performed.
+
+
+## Resume-cursor correctness batch (2026-11-27; PR validation pending)
+
+Reviewed the existing owner notebook's train/validation/test loader construction and the bounded trainer's checkpoint callback contract. The callback receives a committed `data_state` containing the verified dataset digest, dataset size, batch size, epoch/batch cursor, sampler state, seed, accumulation setting, and training settings. Added a regression test that rejects a different expected dataset digest before model, optimizer, or scheduler restoration; added mock-only uninterrupted/resumed sampler sequence equivalence and dataset/seed mismatch tests. These tests do not execute a model forward pass, optimizer step, or training loop. No production data or remote job was used.

@@ -192,6 +192,11 @@ The preflight package validates the existing dataset and split manifest, adapts 
 
 The split seed and resumable sampler seed are independent; the sampler seed is stored in the initial data cursor and must match TrainingSettings.seed later. Combined loader construction avoids independently rebuilding the verified dataset three times. It still relies on the existing in-memory JSONL parser and does not establish streaming-scale dataset access.
 
-## Checkpoint metadata compatibility batch — stacked branch (2026-11-27; CI pending)
+## Checkpoint metadata compatibility batch — PR #189 merged (2026-11-27)
 
-The current batch validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The owner notebook can optionally print compatibility status and blockers. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
+PR #189 merged as `582533c7267babf3035f1d4126e96fde4429592e`; exact-head Node, Python AI Core, and Level 1 checks passed (runs `45973714005`, `45973713970`, and `45973713967`). It validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
+
+
+## Resume cursor and checkpoint gate regression batch — 2026-11-27 (PR validation pending)
+
+The verified preflight already constructs train/validation/test DataLoaders from one verified split snapshot; train uses `ResumableRandomSampler`, while evaluation loaders are sequential. The existing bounded controller requires that sampler to be the DataLoader's sampler, uses `num_workers=0`, validates the cursor before batch iteration, and supplies committed cursor metadata to the caller-provided checkpoint callback after a completed step. The new regression file tests sampler sequence equivalence across an interrupted/resumed cursor, rejects dataset/seed mismatch, and verifies a wrong expected dataset SHA-256 is rejected before model/optimizer/scheduler state restoration. Tests are synthetic and do not run ULTRON training or optimizer steps.
