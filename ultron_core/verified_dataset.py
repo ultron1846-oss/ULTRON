@@ -42,7 +42,7 @@ class VerifiedMathDataset(Dataset):
         )
 
     @classmethod
-    def from_verified_rows(
+    def _from_verified_rows(
         cls,
         verified: VerifiedSplitManifest,
         rows,
@@ -99,6 +99,18 @@ class VerifiedMathDataset(Dataset):
         if not isinstance(self.tokenizer, MathTokenizer):
             raise TypeError("tokenizer must be MathTokenizer")
         self.max_sequence_length = max_sequence_length
+        expected_count = verified.split_counts.get(split_name)
+        if (
+            isinstance(expected_count, bool)
+            or not isinstance(expected_count, int)
+            or expected_count <= 0
+            or len(normalized) != expected_count
+        ):
+            raise ValueError("verified split row count does not match manifest metadata")
+        example_ids = [record[0] for record in normalized]
+        if len(example_ids) != len(set(example_ids)):
+            raise ValueError("verified split rows contain duplicate example IDs")
+
         self._records = tuple(normalized)
 
     def __len__(self) -> int:
@@ -156,6 +168,10 @@ def collate_verified_math_batch(
     return {"input_ids": batch, "attention_mask": batch.ne(pad_token_id)}
 
 
+def _validate_loader_settings(batch_size: int, seed: int) -> None:
+    _validate_loader_settings(batch_size, seed)
+
+
 def _build_loader(
     dataset: VerifiedMathDataset,
     *,
@@ -186,7 +202,7 @@ def _build_loader(
     return loader
 
 
-def build_verified_split_loaders_from_rows(
+def _build_verified_split_loaders_from_rows(
     verified: VerifiedSplitManifest,
     rows_by_split: Mapping[str, tuple[dict, ...]],
     *,
@@ -206,7 +222,7 @@ def build_verified_split_loaders_from_rows(
     shared_tokenizer = tokenizer or MathTokenizer(MathVocabulary.default())
     loaders = {}
     for split_name in _SPLITS:
-        dataset = VerifiedMathDataset.from_verified_rows(
+        dataset = VerifiedMathDataset._from_verified_rows(
             verified,
             rows_by_split[split_name],
             split_name=split_name,
@@ -232,10 +248,11 @@ def build_verified_split_loaders(
     tokenizer: MathTokenizer | None = None,
 ) -> dict[str, DataLoader]:
     """Verify/load the corpus once and construct train/validation/test loaders."""
+    _validate_loader_settings(batch_size, seed)
     verified, rows_by_split = load_verified_split_rows_by_split(
         dataset_path, split_manifest_path
     )
-    return build_verified_split_loaders_from_rows(
+    return _build_verified_split_loaders_from_rows(
         verified,
         rows_by_split,
         batch_size=batch_size,
@@ -265,17 +282,17 @@ def build_verified_split_loader(
         raise TypeError("shuffle must be boolean")
     if split_name != "train" and shuffle:
         raise ValueError("validation/test loaders must not shuffle")
-    loaders = build_verified_split_loaders(
+    _validate_loader_settings(batch_size, seed)
+    dataset = VerifiedMathDataset(
         dataset_path,
         split_manifest_path,
+        split_name=split_name,
+        tokenizer=tokenizer,
+        max_sequence_length=max_sequence_length,
+    )
+    return _build_loader(
+        dataset,
         batch_size=batch_size,
         seed=seed,
-        max_sequence_length=max_sequence_length,
-        tokenizer=tokenizer,
+        shuffle=(split_name == "train" and shuffle),
     )
-    if split_name == "train" and not shuffle:
-        # Explicit deterministic ordering is allowed for diagnostics but not for
-        # the standard combined loader. Build the alternate train sampler here.
-        dataset = loaders["train"].dataset
-        return _build_loader(dataset, batch_size=batch_size, seed=seed, shuffle=False)
-    return loaders[split_name]

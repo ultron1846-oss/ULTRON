@@ -1,5 +1,6 @@
 """Tests for read-only verified dataset adapters; fixtures are temporary only."""
 import tempfile,unittest
+from unittest.mock import patch
 from pathlib import Path
 from test_dataset_split_manifest import fixture
 from ultron_core.dataset_split_manifest import prepare_dataset_split_manifest
@@ -35,6 +36,14 @@ class VerifiedDatasetTests(unittest.TestCase):
   import torch
   batch=collate_verified_math_batch([{"input_ids":torch.tensor([1,4,2])},{"input_ids":torch.tensor([1,5,6,2])}])
   self.assertEqual(tuple(batch["input_ids"].shape),(2,4)); self.assertEqual(batch["attention_mask"][0].tolist(),[True,True,True,False])
+ def test_single_loader_does_not_construct_other_splits(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,contract=self.setup_data(Path(d))
+   with patch("ultron_core.verified_dataset.load_verified_split_rows_by_split",side_effect=AssertionError("combined loader path should not be used")):
+    loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
+   self.assertEqual(loader.split_name,"validation")
+   self.assertEqual(loader.dataset_manifest_sha256,contract.dataset_sha256)
+   self.assertEqual(type(loader.sampler).__name__,"SequentialSampler")
  def test_combined_build_constructs_all_loaders_with_one_shared_digest(self):
   with tempfile.TemporaryDirectory() as d:
    data,split,contract=self.setup_data(Path(d))

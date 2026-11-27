@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from torch.utils.data import DataLoader
@@ -16,7 +15,7 @@ from .dataset_split_manifest import (
 from .math_tokenizer import MathTokenizer, MathVocabulary
 from .preflight import preflight_training_plan_from_runtime_config
 from .runtime_config import RuntimeConfig
-from .verified_dataset import build_verified_split_loaders_from_rows
+from .verified_dataset import _build_verified_split_loaders_from_rows
 
 _SPLITS = ("train", "validation", "test")
 
@@ -131,7 +130,7 @@ def build_verified_training_preflight(
         token_counts[split_name] = count
         total_tokens += count
 
-    loaders = build_verified_split_loaders_from_rows(
+    loaders = _build_verified_split_loaders_from_rows(
         verified,
         rows_by_split,
         batch_size=runtime_config.batch_size,
