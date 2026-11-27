@@ -22,7 +22,7 @@ The memory value is a requested budget, not a promise that a provider/device has
 
 ## Python validation
 
-`ultron_core.runtime_config.RuntimeConfig` validates the complete schema. It rejects missing or unknown keys, duplicate JSON keys, invalid JSON, inputs over 16 KiB, booleans masquerading as integers, out-of-range values, unsupported schema versions, and any config attempting to set either authorization flag to true.
+`ultron_core.runtime_config.RuntimeConfig` validates the complete schema independently of the browser. The `preflight_training_plan_from_runtime_config(...)` adapter forwards the validated workload fields into the existing preflight. It rejects missing or unknown keys, duplicate JSON keys, invalid JSON, inputs over 16 KiB, booleans masquerading as integers, out-of-range values, unsupported schema versions, and any config attempting to set either authorization flag to true.
 
 Supported ranges:
 - Memory budget: 2–10 GiB
