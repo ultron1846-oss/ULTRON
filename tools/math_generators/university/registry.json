@@ -535,28 +535,28 @@
       "topic": "Lebesgue_measure",
       "title": "Lebesgue measure",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Lebesgue_integral",
       "title": "Lebesgue integral",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Lp_spaces",
       "title": "Lp spaces",
       "field": "Real analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "functional_sequences",
@@ -571,37 +571,37 @@
       "topic": "complex_numbers_and_topology",
       "title": "complex numbers and topology",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "holomorphic_functions",
       "title": "holomorphic functions",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Cauchy_Riemann_equations",
       "title": "Cauchy Riemann equations",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "contour_integrals",
       "title": "contour integrals",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "Cauchy_integral_formula",
@@ -634,19 +634,19 @@
       "topic": "singularities",
       "title": "singularities",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "conformal_maps",
       "title": "conformal maps",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "maximum_modulus_principle",
@@ -661,10 +661,10 @@
       "topic": "groups_and_subgroups",
       "title": "groups and subgroups",
       "field": "Abstract algebra",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true
     },
     {
       "topic": "cyclic_groups",
