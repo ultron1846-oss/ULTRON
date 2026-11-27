@@ -2,6 +2,8 @@ import json
 
 import pytest
 
+import ultron_core.preflight as preflight_module
+from ultron_core.preflight import preflight_training_plan_from_runtime_config
 from ultron_core.runtime_config import (
     MAX_CONFIG_JSON_BYTES,
     RuntimeConfig,
@@ -137,3 +139,43 @@ def test_mapping_rejects_non_string_keys():
 def test_json_rejects_unpaired_unicode_surrogate():
     with pytest.raises(ValueError, match="invalid Unicode"):
         RuntimeConfig.from_json(chr(0xD800))
+
+
+def test_preflight_adapter_forwards_only_validated_settings(monkeypatch):
+    captured = {}
+
+    def fake_preflight(model_config, splits, **kwargs):
+        captured["model_config"] = model_config
+        captured["splits"] = splits
+        captured["kwargs"] = kwargs
+        return {"status": "PREFLIGHT_ONLY"}
+
+    monkeypatch.setattr(preflight_module, "preflight_training_plan", fake_preflight)
+    model_config = object()
+    splits = {"train": [], "validation": [], "test": []}
+    runtime_config = RuntimeConfig(
+        memory_budget_gib=7,
+        batch_size=2,
+        sequence_length=512,
+        gradient_accumulation_steps=3,
+    )
+    report = preflight_training_plan_from_runtime_config(
+        model_config, splits, runtime_config,
+        dataset_manifest_sha256="a" * 64,
+    )
+
+    assert report == {"status": "PREFLIGHT_ONLY"}
+    assert captured["model_config"] is model_config
+    assert captured["splits"] is splits
+    assert captured["kwargs"] == {
+        "memory_budget_gib": 7,
+        "batch_size": 2,
+        "sequence_length": 512,
+        "gradient_accumulation_steps": 3,
+        "dataset_manifest_sha256": "a" * 64,
+    }
+
+
+def test_preflight_adapter_requires_validated_runtime_config():
+    with pytest.raises(TypeError, match="validated RuntimeConfig"):
+        preflight_training_plan_from_runtime_config(object(), {}, {"memory_budget_gib": 6})
