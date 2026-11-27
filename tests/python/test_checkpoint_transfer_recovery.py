@@ -221,7 +221,7 @@ class StreamingDatasetScanTests(unittest.TestCase):
             path.write_bytes(valid)
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 scan_jsonl_structure(path, expected_sha256="d" * 64)
-            two_rows = valid + json.dumps(self._row(index=1), separators=(",", ":")).encode("utf-8") + b"\\n"
+            two_rows = valid + json.dumps(self._row(index=1), separators=(",", ":")).encode("utf-8") + b"\n"
             path.write_bytes(two_rows)
             with self.assertRaisesRegex(ValueError, "row limit"):
                 scan_jsonl_structure(path, max_rows=1)
