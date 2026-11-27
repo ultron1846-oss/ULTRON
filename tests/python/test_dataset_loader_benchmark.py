@@ -56,6 +56,14 @@ class IndexedDatasetBenchmarkTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must not overwrite"):
                 _validate_output_path(alias, dataset, split)
             _validate_output_path(root / "report.json", dataset, split)
+            hardlink = root / "hardlink.jsonl"
+            try:
+                hardlink.hardlink_to(dataset)
+            except OSError:
+                pass
+            else:
+                with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                    _validate_output_path(hardlink, dataset, split)
 
     def test_benchmark_bounds_random_access_sample_count(self):
         with tempfile.TemporaryDirectory() as directory:
