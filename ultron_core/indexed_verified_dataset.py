@@ -194,6 +194,47 @@ class VerifiedIndexedSplitStore:
             connection.rollback()
             raise
 
+    def iter_records(self, split_name):
+        """Yield integrity-checked records in stable split order with bounded memory."""
+        self._ensure_open()
+        if split_name not in self.split_counts:
+            raise ValueError("invalid split name")
+        cursor = self._connection.execute(
+            "SELECT example_id, byte_offset, byte_length, row_sha256 "
+            "FROM ordered_records WHERE split_name = ? ORDER BY seq",
+            (split_name,),
+        )
+        try:
+            with self._snapshot_path.open("rb") as stream:
+                while True:
+                    batch = cursor.fetchmany(256)
+                    if not batch:
+                        break
+                    for example_id, offset, length, row_digest in batch:
+                        stream.seek(offset)
+                        line = stream.read(length)
+                        if len(line) != length or hashlib.sha256(line).hexdigest() != row_digest:
+                            raise ValueError("verified snapshot record integrity check failed")
+                        if not line.endswith(b"\n"):
+                            raise ValueError("verified snapshot record newline is malformed")
+                        try:
+                            row = json.loads(
+                                line[:-1].decode("utf-8"),
+                                object_pairs_hook=_strict_object,
+                            )
+                        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+                            raise ValueError("verified snapshot record is malformed") from exc
+                        if (not isinstance(row, dict)
+                                or row.get("example_id") != example_id
+                                or not isinstance(row.get("input_text"), str)
+                                or not isinstance(row.get("target_text"), str)):
+                            raise ValueError("verified snapshot record identity or text is malformed")
+                        yield example_id, row["input_text"], row["target_text"]
+        except OSError as exc:
+            raise ValueError("verified snapshot records could not be streamed") from exc
+        finally:
+            cursor.close()
+
     def __len_for_split__(self, split_name):
         self._ensure_open()
         if split_name not in self.split_counts:

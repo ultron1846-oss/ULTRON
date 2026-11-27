@@ -99,6 +99,16 @@ class VerifiedDatasetTests(unittest.TestCase):
   import torch
   batch=collate_verified_math_batch([{"input_ids":torch.tensor([1,4,2])},{"input_ids":torch.tensor([1,5,6,2])}])
   self.assertEqual(tuple(batch["input_ids"].shape),(2,4)); self.assertEqual(batch["attention_mask"][0].tolist(),[True,True,True,False])
+ def test_indexed_iterator_streams_stable_verified_records(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,contract=self.setup_data(Path(d))
+   loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
+   store=loader.dataset._store
+   streamed=list(store.iter_records("validation"))
+   self.assertEqual(len(streamed),contract.split_counts["validation"])
+   self.assertEqual([item[0] for item in streamed],sorted(item[0] for item in streamed))
+   self.assertEqual(streamed[0],store.get_record("validation",0))
+   loader.dataset.close()
  def test_single_loader_uses_lazy_disk_index_without_full_record_list(self):
   with tempfile.TemporaryDirectory() as d:
    data,split,contract=self.setup_data(Path(d))

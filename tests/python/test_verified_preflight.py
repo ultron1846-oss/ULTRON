@@ -1,6 +1,8 @@
 """Tests for verified dataset preflight; fixtures are temporary and synthetic only."""
 import tempfile
 import unittest
+from dataclasses import replace
+
 from pathlib import Path
 
 from test_dataset_split_manifest import fixture
@@ -9,8 +11,10 @@ from ultron_core.dataset_split_manifest import (
     prepare_dataset_split_manifest,
 )
 from ultron_core.runtime_config import RuntimeConfig
+from ultron_core.config import NeuroSparseConfig
 from ultron_core.data_state import validate_training_data_state
 from ultron_core.verified_preflight import build_verified_training_preflight
+from ultron_core.verified_dataset import IndexedVerifiedMathDataset
 
 
 class VerifiedTrainingPreflightTests(unittest.TestCase):
@@ -48,6 +52,9 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             self.assertFalse(report["optimizer_created"])
             self.assertFalse(report["checkpoint_restored"])
             self.assertFalse(report["resource_estimate_complete"])
+            self.assertFalse(report["dataset_rows_materialized_for_report"])
+            self.assertTrue(all(isinstance(loader.dataset, IndexedVerifiedMathDataset) for loader in (result.train_loader, result.validation_loader, result.test_loader)))
+            self.assertEqual(len({id(loader.dataset._store) for loader in (result.train_loader, result.validation_loader, result.test_loader)}), 1)
             self.assertEqual(len(result.train_loader.dataset), contract.split_counts["train"])
             self.assertEqual(len(result.validation_loader.dataset), contract.split_counts["validation"])
             self.assertEqual(len(result.test_loader.dataset), contract.split_counts["test"])
@@ -65,6 +72,9 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
                 result.train_loader.sampler.state_dict(),
             )
             self.assertEqual(result.initial_data_state["gradient_accumulation_steps"], 1)
+            result.close()
+            with self.assertRaisesRegex(RuntimeError, "closed"):
+                result.train_loader.dataset[0]
 
     def test_generated_initial_cursor_satisfies_strict_data_state_contract(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -86,6 +96,7 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             self.assertEqual(validated, result.initial_data_state)
             self.assertEqual(validated["sampler_state"]["next_index"], 0)
             self.assertEqual(validated["batch_size"], 2)
+            result.close()
 
     def test_sampler_seed_is_independent_of_split_seed(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -97,6 +108,7 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             )
             self.assertEqual(result.train_loader.sampler.state_dict()["seed"], 17)
             self.assertEqual(result.initial_data_state["seed"], 17)
+            result.close()
 
     def test_overlong_sequence_fails_preflight_without_truncation(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -104,6 +116,21 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             runtime = RuntimeConfig(sequence_length=3)
             with self.assertRaisesRegex(ValueError, "Truncation is disabled"):
                 build_verified_training_preflight(dataset, split, runtime)
+
+    def test_runtime_sequence_limit_cannot_exceed_model_config(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split, _ = self.setup_data(Path(directory))
+            small_config = replace(
+                NeuroSparseConfig.foundation(),
+                max_sequence_length=128,
+            )
+            with self.assertRaisesRegex(ValueError, "exceeds the model configuration limit"):
+                build_verified_training_preflight(
+                    dataset,
+                    split,
+                    RuntimeConfig(sequence_length=256),
+                    model_config=small_config,
+                )
 
     def test_invalid_sampler_seed_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
