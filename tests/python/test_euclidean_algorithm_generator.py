@@ -32,6 +32,20 @@ class EuclideanAlgorithmGeneratorTests(unittest.TestCase):
                 self.assertGreaterEqual(remainder, 0)
                 self.assertLess(remainder, divisor)
 
+    def test_equal_operand_unit_operand_and_divisible_edges(self):
+        for seed in (63, 139, 184, 1, 52):
+            item = generate(seed, 1, "Euclidean_algorithm")
+            data = item["ingredients"]
+            a, b = data["a"], data["b"]
+            x, y = data["bezout_coefficients"]
+            self.assertEqual(a * x + b * y, math.gcd(a, b))
+            self.assertEqual(data["gcd"], math.gcd(a, b))
+        equal = generate(63, 1, "Euclidean_algorithm")["ingredients"]
+        self.assertEqual(equal["a"], equal["b"])
+        self.assertEqual(equal["quotient_trace"][-1][2:], [1, 0])
+        self.assertEqual(generate(139, 1, "Euclidean_algorithm")["ingredients"]["a"], 1)
+        self.assertEqual(generate(184, 1, "Euclidean_algorithm")["ingredients"]["b"], 1)
+
     def test_invalid_topic_and_difficulty_rejected(self):
         with self.assertRaises(ValueError):
             generate(0, 1, "not_a_topic")
