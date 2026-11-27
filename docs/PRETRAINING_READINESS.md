@@ -224,7 +224,7 @@ For transfer between sessions, copy the current checkpoint, `.sha256`, and `.met
 
 ## Prompt 3 — training recovery and evaluation audit (2026-11-27)
 
-Implementation is proposed on branch `reliability/evaluation-batch-5-2026-11-27`; exact-head CI/review is pending. Detailed findings are in [TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md](TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md), with the frozen benchmark contract in [FROZEN_EVALUATION_PROTOCOL.md](FROZEN_EVALUATION_PROTOCOL.md).
+Implementation is submitted in [PR #204](https://github.com/ultron1846-oss/ULTRON/pull/204); exact-head CI passed, and review/merge is pending. Detailed findings are in [TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md](TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md), with the frozen benchmark contract in [FROZEN_EVALUATION_PROTOCOL.md](FROZEN_EVALUATION_PROTOCOL.md).
 
 ### Work area 5 — recovery
 - Added a clean-process test that verifies Python and Torch CPU RNG continuation, model-state fingerprint, dataset-bound sampler cursor, and remaining permutation tail using a small initialized model and synthetic dataset. It creates no optimizer and performs no optimizer step.
@@ -241,4 +241,4 @@ Implementation is proposed on branch `reliability/evaluation-batch-5-2026-11-27`
 - Added detailed answer-level classes for abstention, malformed output, domain-invalid output, mathematically incorrect answer, exact correct answer and tolerance-accepted answer.
 - The independent reference path revalidates generated answers, but this is not proof-kernel verification. It does not score derivations or identify the actual cause of a reasoning failure.
 
-**Readiness gate:** these are engineering implementations awaiting exact-head CI/review. They do not establish model performance. An owner-curated final benchmark, semantic near-duplicate review, CUDA RNG test, real runtime checkpoint transfer, and a valid trained checkpoint remain unavailable. No ULTRON training or optimizer step was performed.
+**Readiness gate:** PR #204 exact-head CI passed: Python AI Core run `46015892965` (696 tests and CPU smoke), Node Tests run `46015892752`, and Level 1 Math Tooling run `46015892856` (5/5). PR review/merge remains pending. They do not establish model performance. An owner-curated final benchmark, semantic near-duplicate review, CUDA RNG test, real runtime checkpoint transfer, and a valid trained checkpoint remain unavailable. No ULTRON training or optimizer step was performed.
