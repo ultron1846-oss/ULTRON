@@ -65,17 +65,24 @@ class StreamingSemanticDatasetTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             dataset, _ = self._paths(Path(directory))
             original = dataset.read_bytes()
-            dataset.write_bytes(original + b"\n")
+            blank_content = original + b"\n"
+            dataset.write_bytes(blank_content)
+            manifest_path = dataset.with_suffix(dataset.suffix + ".manifest.json")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["example_count"] += 1
+            manifest["topic_counts"]["arithmetic"] += 1
+            manifest["sha256"] = hashlib.sha256(blank_content).hexdigest()
+            manifest_path.write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "blank rows"):
                 verify_dataset(dataset)
 
-            dataset.write_bytes(b"{not-json}\n")
-            with self.assertRaisesRegex(ValueError, "malformed"):
-                verify_dataset(dataset)
-
-            dataset.write_bytes(b'{"topic":"arithmetic","topic":"linear_equations"}\n')
-            with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
-                verify_dataset(dataset)
+            for malformed in (b"{not-json}\n", b'{"topic":"arithmetic","topic":"linear_equations"}\n'):
+                dataset.write_bytes(malformed)
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest["sha256"] = hashlib.sha256(malformed).hexdigest()
+                manifest_path.write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "malformed|duplicate JSON key"):
+                    verify_dataset(dataset)
 
     def test_duplicate_example_id_rejected_even_with_updated_manifest_digest(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -95,7 +102,7 @@ class StreamingSemanticDatasetTests(unittest.TestCase):
                 return result
 
             with patch.object(split_module, "verify_dataset", side_effect=verify_then_mutate):
-                with self.assertRaisesRegex(ValueError, "changed while being read"):
+                with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
                     prepare_dataset_split_manifest(dataset, split, split_seed=7)
 
     def test_existing_split_manifest_roundtrip_remains_compatible(self):
