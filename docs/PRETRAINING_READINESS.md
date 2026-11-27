@@ -125,7 +125,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 
 ## Phase 8 — Checkpoint and recovery
 
-- [x] Save model, optimizer, scheduler state, global step, config, RNG state, and optional data cursor metadata.
+- [x] Save model, optimizer, scheduler state, global step, config, RNG state, and optional data cursor metadata (checkpoint format v6).
 - [x] Bind checkpoint data cursor to a validated dataset manifest SHA-256 (format v4).
 - [x] Reject data-cursor and nested sampler manifest hashes that disagree with the checkpoint's top-level dataset hash before restoring runtime state (merged PR #178; final PR and all six post-merge checks passed on `main` at `6415d2322c1bae8879943399066ab4506be51d0b`).
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
@@ -138,7 +138,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
 - [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
 - [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
-- [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
+- [x] Wire the verified loader/sampler into the bounded trainer checkpoint callback and persist cursor metadata; validate batch/sample/sampler alignment on format-v6 checkpoint save/load (PR #188).
 - [ ] Verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
 - [ ] Document storage and backup limits.
@@ -161,7 +161,7 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. Next: persist/restore the initial sampler cursor through the existing checkpoint callback and pass the expected dataset SHA-256 when loading checkpoints. No example generation/download is allowed.
+1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. PR #188 adds strict checkpoint cursor alignment checks. Next: validate clean-runtime resume with `num_workers=0`; actual resume remains separately gated. No example generation/download is allowed.
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.

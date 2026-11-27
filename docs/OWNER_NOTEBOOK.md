@@ -32,4 +32,6 @@ PR #186 added a read-only tokenized dataset view and DataLoader contract. PR #18
 
 The split seed is independent from sampler seed. The default sampler seed is 0 and is part of `initial_data_state`; it must match `TrainingSettings.seed` if a separately authorized trainer run is configured.
 
-Next engineering stage: connect the preflight cursor and sampler state to the bounded trainer's checkpoint callback, then test checkpoint metadata round-tripping. Actual checkpoint restoration, batch consumption, optimizer steps, and clean-runtime equivalence remain separately gated.
+The bounded trainer already passes committed cursor metadata to its checkpoint callback after completed optimizer steps. A callback can persist `metrics["data_state"]` and `metrics["dataset_manifest_sha256"]` with `save_checkpoint`. The initial cursor includes the batch size, dataset-bound sampler state, and zero batch/sample positions. Checkpoint format v6 validates batch/sample/sampler alignment before state restoration; format-v5 checkpoints remain readable.
+
+This notebook does not instantiate the model or optimizer, invoke the checkpoint callback, save a model checkpoint, restore one, or consume batches. Next: validate clean-runtime resume with `num_workers=0` and prove uninterrupted-versus-resumed equivalence only after separate explicit authorization for a tiny optimizer-step test.
