@@ -128,6 +128,20 @@ def benchmark_indexed_dataset(
             tracemalloc.stop()
 
 
+
+def _validate_output_path(output_path, dataset_path, split_manifest_path):
+    """Reject output paths that resolve to either benchmark input."""
+    if output_path is None:
+        return
+    output = Path(output_path).expanduser().resolve()
+    inputs = {
+        Path(dataset_path).expanduser().resolve(),
+        Path(split_manifest_path).expanduser().resolve(),
+    }
+    if output in inputs:
+        raise ValueError("benchmark output must not overwrite the dataset or split manifest")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", required=True, type=Path)
@@ -136,6 +150,7 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+    _validate_output_path(args.output, args.dataset, args.split_manifest)
     report = benchmark_indexed_dataset(
         args.dataset,
         args.split_manifest,
