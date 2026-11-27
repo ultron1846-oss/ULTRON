@@ -193,3 +193,19 @@ call external AI APIs, or run cloud/remote training. New compression
 regressions use fixed-seed small CPU models. The foundation model count
 implementation and configuration are unchanged. No website, Supabase,
 authentication, or GitHub Pages files are part of this change.
+
+
+## Reconstructing a compressed deployment artifact
+
+`load_compressed_model_artifact(path, parent_model, parent_checkpoint_id=...)`
+validates the immutable artifact, verifies the supplied parent checkpoint identifier,
+replays its ordered transformation recipe on a copy of the parent model, checks the
+resulting configuration, and strictly loads the integrity-checked compressed state.
+The supplied parent model is never modified.
+
+The artifact stores layer paths for optional quantization sensitivity inputs, not
+the calibration tensors themselves. Those tensors affect sensitivity reporting,
+not the quantized weights, so they are not needed for reconstruction. This loader
+does not claim quality, speed, or memory improvements; the caller must supply the
+correct parent checkpoint and validate the deployment artifact in its target
+runtime.
