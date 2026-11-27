@@ -118,7 +118,7 @@ assert sampler.state_dict() == metadata["data_state"]["sampler_state"]
 digest = hashlib.sha256()
 for name, tensor in sorted(model.state_dict().items()):
     digest.update(name.encode("utf-8"))
-    digest.update(tensor.detach().cpu().contiguous().numpy().tobytes())
+    digest.update(bytes(tensor.detach().cpu().contiguous().reshape(-1).view(torch.uint8).tolist()))
 assert digest.hexdigest() == expected_fingerprint
 with torch.inference_mode():
     output = model(torch.tensor([[1, 2, 3]], dtype=torch.long))
