@@ -100,10 +100,7 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False):
                 if include_full_rows:
                     rows.append(row)
                 else:
-                    rows.append({
-                        "example_id": example_id,
-                        "input_text": row["input_text"],
-                    })
+                    rows.append((row["input_text"], example_id))
     except OSError as exc:
         raise ValueError("dataset could not be read safely after verification") from exc
 
@@ -121,9 +118,14 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False):
 def _expected(rows,seed,val,test):
     groups={}
     for row in rows:
-        prompt=" ".join(row["input_text"].split())
-        old=groups.get(prompt)
-        if old is None or row["example_id"]<old: groups[prompt]=row["example_id"]
+        if isinstance(row, tuple) and len(row) == 2:
+            input_text, example_id = row
+        else:
+            input_text, example_id = row["input_text"], row["example_id"]
+        prompt = " ".join(input_text.split())
+        old = groups.get(prompt)
+        if old is None or example_id < old:
+            groups[prompt] = example_id
     if len(groups)<3: raise ValueError("at least three unique normalized prompts are required")
     result={"train":[],"validation":[],"test":[]}
     for prompt,example_id in sorted(groups.items()):
