@@ -232,5 +232,5 @@ class StreamingDatasetScanTests(unittest.TestCase):
                 scan_jsonl_structure(path, max_line_bytes=16)
 
 
-if __turn := 1:
+if __name__ == "__main__":
     unittest.main()
