@@ -220,3 +220,16 @@ A checkpoint generation currently consists of three files: the serialized checkp
 For transfer between sessions, copy the current checkpoint, `.sha256`, and `.metadata.json` together and preserve their basename; include the corresponding `.bak` files only when backup recovery is also required. The metadata sidecar is advisory and is not a substitute for the payload integrity check performed by `load_checkpoint`. Storage capacity must accommodate at least the current checkpoint plus one prior checkpoint generation and temporary-write/transfer overhead. Actual free-tier disk quotas, upload limits, and cross-session persistence are owner/runtime-specific and remain unverified.
 
 - [x] Merge PR #196 read-only indexed dataset benchmark as `faa4b8ea31415598355afa36414092482b1a8e00`; exact-head CI and post-merge Node, Python AI Core, Level 1, and Pages build/deploy passed. The synthetic fixture is not a production memory benchmark; owner-supplied production dataset measurements remain pending.
+
+
+## Tokenizer and model architecture audit — PR #203 (2026-11-27)
+
+The audit implementation is in [PR #203](https://github.com/ultron1846-oss/ULTRON/pull/203); it is not merged and exact-head CI is pending. The detailed findings are in [TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md](TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md).
+
+- Canonical tokenizer v1 is 240 tokens with PAD/BOS/EOS IDs 0/1/2. Tests cover lexical round trips, supported math Unicode/whitespace, unsupported Unicode offsets, longest-match command boundaries, fixed-vocabulary behavior, strict serialization, and checkpoint version compatibility.
+- Default model config now uses the canonical vocabulary size; config/preflight compatibility also checks the reserved PAD ID. The verified dataset path still right-pads and rejects over-length examples rather than truncating.
+- The causal loss now receives the attention mask and only scores valid adjacent source/target positions. Router-balance and predictive-refinement auxiliaries exclude padding.
+- Foundation capacity remains 63,400,451 total / 61,826,048 trainable parameters. Meta-device enumeration checks the full foundation module shapes without allocating its weights.
+- Small deterministic backward and numerical tests compute gradients but perform no optimizer step. No ULTRON training, corpus generation/download, remote compute, or trained checkpoint is claimed.
+
+**Gate:** mark the architecture/tokenizer review complete only after exact-head Python AI Core, Node, Level 1, and configured checks pass and the PR is reviewed/merged. CUDA performance qualification, production inference profiling, actual iPad acceptance, and clean-runtime checkpoint transfer remain separate gates.
