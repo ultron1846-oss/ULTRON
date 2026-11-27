@@ -46,6 +46,13 @@ class TrainingDataStateTests(unittest.TestCase):
         self.assertEqual(validated["next_sample_index"], 5)
         self.assertEqual(validated["sampler_state"]["next_index"], 5)
 
+    def test_legacy_cursor_derives_sample_index_from_validated_sampler_state(self):
+        state = self.valid_state()
+        del state["next_sample_index"]
+        validated = self.validate(state)
+        self.assertEqual(validated["next_sample_index"], 5)
+        self.assertNotIn("next_sample_index", state)
+
     def test_valid_cursor_returns_detached_copy(self):
         state = self.valid_state()
         validated = self.validate(state)

@@ -58,7 +58,7 @@ def validate_training_data_state(
     )
 
     required = {
-        "epoch", "next_batch_index", "next_sample_index",
+        "epoch", "next_batch_index",
         "dataset_manifest_sha256", "dataset_size", "seed",
         "gradient_accumulation_steps", "sampler_state",
     }
@@ -70,10 +70,14 @@ def validate_training_data_state(
     next_batch_index = _integer(
         data_state["next_batch_index"], name="next_batch_index", minimum=0
     )
-    next_sample_index = _integer(
-        data_state["next_sample_index"], name="next_sample_index",
-        minimum=0, maximum=dataset_size,
-    )
+    next_sample_index = None
+    if "next_sample_index" in data_state:
+        next_sample_index = _integer(
+            data_state["next_sample_index"],
+            name="next_sample_index",
+            minimum=0,
+            maximum=dataset_size,
+        )
 
     saved_hash = data_state["dataset_manifest_sha256"]
     if not isinstance(saved_hash, str) or not _SHA256_RE.fullmatch(saved_hash):
@@ -106,7 +110,7 @@ def validate_training_data_state(
     if next_batch_index > batch_count:
         raise ValueError("data_state next_batch_index exceeds the training split")
     expected_sample_index = min(next_batch_index * batch_size, dataset_size)
-    if next_sample_index != expected_sample_index:
+    if next_sample_index is not None and next_sample_index != expected_sample_index:
         raise ValueError("data_state sample cursor does not align with its batch cursor")
 
     sampler_state = data_state["sampler_state"]
@@ -179,4 +183,6 @@ def validate_training_data_state(
             if settings_accumulation != gradient_accumulation_steps:
                 raise ValueError("data_state training_settings accumulation does not match")
 
-    return copy.deepcopy(data_state)
+    validated = copy.deepcopy(data_state)
+    validated.setdefault("next_sample_index", expected_sample_index)
+    return validated
