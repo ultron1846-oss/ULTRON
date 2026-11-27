@@ -960,9 +960,9 @@ class BoundedTrainingControllerTests(unittest.TestCase):
 
         def provider(device):
             calls.append(device)
-            # The first four checks are before optimizer.step. Simulate AdamW
-            # state allocation exceeding the cap immediately after its first step.
-            rss = budget + 1 if len(calls) >= 5 else 1024
+            # With two microbatches, the first six samples are before
+            # optimizer.step. Sample seven is immediately after the first step.
+            rss = budget + 1 if len(calls) >= 7 else 1024
             return MemoryUsage(rss, 0)
 
         monitor = RuntimeMemoryMonitor(budget, usage_provider=provider)
