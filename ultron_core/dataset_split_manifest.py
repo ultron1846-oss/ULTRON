@@ -135,14 +135,19 @@ def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name):
     if split_name not in ("train", "validation", "test"):
         raise ValueError("split_name must be train, validation, or test")
     verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
-    _, rows = _read_dataset(dataset_path)
+    dataset_manifest, rows = _read_dataset(dataset_path)
+    if dataset_manifest["sha256"] != verified.dataset_sha256:
+        raise ValueError("dataset changed between split validation and row loading")
     try:
-        payload = json.loads(
-            Path(split_manifest_path).read_text(encoding="utf-8"),
-            object_pairs_hook=_strict_object,
-        )
+        payload = json.loads(Path(split_manifest_path).read_text(encoding="utf-8"), object_pairs_hook=_strict_object)
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         raise ValueError("split manifest could not be re-read safely") from exc
+    saved_digest = payload.get("sha256") if isinstance(payload, dict) else None
+    unsigned = {key: value for key, value in payload.items() if key != "sha256"} if isinstance(payload, dict) else None
+    if (saved_digest != verified.split_manifest_sha256 or unsigned is None
+            or hashlib.sha256(_canonical(unsigned)).hexdigest() != saved_digest
+            or payload.get("dataset_sha256") != verified.dataset_sha256):
+        raise ValueError("split manifest changed between validation and row loading")
     wanted = set(payload["split_ids"][split_name])
     selected = [row for row in rows if row["example_id"] in wanted]
     if len(selected) != len(wanted):
