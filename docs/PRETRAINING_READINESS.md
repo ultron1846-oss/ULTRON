@@ -127,7 +127,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Save model, optimizer, scheduler state, global step, config, RNG state, and optional data cursor metadata.
 - [x] Bind checkpoint data cursor to a validated dataset manifest SHA-256 (format v4).
 - [x] Validate model state before restore and roll back model/optimizer/scheduler/RNG on restore failure.
-- [x] Expose optimizer/scheduler state-presence and restoration flags; reject resume unless optimizer state and any checkpointed scheduler state were actually restored (PR #176 candidate; CI pending).
+- [x] Expose optimizer/scheduler state-presence and restoration flags; reject resume unless optimizer state and any checkpointed scheduler state were actually restored (merged PR #176; all final PR and post-merge checks passed).
 - [x] Test corrupted current checkpoint fallback to last verified backup.
 - [x] Test RNG replay and data cursor restoration.
 - [x] Carry global step, epoch, next-batch cursor, seed, accumulation, and dataset hash through trainer checkpoint callbacks; require explicit next-batch cursor on resume.
