@@ -138,7 +138,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
 - [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
 - [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
-- [x] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, seeds, epochs, accumulation, and batch/sample alignment (PR #188; metadata validation only).
+- [ ] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, seeds, epochs, accumulation, and batch/sample alignment (PR #188; in progress, metadata validation only).
 - [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
 - [ ] Verify clean-runtime resume with `num_workers=0`.
 - [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).

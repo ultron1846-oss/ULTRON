@@ -1115,9 +1115,9 @@ No model weights, optimizer, or checkpoint are instantiated/restored. No batches
 
 
 
-### PR #187 final review validation
+### PR #187 final review, merge, and post-merge validation
 
-Final review head `f531d88e3cbb9279fe56a9a326addb2c3fabb4e0` passed Node Tests `45969867909`, Python AI Core `45969867882` (589 tests plus CPU forward/backward smoke), and Level 1 Math Tooling `45969867929` (5,000 randomized cases). The review made the row-based construction helpers private, cross-checks each split's row count and duplicate IDs against verified manifest metadata, and ensures a single-split loader only loads/builds its requested split. The dedicated single-split regression test passed. PR #187 remains open pending merge and post-merge verification. No DataLoader batch was consumed, no optimizer step/training run or checkpoint restore occurred, and no production corpus was generated/downloaded or remote job dispatched.
+Final review head `aa94214210a90b2c332d724dfe396cb8c182c228` passed Node Tests `45970193704`, Python AI Core `45970193657` (589 tests plus CPU forward/backward smoke), and Level 1 Math Tooling `45970193750` (5,000 randomized cases). The review made the row-based construction helpers private, cross-checks each split's row count and duplicate IDs against verified manifest metadata, and ensures a single-split loader only loads/builds its requested split. The dedicated single-split regression test passed. PR #187 was squash-merged as `d817ef9a96a874db5092900f88b8099b317a8876`. All six post-merge main/Pages checks passed: Node `45970513782`, Python AI Core `45970513600`, Level 1 Math Tooling `45970513508`, and Pages build/report/deploy workflow `45970512991`. No DataLoader batch was consumed by preflight, no training/optimizer step or checkpoint restore occurred, and no production corpus was generated/downloaded or remote job dispatched.
 
 
 
