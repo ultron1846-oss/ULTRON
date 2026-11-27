@@ -1186,3 +1186,8 @@ The branch was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It a
 ## Training recovery and evaluation audit — 2026-11-27
 
 Prompt 3 implementation on `reliability/evaluation-batch-5-2026-11-27` adds a separate-process checkpoint replay test for Python/Torch CPU RNG, model state and deterministic sampler tail; tests rollback after a partial RNG-restore failure and cleanup after an interrupted checkpoint manifest commit; a bounded evaluation-only suite across the eight supported generator topics; schema-v4 exact/tolerance scoring with answer-level error categories; and a three-way frozen train/validation/final-evaluation manifest. The full audit is documented in `docs/TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md`. It uses synthetic fixtures only; no model evaluation, optimizer step or training run is performed.
+
+
+## Prompt 3 — training recovery and frozen evaluation — PR #204 CI passed (2026-11-27)
+
+PR #204 adds clean-process CPU RNG/model/sampler replay, restore-transaction rollback checks, interrupted-write cleanup assertions, deterministic eight-topic evaluation fixtures, schema-v4 opt-in numeric tolerance/error taxonomy, and a three-way frozen evaluation manifest. Exact-head CI passed: Python AI Core `46015892965` (696 tests and CPU smoke), Node Tests `46015892752`, and Level 1 Math Tooling `46015892856` (5/5). No ULTRON training or optimizer step was performed. PR review/merge remains pending.
