@@ -66,6 +66,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add deterministic prompt-group split and duplicate prompt collapse.
 - [x] Split by normalized prompt hash so duplicate prompts cannot cross train/validation/test.
 - [x] Strengthen row schema, content-derived example ID, and manifest/checksum validation.
+- [x] Merge bounded semantic JSONL verification in PR #192; preserve exact-answer, identity, duplicate, topic-count, and digest checks with bounded line reads.
+- [ ] Complete PR #193 disk-backed prompt-group indexing and filtered split-row loading; exact-head CI and review pending. This reduces preflight/split metadata memory, but the selected PyTorch Dataset still materializes its rows.
 - [x] Add deterministic corpus-level topic/difficulty balance, duplicate prompt/ID, validation, and split leakage/membership report.
 - [ ] Add independent validators for broader topics.
 - [x] Add bounded polynomial derivative generation with an independent exact polynomial parser/validator.

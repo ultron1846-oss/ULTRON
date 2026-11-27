@@ -1,7 +1,7 @@
 """Verify existing ULTRON data and prepare metadata-only deterministic splits."""
 from __future__ import annotations
 from dataclasses import dataclass
-import hashlib, json, math, os, re, tempfile
+import hashlib, json, math, os, re, sqlite3, tempfile
 from pathlib import Path
 from .data_generation import verify_dataset
 
@@ -43,13 +43,13 @@ def _validate_parameters(seed,val,test):
         if not math.isfinite(value) or not 0.0<value<1.0: raise ValueError(f"{name} must be in (0, 1)")
     if val+test>=1.0: raise ValueError("validation_fraction + test_fraction must be less than 1")
 
-def _read_dataset(path):
-    """Semantically verify, then stream one bounded row at a time for split use.
+def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callback=None):
+    """Verify the dataset and retain only the row data needed by the caller.
 
-    Only parsed row objects are retained for deterministic split construction;
-    the raw dataset bytes and a decoded full-file string are never copied.
-    The digest is recomputed during the second pass to detect path/content
-    changes between semantic verification and row selection.
+    The semantic verifier remains authoritative. This second bounded pass binds
+    returned rows to the verified digest and detects changes between passes.
+    Split validation retains only (example_id, input_text); row loaders may
+    request full records, optionally filtered to one verified split.
     """
     path = Path(path)
     if not path.is_file():
@@ -62,15 +62,20 @@ def _read_dataset(path):
     if not _valid_hash(digest_expected):
         raise ValueError("verified dataset SHA-256 is invalid")
 
+    selected = None if selected_ids is None else (selected_ids if isinstance(selected_ids, (set, frozenset, dict)) else set(selected_ids))
     digest = hashlib.sha256()
     rows = []
     bytes_seen = 0
+    rows_seen = 0
     try:
         with path.open("rb") as stream:
             while True:
                 line = stream.readline(_MAX_LINE_BYTES + 1)
                 if not line:
                     break
+                rows_seen += 1
+                if rows_seen > _MAX_ROWS or rows_seen > manifest["example_count"]:
+                    raise ValueError("dataset row count exceeds verified manifest or preflight limit")
                 if len(line) > _MAX_LINE_BYTES:
                     raise ValueError("dataset JSONL row exceeds the 8 MiB line limit")
                 bytes_seen += len(line)
@@ -89,9 +94,15 @@ def _read_dataset(path):
                     )
                 except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
                     raise ValueError("dataset JSONL malformed or contains duplicate keys") from exc
-                rows.append(row)
-                if len(rows) > manifest["example_count"] or len(rows) > _MAX_ROWS:
-                    raise ValueError("dataset row count exceeds verified manifest or preflight limit")
+                example_id = row.get("example_id") if isinstance(row, dict) else None
+                if selected is not None and example_id not in selected:
+                    continue
+                if row_callback is not None:
+                    row_callback(row)
+                elif include_full_rows:
+                    rows.append(row)
+                else:
+                    rows.append((row["input_text"], example_id))
     except OSError as exc:
         raise ValueError("dataset could not be read safely after verification") from exc
 
@@ -100,25 +111,60 @@ def _read_dataset(path):
             or after.st_mtime_ns != before.st_mtime_ns
             or digest.hexdigest() != digest_expected):
         raise ValueError("dataset changed while being read")
-    if len(rows) != manifest["example_count"]:
+    if rows_seen != manifest["example_count"]:
         raise ValueError("dataset row count changed after verification")
+    if selected is not None and len(rows) != len(selected):
+        raise ValueError("split manifest references missing dataset rows")
     return manifest, rows
 
-def _expected(rows,seed,val,test):
-    groups={}
-    for row in rows:
-        prompt=" ".join(row["input_text"].split())
-        old=groups.get(prompt)
-        if old is None or row["example_id"]<old: groups[prompt]=row["example_id"]
-    if len(groups)<3: raise ValueError("at least three unique normalized prompts are required")
-    result={"train":[],"validation":[],"test":[]}
-    for prompt,example_id in sorted(groups.items()):
-        digest=hashlib.sha256(f"ultron-split-v1\0{seed}\0{prompt}".encode("utf-8")).digest()
-        bucket=int.from_bytes(digest[:8],"big")/2**64
-        name="test" if bucket<test else "validation" if bucket<test+val else "train"
-        result[name].append(example_id)
-    if any(not result[name] for name in result): raise ValueError("split parameters produced an empty split")
-    return {name:sorted(ids) for name,ids in result.items()}
+def _derive_split_ids(dataset_path, seed, val, test):
+    """Build prompt-group split metadata using a bounded disk-backed index."""
+    with tempfile.TemporaryDirectory(prefix="ultron-split-index-") as temp_dir:
+        db_path = Path(temp_dir) / "prompt-groups.sqlite3"
+        connection = sqlite3.connect(db_path)
+        try:
+            connection.execute("PRAGMA temp_store=FILE")
+            connection.execute("PRAGMA cache_size=-2048")
+            connection.execute("PRAGMA journal_mode=OFF")
+            connection.execute("PRAGMA synchronous=OFF")
+            connection.execute(
+                "CREATE TABLE prompt_groups (prompt TEXT PRIMARY KEY, example_id TEXT NOT NULL) WITHOUT ROWID"
+            )
+
+            def retain_prompt(row):
+                prompt = " ".join(row["input_text"].split())
+                connection.execute(
+                    "INSERT INTO prompt_groups(prompt, example_id) VALUES (?, ?) "
+                    "ON CONFLICT(prompt) DO UPDATE SET example_id = "
+                    "MIN(prompt_groups.example_id, excluded.example_id)",
+                    (prompt, row["example_id"]),
+                )
+
+            manifest, _ = _read_dataset(dataset_path, row_callback=retain_prompt)
+            connection.commit()
+            unique_prompts = connection.execute(
+                "SELECT COUNT(*) FROM prompt_groups"
+            ).fetchone()[0]
+            if unique_prompts < 3:
+                raise ValueError("at least three unique normalized prompts are required")
+
+            result = {"train": [], "validation": [], "test": []}
+            cursor = connection.execute(
+                "SELECT prompt, example_id FROM prompt_groups ORDER BY prompt"
+            )
+            for prompt, example_id in cursor:
+                digest = hashlib.sha256(
+                    f"ultron-split-v1\0{seed}\0{prompt}".encode("utf-8")
+                ).digest()
+                bucket = int.from_bytes(digest[:8], "big") / 2**64
+                name = "test" if bucket < test else "validation" if bucket < test + val else "train"
+                result[name].append(example_id)
+            if any(not result[name] for name in result):
+                raise ValueError("split parameters produced an empty split")
+            return manifest, {name: sorted(ids) for name, ids in result.items()}
+        finally:
+            connection.close()
+
 
 def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,validation_fraction=0.1,test_fraction=0.1):
     """Verify an existing dataset and atomically write split-ID metadata only."""
@@ -126,11 +172,12 @@ def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,valid
     dataset=Path(dataset_path).resolve(); output=Path(output_path).resolve()
     if output in (dataset,dataset.with_suffix(dataset.suffix+".manifest.json")):
         raise ValueError("split manifest output must not overwrite dataset or sidecar")
-    manifest,rows=_read_dataset(dataset)
+    manifest, split_ids = _derive_split_ids(
+        dataset, split_seed, validation_fraction, test_fraction
+    )
     payload={"schema_version":1,"split_method":_METHOD,"dataset_sha256":manifest["sha256"],
              "split_seed":split_seed,"validation_fraction":float(validation_fraction),
-             "test_fraction":float(test_fraction),
-             "split_ids":_expected(rows,split_seed,validation_fraction,test_fraction)}
+             "test_fraction":float(test_fraction),"split_ids":split_ids}
     payload["sha256"]=hashlib.sha256(_canonical(payload)).hexdigest()
     encoded=_canonical(payload)+b"\n"
     if len(encoded)>_MAX_SPLIT: raise ValueError("split manifest exceeds 32 MiB")
@@ -146,11 +193,15 @@ def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,valid
 
 def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     """Validate dataset bytes, canonical split digest, exact membership, and prompt-disjointness."""
-    manifest,rows=_read_dataset(dataset_path)
     path=Path(split_manifest_path)
     if not path.is_file(): raise FileNotFoundError(f"split manifest not found: {path}")
-    raw=path.read_bytes()
-    if len(raw)>_MAX_SPLIT: raise ValueError("split manifest exceeds 32 MiB")
+    try:
+        with path.open("rb") as stream:
+            raw = stream.read(_MAX_SPLIT + 1)
+    except OSError as exc:
+        raise ValueError("split manifest could not be read safely") from exc
+    if len(raw) > _MAX_SPLIT:
+        raise ValueError("split manifest exceeds 32 MiB")
     try: payload=json.loads(raw.decode("utf-8"),object_pairs_hook=_strict_object)
     except (UnicodeDecodeError,json.JSONDecodeError,ValueError) as exc:
         raise ValueError("split manifest malformed or contains duplicate keys") from exc
@@ -158,7 +209,6 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     version=payload["schema_version"]
     if isinstance(version,bool) or not isinstance(version,int) or version!=1: raise ValueError("unsupported split schema")
     if payload["split_method"]!=_METHOD: raise ValueError("unsupported split method")
-    if payload["dataset_sha256"]!=manifest["sha256"]: raise ValueError("split manifest belongs to another dataset")
     seed=payload["split_seed"]; val=payload["validation_fraction"]; test=payload["test_fraction"]
     _validate_parameters(seed,val,test)
     saved=payload["sha256"]
@@ -170,59 +220,22 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     for name,ids in split_ids.items():
         if not isinstance(ids,list) or any(not _valid_hash(item) for item in ids): raise ValueError(f"{name} IDs invalid")
         if ids!=sorted(ids) or len(ids)!=len(set(ids)): raise ValueError(f"{name} IDs must be sorted and unique")
-    expected=_expected(rows,seed,val,test)
+    manifest, expected = _derive_split_ids(dataset_path, seed, val, test)
+    if payload["dataset_sha256"]!=manifest["sha256"]: raise ValueError("split manifest belongs to another dataset")
     if split_ids!=expected: raise ValueError("split membership differs from deterministic prompt-group assignment")
     all_ids=[item for ids in split_ids.values() for item in ids]
     if len(all_ids)!=len(set(all_ids)): raise ValueError("split IDs overlap")
     return VerifiedSplitManifest(manifest["sha256"],saved,seed,{k:len(v) for k,v in split_ids.items()},len(all_ids),manifest["example_count"])
 
 
-def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name):
-    """Return selected verified records and binding metadata; never writes data."""
-    if split_name not in ("train", "validation", "test"):
-        raise ValueError("split_name must be train, validation, or test")
-    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
-    dataset_manifest, rows = _read_dataset(dataset_path)
-    if dataset_manifest["sha256"] != verified.dataset_sha256:
-        raise ValueError("dataset changed between split validation and row loading")
+def _read_bound_split_payload(split_manifest_path, verified):
+    """Read the exact split-manifest snapshot already validated by digest."""
+    path = Path(split_manifest_path)
     try:
-        payload = json.loads(Path(split_manifest_path).read_text(encoding="utf-8"), object_pairs_hook=_strict_object)
-    except (OSError, json.JSONDecodeError, ValueError) as exc:
-        raise ValueError("split manifest could not be re-read safely") from exc
-    saved_digest = payload.get("sha256") if isinstance(payload, dict) else None
-    unsigned = {key: value for key, value in payload.items() if key != "sha256"} if isinstance(payload, dict) else None
-    if (saved_digest != verified.split_manifest_sha256 or unsigned is None
-            or hashlib.sha256(_canonical(unsigned)).hexdigest() != saved_digest
-            or payload.get("dataset_sha256") != verified.dataset_sha256):
-        raise ValueError("split manifest changed between validation and row loading")
-    wanted = set(payload["split_ids"][split_name])
-    selected = [row for row in rows if row["example_id"] in wanted]
-    if len(selected) != len(wanted):
-        raise ValueError("split manifest references missing dataset rows")
-    selected.sort(key=lambda row: row["example_id"])
-    return verified, tuple(selected)
-
-
-
-def load_verified_split_rows_by_split(dataset_path, split_manifest_path):
-    """Load all verified split records from one consistent dataset/split snapshot.
-
-    The existing validator checks the dataset and split contract first. The
-    dataset is then read once more for the returned rows and compared with the
-    validated digest. The split manifest is re-read with a strict size bound and
-    its digest is compared with the validated snapshot, preventing a path swap
-    between validation and row selection.
-    """
-    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
-    dataset_manifest, rows = _read_dataset(dataset_path)
-    if dataset_manifest["sha256"] != verified.dataset_sha256:
-        raise ValueError("dataset changed between split validation and row loading")
-
-    split_path = Path(split_manifest_path)
-    try:
-        if not split_path.is_file():
-            raise FileNotFoundError(f"split manifest not found: {split_path}")
-        raw = split_path.read_bytes()
+        if not path.is_file():
+            raise FileNotFoundError(f"split manifest not found: {path}")
+        with path.open("rb") as stream:
+            raw = stream.read(_MAX_SPLIT + 1)
     except OSError as exc:
         raise ValueError("split manifest could not be re-read safely") from exc
     if len(raw) > _MAX_SPLIT:
@@ -231,28 +244,72 @@ def load_verified_split_rows_by_split(dataset_path, split_manifest_path):
         payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_strict_object)
     except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
         raise ValueError("split manifest malformed or contains duplicate keys") from exc
-
-    if not isinstance(payload, dict):
+    if not isinstance(payload, dict) or set(payload) != _KEYS:
         raise ValueError("split manifest changed between validation and row loading")
     saved_digest = payload.get("sha256")
     unsigned = {key: value for key, value in payload.items() if key != "sha256"}
     if (saved_digest != verified.split_manifest_sha256
+            or not _valid_hash(saved_digest)
             or hashlib.sha256(_canonical(unsigned)).hexdigest() != saved_digest
             or payload.get("dataset_sha256") != verified.dataset_sha256):
         raise ValueError("split manifest changed between validation and row loading")
-
     split_ids = payload.get("split_ids")
     if not isinstance(split_ids, dict) or set(split_ids) != {"train", "validation", "test"}:
         raise ValueError("split manifest changed between validation and row loading")
-    records_by_id = {row["example_id"]: row for row in rows}
-    result = {}
+    return payload
+
+
+def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name):
+    """Return full records for one split only, bound to verified digests."""
+    if split_name not in ("train", "validation", "test"):
+        raise ValueError("split_name must be train, validation, or test")
+    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
+    payload = _read_bound_split_payload(split_manifest_path, verified)
+    wanted = set(payload["split_ids"][split_name])
+    dataset_manifest, selected = _read_dataset(
+        dataset_path, selected_ids=wanted, include_full_rows=True
+    )
+    if dataset_manifest["sha256"] != verified.dataset_sha256:
+        raise ValueError("dataset changed between split validation and row loading")
+    selected.sort(key=lambda row: row["example_id"])
+    return verified, tuple(selected)
+
+
+def load_verified_split_rows_by_split(dataset_path, split_manifest_path):
+    """Load all verified split records from one consistent dataset snapshot.
+
+    Validation retains only example IDs and normalized prompt text. The second
+    pass retains full row objects only for split IDs and groups them directly,
+    avoiding an additional full-dataset ID-to-row dictionary.
+    """
+    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
+    payload = _read_bound_split_payload(split_manifest_path, verified)
+    split_ids = payload["split_ids"]
+    split_for_id = {}
     for split_name in ("train", "validation", "test"):
-        wanted = split_ids[split_name]
-        if not isinstance(wanted, list):
+        ids = split_ids[split_name]
+        if not isinstance(ids, list):
             raise ValueError(f"{split_name} split IDs are malformed")
-        selected = [records_by_id[item] for item in wanted if item in records_by_id]
-        if len(selected) != len(wanted):
+        for example_id in ids:
+            if example_id in split_for_id:
+                raise ValueError("split IDs overlap")
+            split_for_id[example_id] = split_name
+
+    dataset_manifest, rows = _read_dataset(
+        dataset_path, selected_ids=split_for_id, include_full_rows=True
+    )
+    if dataset_manifest["sha256"] != verified.dataset_sha256:
+        raise ValueError("dataset changed between split validation and row loading")
+
+    result = {"train": [], "validation": [], "test": []}
+    for row in rows:
+        split_name = split_for_id.get(row["example_id"])
+        if split_name is None:
+            raise ValueError("split manifest references an unknown dataset row")
+        result[split_name].append(row)
+    for split_name in result:
+        if len(result[split_name]) != len(split_ids[split_name]):
             raise ValueError("split manifest references missing dataset rows")
-        selected.sort(key=lambda row: row["example_id"])
-        result[split_name] = tuple(selected)
+        result[split_name].sort(key=lambda row: row["example_id"])
+        result[split_name] = tuple(result[split_name])
     return verified, result
