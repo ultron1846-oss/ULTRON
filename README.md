@@ -84,10 +84,10 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 
 - PR #183 — documentation handoff for PR #182 — merged as `0f456b4c92c1381e19cd259d79413df74d053548`; latest-head Node, Python AI Core, and Level 1 checks passed.
-- Current owner-notebook scaffold: preflight setup only. It does not load/generate a dataset, allocate model weights, construct a sampler/DataLoader, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).
+- Current owner notebook (PR #186): validates an already-existing dataset and prompt-disjoint split manifest, then constructs read-only train/validation/test DataLoaders. The train loader uses a dataset-bound resumable sampler; evaluation is sequential. It does not consume batches, allocate model weights, create an optimizer, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).
 
 - PR #184 — owner notebook preflight scaffold — merged as `041c39d2b37f68a21e45f149c3ef6412c64641bf`; latest-head Python AI Core, Level 1 Math Tooling, and Node checks passed.
 - PR #185 — manifest-bound split preflight — merged as `f189de4d53c56ed7162eebe9a6256d2d899ca2e6`. Final PR checks passed: Node run `45940051111`, Python AI Core `45940051105`, Level 1 Math Tooling `45940051151`. All six post-merge main checks passed: Python `45940271270`, Level 1 `45940271193`, Node `45940271206`, and Pages build/report/deploy `45940270667`. It writes split-ID metadata only; no production dataset rows were generated or downloaded.
 
 
-- PR #186 adds a verified dataset adapter and split DataLoader construction; it is preflight-only and does not iterate batches or train. CI pending.
+- PR #186 adds a verified dataset adapter and split DataLoader construction. Its first Python CI attempt exposed a stale notebook stop-point assertion (580/581 tests passed); the regression contract and stale docs are being corrected. PR remains open pending a clean latest-head run.

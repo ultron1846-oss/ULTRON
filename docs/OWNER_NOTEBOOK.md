@@ -24,6 +24,8 @@ This is a manual file handoff. The static website is not connected to the notebo
 
 ## Deliberate exclusions
 
-The notebook does not generate/download examples, instantiate the model, allocate weights, create an optimizer or DataLoader, load a checkpoint, perform optimizer steps, train, or dispatch remote jobs. The split file is metadata, not training data.
+The notebook does not generate/download examples, edit dataset rows, instantiate the model, allocate weights, create an optimizer, load or save a checkpoint, consume batches, perform optimizer steps, train, or dispatch remote jobs. The split file is metadata, not training data.
 
-PR #186 adds a read-only tokenized dataset view and constructs train/validation/test DataLoaders. The train loader uses ResumableRandomSampler, `num_workers=0`, and `drop_last=False`; evaluation loaders are sequential. The notebook records an initial cursor object but does not consume batches or save a checkpoint. Next: connect the loader and callback metadata to the existing bounded trainer; actual training remains separately gated.
+PR #186 adds a read-only tokenized dataset view and constructs train/validation/test DataLoaders. The train loader uses ResumableRandomSampler bound to the verified full-dataset SHA-256; validation/test loaders are sequential. All loaders use `num_workers=0` and `drop_last=False`, and overlong examples are rejected rather than silently truncated. The notebook records the initial sampler cursor but does not consume batches or save a checkpoint.
+
+Next engineering stage: connect the verified train loader and sampler state to the bounded trainer's checkpoint callback, then validate metadata-only checkpoint round-tripping. Actual checkpoint restoration, batch consumption, optimizer steps, and clean-runtime equivalence remain separately gated.
