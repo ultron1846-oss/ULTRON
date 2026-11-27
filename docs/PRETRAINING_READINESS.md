@@ -140,7 +140,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
 - [x] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188 merged as `7adf369549206eec139bc3fdb1a390631113e662`).
 - [x] Wire the verified loader/sampler cursor into the bounded trainer checkpoint callback and restore the sampler before iterator creation; metadata persistence and resume gates are covered by PRs #186, #190, and existing controller tests.
-- [x] Add mock-only fresh-object model/optimizer/scheduler checkpoint restoration with sampler cursor rehydration (current portability batch; CI pending). This does not run an optimizer step.
+- [x] Add mock-only fresh-object model/optimizer/scheduler checkpoint restoration with sampler cursor rehydration; seed and assert synthetic optimizer momentum state plus scheduler state without an optimizer step (PR #191 updated; CI rerunning).
 - [ ] Owner: verify a clean-process/remote-runtime resume with `num_workers=0` and a transferred checkpoint bundle.
 - [ ] Prove numerical resumed-vs-uninterrupted training equivalence within tolerance only after separate authorization for a tiny mock/approved optimizer-step test; this remains distinct from sampler-sequence equivalence.
 - [x] Document checkpoint storage, backup, and integrity limitations (current portability batch; CI pending).
@@ -153,7 +153,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Record that free Hugging Face ZeroGPU quota is short/shared and not a dependable long training host.
 - [ ] Owner: verify actual Colab access, hardware, quotas, idle timeout, and persistence from a clean iPad session.
 - [ ] Owner: test notebook setup without phone verification or payment activation.
-- [x] Add automated checkpoint bundle copy/restore integrity coverage (current portability batch; CI pending).
+- [x] Add automated checkpoint bundle copy/restore integrity coverage (PR #191 updated; CI rerunning).
 - [ ] Owner: validate actual checkpoint transfer and resume across separate free-cloud sessions.
 - [ ] Keep website status read-only and never expose secrets.
 - [ ] Confirm zero-cost compute/storage/time limits before any run.
