@@ -119,6 +119,51 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(consumed, [])
         self.assertEqual(optimizer.steps, 0)
 
+    def test_malformed_resumable_cursor_is_rejected_before_batch_access(self):
+        from torch.utils.data import DataLoader, Dataset
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        consumed = []
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+
+            def __getitem__(self, index):
+                consumed.append(index)
+                return {"input_ids": torch.tensor([1, 2, 3], dtype=torch.long)}
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(
+            dataset, seed=self.settings.seed,
+            dataset_manifest_sha256="a" * 64,
+        )
+        loader = DataLoader(
+            dataset, batch_size=1, sampler=sampler,
+            num_workers=0, drop_last=False,
+        )
+        invalid_cursor = {
+            "epoch": 0,
+            "next_batch_index": 1,
+            "next_sample_index": 0,
+            "dataset_manifest_sha256": "a" * 64,
+            "dataset_size": 4,
+            "batch_size": 1,
+            "seed": self.settings.seed,
+            "gradient_accumulation_steps": self.settings.gradient_accumulation_steps,
+            "sampler_state": sampler.state_dict(),
+        }
+
+        with self.assertRaisesRegex(ValueError, "sample cursor does not align"):
+            run_training_steps(
+                self.model, loader, self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                initial_data_state=invalid_cursor, sampler=sampler,
+            )
+
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+
     def test_optimizer_rejects_missing_trainable_parameters_before_batches(self):
         optimizer = MockOptimizer()
         optimizer.param_groups = [{"params": []}]
@@ -240,12 +285,15 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(len(saved), 2)
         self.assertEqual(saved[0][0], 1)
         self.assertEqual(saved[0][1]["data_state"]["next_batch_index"], 2)
+        self.assertEqual(saved[0][1]["data_state"]["batch_size"], 1)
         self.assertEqual(saved[1][0], 2)
         self.assertEqual(saved[1][1]["data_state"]["next_batch_index"], 4)
+        self.assertEqual(saved[1][1]["data_state"]["batch_size"], 1)
         self.assertEqual(saved[1][1]["dataset_manifest_sha256"], "a" * 64)
         self.assertEqual(result["global_step"], 2)
         self.assertEqual(result["data_state"]["next_batch_index"], 4)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+        self.assertEqual(result["data_state"]["batch_size"], 1)
         self.assertGreaterEqual(self.model.reset_calls, 9)
 
     def test_loss_metric_storage_stays_bounded_over_long_session(self):
@@ -575,6 +623,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["steps_completed"], 1)
         self.assertEqual(result["data_state"]["next_batch_index"], 2)
         self.assertEqual(result["data_state"]["sampler_state"]["next_index"], 4)
+        self.assertEqual(result["data_state"]["batch_size"], 2)
 
     def test_sampler_cursor_must_match_batch_cursor(self):
         from torch.utils.data import DataLoader, Dataset
@@ -602,7 +651,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
                 "gradient_accumulation_steps": 2, "dataset_manifest_sha256": "a" * 64,
                 "dataset_size": 4, "sampler_state": sampler_state},
         }
-        with self.assertRaisesRegex(ValueError, "sample cursor does not match"):
+        with self.assertRaisesRegex(ValueError, "sample cursor does not align"):
             run_training_steps(self.model, loader, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True,
                 resume_metadata=metadata, sampler=sampler)
@@ -892,6 +941,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             self.assertEqual(metadata["step"], 1)
             self.assertEqual(metadata["data_state"]["next_batch_index"], 2)
             self.assertEqual(metadata["data_state"]["sampler_state"]["next_index"], 2)
+            self.assertEqual(metadata["data_state"]["batch_size"], 1)
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):

@@ -7,6 +7,7 @@ from typing import Any
 from torch.utils.data import DataLoader
 
 from .config import NeuroSparseConfig
+from .data_state import validate_training_data_state
 from .data_generation import MathExample
 from .dataset_split_manifest import (
     VerifiedSplitManifest,
@@ -139,16 +140,24 @@ def build_verified_training_preflight(
         tokenizer=active_tokenizer,
     )
     train_sampler = loaders["train"].sampler
-    initial_data_state = {
-        "epoch": 0,
-        "next_batch_index": 0,
-        "next_sample_index": 0,
-        "dataset_manifest_sha256": verified.dataset_sha256,
-        "dataset_size": len(loaders["train"].dataset),
-        "seed": sampler_seed,
-        "gradient_accumulation_steps": runtime_config.gradient_accumulation_steps,
-        "sampler_state": train_sampler.state_dict(),
-    }
+    initial_data_state = validate_training_data_state(
+        {
+            "epoch": 0,
+            "next_batch_index": 0,
+            "next_sample_index": 0,
+            "dataset_manifest_sha256": verified.dataset_sha256,
+            "dataset_size": len(loaders["train"].dataset),
+            "batch_size": runtime_config.batch_size,
+            "seed": sampler_seed,
+            "gradient_accumulation_steps": runtime_config.gradient_accumulation_steps,
+            "sampler_state": train_sampler.state_dict(),
+        },
+        dataset_manifest_sha256=verified.dataset_sha256,
+        dataset_size=len(loaders["train"].dataset),
+        batch_size=runtime_config.batch_size,
+        seed=sampler_seed,
+        gradient_accumulation_steps=runtime_config.gradient_accumulation_steps,
+    )
 
     report.update({
         "dataset_example_count": verified.dataset_example_count,

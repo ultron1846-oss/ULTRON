@@ -9,6 +9,7 @@ from ultron_core.dataset_split_manifest import (
     prepare_dataset_split_manifest,
 )
 from ultron_core.runtime_config import RuntimeConfig
+from ultron_core.data_state import validate_training_data_state
 from ultron_core.verified_preflight import build_verified_training_preflight
 
 
@@ -64,6 +65,27 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
                 result.train_loader.sampler.state_dict(),
             )
             self.assertEqual(result.initial_data_state["gradient_accumulation_steps"], 1)
+
+    def test_generated_initial_cursor_satisfies_strict_data_state_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split, _ = self.setup_data(Path(directory))
+            result = build_verified_training_preflight(
+                dataset,
+                split,
+                RuntimeConfig(batch_size=2, sequence_length=256),
+                sampler_seed=9,
+            )
+            validated = validate_training_data_state(
+                result.initial_data_state,
+                dataset_manifest_sha256=result.report["dataset_manifest_sha256"],
+                dataset_size=len(result.train_loader.dataset),
+                batch_size=result.train_loader.batch_size,
+                seed=9,
+                gradient_accumulation_steps=1,
+            )
+            self.assertEqual(validated, result.initial_data_state)
+            self.assertEqual(validated["sampler_state"]["next_index"], 0)
+            self.assertEqual(validated["batch_size"], 2)
 
     def test_sampler_seed_is_independent_of_split_seed(self):
         with tempfile.TemporaryDirectory() as directory:
