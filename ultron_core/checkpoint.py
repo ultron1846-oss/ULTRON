@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 from .config import NeuroSparseConfig
 
-_FORMAT_VERSION = 5
+_FORMAT_VERSION = 6
 
 def _digest(path: Path) -> str:
     h = hashlib.sha256()
@@ -124,6 +124,90 @@ def _validate_data_state_hash_binding(data_state: dict | None, dataset_hash: str
         if dataset_hash is None or not hmac.compare_digest(sampler_hash, dataset_hash):
             raise ValueError("checkpoint sampler dataset manifest hash does not match checkpoint")
 
+def _validate_resumable_data_state(data_state: dict | None, dataset_hash: str | None) -> None:
+    """Validate batch/sample/sampler cursor alignment for resumable checkpoints.
+
+    Format-v6 cursors carrying sampler_state must be self-consistent before they
+    are persisted or exposed to a caller. Older format-v5 cursors remain readable.
+    """
+    if data_state is None or "sampler_state" not in data_state:
+        return
+
+    sampler_state = data_state.get("sampler_state")
+    if not isinstance(sampler_state, dict):
+        raise ValueError("checkpoint sampler state is malformed")
+
+    required = {
+        "epoch", "next_batch_index", "next_sample_index", "dataset_size",
+        "batch_size", "dataset_manifest_sha256", "seed",
+        "gradient_accumulation_steps",
+    }
+    missing = sorted(required.difference(data_state))
+    if missing:
+        raise ValueError(
+            "checkpoint resumable data_state is missing fields: " + ", ".join(missing)
+        )
+
+    def integer(name: str, minimum: int, maximum: int | None = None) -> int:
+        value = data_state.get(name)
+        if (isinstance(value, bool) or not isinstance(value, int)
+                or value < minimum or (maximum is not None and value > maximum)):
+            raise ValueError(f"checkpoint data_state {name} is invalid")
+        return value
+
+    epoch = integer("epoch", 0)
+    next_batch_index = integer("next_batch_index", 0)
+    next_sample_index = integer("next_sample_index", 0)
+    dataset_size = integer("dataset_size", 1)
+    batch_size = integer("batch_size", 1, 1024)
+    seed = integer("seed", 0, 2**63 - 1)
+    accumulation = integer("gradient_accumulation_steps", 1, 128)
+
+    cursor_hash = data_state.get("dataset_manifest_sha256")
+    if (not isinstance(cursor_hash, str) or len(cursor_hash) != 64
+            or any(char not in "0123456789abcdef" for char in cursor_hash)
+            or dataset_hash is None or cursor_hash != dataset_hash):
+        raise ValueError("checkpoint resumable cursor dataset hash is inconsistent")
+
+    max_batches = (dataset_size + batch_size - 1) // batch_size
+    if next_batch_index > max_batches:
+        raise ValueError("checkpoint data_state next_batch_index exceeds the epoch")
+    expected_sample_index = min(next_batch_index * batch_size, dataset_size)
+    if next_sample_index != expected_sample_index:
+        raise ValueError(
+            "checkpoint data_state next_sample_index does not match batch cursor and batch size"
+        )
+
+    sampler_version = sampler_state.get("schema_version")
+    if isinstance(sampler_version, bool) or not isinstance(sampler_version, int) or sampler_version != 1:
+        raise ValueError("checkpoint sampler state schema is invalid")
+    sampler_size = sampler_state.get("dataset_size")
+    sampler_seed = sampler_state.get("seed")
+    sampler_epoch = sampler_state.get("epoch")
+    sampler_index = sampler_state.get("next_index")
+    if (isinstance(sampler_size, bool) or not isinstance(sampler_size, int)
+            or sampler_size != dataset_size):
+        raise ValueError("checkpoint sampler dataset size does not match data_state")
+    if (isinstance(sampler_seed, bool) or not isinstance(sampler_seed, int)
+            or sampler_seed != seed):
+        raise ValueError("checkpoint sampler seed does not match data_state")
+    if (isinstance(sampler_epoch, bool) or not isinstance(sampler_epoch, int)
+            or sampler_epoch != epoch):
+        raise ValueError("checkpoint sampler epoch does not match data_state")
+    if (isinstance(sampler_index, bool) or not isinstance(sampler_index, int)
+            or sampler_index != next_sample_index):
+        raise ValueError("checkpoint sampler cursor does not match data_state")
+
+    sampler_hash = sampler_state.get("dataset_manifest_sha256")
+    if sampler_hash != cursor_hash:
+        raise ValueError("checkpoint sampler dataset hash does not match data_state")
+
+    settings = _validate_training_settings(data_state.get("training_settings"))
+    if settings is not None:
+        if settings.get("seed", seed) != seed:
+            raise ValueError("checkpoint data_state training seed does not match cursor")
+        if settings.get("gradient_accumulation_steps", accumulation) != accumulation:
+            raise ValueError("checkpoint data_state accumulation does not match cursor")
 
 def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
                    optimizer=None, step: int = 0, scheduler=None, data_state=None, dataset_manifest_sha256=None, training_settings=None):
@@ -153,6 +237,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
             or any(char not in "0123456789abcdef" for char in dataset_manifest_sha256)):
         raise ValueError("dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
     _validate_data_state_hash_binding(data_state, dataset_manifest_sha256)
+    _validate_resumable_data_state(data_state, dataset_manifest_sha256)
     if scheduler is not None and not hasattr(scheduler, "state_dict"):
         raise TypeError("scheduler must provide state_dict")
     target = Path(path)
@@ -211,7 +296,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
     if not isinstance(payload, dict):
         raise ValueError("checkpoint payload must be a mapping")
     version = payload.get("format_version")
-    if version not in (2, 3, 4, _FORMAT_VERSION):
+    if version not in (2, 3, 4, 5, _FORMAT_VERSION):
         raise ValueError("unsupported checkpoint format")
     saved_config, model_state, step = payload.get("config"), payload.get("model"), payload.get("step")
     if not isinstance(saved_config, dict) or not isinstance(model_state, dict):
@@ -251,6 +336,8 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             or any(char not in "0123456789abcdef" for char in dataset_hash)):
         raise ValueError("checkpoint dataset manifest hash is malformed")
     _validate_data_state_hash_binding(data_state, dataset_hash)
+    if version >= 6:
+        _validate_resumable_data_state(data_state, dataset_hash)
     if expected_dataset_manifest_sha256 is not None and (
             not isinstance(expected_dataset_manifest_sha256, str)
             or len(expected_dataset_manifest_sha256) != 64

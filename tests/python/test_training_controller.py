@@ -893,6 +893,126 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             self.assertEqual(metadata["data_state"]["next_batch_index"], 2)
             self.assertEqual(metadata["data_state"]["sampler_state"]["next_index"], 2)
             self.assertEqual(metadata["dataset_manifest_sha256"], "a" * 64)
+            self.assertEqual(metadata["data_state"]["batch_size"], 1)
+            self.assertEqual(metadata["data_state"]["next_sample_index"], 2)
+            restored_sampler = ResumableRandomSampler(
+                dataset, seed=0, dataset_manifest_sha256="a" * 64
+            )
+            restored_sampler.load_state_dict(metadata["data_state"]["sampler_state"])
+            self.assertEqual(restored_sampler.state_dict(),
+                             metadata["data_state"]["sampler_state"])
+
+    def test_checkpoint_rejects_misaligned_sampler_cursor_before_save(self):
+        import copy
+        import tempfile
+        from pathlib import Path
+        from torch.utils.data import Dataset
+        from ultron_core.checkpoint import save_checkpoint
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(
+            dataset, seed=0, dataset_manifest_sha256="a" * 64
+        )
+        iterator = iter(sampler)
+        next(iterator)
+        next(iterator)
+        valid_state = {
+            "epoch": 0,
+            "next_batch_index": 1,
+            "next_sample_index": 2,
+            "dataset_size": 4,
+            "batch_size": 2,
+            "dataset_manifest_sha256": "a" * 64,
+            "seed": 0,
+            "gradient_accumulation_steps": 1,
+            "sampler_state": sampler.state_dict(),
+            "training_settings": {
+                "precision": "fp32",
+                "seed": 0,
+                "gradient_accumulation_steps": 1,
+            },
+        }
+        mutations = {
+            "next_sample_index": lambda state: state.update(next_sample_index=1),
+            "batch_size": lambda state: state.update(batch_size=3),
+            "sampler next_index": lambda state: state["sampler_state"].update(next_index=1),
+            "sampler epoch": lambda state: state["sampler_state"].update(epoch=1),
+            "sampler seed": lambda state: state["sampler_state"].update(seed=1),
+            "sampler dataset size": lambda state: state["sampler_state"].update(dataset_size=5),
+            "next batch overflow": lambda state: state.update(next_batch_index=3),
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as directory:
+                cursor = copy.deepcopy(valid_state)
+                mutate(cursor)
+                with self.assertRaises(ValueError):
+                    save_checkpoint(
+                        Path(directory) / "invalid-cursor.pt",
+                        self.model,
+                        self.model.config,
+                        data_state=cursor,
+                        dataset_manifest_sha256="a" * 64,
+                    )
+
+    def test_checkpoint_load_rejects_checksum_valid_cursor_tampering_before_model_mutation(self):
+        import hashlib
+        import tempfile
+        from pathlib import Path
+        from torch.utils.data import Dataset
+        from ultron_core.checkpoint import save_checkpoint, load_checkpoint
+        from ultron_core.resumable_sampler import ResumableRandomSampler
+
+        class TinyDataset(Dataset):
+            def __len__(self):
+                return 4
+
+        class TinyModel(torch.nn.Module):
+            def __init__(self, value):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.tensor([float(value)]))
+
+        dataset = TinyDataset()
+        sampler = ResumableRandomSampler(
+            dataset, seed=0, dataset_manifest_sha256="a" * 64
+        )
+        iterator = iter(sampler)
+        next(iterator)
+        next(iterator)
+        cursor = {
+            "epoch": 0,
+            "next_batch_index": 1,
+            "next_sample_index": 2,
+            "dataset_size": 4,
+            "batch_size": 2,
+            "dataset_manifest_sha256": "a" * 64,
+            "seed": 0,
+            "gradient_accumulation_steps": 1,
+            "sampler_state": sampler.state_dict(),
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tampered-cursor.pt"
+            save_checkpoint(path, TinyModel(1), self.model.config,
+                            data_state=cursor, dataset_manifest_sha256="a" * 64)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            payload["data_state"]["next_sample_index"] = 1
+            torch.save(payload, path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            Path(str(path) + ".sha256").write_text(
+                digest + "  " + path.name + "\n", encoding="utf-8"
+            )
+
+            target = TinyModel(9)
+            before = target.weight.detach().clone()
+            with self.assertRaisesRegex(ValueError, "next_sample_index"):
+                load_checkpoint(
+                    path, target, expected_dataset_manifest_sha256="a" * 64
+                )
+            self.assertTrue(torch.equal(target.weight.detach(), before))
 
     def test_resume_rejects_unrestored_rng_or_wrong_dataset_hash(self):
         base = {"format_version": 4, "rng_restored": True,

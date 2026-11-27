@@ -75,6 +75,9 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             )
             self.assertEqual(result.train_loader.sampler.state_dict()["seed"], 17)
             self.assertEqual(result.initial_data_state["seed"], 17)
+            self.assertEqual(
+                result.initial_data_state["batch_size"], result.train_loader.batch_size
+            )
 
     def test_overlong_sequence_fails_preflight_without_truncation(self):
         with tempfile.TemporaryDirectory() as directory:

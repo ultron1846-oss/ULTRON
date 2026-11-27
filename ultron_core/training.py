@@ -345,6 +345,11 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
     cursor["next_batch_index"] = next_batch_index
     cursor["dataset_manifest_sha256"] = dataset_hash
     cursor["dataset_size"] = train_size
+    cursor_batch_size = cursor.get("batch_size", planned_batch)
+    if (isinstance(cursor_batch_size, bool) or not isinstance(cursor_batch_size, int)
+            or cursor_batch_size != planned_batch):
+        raise ValueError("data cursor batch_size does not match preflight")
+    cursor["batch_size"] = planned_batch
 
     committed_sampler_state = None
     if (checkpoint_callback is not None or resume_metadata is not None) and sampler is None:
@@ -378,6 +383,13 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         if isinstance(sampler_state, dict):
             sampler.load_state_dict(sampler_state)
         live_sampler_state = sampler.state_dict()
+        saved_sample_cursor = cursor.get("next_sample_index")
+        if (saved_sample_cursor is not None
+                and (isinstance(saved_sample_cursor, bool)
+                     or not isinstance(saved_sample_cursor, int)
+                     or saved_sample_cursor != live_sampler_state.get("next_index"))):
+            raise ValueError("data cursor next_sample_index does not match sampler state")
+        cursor["next_sample_index"] = live_sampler_state["next_index"]
         if (live_sampler_state.get("dataset_manifest_sha256") != dataset_hash
                 or live_sampler_state.get("seed") != settings.seed
                 or live_sampler_state.get("epoch") != epoch):
@@ -608,6 +620,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "next_batch_index": next_batch_index + microbatches_seen,
                         "dataset_manifest_sha256": dataset_hash,
                         "dataset_size": train_size,
+                        "batch_size": planned_batch,
                         "seed": settings.seed,
                         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
                         "training_settings": checkpoint_training_settings,
@@ -657,6 +670,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         "next_batch_index": next_batch_index + committed_microbatches,
         "dataset_manifest_sha256": dataset_hash,
         "dataset_size": train_size,
+        "batch_size": planned_batch,
         "seed": settings.seed,
         "gradient_accumulation_steps": settings.gradient_accumulation_steps,
     })
