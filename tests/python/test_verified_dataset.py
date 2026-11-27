@@ -8,8 +8,8 @@ from ultron_core.dataset_split_manifest import (prepare_dataset_split_manifest, 
 from ultron_core.verified_dataset import (VerifiedMathDataset, IndexedVerifiedMathDataset, build_verified_split_loader, build_verified_split_loaders, close_verified_split_loaders, collate_verified_math_batch)
 
 class VerifiedDatasetTests(unittest.TestCase):
- def setup_data(self,root):
-  data=root/"data.jsonl"; split=root/"splits.json"; fixture(data,90,True); contract=prepare_dataset_split_manifest(data,split,split_seed=4)
+ def setup_data(self,root,count=90):
+  data=root/"data.jsonl"; split=root/"splits.json"; fixture(data,count,True); contract=prepare_dataset_split_manifest(data,split,split_seed=4)
   return data,split,contract
  def test_dataset_only_reads_selected_split_and_binds_digest(self):
   with tempfile.TemporaryDirectory() as d:
@@ -109,6 +109,50 @@ class VerifiedDatasetTests(unittest.TestCase):
    self.assertEqual([item[0] for item in streamed],sorted(item[0] for item in streamed))
    self.assertEqual(streamed[0],store.get_record("validation",0))
    loader.dataset.close()
+ def test_indexed_random_access_is_repeatable_and_missing_index_fails_closed(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,_=self.setup_data(Path(d))
+   loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
+   store=loader.dataset._store
+   expected=store.get_record("validation",0)
+   self.assertEqual(store.get_record("validation",0),expected)
+   store._connection.execute(
+    "DELETE FROM ordered_records WHERE split_name=? AND seq=?",
+    ("validation",0),
+   )
+   store._connection.commit()
+   with self.assertRaisesRegex(ValueError,"index record is missing"):
+    store.get_record("validation",0)
+   loader.dataset.close()
+ def test_indexed_iterator_rejects_corrupted_snapshot_record(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,_=self.setup_data(Path(d))
+   loader=build_verified_split_loader(data,split,split_name="validation",batch_size=2,seed=4,max_sequence_length=256)
+   store=loader.dataset._store
+   record=store._connection.execute(
+    "SELECT byte_offset,byte_length FROM ordered_records WHERE split_name=? AND seq=0",
+    ("validation",),
+   ).fetchone()
+   store._snapshot_path.chmod(0o600)
+   with store._snapshot_path.open("r+b") as stream:
+    stream.seek(record[0])
+    line=stream.read(record[1])
+    stream.seek(record[0])
+    stream.write(bytes([line[0]^1])+line[1:])
+   with self.assertRaisesRegex(ValueError,"record integrity"):
+    next(store.iter_records("validation"))
+   loader.dataset.close()
+ def test_indexed_loader_handles_large_synthetic_fixture_without_row_cache(self):
+  with tempfile.TemporaryDirectory() as d:
+   data,split,contract=self.setup_data(Path(d),count=2000)
+   loader=build_verified_split_loader(data,split,split_name="train",batch_size=8,seed=4,max_sequence_length=256)
+   ds=loader.dataset
+   self.assertEqual(len(ds),contract.split_counts["train"])
+   self.assertFalse(hasattr(ds,"_records"))
+   for index in (0,len(ds)//2,len(ds)-1):
+    self.assertGreaterEqual(ds[index]["input_ids"].numel(),3)
+   self.assertGreater(ds._store._snapshot_path.stat().st_size,0)
+   ds.close()
  def test_single_loader_uses_lazy_disk_index_without_full_record_list(self):
   with tempfile.TemporaryDirectory() as d:
    data,split,contract=self.setup_data(Path(d))
