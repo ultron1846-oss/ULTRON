@@ -82,7 +82,7 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
                 if bytes_seen > _MAX_DATA:
                     raise ValueError("dataset exceeds the 1 GiB preflight limit")
                 digest.update(line)
-                if not line.endswith(b"\\n"):
+                if not line.endswith(b"\n"):
                     raise ValueError("dataset JSONL must end with a newline")
                 encoded = line[:-1]
                 if not encoded:
