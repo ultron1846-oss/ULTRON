@@ -108,3 +108,8 @@ The prompt-group split seed is not the sampler seed. The readiness package defau
 See [TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md](TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md) and [FROZEN_EVALUATION_PROTOCOL.md](FROZEN_EVALUATION_PROTOCOL.md). The recovery test starts a fresh Python process and verifies checkpoint model state, Python/Torch CPU RNG continuation, and exact sampler tail using synthetic temporary data. An additional corrupted-RNG test asserts rollback of model, optimizer, scheduler and RNG state; the interrupted-save test asserts temp-file cleanup. These tests do not run a ULTRON optimizer step.
 
 The frozen evaluation builder requires disjoint train/validation/final-evaluation IDs, normalized prompts and generation ingredients, and checks unseen-concept labels against both train and validation. The deterministic eight-topic suite is bounded and in-memory only. Exact answer scoring remains default; numerical tolerance is opt-in and reported separately. There is no trained checkpoint and no model performance result is available.
+
+
+## Prompt 3 validation — PR #204 (2026-11-27)
+
+The engineering changes in [PR #204](https://github.com/ultron1846-oss/ULTRON/pull/204) passed exact-head CI: Python AI Core run `46015892965` (696 tests and CPU forward/backward smoke), Node Tests run `46015892752`, and Level 1 Math Tooling run `46015892856` (5/5 tests). These checks exercise synthetic checkpoint/evaluation fixtures only. They do not perform an optimizer step, train ULTRON, or evaluate a trained checkpoint. PR review/merge is still pending.
