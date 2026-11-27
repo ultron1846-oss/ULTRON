@@ -30,7 +30,7 @@ Automated frontend hardening and the disabled Training Control readiness page ar
 - [x] Verify the 2–10 GB workload slider persists as a browser-local preference and does not allocate physical RAM.
 - [x] Add automated responsive checks for viewport metadata, mobile breakpoint, safe-area inset, and 44 px touch-target minimum.
 - [ ] Complete manual iPad Safari acceptance using docs/IPAD_FRONTEND_ACCEPTANCE.md (owner device test required).
-- [x] Define strict versioned runtime-config schema and browser JSON export with non-authorizing flags; Python parser maps it to preflight inputs (PR #182 candidate).
+- [x] Define strict versioned runtime-config schema and browser JSON export with non-authorizing flags; JavaScript and Python validation plus the preflight adapter are merged in PR #182.
 - [ ] Connect exported configuration to an approved runtime and enforce live RAM/VRAM limits; no website-to-runtime connection or runtime allocation exists yet.
 - [x] Add automated responsive/keyboard/storage contract checks for narrow layout, narrow landscape, touch target, focus, navigation, IndexedDB and backup/restore.
 - [ ] Test Safari portrait/landscape, touch, keyboard, IndexedDB, and backup/restore on an actual iPad.
