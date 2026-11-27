@@ -99,6 +99,12 @@ class TrainingDataStateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "data_state batch_size does not match"):
             self.validate(state)
 
+    def test_rejects_explicit_null_saved_batch_size(self):
+        state = self.valid_state()
+        state["batch_size"] = None
+        with self.assertRaisesRegex(ValueError, "data_state batch_size must be an integer"):
+            self.validate(state)
+
     def test_rejects_explicit_null_batch_size_but_accepts_absent_legacy_field(self):
         state = self.valid_state()
         state["batch_size"] = None
