@@ -5,6 +5,7 @@ import torch
 from ultron_core.config import (MIN_FOUNDATION_TRAINABLE_PARAMETERS, NeuroSparseConfig,
                                 count_parameters, count_total_parameters)
 from ultron_core.training import (TrainingSettings, run_training_steps, seed_training_rng, make_seeded_generator)
+from ultron_core.resource_monitor import MemoryUsage, RuntimeMemoryMonitor
 import random
 
 
@@ -909,6 +910,48 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             run_training_steps(self.model, self.batches, self.optimizer, self.report,
                 settings=self.settings, training_authorized=True, resume_metadata=base)
         self.assertEqual(self.optimizer.steps, 0)
+
+
+    def test_runtime_memory_guard_rejects_before_consuming_batches(self):
+        budget = self.report["memory_budget_bytes"]
+        monitor = RuntimeMemoryMonitor(
+            budget,
+            usage_provider=lambda device: MemoryUsage(budget + 1, 0),
+        )
+        consumed = []
+
+        def batches():
+            consumed.append(True)
+            yield self.batches[0]
+
+        with self.assertRaisesRegex(MemoryError, "before_training"):
+            run_training_steps(
+                self.model, batches(), self.optimizer, self.report,
+                settings=self.settings, training_authorized=True,
+                memory_monitor=monitor,
+            )
+        self.assertEqual(consumed, [])
+        self.assertEqual(self.optimizer.steps, 0)
+        self.assertEqual(monitor.samples, 1)
+
+    def test_runtime_memory_guard_is_reported_on_successful_mock_run(self):
+        budget = self.report["memory_budget_bytes"]
+        monitor = RuntimeMemoryMonitor(
+            budget,
+            usage_provider=lambda device: MemoryUsage(1024, 0),
+        )
+        result = run_training_steps(
+            self.model, self.batches[:2], self.optimizer, self.report,
+            settings=TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
+                                     max_seconds=60),
+            training_authorized=True, memory_monitor=monitor,
+        )
+        self.assertEqual(result["resource_monitoring"],
+            "process_rss_plus_cuda_reserved_at_controller_boundaries")
+        self.assertEqual(result["resource_memory"]["budget_bytes"], budget)
+        self.assertEqual(result["resource_memory"]["peak_sampled_bytes"], 1024)
+        self.assertGreaterEqual(result["resource_memory"]["samples"], 5)
+        self.assertEqual(result["resource_memory"]["last_stage"], "after_optimizer_step")
 
 
     def test_settings_enforce_step_and_time_caps(self):
