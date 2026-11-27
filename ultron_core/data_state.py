@@ -94,10 +94,11 @@ def validate_training_data_state(
     if saved_size != dataset_size:
         raise ValueError("data_state dataset size does not match")
 
-    saved_batch_size = data_state.get("batch_size")
-    if saved_batch_size is not None:
+    # Only a truly absent field is a legacy cursor. Explicit null/malformed
+    # values must not silently fall through to legacy compatibility.
+    if "batch_size" in data_state:
         saved_batch_size = _integer(
-            saved_batch_size, name="data_state batch_size", minimum=1, maximum=1024
+            data_state["batch_size"], name="data_state batch_size", minimum=1, maximum=1024
         )
         if saved_batch_size != batch_size:
             raise ValueError("data_state batch_size does not match the training plan")
