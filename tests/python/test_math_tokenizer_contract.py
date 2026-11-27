@@ -103,7 +103,7 @@ class MathTokenizerContractTests(unittest.TestCase):
 
     def test_longest_match_and_boundary_sequences_are_deterministic(self):
         tokenizer = MathTokenizer()
-        for token in (r"\\subseteq", r"\\supseteq", r"\\Rightarrow", r"\\Leftrightarrow", r"\\notin"):
+        for token in (r"\subseteq", r"\supseteq", r"\Rightarrow", r"\Leftrightarrow", r"\notin"):
             with self.subTest(token=token):
                 ids = tokenizer.encode(token)
                 self.assertEqual(ids, [tokenizer.vocabulary.token_id(token)])
@@ -116,7 +116,7 @@ class MathTokenizerContractTests(unittest.TestCase):
 
     def test_unicode_error_offsets_are_python_codepoint_offsets(self):
         tokenizer = MathTokenizer()
-        for text, offset in (("x+🙂", 2), ("x\\u0301", 1), ("x\\u00a0y", 1)):
+        for text, offset in (("x+🙂", 2), ("x\u0301", 1), ("x\u00a0y", 1)):
             with self.subTest(text=text):
                 with self.assertRaisesRegex(ValueError, f"offset {offset}"):
                     tokenizer.encode(text)
