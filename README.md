@@ -112,8 +112,8 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 - PR #196 merged as `faa4b8ea31415598355afa36414092482b1a8e00`: read-only indexed-dataset benchmark, deterministic scan/random-access metrics, 2,000-row synthetic integrity stress, and direct/symlink/hard-link output collision protection. Post-merge Node, Python AI Core, Level 1, and GitHub Pages build/deploy checks passed (runs 45999719213, 45999719007, 45999719034, and 45999718336).
 - PR #197 merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`: independent mathematical invariant checks across all 20 existing extended university templates, 2,000 deterministic seed/difficulty cases. This adds validator coverage; it does not add generators for the 138 catalog topics still missing implementation.
-- Batch 2 tokenizer/model audit is underway in branch `audit/tokenizer-model-architecture-v2-2026-11-27`: model config now carries tokenizer version; explicit config/vocabulary compatibility checks and checkpoint legacy-v1 normalization are being tested; deterministic model shape, mask, gradient, and numerical tests are added.
-- No ULTRON training, optimizer step, full corpus generation/download, or remote compute was performed. Continue the tokenizer/model audit, then proceed to training-engine recovery and evaluation work only after the relevant PRs are verified.
+- PR #203 — [tokenizer representation and model architecture audit](https://github.com/ultron1846-oss/ULTRON/pull/203) — open; exact-head CI/review pending. It aligns the default config to the canonical 240-token vocabulary, validates PAD ID compatibility, fixes padding contamination of auxiliary losses and left-padded causal targets, and adds Unicode/boundary, mask, gradient, initialization, and meta-device parameter-count regression tests. The foundation target remains 63,400,451 total / 61,826,048 trainable parameters.
+- No ULTRON training, optimizer step, full corpus generation/download, or remote compute was performed. After PR #203 validation, continue with the training-engine recovery and evaluation audit; do not start training without separate authorization.
 
 
 ## Batch 1 engineering handoff — PR #201 pending
@@ -122,3 +122,12 @@ The current Batch 1 branch adds synthetic stress coverage for the indexed verifi
 
 
 **Dataset memory boundary:** The indexed loader bounds snapshot copying and record iteration, but it is not constant-memory: split-manifest ID arrays are parsed in Python memory up to the 100,000-row preflight cap. The benchmark's `tracemalloc` measurement excludes native SQLite allocations and process RSS/device memory. PR #201 documents this limitation; a production dataset benchmark is still owner-dependent.
+
+
+## Current tokenizer/model audit handoff — PR #203
+
+- Working branch: `audit/tokenizer-model-architecture-v3-2026-11-27`.
+- Audit report: [docs/TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md](docs/TOKENIZER_ARCHITECTURE_AUDIT_2026-11-27.md).
+- PR #203 includes tokenizer/default-config compatibility, PAD-mask correctness across router/refiner and causal loss, and deterministic architecture audits. Validation remains pending until GitHub Actions reports against the final PR head.
+- The canonical tokenizer is version 1 with 240 IDs. The foundation model capacity remains 63,400,451 total / 61,826,048 trainable. A meta-device regression enumerates the full foundation module parameter count without allocating real weights.
+- Next: review PR #203 exact-head checks; then continue the remaining training-engine, inference, and evaluation readiness work. Keep model training, optimizer steps, corpus generation/download, and remote compute disabled absent separate explicit authorization.
