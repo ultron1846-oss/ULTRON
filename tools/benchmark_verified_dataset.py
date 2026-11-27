@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import random
 import statistics
 import time
@@ -138,7 +139,13 @@ def _validate_output_path(output_path, dataset_path, split_manifest_path):
         Path(dataset_path).expanduser().resolve(),
         Path(split_manifest_path).expanduser().resolve(),
     }
-    if output in inputs:
+    aliases_input = output in inputs
+    if not aliases_input and output.exists():
+        aliases_input = any(
+            input_path.exists() and os.path.samefile(output, input_path)
+            for input_path in inputs
+        )
+    if aliases_input:
         raise ValueError("benchmark output must not overwrite the dataset or split manifest")
 
 
