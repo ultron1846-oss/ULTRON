@@ -1064,8 +1064,13 @@ This closes a correctness gap in the resume contract: previously, a caller could
 
 Regression tests verify state-presence/restoration metadata and ensure missing optimizer or scheduler restoration is rejected before the batch iterable is consumed. Final PR head `364601b387aef1f888bb0faac9174d9bff2d8bb9` passed Node `45914058530`, Python AI Core `45914058518`, and Level 1 `45914058557`. PR #176 was squash-merged as `0e90bea58c609965c495a5743832ba539cfe5602`; all six post-merge checks passed: Node `45914236337`, Python AI Core `45914236366`, Level 1 `45914236327`, and Pages build/report/deploy run `45914236131`. Exact numerical resume equivalence remains unproven and requires a separately authorized tiny optimizer-step test. No optimizer step, model training, corpus generation, dataset download, or remote execution was performed.
 
-## Checkpoint cursor dataset-hash binding — PR candidate (2026-11-27)
+## Checkpoint cursor dataset-hash binding — merged PR #178 (2026-11-27)
 
-The current candidate validates that a saved data cursor's `dataset_manifest_sha256` and any nested resumable sampler's `dataset_manifest_sha256` match the checkpoint's top-level dataset hash. The same checks run during load before model, optimizer, scheduler, or RNG state is restored. This prevents a checksum-valid but internally inconsistent checkpoint from mutating runtime state before the bounded trainer later rejects its cursor.
+The checkpoint save/load path rejects cursor and nested resumable-sampler dataset hashes that differ from the checkpoint's top-level dataset manifest hash. The load-time binding check runs before model, optimizer, scheduler, or RNG state restoration, so a checksum-valid but internally inconsistent checkpoint cannot mutate runtime state before rejection.
 
-Regression tests cover mismatched cursor and sampler hashes at save time and tampered checkpoint payloads at load time, with model-state immutability assertions. All three final PR checks passed on candidate head `61670edc2a5938197216b6cdc0901668af00fc3d`: Node `45920234681`, Python AI Core `45920234687`, and Level 1 Math Tooling `45920234618`. Merge and post-merge main checks remain pending. No training, optimizer step, corpus generation, dataset generation, or remote execution was performed.
+Regression tests cover mismatched cursor and sampler hashes at save time and tampered checkpoint payloads at load time, with model-state immutability assertions. Final PR head `263d7a84ba7d998090ebc1470ce9bc6fa26c1c9a` passed Node `45921024263`, Python AI Core `45921024338`, and Level 1 Math Tooling `45921024422`. PR #178 was squash-merged as `6415d2322c1bae8879943399066ab4506be51d0b`. All six post-merge checks passed on main: Node `45921207625`, Python AI Core `45921207546`, Level 1 `45921207530`, and Pages build, build-status report, and deployment jobs in run `45921207751`.
+
+No training, optimizer step, corpus generation, dataset generation, or remote execution was performed.
+
+
+
