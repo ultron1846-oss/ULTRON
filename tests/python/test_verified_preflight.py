@@ -1,6 +1,8 @@
 """Tests for verified dataset preflight; fixtures are temporary and synthetic only."""
 import tempfile
 import unittest
+from dataclasses import replace
+
 from pathlib import Path
 
 from test_dataset_split_manifest import fixture
@@ -8,7 +10,7 @@ from ultron_core.dataset_split_manifest import (
     load_verified_split_rows_by_split,
     prepare_dataset_split_manifest,
 )
-from ultron_core.runtime_config import RuntimeConfig
+from ultron_core.runtime_config import RuntimeConfig\nfrom ultron_core.config import NeuroSparseConfig
 from ultron_core.data_state import validate_training_data_state
 from ultron_core.verified_preflight import build_verified_training_preflight
 from ultron_core.verified_dataset import IndexedVerifiedMathDataset
@@ -113,6 +115,21 @@ class VerifiedTrainingPreflightTests(unittest.TestCase):
             runtime = RuntimeConfig(sequence_length=3)
             with self.assertRaisesRegex(ValueError, "Truncation is disabled"):
                 build_verified_training_preflight(dataset, split, runtime)
+
+    def test_runtime_sequence_limit_cannot_exceed_model_config(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split, _ = self.setup_data(Path(directory))
+            small_config = replace(
+                NeuroSparseConfig.foundation(),
+                max_sequence_length=128,
+            )
+            with self.assertRaisesRegex(ValueError, "exceeds the model configuration limit"):
+                build_verified_training_preflight(
+                    dataset,
+                    split,
+                    RuntimeConfig(sequence_length=256),
+                    model_config=small_config,
+                )
 
     def test_invalid_sampler_seed_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
