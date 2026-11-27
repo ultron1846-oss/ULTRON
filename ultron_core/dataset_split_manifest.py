@@ -154,7 +154,7 @@ def _derive_split_ids(dataset_path, seed, val, test):
             )
             for prompt, example_id in cursor:
                 digest = hashlib.sha256(
-                    f"ultron-split-v1\0{seed}\\0{prompt}".encode("utf-8")
+                    f"ultron-split-v1\0{seed}\0{prompt}".encode("utf-8")
                 ).digest()
                 bucket = int.from_bytes(digest[:8], "big") / 2**64
                 name = "test" if bucket < test else "validation" if bucket < test + val else "train"
