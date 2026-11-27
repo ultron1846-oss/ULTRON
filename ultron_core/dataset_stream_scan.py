@@ -107,7 +107,7 @@ def scan_jsonl_structure(
                     parse_constant=_reject_constant,
                 )
             except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-                raise ValueError(f"dataset JSONL row {line_number} is malformed") from exc
+                raise ValueError(f"dataset JSONL row {line_number} is malformed: {exc}") from exc
             if not isinstance(row, dict) or set(row) != _ROW_KEYS:
                 raise ValueError(f"dataset JSONL row {line_number} has an invalid schema")
             if not isinstance(row.get("example_id"), str) or not _SHA256.fullmatch(row["example_id"]):
