@@ -100,6 +100,31 @@ def _validate_training_settings(settings: dict | None) -> dict | None:
     return copy.deepcopy(settings)
 
 
+def _validate_data_state_hash_binding(data_state: dict | None, dataset_hash: str | None) -> None:
+    """Reject cursor/sampler hashes that are not bound to the checkpoint dataset."""
+    if data_state is None:
+        return
+
+    cursor_hash = data_state.get("dataset_manifest_sha256")
+    if cursor_hash is not None:
+        if (not isinstance(cursor_hash, str) or len(cursor_hash) != 64
+                or any(char not in "0123456789abcdef" for char in cursor_hash)):
+            raise ValueError("checkpoint data_state dataset manifest hash is malformed")
+        if dataset_hash is None or not hmac.compare_digest(cursor_hash, dataset_hash):
+            raise ValueError("checkpoint data_state dataset manifest hash does not match checkpoint")
+
+    sampler_state = data_state.get("sampler_state")
+    if sampler_state is not None:
+        if not isinstance(sampler_state, dict):
+            raise ValueError("checkpoint sampler state is malformed")
+        sampler_hash = sampler_state.get("dataset_manifest_sha256")
+        if (not isinstance(sampler_hash, str) or len(sampler_hash) != 64
+                or any(char not in "0123456789abcdef" for char in sampler_hash)):
+            raise ValueError("checkpoint sampler dataset manifest hash is malformed")
+        if dataset_hash is None or not hmac.compare_digest(sampler_hash, dataset_hash):
+            raise ValueError("checkpoint sampler dataset manifest hash does not match checkpoint")
+
+
 def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
                    optimizer=None, step: int = 0, scheduler=None, data_state=None, dataset_manifest_sha256=None, training_settings=None):
     if not isinstance(config, NeuroSparseConfig):
@@ -127,6 +152,7 @@ def save_checkpoint(path, model: torch.nn.Module, config: NeuroSparseConfig,
             not isinstance(dataset_manifest_sha256, str) or len(dataset_manifest_sha256) != 64
             or any(char not in "0123456789abcdef" for char in dataset_manifest_sha256)):
         raise ValueError("dataset_manifest_sha256 must be a lowercase SHA-256 hex digest")
+    _validate_data_state_hash_binding(data_state, dataset_manifest_sha256)
     if scheduler is not None and not hasattr(scheduler, "state_dict"):
         raise TypeError("scheduler must provide state_dict")
     target = Path(path)
@@ -224,6 +250,7 @@ def load_checkpoint(path, model: torch.nn.Module, optimizer=None, map_location="
             not isinstance(dataset_hash, str) or len(dataset_hash) != 64
             or any(char not in "0123456789abcdef" for char in dataset_hash)):
         raise ValueError("checkpoint dataset manifest hash is malformed")
+    _validate_data_state_hash_binding(data_state, dataset_hash)
     if expected_dataset_manifest_sha256 is not None and (
             not isinstance(expected_dataset_manifest_sha256, str)
             or len(expected_dataset_manifest_sha256) != 64
