@@ -322,3 +322,12 @@ The CUDA path now flattens the fixed top-k assignments, stably sorts them by exp
 The grouped path preserves the same token-to-expert assignments, router weights, expert calls, and `index_add_` aggregation. Regression tests compare forward output and gradients for input tokens, routing weights, and expert parameters against the original reference loop. This is a synchronization-count optimization; actual throughput depends on token count, top-k, expert count, and device, and has not been benchmarked on target hardware.
 
 Reference: [PyTorch Performance Tuning Guide — Avoid unnecessary CPU-GPU synchronization](https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide).
+
+
+## Tokenizer and architecture audit addendum — PR #203 (2026-11-27)
+
+The canonical tokenizer v1 contains 240 fixed lexical entries. The default `NeuroSparseConfig` now takes that canonical size rather than a stale 256 default. `MathTokenizer.assert_compatible_config` verifies tokenizer version, vocabulary size, and PAD ID 0; preflight applies the same compatibility check. Version-1 checkpoints retain their ID ordering; legacy configs without a tokenizer-version field are interpreted as v1, while unsupported explicit versions fail closed.
+
+Padded batches use a boolean attention mask with True for real tokens. The model excludes masked tokens from router-balance and predictive-refinement auxiliary metrics, and the bounded trainer passes that mask into the causal loss. The loss requires both the predicting source and target positions to be valid, in addition to ignoring PAD target IDs. This is required for left padding; right padding remains the verified dataset collator default. The dataset adapter rejects over-limit examples rather than truncating them.
+
+PR #203 adds a meta-device parameter enumeration test for the foundation configuration: 63,400,451 total / 61,826,048 trainable / 1,574,403 frozen. It also extends Unicode/boundary tests and checks initialization, padding invariance, and finite gradients on small CPU models. The PR is not merged and exact-head CI remains pending. No real 60M weights were allocated, no optimizer step was taken, and no training was performed.
