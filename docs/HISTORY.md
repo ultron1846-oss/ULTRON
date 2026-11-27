@@ -1157,7 +1157,7 @@ PR #193 was squash-merged as `53f925627891885e6363c9f512fe6c27b1c075ac`. It adds
 
 PR #194 was squash-merged as `ec55abd99e10adc1430c56de7c764f4f63476a4c`. Exact-head Node Tests, Python AI Core, and Level 1 Math Tooling passed on `d222415f2c61cbf540f8b63d681d330a2fd4bc26`. It validates the dataset/split manifest, copies the dataset in bounded chunks to a temporary digest-bound snapshot, builds a disk-backed SQLite split/offset index, and decodes/tokenizes records on demand with per-record integrity checks. It reduces retained row-object memory, but the preflight path initially still materialized rows; the next branch addresses that integration. No training, optimizer step, corpus generation/download, or remote compute occurred.
 
-## Indexed preflight integration and curriculum audit — PR pending (2026-11-27)
+## Indexed preflight integration and curriculum audit — PR #195 open (2026-11-27)
 
 The branch `audit/math-coverage-readiness-2026-11-27` adds bounded `iter_records` on the verified indexed store, a non-authorizing parameter/memory report based on verified split counts, and a refactor of `build_verified_training_preflight` to stream tokenization/sequence-limit checks from the same snapshot used by the three DataLoaders. The preflight result exposes `close()`; the owner notebook explicitly closes its temporary snapshot and index after metadata inspection. Regression tests assert shared indexed storage, no row materialization in the report, stable indexed iteration, and cleanup.
 
