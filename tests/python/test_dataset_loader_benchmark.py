@@ -5,7 +5,7 @@ from pathlib import Path
 
 from test_dataset_split_manifest import fixture
 from ultron_core.dataset_split_manifest import prepare_dataset_split_manifest
-from tools.benchmark_verified_dataset import benchmark_indexed_dataset
+from tools.benchmark_verified_dataset import benchmark_indexed_dataset, _validate_output_path
 
 
 class IndexedDatasetBenchmarkTests(unittest.TestCase):
@@ -38,6 +38,24 @@ class IndexedDatasetBenchmarkTests(unittest.TestCase):
             self.assertEqual(first["random_access"]["samples"], second["random_access"]["samples"])
             self.assertEqual(first["random_access"]["sampled_indices"], second["random_access"]["sampled_indices"])
             self.assertTrue(dataset.is_file())
+
+
+    def test_output_path_cannot_overwrite_dataset_or_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset = root / "data.jsonl"
+            split = root / "splits.json"
+            dataset.write_text("fixture", encoding="utf-8")
+            split.write_text("fixture", encoding="utf-8")
+            for input_path in (dataset, split):
+                with self.subTest(input_path=input_path):
+                    with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                        _validate_output_path(input_path, dataset, split)
+            alias = root / "alias.jsonl"
+            alias.symlink_to(dataset)
+            with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                _validate_output_path(alias, dataset, split)
+            _validate_output_path(root / "report.json", dataset, split)
 
     def test_benchmark_bounds_random_access_sample_count(self):
         with tempfile.TemporaryDirectory() as directory:
