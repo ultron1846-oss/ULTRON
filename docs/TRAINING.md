@@ -22,7 +22,7 @@ The small default config is a CI/CPU smoke model, not the >60M trainable target.
 
 ## Safety and scope
 
-Actual model training remains disabled until the user separately authorizes it. CI uses only a mock optimizer for controller tests; no optimizer step has been run on ULTRON's real weights. Resource monitoring is currently preflight-budget-only, not live device telemetry.
+Actual model training remains disabled until the user separately authorizes it. CI uses only a mock optimizer for controller tests; no optimizer step has been run on ULTRON's real weights. The bounded controller samples process RSS plus CUDA allocator-reserved memory against the preflight byte budget at safe boundaries. It cannot interrupt a single tensor operation, and platform-specific RSS fallback limitations apply. See [RESOURCE_MONITORING.md](RESOURCE_MONITORING.md).
 
 No pretrained model/weights, external AI API, or externally generated training corpus may be introduced. GitHub Pages is static hosting only and must not run model training.
 
