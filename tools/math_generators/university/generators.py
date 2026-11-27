@@ -19,6 +19,7 @@ BANDS = {
     "abstract_algebra": "University",
     "optimization": "University",
     "numerical_methods": "University",
+    "Euclidean_algorithm": "University",
     "probability_theory": "University",
     "sets_and_functions": "University",
     "propositional_logic": "University",
@@ -101,6 +102,39 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"y(t)={y0}e^({k}t)"
         steps=["Separate variables: dy/y=k dt.",f"Integrate: ln|y|=kt+C.",f"Apply y(0)={y0}: y(t)={y0}e^({k}t)."]
         exact=lambda:y0>0 and data["solution"]==f"{y0}*exp({k}t)"
+    elif topic == "Euclidean_algorithm":
+        # Extended Euclidean algorithm with exact Bezout coefficients.
+        a, b = n(1, 100 * d), n(1, 100 * d)
+        old_r, r = a, b
+        old_s, s = 1, 0
+        old_t, t = 0, 1
+        quotient_trace = []
+        while r:
+            quotient = old_r // r
+            remainder = old_r - quotient * r
+            quotient_trace.append([old_r, r, quotient, remainder])
+            old_r, r = r, remainder
+            old_s, s = s, old_s - quotient * s
+            old_t, t = t, old_t - quotient * t
+        gcd_value, coefficient_a, coefficient_b = old_r, old_s, old_t
+        data.update(
+            a=a,
+            b=b,
+            gcd=gcd_value,
+            bezout_coefficients=[coefficient_a, coefficient_b],
+            quotient_trace=quotient_trace,
+        )
+        problem = f"Use the Euclidean algorithm to find gcd({a},{b}) and integers x,y such that {a}x+{b}y=gcd({a},{b})."
+        answer = f"gcd={gcd_value}; coefficients=({coefficient_a},{coefficient_b})"
+        steps = [
+            "Repeated division preserves the gcd of the current remainder pair.",
+            f"Back-substitution gives {a}×({coefficient_a})+{b}×({coefficient_b})={gcd_value}.",
+        ]
+        exact = lambda: (
+            gcd_value == math.gcd(a, b)
+            and a * coefficient_a + b * coefficient_b == gcd_value
+            and all(0 <= row[3] < row[1] for row in quotient_trace)
+        )
     elif topic == "discrete_mathematics":
         a,b,m=n(2,20*d),n(1,12*d),n(2,30*d)
         value=pow(a,b,m)
