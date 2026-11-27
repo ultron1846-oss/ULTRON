@@ -1,4 +1,6 @@
 """Non-training architecture, numerical, and checkpoint contract audits."""
+import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -6,7 +8,7 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-from ultron_core.checkpoint import load_checkpoint, save_checkpoint
+from ultron_core.checkpoint import load_checkpoint, save_checkpoint, inspect_checkpoint_resume_metadata
 from ultron_core.config import NeuroSparseConfig, count_parameters
 from ultron_core.math_tokenizer import MathTokenizer
 from ultron_core.model import NeuroSparseModel
@@ -100,6 +102,45 @@ class ModelArchitectureAuditTests(unittest.TestCase):
             metadata = load_checkpoint(path, target, restore_rng=False)
             self.assertEqual(metadata["config"]["tokenizer_version"], 1)
             MathTokenizer().assert_compatible_config(target.config)
+
+
+    def test_legacy_checkpoint_without_tokenizer_version_defaults_to_v1(self):
+        config = small_config()
+        source = NeuroSparseModel(config)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "legacy-tokenizer-config.pt"
+            save_checkpoint(path, source, config, step=0)
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            payload["config"].pop("tokenizer_version")
+            torch.save(payload, path)
+
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            path.with_suffix(path.suffix + ".sha256").write_text(
+                digest + "  " + path.name + "\\n", encoding="utf-8"
+            )
+            metadata_path = Path(str(path) + ".metadata.json")
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            metadata["config"].pop("tokenizer_version")
+            metadata["checkpoint_sha256"] = digest
+            metadata_path.write_text(
+                json.dumps(metadata, sort_keys=True, separators=(",", ":")) + "\\n",
+                encoding="utf-8",
+            )
+
+            target = NeuroSparseModel(config)
+            restored = load_checkpoint(path, target, restore_rng=False)
+            self.assertEqual(restored["config"]["tokenizer_version"], 1)
+
+            report = inspect_checkpoint_resume_metadata(
+                path,
+                expected_dataset_manifest_sha256="a" * 64,
+                expected_dataset_size=1,
+                expected_batch_size=1,
+                expected_seed=0,
+                expected_gradient_accumulation_steps=1,
+                expected_config=config.to_dict(),
+            )
+            self.assertFalse(any("model config does not match" in blocker for blocker in report["blockers"]))
 
     def test_foundation_parameter_floor_is_not_reduced_by_tokenizer_binding(self):
         config = NeuroSparseConfig.foundation()
