@@ -53,10 +53,11 @@ class OwnerPreflightNotebookTests(unittest.TestCase):
             "".join(cell.get("source", []))
             for cell in self._notebook()["cells"]
             if cell.get("cell_type") == "markdown"
-        )
-        self.assertIn("does not train", markdown.lower())
-        self.assertIn("no dataset has been loaded or generated", markdown.lower())
-        self.assertIn("not a full dataset preflight", markdown.lower())
+        ).lower()
+        self.assertIn("does not train", markdown)
+        self.assertIn("no dataset has been loaded or generated", markdown)
+        self.assertIn("full dataset preflight", markdown)
+        self.assertIn("not** a full dataset preflight", markdown)
 
 
 if __name__ == "__main__":
