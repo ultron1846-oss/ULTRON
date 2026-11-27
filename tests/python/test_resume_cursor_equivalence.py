@@ -100,6 +100,7 @@ class ResumeCursorEquivalenceTests(unittest.TestCase):
                 source_model,
                 source_model.config,
                 optimizer=_StateSpy(),
+                scheduler=_StateSpy(),
                 step=3,
                 dataset_manifest_sha256=self.DATASET_HASH,
             )
