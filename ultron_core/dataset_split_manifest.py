@@ -1,7 +1,7 @@
 """Verify existing ULTRON data and prepare metadata-only deterministic splits."""
 from __future__ import annotations
 from dataclasses import dataclass
-import hashlib, json, math, os, re, tempfile
+import hashlib, json, math, os, re, sqlite3, tempfile
 from pathlib import Path
 from .data_generation import verify_dataset
 
@@ -43,7 +43,7 @@ def _validate_parameters(seed,val,test):
         if not math.isfinite(value) or not 0.0<value<1.0: raise ValueError(f"{name} must be in (0, 1)")
     if val+test>=1.0: raise ValueError("validation_fraction + test_fraction must be less than 1")
 
-def _read_dataset(path, *, selected_ids=None, include_full_rows=False):
+def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callback=None):
     """Verify the dataset and retain only the row data needed by the caller.
 
     The semantic verifier remains authoritative. This second bounded pass binds
@@ -115,26 +115,54 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False):
         raise ValueError("split manifest references missing dataset rows")
     return manifest, rows
 
-def _expected(rows,seed,val,test):
-    groups={}
-    for row in rows:
-        if isinstance(row, tuple) and len(row) == 2:
-            input_text, example_id = row
-        else:
-            input_text, example_id = row["input_text"], row["example_id"]
-        prompt = " ".join(input_text.split())
-        old = groups.get(prompt)
-        if old is None or example_id < old:
-            groups[prompt] = example_id
-    if len(groups)<3: raise ValueError("at least three unique normalized prompts are required")
-    result={"train":[],"validation":[],"test":[]}
-    for prompt,example_id in sorted(groups.items()):
-        digest=hashlib.sha256(f"ultron-split-v1\0{seed}\0{prompt}".encode("utf-8")).digest()
-        bucket=int.from_bytes(digest[:8],"big")/2**64
-        name="test" if bucket<test else "validation" if bucket<test+val else "train"
-        result[name].append(example_id)
-    if any(not result[name] for name in result): raise ValueError("split parameters produced an empty split")
-    return {name:sorted(ids) for name,ids in result.items()}
+def _derive_split_ids(dataset_path, seed, val, test):
+    """Build prompt-group split metadata using a bounded disk-backed index."""
+    with tempfile.TemporaryDirectory(prefix="ultron-split-index-") as temp_dir:
+        db_path = Path(temp_dir) / "prompt-groups.sqlite3"
+        connection = sqlite3.connect(db_path)
+        try:
+            connection.execute("PRAGMA temp_store=FILE")
+            connection.execute("PRAGMA cache_size=-2048")
+            connection.execute("PRAGMA journal_mode=OFF")
+            connection.execute("PRAGMA synchronous=OFF")
+            connection.execute(
+                "CREATE TABLE prompt_groups (prompt TEXT PRIMARY KEY, example_id TEXT NOT NULL) WITHOUT ROWID"
+            )
+
+            def retain_prompt(row):
+                prompt = " ".join(row["input_text"].split())
+                connection.execute(
+                    "INSERT INTO prompt_groups(prompt, example_id) VALUES (?, ?) "
+                    "ON CONFLICT(prompt) DO UPDATE SET example_id = "
+                    "MIN(prompt_groups.example_id, excluded.example_id)",
+                    (prompt, row["example_id"]),
+                )
+
+            manifest, _ = _read_dataset(dataset_path, row_callback=retain_prompt)
+            connection.commit()
+            unique_prompts = connection.execute(
+                "SELECT COUNT(*) FROM prompt_groups"
+            ).fetchone()[0]
+            if unique_prompts < 3:
+                raise ValueError("at least three unique normalized prompts are required")
+
+            result = {"train": [], "validation": [], "test": []}
+            cursor = connection.execute(
+                "SELECT prompt, example_id FROM prompt_groups ORDER BY prompt"
+            )
+            for prompt, example_id in cursor:
+                digest = hashlib.sha256(
+                    f"ultron-split-v1\\0{seed}\\0{prompt}".encode("utf-8")
+                ).digest()
+                bucket = int.from_bytes(digest[:8], "big") / 2**64
+                name = "test" if bucket < test else "validation" if bucket < test + val else "train"
+                result[name].append(example_id)
+            if any(not result[name] for name in result):
+                raise ValueError("split parameters produced an empty split")
+            return manifest, {name: sorted(ids) for name, ids in result.items()}
+        finally:
+            connection.close()
+
 
 def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,validation_fraction=0.1,test_fraction=0.1):
     """Verify an existing dataset and atomically write split-ID metadata only."""
