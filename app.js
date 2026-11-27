@@ -337,7 +337,7 @@ function bind(page){
     training_authorized:false,
     remote_execution_enabled:false
    };
-   const blob=new Blob([JSON.stringify(config,null,2)+'\\n'],{type:'application/json'});
+   const blob=new Blob([JSON.stringify(config,null,2)],{type:'application/json'});
    const url=URL.createObjectURL(blob);
    const link=document.createElement('a');
    link.href=url;
