@@ -27,9 +27,17 @@ class SparseRouter(nn.Module):
 
 
 def load_balance_loss(
-    logits: torch.Tensor, indices: torch.Tensor, *, validate_indices: bool = True
+    logits: torch.Tensor,
+    indices: torch.Tensor,
+    *,
+    valid_mask: torch.Tensor | None = None,
+    validate_indices: bool = True,
 ) -> torch.Tensor:
-    """Switch-style balance penalty; assignment frequency sums to one."""
+    """Switch-style balance penalty over valid tokens only.
+
+    valid_mask is a boolean vector aligned with flattened token rows. Padding
+    rows are excluded from router importance and assignment frequency.
+    """
     if logits.ndim != 2 or indices.ndim != 2 or logits.shape[0] != indices.shape[0]:
         raise ValueError("expected logits [tokens, experts] and indices [tokens, top_k]")
     if not logits.is_floating_point():
@@ -41,8 +49,19 @@ def load_balance_loss(
         raise TypeError("expert indices must have an integer dtype")
     if indices.device != logits.device:
         raise ValueError("logits and expert indices must be on the same device")
+    if valid_mask is not None:
+        if not isinstance(valid_mask, torch.Tensor) or valid_mask.dtype != torch.bool:
+            raise TypeError("valid_mask must be a boolean tensor")
+        if valid_mask.ndim != 1 or valid_mask.shape[0] != logits.shape[0]:
+            raise ValueError("valid_mask must match the flattened token dimension")
+        if valid_mask.device != logits.device:
+            raise ValueError("valid_mask and router logits must be on the same device")
+        logits = logits[valid_mask]
+        indices = indices[valid_mask]
+        if logits.shape[0] == 0:
+            return logits.sum() * 0.0
     if logits.shape[0] == 0:
-        return logits.new_zeros(())
+        return logits.sum() * 0.0
     indices = indices.to(dtype=torch.long)
     if validate_indices:
         if indices.numel() and (indices.min() < 0 or indices.max() >= experts):
