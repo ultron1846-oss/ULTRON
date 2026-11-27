@@ -561,7 +561,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 if time_expired():
                     stop_reason = "time_limit"
                     break
-                memory_monitor.check("before_optimizer_step", device=profile_device or ids.device)
+                memory_monitor.check("before_optimizer_step", device=ids.device)
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
@@ -570,7 +570,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 # completed step before stopping; never lose its cursor silently.
                 memory_limit_reached = False
                 try:
-                    memory_monitor.check("after_optimizer_step", device=profile_device or ids.device)
+                    memory_monitor.check("after_optimizer_step", device=ids.device)
                 except MemoryError:
                     memory_limit_reached = True
                     stop_reason = "memory_budget"
@@ -622,7 +622,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         "training_settings": checkpoint_training_settings,
                     })
                     try:
-                        memory_monitor.check("after_checkpoint", device=profile_device or ids.device)
+                        memory_monitor.check("after_checkpoint", device=ids.device)
                     except MemoryError:
                         memory_limit_reached = True
                         stop_reason = "memory_budget"
