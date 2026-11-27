@@ -138,11 +138,12 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Integrate sampler restore/save into the bounded trainer; require the attached DataLoader sampler, `num_workers=0`, `drop_last=False`, matching preflight batch/train sizes, aligned sample/batch cursors, and rewind to the last committed optimizer step.
 - [x] Construct read-only train/validation/test split DataLoaders in the owner notebook; train uses ResumableRandomSampler, `num_workers=0`, `drop_last=False`, and sequence truncation is disabled (PR #186).
 - [x] Add non-authorizing verified-dataset readiness report with exact MathExample validation, canonical tokenization and runtime sequence-limit checks, parameter/memory formulas, and one-snapshot loader construction (PR #187).
-- [ ] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188; in progress, metadata validation only).
-- [ ] Wire loader/sampler into bounded trainer checkpoint callback and persist/restore `data_state`.
-- [ ] Verify clean-runtime resume with `num_workers=0`.
-- [ ] Prove resumed execution matches uninterrupted execution within tolerance (requires separately authorized tiny training test).
-- [ ] Document storage and backup limits.
+- [x] Define and test a pure resumable data-cursor contract for dataset/sampler hashes, sizes, saved batch size, seeds, epochs, accumulation, and batch/sample alignment (PR #188 merged as `7adf369549206eec139bc3fdb1a390631113e662`).
+- [x] Wire the verified loader/sampler cursor into the bounded trainer checkpoint callback and restore the sampler before iterator creation; metadata persistence and resume gates are covered by PRs #186, #190, and existing controller tests.
+- [x] Add mock-only fresh-object model/optimizer/scheduler checkpoint restoration with sampler cursor rehydration; seed and assert synthetic optimizer momentum state plus scheduler state without an optimizer step (PR #191 updated; CI rerunning).
+- [ ] Owner: verify a clean-process/remote-runtime resume with `num_workers=0` and a transferred checkpoint bundle.
+- [ ] Prove numerical resumed-vs-uninterrupted training equivalence within tolerance only after separate authorization for a tiny mock/approved optimizer-step test; this remains distinct from sampler-sequence equivalence.
+- [x] Document checkpoint storage, backup, and integrity limitations (current portability batch; CI pending).
 
 ## Phase 9 — Free runtime and operations
 
@@ -152,7 +153,8 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Record that free Hugging Face ZeroGPU quota is short/shared and not a dependable long training host.
 - [ ] Owner: verify actual Colab access, hardware, quotas, idle timeout, and persistence from a clean iPad session.
 - [ ] Owner: test notebook setup without phone verification or payment activation.
-- [ ] Validate checkpoint transfer and resume across sessions.
+- [x] Add automated checkpoint bundle copy/restore integrity coverage (PR #191 updated; CI rerunning).
+- [ ] Owner: validate actual checkpoint transfer and resume across separate free-cloud sessions.
 - [ ] Keep website status read-only and never expose secrets.
 - [ ] Confirm zero-cost compute/storage/time limits before any run.
 
@@ -162,13 +164,13 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset and prompt-disjoint split manifest, checks all selected sequences against the canonical tokenizer/runtime limit, and produces a non-authorizing readiness report with three read-only DataLoaders. The trainer and preflight now share a pure data-cursor contract. Next: persist the validated metadata through the checkpoint callback and validate it at the checkpoint boundary. Actual checkpoint save/load/restore remains untested here and separately gated; no example generation/download is allowed.
-2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
-3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
-4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
-5. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review.
-6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
-7. Keep real-weight training and remote execution disabled until separate explicit authorization.
+1. Finish exact-head CI/review for PR #191. Its mock-only fresh-object restore now asserts model weights, optimizer momentum state, scheduler state, and sampler cursor; it does not execute an optimizer step.
+2. Owner: test a clean-process checkpoint transfer/restore in an actual separate free-cloud session, using `num_workers=0`, and record device/quota/persistence limitations. This is an owner acceptance task, not a training run.
+3. Next code phase after PR #191: refactor verified JSONL ingestion to parse one bounded line at a time, enforcing explicit byte/row/line caps while preserving the existing exact semantic verifier, dataset digest, prompt-disjoint split contract, and fail-closed behavior. Use synthetic temporary fixtures only; do not generate or download a production corpus.
+4. Keep the structural scanner a separate fast integrity report; it must not be treated as semantic answer verification or as proof of dataset split safety.
+5. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
+6. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review; continue broader math/proof-checker metrics.
+7. Keep real-weight training, optimizer steps on ULTRON weights, and remote execution disabled until separate explicit authorization.
 
 
 ## Owner notebook setup scaffold — 2026-11-27
@@ -197,6 +199,18 @@ The split seed and resumable sampler seed are independent; the sampler seed is s
 PR #189 merged as `582533c7267babf3035f1d4126e96fde4429592e`; exact-head Node, Python AI Core, and Level 1 checks passed (runs `45973714005`, `45973713970`, and `45973713967`). It validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
 
 
-## Resume cursor and checkpoint gate regression batch — 2026-11-27 (PR validation pending)
+## Resume cursor and checkpoint gate regression batch — PR #190 merged as `ab8e08ff9e482fca52cdc801e376212d42a8eb80`
 
 The verified preflight already constructs train/validation/test DataLoaders from one verified split snapshot; train uses `ResumableRandomSampler`, while evaluation loaders are sequential. The existing bounded controller requires that sampler to be the DataLoader's sampler, uses `num_workers=0`, validates the cursor before batch iteration, and supplies committed cursor metadata to the caller-provided checkpoint callback after a completed step. The new regression file tests sampler sequence equivalence across an interrupted/resumed cursor, rejects dataset/seed mismatch, and verifies a wrong expected dataset SHA-256 is rejected before model/optimizer/scheduler state restoration. Tests are synthetic and do not run ULTRON training or optimizer steps.
+
+
+## Checkpoint portability, interrupted-save recovery, and streaming scan — PR #191 open; latest-head CI pending
+
+The current four-phase batch adds (1) a fresh-object checkpoint restore regression that rehydrates model, optimizer, scheduler, and sampler cursor without an optimizer step; (2) integrity inspection and restore after copying the checkpoint, SHA-256 manifest, and metadata sidecar to a different directory; (3) fault injection at the checkpoint-manifest commit boundary to verify recovery from the previous integrity-checked backup; and (4) a bounded JSONL structural scanner that hashes and parses one line at a time under explicit byte/row/line limits. The scanner reports only structural checks and intentionally does not verify exact math answers, content-derived IDs, duplicate IDs, or prompt-split leakage. Full dataset semantic verification remains authoritative. No corpus is generated/downloaded, no ULTRON weights are trained, and no remote job is dispatched.
+
+
+### Checkpoint storage and backup limits
+
+A checkpoint generation currently consists of three files: the serialized checkpoint (`.pt`), its SHA-256 integrity manifest (`.pt.sha256`), and the metadata-only compatibility sidecar (`.pt.metadata.json`). The save path retains at most one previous verified generation using matching `.bak` files for these components; it is not an unlimited backup history. The checkpoint and its temporary replacement are written in the same directory, then replaced individually. The checkpoint, checksum manifest, and metadata sidecar are **not one atomic multi-file transaction**. If a save is interrupted after the checkpoint replacement but before the matching checksum manifest is replaced, the current pair will fail integrity verification and load will fall back to the previous verified backup when one exists. A first-ever save has no previous generation to fall back to. If neither current nor backup checkpoint/checksum pair verifies, restore fails closed.
+
+For transfer between sessions, copy the current checkpoint, `.sha256`, and `.metadata.json` together and preserve their basename; include the corresponding `.bak` files only when backup recovery is also required. The metadata sidecar is advisory and is not a substitute for the payload integrity check performed by `load_checkpoint`. Storage capacity must accommodate at least the current checkpoint plus one prior checkpoint generation and temporary-write/transfer overhead. Actual free-tier disk quotas, upload limits, and cross-session persistence are owner/runtime-specific and remain unverified.

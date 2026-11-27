@@ -1136,6 +1136,11 @@ Tests use synthetic dictionaries and a DataLoader whose dataset records access; 
 - No model training, optimizer step, production data generation/download, or remote job was performed.
 
 
-## Resume-cursor correctness batch (2026-11-27; PR validation pending)
+## Resume-cursor correctness batch — PR #190 merged as `ab8e08ff9e482fca52cdc801e376212d42a8eb80`
 
 Reviewed the existing owner notebook's train/validation/test loader construction and the bounded trainer's checkpoint callback contract. The callback receives a committed `data_state` containing the verified dataset digest, dataset size, batch size, epoch/batch cursor, sampler state, seed, accumulation setting, and training settings. Added a regression test that rejects a different expected dataset digest before model, optimizer, or scheduler restoration; added mock-only uninterrupted/resumed sampler sequence equivalence and dataset/seed mismatch tests. These tests do not execute a model forward pass, optimizer step, or training loop. No production data or remote job was used.
+
+
+## Checkpoint portability and bounded dataset scan batch — PR #191 open; CI pending
+
+Added mock-only fresh-object checkpoint restoration for model, optimizer, scheduler, and resumable sampler cursor; a copied checkpoint bundle integrity/restore test; and a fault-injected interrupted manifest commit test that confirms the previous verified backup remains recoverable. Strengthened the restore regression by seeding a synthetic SGD momentum buffer directly and asserting the buffer, parameter-group settings, and scheduler state restore; this exercises optimizer-state serialization without an optimizer step. Documented the three-file checkpoint generation, one-generation backup limit, non-transactional multi-file replacement window, fail-closed behavior, and transfer/storage requirements. Added `ultron_core/dataset_stream_scan.py`, a one-line-at-a-time bounded structural JSONL scanner with digest, row-count, topic-count, strict duplicate-key parsing, and byte/row/line limits. It explicitly does not replace the exact semantic verifier or check duplicate example IDs/prompt leakage. README and pre-training readiness handoff updated. No training, optimizer step on ULTRON weights, production data generation/download, or remote job was performed.
