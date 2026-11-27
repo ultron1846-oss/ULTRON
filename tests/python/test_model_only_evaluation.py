@@ -24,6 +24,10 @@ class _Tokenizer:
     def __init__(self, answer):
         self.answer = answer
 
+    def assert_compatible_config(self, config):
+        if config.tokenizer_version != 1 or config.vocab_size != len(self.vocabulary):
+            raise ValueError("model config vocabulary size does not match tokenizer")
+
     def encode(self, text, *, add_bos=False):
         return [1, 4] if add_bos else [4]
 
