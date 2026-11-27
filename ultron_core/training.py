@@ -8,6 +8,7 @@ from dataclasses import dataclass
 
 from .config import MIN_FOUNDATION_TRAINABLE_PARAMETERS, NeuroSparseConfig, count_parameters
 from .resumable_sampler import ResumableRandomSampler
+from .data_state import validate_training_data_state
 import torch
 from torch.nn import functional as F
 
@@ -371,20 +372,32 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
         sampler_state = cursor.get("sampler_state")
         if resume_metadata is not None and not isinstance(sampler_state, dict):
             raise ValueError("resume checkpoint is missing sampler_state")
-        if sampler_state is None and (
-                epoch != 0 or next_batch_index != 0
-                or sampler.state_dict().get("next_index") != 0):
-            raise ValueError("non-zero initial cursor requires sampler_state")
-        if isinstance(sampler_state, dict):
-            sampler.load_state_dict(sampler_state)
+        if sampler_state is None:
+            current_sampler_state = sampler.state_dict()
+            if (epoch != 0 or next_batch_index != 0
+                    or current_sampler_state.get("next_index") != 0):
+                raise ValueError("non-zero initial cursor requires sampler_state")
+            cursor["sampler_state"] = current_sampler_state
+            cursor.setdefault("next_sample_index", current_sampler_state["next_index"])
+            cursor.setdefault("seed", settings.seed)
+            cursor.setdefault(
+                "gradient_accumulation_steps", settings.gradient_accumulation_steps
+            )
+
+        cursor = validate_training_data_state(
+            cursor,
+            dataset_manifest_sha256=dataset_hash,
+            dataset_size=train_size,
+            batch_size=planned_batch,
+            seed=settings.seed,
+            gradient_accumulation_steps=settings.gradient_accumulation_steps,
+        )
+        epoch = cursor["epoch"]
+        next_batch_index = cursor["next_batch_index"]
+        sampler.load_state_dict(cursor["sampler_state"])
         live_sampler_state = sampler.state_dict()
-        if (live_sampler_state.get("dataset_manifest_sha256") != dataset_hash
-                or live_sampler_state.get("seed") != settings.seed
-                or live_sampler_state.get("epoch") != epoch):
-            raise ValueError("sampler state does not match training dataset, seed, or epoch")
-        expected_sample_cursor = min(next_batch_index * planned_batch, split_counts["train"])
-        if live_sampler_state.get("next_index") != expected_sample_cursor:
-            raise ValueError("sampler sample cursor does not match next_batch_index and preflight batch size")
+        if live_sampler_state != cursor["sampler_state"]:
+            raise ValueError("loaded sampler state differs from validated data_state")
         committed_sampler_state = copy.deepcopy(live_sampler_state)
 
     budget = preflight_report.get("memory_budget_bytes")
