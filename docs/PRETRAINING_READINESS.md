@@ -192,9 +192,9 @@ The preflight package validates the existing dataset and split manifest, adapts 
 
 The split seed and resumable sampler seed are independent; the sampler seed is stored in the initial data cursor and must match TrainingSettings.seed later. Combined loader construction avoids independently rebuilding the verified dataset three times. It still relies on the existing in-memory JSONL parser and does not establish streaming-scale dataset access.
 
-## Checkpoint metadata compatibility batch — stacked branch (2026-11-27; CI pending)
+## Checkpoint metadata compatibility batch — PR #189 merged (2026-11-27)
 
-The current batch validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The owner notebook can optionally print compatibility status and blockers. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
+PR #189 merged as `582533c7267babf3035f1d4126e96fde4429592e`; exact-head Node, Python AI Core, and Level 1 checks passed (runs `45973714005`, `45973713970`, and `45973713967`). It validates new-format resumable cursor metadata at checkpoint boundaries, adds a checkpoint-digest-bound JSON sidecar, and provides a metadata-only compatibility inspector. The inspector hashes checkpoint bytes and reads the sidecar; it does not call `torch.load`, deserialize checkpoint tensors, or load weights. This remains a non-authorizing report. Actual checkpoint restore and valid training are still gated.
 
 
 ## Resume cursor and checkpoint gate regression batch — 2026-11-27 (PR validation pending)
