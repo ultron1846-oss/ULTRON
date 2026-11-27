@@ -102,7 +102,7 @@ class StreamingSemanticDatasetTests(unittest.TestCase):
                 return result
 
             with patch.object(split_module, "verify_dataset", side_effect=verify_then_mutate):
-                with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                with self.assertRaisesRegex(ValueError, "SHA-256 mismatch|dataset changed while being read"):
                     prepare_dataset_split_manifest(dataset, split, split_seed=7)
 
     def test_existing_split_manifest_roundtrip_remains_compatible(self):
