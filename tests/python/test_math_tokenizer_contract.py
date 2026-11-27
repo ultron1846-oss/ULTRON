@@ -25,7 +25,7 @@ class MathTokenizerContractTests(unittest.TestCase):
         tokenizer = MathTokenizer()
         examples = (
             "∀x∈ℝ: x²≥0",
-            r"\\frac{a+b}{c} \\Rightarrow a\\neq0",
+            r"\frac{a+b}{c} \Rightarrow a\neq0",
             "f(x) = α·x + β\n\t",
             "∫₀¹ x² dx = 1/3",
         )
