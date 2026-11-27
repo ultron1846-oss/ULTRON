@@ -65,6 +65,24 @@ class IndexedDatasetStressTests(unittest.TestCase):
             self.assertFalse(report["training_performed"])
             self.assertTrue(dataset.is_file())
 
+    def test_corrupt_dataset_and_incomplete_split_manifests_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset, split = self._prepare(root, count=90)
+            dataset_manifest = dataset.with_suffix(dataset.suffix + ".manifest.json")
+            dataset_manifest.write_text("{", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                VerifiedIndexedSplitStore(dataset, split)
+
+            # Recreate a valid source/sidecar, then remove required split data.
+            fixture(dataset, 90, duplicate=False)
+            prepare_dataset_split_manifest(dataset, split, split_seed=29)
+            incomplete = json.loads(split.read_text(encoding="utf-8"))
+            incomplete.pop("split_ids")
+            split.write_text(json.dumps(incomplete), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                VerifiedIndexedSplitStore(dataset, split)
+
     def test_snapshot_record_corruption_fails_integrity_check(self):
         with tempfile.TemporaryDirectory() as directory:
             dataset, split = self._prepare(Path(directory), count=90)
