@@ -68,6 +68,8 @@ def build_verified_training_preflight(
         raise TypeError("tokenizer must be MathTokenizer")
     if len(active_tokenizer.vocabulary) != config.vocab_size:
         raise ValueError("model vocabulary size does not match the verified dataset tokenizer")
+    if runtime_config.sequence_length > config.max_sequence_length:
+        raise ValueError("runtime sequence length exceeds the model configuration limit")
 
     loaders = build_verified_split_loaders(
         dataset_path,
