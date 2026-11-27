@@ -163,8 +163,13 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     manifest,rows=_read_dataset(dataset_path)
     path=Path(split_manifest_path)
     if not path.is_file(): raise FileNotFoundError(f"split manifest not found: {path}")
-    raw=path.read_bytes()
-    if len(raw)>_MAX_SPLIT: raise ValueError("split manifest exceeds 32 MiB")
+    try:
+        with path.open("rb") as stream:
+            raw = stream.read(_MAX_SPLIT + 1)
+    except OSError as exc:
+        raise ValueError("split manifest could not be read safely") from exc
+    if len(raw) > _MAX_SPLIT:
+        raise ValueError("split manifest exceeds 32 MiB")
     try: payload=json.loads(raw.decode("utf-8"),object_pairs_hook=_strict_object)
     except (UnicodeDecodeError,json.JSONDecodeError,ValueError) as exc:
         raise ValueError("split manifest malformed or contains duplicate keys") from exc
@@ -197,7 +202,8 @@ def _read_bound_split_payload(split_manifest_path, verified):
     try:
         if not path.is_file():
             raise FileNotFoundError(f"split manifest not found: {path}")
-        raw = path.read_bytes()
+        with path.open("rb") as stream:
+            raw = stream.read(_MAX_SPLIT + 1)
     except OSError as exc:
         raise ValueError("split manifest could not be re-read safely") from exc
     if len(raw) > _MAX_SPLIT:
