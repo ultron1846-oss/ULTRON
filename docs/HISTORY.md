@@ -1126,3 +1126,11 @@ Final review head `aa94214210a90b2c332d724dfe396cb8c182c228` passed Node Tests `
 Adds ultron_core/data_state.py, a pure validator for the checkpoint data cursor and nested ResumableRandomSampler state. It binds both cursors to the same dataset SHA-256, train split size, persisted batch size (with checked legacy fallback), seed, epoch, and gradient accumulation setting; verifies sample-cursor/batch-cursor alignment including a final partial batch and records batch size in new cursor/checkpoint metadata; rejects missing or malformed sampler metadata; and returns a detached copy. The validator is wired into preflight cursor construction and the trainer's pre-batch sampler validation path.
 
 Tests use synthetic dictionaries and a DataLoader whose dataset records access; malformed cursor metadata must be rejected before any sample is requested and before the mock optimizer records a step. No checkpoint file is read or restored; no valid training invocation, optimizer step, production dataset generation/download, or remote job is run.
+
+## Checkpoint metadata compatibility engineering batch (2026-11-27; CI pending)
+
+- Added checkpoint-boundary validation for complete new-format resumable data cursors, preserving legacy cursor metadata without a stored batch-size field.
+- Added a JSON metadata sidecar bound to the checkpoint byte digest and an inspector that validates dataset/runtime cursor compatibility without calling `torch.load` or loading model weights.
+- Added synthetic tests for valid metadata, dataset/cursor mismatches, sidecar absence, and checkpoint-byte tampering.
+- Updated `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` to optionally display a metadata-only compatibility report and blockers.
+- No model training, optimizer step, production data generation/download, or remote job was performed.
