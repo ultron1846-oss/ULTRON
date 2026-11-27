@@ -25,7 +25,10 @@ class VerifiedDatasetTests(unittest.TestCase):
    manifest,rows=_read_dataset(data)
    self.assertEqual(len(rows),manifest["example_count"])
    self.assertTrue(rows)
-   self.assertEqual(set(rows[0]),{"example_id","input_text"})
+   self.assertEqual(len(rows[0]),2)
+   self.assertIsInstance(rows[0],tuple)
+   self.assertIsInstance(rows[0][0],str)
+   self.assertIsInstance(rows[0][1],str)
  def test_single_split_loader_retains_only_requested_full_records(self):
   import json
   with tempfile.TemporaryDirectory() as d:
