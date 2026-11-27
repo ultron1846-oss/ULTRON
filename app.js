@@ -335,7 +335,9 @@ function bind(page){
    const link=document.createElement('a');
    link.href=url;
    link.download='ultron-runtime-config.json';
+   document.body.append(link);
    link.click();
+   link.remove();
    setTimeout(()=>URL.revokeObjectURL(url),1000);
    document.querySelector('#settings-result').textContent='Exported configuration only. It does not start training or connect a runtime.';
   });
