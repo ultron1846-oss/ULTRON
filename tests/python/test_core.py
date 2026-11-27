@@ -590,7 +590,7 @@ class CoreTests(unittest.TestCase):
                 torch.save(payload, path)
                 digest = hashlib.sha256(path.read_bytes()).hexdigest()
                 path.with_suffix(path.suffix + ".sha256").write_text(
-                    digest + "  " + path.name + "\\n", encoding="utf-8"
+                    digest + "  " + path.name + "\n", encoding="utf-8"
                 )
 
                 target = NeuroSparseModel(config)
