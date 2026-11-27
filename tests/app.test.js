@@ -48,12 +48,15 @@ test('Math Agent exposes commands for every mathematics roadmap topic', async ()
 });
 
 test('settings exports a versioned runtime config without enabling execution', async () => {
-  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  const [app, runtimeConfig] = await Promise.all([
+    readFile(new URL('../app.js', import.meta.url), 'utf8'),
+    readFile(new URL('../runtime-config.js', import.meta.url), 'utf8')
+  ]);
   assert.ok(app.includes('export-runtime-config'));
   assert.ok(app.includes('ultron-runtime-config.json'));
   assert.ok(app.includes('createRuntimeConfig(Number(slider.value))'));
   assert.ok(app.includes('serializeRuntimeConfig(config)'));
   assert.ok(app.includes('runtime-config.js?v=20261127-1'));
-  assert.ok(app.includes('remote_execution_enabled:false'));
+  assert.ok(runtimeConfig.includes('remote_execution_enabled: false'));
   assert.ok(app.includes('configuration only. It does not start training'));
 });
