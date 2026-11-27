@@ -115,6 +115,15 @@ def scan_jsonl_structure(
             topic = row.get("topic")
             if not isinstance(topic, str) or not topic:
                 raise ValueError(f"dataset JSONL row {line_number} has an invalid topic")
+            for field in ("generator_version", "input_text", "target_text", "exact_answer", "provenance", "validation_status"):
+                if not isinstance(row.get(field), str):
+                    raise ValueError(f"dataset JSONL row {line_number} has an invalid {field}")
+            difficulty = row.get("difficulty")
+            if isinstance(difficulty, bool) or not isinstance(difficulty, int) or difficulty <= 0:
+                raise ValueError(f"dataset JSONL row {line_number} has an invalid difficulty")
+            seed = row.get("seed")
+            if isinstance(seed, bool) or not isinstance(seed, int):
+                raise ValueError(f"dataset JSONL row {line_number} has an invalid seed")
             index = row.get("index")
             if isinstance(index, bool) or not isinstance(index, int) or index < 0:
                 raise ValueError(f"dataset JSONL row {line_number} has an invalid index")
@@ -129,6 +138,8 @@ def scan_jsonl_structure(
     if (bytes_scanned != before.st_size or after.st_size != before.st_size
             or after.st_mtime_ns != before.st_mtime_ns):
         raise ValueError("dataset changed while streaming the structural scan")
+    if row_count == 0:
+        raise ValueError("dataset JSONL must contain at least one row")
     actual_sha256 = digest.hexdigest()
     if expected_sha256 is not None and actual_sha256 != expected_sha256:
         raise ValueError("dataset SHA-256 does not match expected manifest")
