@@ -105,19 +105,20 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
                 dataset, batch_size=2, sampler=restored_sampler,
                 num_workers=0, drop_last=False,
             )
+            self.assertEqual(restored_sampler.state_dict(), cursor["sampler_state"])
             expected_sampler = ResumableRandomSampler(
                 dataset, seed=19, dataset_manifest_sha256=self.DATASET_HASH
             )
             expected_order = list(iter(expected_sampler))
             remaining_indices = list(iter(restored_loader.sampler))
 
+            self.assertEqual(restored_sampler.state_dict()["next_index"], len(dataset))
             self.assertEqual(metadata["step"], 17)
             self.assertTrue(metadata["optimizer_restored"])
             self.assertTrue(metadata["scheduler_restored"])
             self.assertEqual(metadata["data_state"], cursor)
             self.assertEqual(float(restored_model.weight.detach().item()), 3.25)
             self.assertAlmostEqual(restored_optimizer.param_groups[0]["lr"], 0.037)
-            self.assertEqual(restored_sampler.state_dict()["next_index"], 2)
             self.assertEqual(restored_loader.num_workers, 0)
             self.assertEqual(remaining_indices, expected_order[2:])
 
