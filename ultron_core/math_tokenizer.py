@@ -40,6 +40,15 @@ CANONICAL_TOKENS = SPECIAL_TOKENS + tuple(dict.fromkeys(
 ))
 
 
+def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate vocabulary JSON key: {key}")
+        result[key] = value
+    return result
+
+
 @dataclass(frozen=True)
 class MathToken:
     token_id: int
@@ -100,7 +109,7 @@ class MathVocabulary:
     @classmethod
     def from_json(cls, value: str) -> "MathVocabulary":
         try:
-            parsed = json.loads(value)
+            parsed = json.loads(value, object_pairs_hook=_reject_duplicate_json_keys)
         except (TypeError, json.JSONDecodeError) as exc:
             raise ValueError("invalid vocabulary JSON") from exc
         return cls.from_dict(parsed)
