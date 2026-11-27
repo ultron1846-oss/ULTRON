@@ -169,7 +169,10 @@ def collate_verified_math_batch(
 
 
 def _validate_loader_settings(batch_size: int, seed: int) -> None:
-    _validate_loader_settings(batch_size, seed)
+    if isinstance(batch_size, bool) or not isinstance(batch_size, int) or not 1 <= batch_size <= 1024:
+        raise ValueError("batch_size must be in [1, 1024]")
+    if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**63:
+        raise ValueError("seed must be in [0, 2**63)")
 
 
 def _build_loader(
@@ -212,10 +215,7 @@ def _build_verified_split_loaders_from_rows(
     tokenizer: MathTokenizer | None = None,
 ) -> dict[str, DataLoader]:
     """Construct all three loaders from one verified in-memory split snapshot."""
-    if isinstance(batch_size, bool) or not isinstance(batch_size, int) or not 1 <= batch_size <= 1024:
-        raise ValueError("batch_size must be in [1, 1024]")
-    if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**63:
-        raise ValueError("seed must be in [0, 2**63)")
+    _validate_loader_settings(batch_size, seed)
     if not isinstance(rows_by_split, Mapping) or set(rows_by_split) != set(_SPLITS):
         raise ValueError("rows_by_split must contain exactly train, validation, and test")
 
