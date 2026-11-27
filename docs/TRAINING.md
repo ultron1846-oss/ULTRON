@@ -82,3 +82,7 @@ This is a validated file-based configuration handoff—not a live website-to-run
 ## Owner notebook scaffold — preflight setup only
 
 `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` checks repository presence, loads the website-exported schema-v1 runtime config, verifies both authorization flags remain false, and calculates the foundation parameter counts by formula without instantiating the model. It is intentionally not the complete owner training notebook: no dataset is loaded or generated, no split is checked, no model weights or optimizer are allocated, no sampler/DataLoader is constructed, and no checkpoint is restored. The next implementation is a read-only loader for an already-existing manifest-bound dataset and split contract. See [OWNER_NOTEBOOK.md](OWNER_NOTEBOOK.md).
+
+## Owner notebook — dataset/split preflight
+
+The notebook validates the exported schema-v1 config, calculates foundation parameter counts without model allocation, verifies an existing JSONL dataset and sidecar, and prepares/revalidates deterministic prompt-disjoint split-ID metadata bound to the dataset SHA-256. The split operation writes metadata only; it does not create or download examples. No model, optimizer, DataLoader, checkpoint, or training operation is invoked. See [OWNER_NOTEBOOK.md](OWNER_NOTEBOOK.md).

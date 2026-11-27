@@ -158,7 +158,7 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook scaffold now validates the exported config and formula-based foundation parameter count only. Next: implement a read-only loader for an already-existing manifest-bound dataset and validated split contract; then construct the train-split DataLoader with ResumableRandomSampler, persist callback data_state, and pass the expected dataset SHA-256 when loading checkpoints. No data generation/download is allowed in that task.
+1. Owner notebook validates the exported config and parameter formulas, verifies an existing dataset, and creates/revalidates deterministic prompt-disjoint split-ID metadata bound to dataset SHA-256. Next: wire verified split IDs into a read-only dataset view and ResumableRandomSampler/DataLoader, persist callback data_state, and pass expected dataset SHA-256 when loading checkpoints. No example generation/download is allowed.
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
@@ -170,3 +170,7 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 ## Owner notebook setup scaffold — 2026-11-27
 
 The preflight notebook checks repository presence, validates the browser-exported schema-v1 runtime config, and calculates foundation parameter counts without allocating model weights. It is not full dataset preflight or a training notebook. Dataset loading/split verification, sampler/DataLoader construction, checkpoint callback persistence, and clean-runtime resume remain open.
+
+## Manifest-bound split preflight — PR #185 (2026-11-27)
+
+The owner notebook verifies an existing JSONL dataset and sidecar, creates only deterministic split-ID metadata, and validates the result against exact dataset digest and prompt-group hash assignment. It does not generate rows, download data, instantiate model/optimizer/DataLoader, restore checkpoints, or train. Sampler/DataLoader integration and cursor persistence remain open.

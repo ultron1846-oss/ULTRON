@@ -16,7 +16,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - **Compression toolkit:** PR #166 added non-destructive expert pruning/representative merging, SVD factorization, simulated int8 sensitivity reporting, and versioned artifacts.
 - **Static website:** Account-free browser workspace with local memory and a browser-local memory preference.
 - **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; JavaScript and Python validate it independently, with a Python preflight adapter. This is a file handoff only, not a connected runtime.
-- **Owner notebook scaffold:** `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` validates the exported config and formula-based foundation parameter counts without model allocation. It is preflight setup only; dataset loading, sampler/DataLoader, checkpoint resume, and training remain unimplemented/disabled.
+- **Owner notebook:** `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` validates the exported config, formula-based capacity, and an existing dataset/split manifest. It writes split-ID metadata only; no examples are generated/downloaded and no weights are allocated. Sampler/DataLoader and checkpoint resume integration remain open.
 
 ## Tested
 
@@ -85,3 +85,6 @@ For current feature-specific requirements, use the relevant documents under [doc
 
 - PR #183 — documentation handoff for PR #182 — merged as `0f456b4c92c1381e19cd259d79413df74d053548`; latest-head Node, Python AI Core, and Level 1 checks passed.
 - Current owner-notebook scaffold: preflight setup only. It does not load/generate a dataset, allocate model weights, construct a sampler/DataLoader, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).
+
+- PR #184 — owner notebook preflight scaffold — merged as `041c39d2b37f68a21e45f149c3ef6412c64641bf`; latest-head Python AI Core, Level 1 Math Tooling, and Node checks passed.
+- PR #185 adds manifest-bound split metadata validation/preparation for an existing dataset. It writes split IDs only and does not generate dataset rows. PR CI and post-merge checks pending.
