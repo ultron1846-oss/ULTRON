@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-26**
+**Status snapshot: 2026-11-27**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -16,6 +16,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - **Compression toolkit:** PR #166 added non-destructive expert pruning/representative merging, SVD factorization, simulated int8 sensitivity reporting, and versioned artifacts.
 - **Static website:** Account-free browser workspace with local memory and a browser-local memory preference.
 - **Runtime configuration handoff:** Versioned schema-v1 JSON export for the 2–10 GiB preference, bounded workload defaults, and explicit non-authorizing flags; JavaScript and Python validate it independently, with a Python preflight adapter. This is a file handoff only, not a connected runtime.
+- **Owner notebook scaffold:** `notebooks/ULTRON_OWNER_PREFLIGHT.ipynb` validates the exported config and formula-based foundation parameter counts without model allocation. It is preflight setup only; dataset loading, sampler/DataLoader, checkpoint resume, and training remain unimplemented/disabled.
 
 ## Tested
 
@@ -80,3 +81,7 @@ For current feature-specific requirements, use the relevant documents under [doc
 - Foundation training-gate hardening: [PR #170 — align the foundation parameter floor](https://github.com/ultron1846-oss/ULTRON/pull/170) merged as `ea1e1851a42a2334369bcf26b8bc74037ec98191`. Preflight and the bounded training controller now use the shared inclusive 60,000,000-trainable-parameter floor; regression tests cover exact-floor acceptance and rejection below the floor before batch consumption or optimizer steps. Final PR checks passed on `8d9a0dd9d42f21ac7cb86ccac87a67ebbce4f14c`: Node Tests run `45830279539`, Python AI Core run `45830279637`, and Level 1 Math Tooling run `45830279788`. All six post-merge checks passed on `main`: Node Tests `45830648511`, Python AI Core `45830648531`, Level 1 Math Tooling `45830648456`, Pages build `45830648135`, build-status report, and Pages deployment (both jobs in run `45830648135`). No model training, optimizer steps, or corpus/dataset generation were performed.
 
 - Latest merged engineering change: [PR #182 — versioned runtime-config handoff](https://github.com/ultron1846-oss/ULTRON/pull/182), squash-merged as `87db245d7147690d986535fa6b80f60015634d5e`. Final PR CI passed on head `05775faf460ea6bba69ecb995858ddd7d63b56c8`: Node `45924574433`, Python AI Core `45924574430`, Level 1 Math Tooling `45924574420`. All six post-merge checks passed on `main`: Python AI Core `45924733525`, Level 1 Math Tooling `45924733537`, Node Tests `45924733492`, and Pages build/report/deploy run `45924733234`.
+
+
+- PR #183 — documentation handoff for PR #182 — merged as `0f456b4c92c1381e19cd259d79413df74d053548`; latest-head Node, Python AI Core, and Level 1 checks passed.
+- Current owner-notebook scaffold: preflight setup only. It does not load/generate a dataset, allocate model weights, construct a sampler/DataLoader, restore a checkpoint, or train. See [docs/OWNER_NOTEBOOK.md](docs/OWNER_NOTEBOOK.md).

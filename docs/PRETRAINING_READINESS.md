@@ -158,10 +158,15 @@ Training is **not approved**. It requires Phases 1–9 review, outstanding iPad 
 
 ## Next engineering handoff
 
-1. Owner notebook: import the validated schema-v1 runtime config, construct the train-split DataLoader with ResumableRandomSampler, persist callback data_state, and pass the expected dataset SHA-256 when loading checkpoints.
+1. Owner notebook scaffold now validates the exported config and formula-based foundation parameter count only. Next: implement a read-only loader for an already-existing manifest-bound dataset and validated split contract; then construct the train-split DataLoader with ResumableRandomSampler, persist callback data_state, and pass the expected dataset SHA-256 when loading checkpoints. No data generation/download is allowed in that task.
 2. Complete clean-runtime checkpoint/resume equivalence only after separate authorization for a tiny optimizer-step test; no real-weight training.
 3. Integrate the exported config into an approved runtime; add measured live RAM/VRAM enforcement and document checkpoint storage/backup limits.
 4. Owner: complete iPad Safari acceptance, enable leaked-password protection in Supabase Auth, and validate the free-cloud runtime/session workflow.
 5. Extend prerequisite mapping to relevant grade-band curricula; curate and independently verify a frozen transfer benchmark with near-duplicate review.
 6. Continue broader independently validated university-math tasks, general symbolic equivalence, and proof-checker metrics.
 7. Keep real-weight training and remote execution disabled until separate explicit authorization.
+
+
+## Owner notebook setup scaffold — 2026-11-27
+
+The preflight notebook checks repository presence, validates the browser-exported schema-v1 runtime config, and calculates foundation parameter counts without allocating model weights. It is not full dataset preflight or a training notebook. Dataset loading/split verification, sampler/DataLoader construction, checkpoint callback persistence, and clean-runtime resume remain open.
