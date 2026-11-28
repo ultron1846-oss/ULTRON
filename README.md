@@ -122,3 +122,23 @@ PR #201 was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It adds
 
 
 **Dataset memory boundary:** The indexed loader bounds snapshot copying and record iteration, but it is not constant-memory: split-manifest ID arrays are parsed in Python memory up to the 100,000-row preflight cap. The benchmark's `tracemalloc` measurement excludes native SQLite allocations and process RSS/device memory. A production dataset benchmark remains owner-dependent.
+
+
+## Full-system readiness — 2026-11-28
+
+**Current verdict: automated engineering validation passed; not ready for training.** The integrated candidate is [PR #207](https://github.com/ultron1846-oss/ULTRON/pull/207), based on main `2ba3340dbc841699ad98e651c86f2e227be8cac0`. Exact implementation/test revision `bfb48af944c9dfba8e387d9c39f9a1b39a31145f` passed:
+
+- Node Tests [run 46107031153](https://github.com/ultron1846-oss/ULTRON/actions/runs/46107031153): 127 passed, 0 failed.
+- Python AI Core [run 46107031165](https://github.com/ultron1846-oss/ULTRON/actions/runs/46107031165): 722 tests passed; CPU forward/backward smoke explicitly performed no optimizer step or training run.
+- Level 1 Math Tooling [run 46107031224](https://github.com/ultron1846-oss/ULTRON/actions/runs/46107031224): 5 tests passed, including 5,000 randomized cases.
+- Security and dependency audit [run 46107031196](https://github.com/ultron1846-oss/ULTRON/actions/runs/46107031196): passed; npm audit found 0 vulnerabilities and pip-audit found no known vulnerabilities in the declared runtime/test/seed dependency sets.
+
+The target configuration is 63,400,451 total / 61,826,048 trainable parameters, but the full model has not been instantiated or profiled. The university curriculum lists 197 topics; 60 currently have generators and 137 do not. The evaluation fixtures are synthetic, there is no trained checkpoint or model-accuracy result, inference/compression tests use small initialized weights, and simulated int8 is not a packed deployment runtime.
+
+The website/runtime contracts pass mocked and static tests. The 2–10 GiB slider and exported runtime config are preferences only; no live resource enforcement or website-to-runtime connection exists. Manual iPad Safari acceptance and provider-session/persistence checks remain owner tasks. Supabase leaked-password protection, retired tables/functions, secret-scanning settings, project license and full dependency-license inventory also require owner decisions. See [docs/FULL_SYSTEM_READINESS_2026-11-28.md](docs/FULL_SYSTEM_READINESS_2026-11-28.md) for the complete status table, limitations and owner actions.
+
+**No training, optimizer step on ULTRON weights, production corpus generation/download, Supabase mutation, production deployment, external AI API call or remote training execution was performed. Do not start training without separate explicit authorization.**
+
+### Exact next engineering task
+
+After independent review of PR #207, implement a bounded exact-rational **Green's theorem** generator tranche for the existing `Green_stokes_divergence_theorems` university catalog entry. Use polynomial vector fields over axis-aligned rational rectangles; independently verify the counter-clockwise boundary line integral against the double integral of the curl; add deterministic, tamper, orientation and resource-bound tests; update the registry and coverage audit without claiming Stokes/divergence coverage. Use fixtures only—no production corpus, training, optimizer step or remote compute.

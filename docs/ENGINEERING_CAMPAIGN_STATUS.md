@@ -33,3 +33,24 @@ This file tracks the 14-stage campaign from `Pasted markdown(2).md`. Statuses di
 ## Authorization boundary
 
 Do not generate/download the full training corpus, train ULTRON weights, perform optimizer steps, run long training, launch remote compute, or incur cost without separate explicit authorization. Small deterministic unit fixtures and non-training validation are permitted. No pretrained model, weights, external AI API, or external generated training corpus may be used.
+
+
+## Prompt 6 — full-system validation and handoff (2026-11-28)
+
+**Integrated candidate:** [PR #207](https://github.com/ultron1846-oss/ULTRON/pull/207), based on `2ba3340dbc841699ad98e651c86f2e227be8cac0`. Exact code/test revision `bfb48af944c9dfba8e387d9c39f9a1b39a31145f` passed the full current CI matrix: Node 127/127 (run 46107031153), Python AI Core 722 tests (run 46107031165), Level 1 5/5 plus 5,000 randomized cases (run 46107031224), and security/dependency audit (run 46107031196). The Python CPU smoke was forward/backward only and explicitly did not perform an optimizer step.
+
+| Prompt 6 area | Status | Notes |
+|---|---|---|
+| Dataset/preflight fixtures | Verified | Manifest, indexed dataset, split, tokenizer and preflight tests passed; no production corpus was built. |
+| Tokenizer/model/checkpoint integration | Implemented but not fully verified | Combined contract/recovery suite passed on fixtures; full foundation hardware execution not tested. |
+| Inference/compression | Implemented but not fully verified | Small initialized checkpoint and artifact paths tested; no trained model or real performance metrics. |
+| Website/runtime/security contracts | Implemented but not fully verified | Mock/static protocol and dependency checks pass; actual deployment and device acceptance are not demonstrated. |
+| 60M foundation execution | Incomplete | Formula: 63,400,451 total / 61,826,048 trainable. No full instantiation or target-device profiling. |
+| Curriculum and evaluation readiness | Incomplete | 60/197 university catalog topics have generators; no trained checkpoint or frozen final score. |
+| iPad, provider quotas/persistence, Supabase, license/secrets | Blocked by owner action | See the full readiness report for the exact checklist. |
+
+The test controller's optimizer-step assertions use a mock model with meta-device parameters and a counter-only mock optimizer. The CI CPU smoke explicitly says no optimizer step or training run. The seed-data workflow is manual and requires both a confirmation input and the `ULTRON_SEED_IMPORT_ENABLED` repository variable; it was not dispatched.
+
+**Exact next engineering task:** implement an independently validated, bounded exact-rational Green's theorem generator tranche for the missing `Green_stokes_divergence_theorems` topic; validate counter-clockwise line integral against curl double integral over rational rectangles; add deterministic/tamper/orientation/resource-bound tests and synchronize the registry. Do not claim Stokes or divergence coverage. No production corpus, optimizer step, training or remote compute.
+
+Training remains a separate phase and is not authorized.
