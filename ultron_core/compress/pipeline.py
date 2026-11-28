@@ -50,6 +50,15 @@ def _model_counts(model: nn.Module) -> dict[str, int]:
     return {"total": total, "trainable": trainable, "frozen": total - trainable}
 
 
+
+def _state_tensor_bytes(model: nn.Module) -> int:
+    """Return logical state-dict tensor bytes (not RSS or serialized file size)."""
+    return sum(
+        value.numel() * value.element_size()
+        for value in model.state_dict().values()
+        if hasattr(value, "numel") and hasattr(value, "element_size")
+    )
+
 def run_compression_pipeline(
     model: nn.Module,
     steps: Sequence[Mapping[str, Any]],
@@ -106,6 +115,33 @@ def run_compression_pipeline(
                 artifact_version=version,
                 compression_steps=completed,
             )
+        source_state_bytes = _state_tensor_bytes(model)
+        result_state_bytes = _state_tensor_bytes(working)
+        artifact_file_bytes = (
+            Path(artifact_path).stat().st_size if artifact_path is not None else None
+        )
+        if artifact_info is not None:
+            artifact_info = {**artifact_info, "artifact_size_bytes": artifact_file_bytes}
+        size_report = {
+            "source_state_tensor_bytes": source_state_bytes,
+            "compressed_state_tensor_bytes": result_state_bytes,
+            "tensor_compression_ratio": (
+                source_state_bytes / result_state_bytes if result_state_bytes else None
+            ),
+            "tensor_size_reduction_fraction": (
+                1.0 - (result_state_bytes / source_state_bytes) if source_state_bytes else None
+            ),
+            "artifact_file_bytes": artifact_file_bytes,
+            "artifact_file_to_source_tensor_ratio": (
+                artifact_file_bytes / source_state_bytes
+                if artifact_file_bytes is not None and source_state_bytes
+                else None
+            ),
+            "measurement": (
+                "logical state-dict tensor bytes; artifact file bytes include metadata; "
+                "neither value measures process/device memory or runtime speed"
+            ),
+        }
         return working, {
             "success": True,
             "rolled_back": False,
@@ -114,6 +150,7 @@ def run_compression_pipeline(
             "parent_checkpoint_id": parent_checkpoint_id,
             "artifact_version": version,
             "artifact": artifact_info,
+            "compression_size": size_report,
             "parameter_counts_before": original_counts,
             "parameter_counts_after": _model_counts(working),
             "model_scope": "compressed_deployment_artifact",
