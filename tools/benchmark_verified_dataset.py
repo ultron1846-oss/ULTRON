@@ -15,7 +15,7 @@ import time
 import tracemalloc
 from pathlib import Path
 
-from ultron_core.indexed_verified_dataset import VerifiedIndexedSplitStore
+from ultron_core.indexed_verified_dataset import IndexedDatasetResourceLimits, VerifiedIndexedSplitStore
 
 
 def benchmark_indexed_dataset(
@@ -24,6 +24,7 @@ def benchmark_indexed_dataset(
     *,
     random_access_samples: int = 100,
     seed: int = 0,
+    resource_limits: IndexedDatasetResourceLimits | None = None,
 ) -> dict:
     if (
         isinstance(random_access_samples, bool)
@@ -40,7 +41,9 @@ def benchmark_indexed_dataset(
     store = None
     try:
         build_start = time.perf_counter()
-        store = VerifiedIndexedSplitStore(dataset_path, split_manifest_path)
+        store = VerifiedIndexedSplitStore(
+            dataset_path, split_manifest_path, resource_limits=resource_limits
+        )
         index_build_seconds = time.perf_counter() - build_start
 
         sequential_start = time.perf_counter()
@@ -155,14 +158,34 @@ def main() -> int:
     parser.add_argument("--split-manifest", required=True, type=Path)
     parser.add_argument("--random-access-samples", type=int, default=100)
     parser.add_argument("--seed", type=int, default=0)
+    defaults = IndexedDatasetResourceLimits()
+    parser.add_argument("--max-dataset-bytes", type=int, default=defaults.max_dataset_bytes)
+    parser.add_argument("--max-rows", type=int, default=defaults.max_rows)
+    parser.add_argument("--max-line-bytes", type=int, default=defaults.max_line_bytes)
+    parser.add_argument("--max-split-manifest-bytes", type=int, default=defaults.max_split_manifest_bytes)
+    parser.add_argument("--snapshot-copy-chunk-bytes", type=int, default=defaults.snapshot_copy_chunk_bytes)
+    parser.add_argument("--sqlite-cache-kib", type=int, default=defaults.sqlite_cache_kib)
+    parser.add_argument("--index-build-batch-rows", type=int, default=defaults.index_build_batch_rows)
+    parser.add_argument("--iterator-fetch-rows", type=int, default=defaults.iterator_fetch_rows)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     _validate_output_path(args.output, args.dataset, args.split_manifest)
+    limits = IndexedDatasetResourceLimits(
+        max_dataset_bytes=args.max_dataset_bytes,
+        max_rows=args.max_rows,
+        max_line_bytes=args.max_line_bytes,
+        max_split_manifest_bytes=args.max_split_manifest_bytes,
+        snapshot_copy_chunk_bytes=args.snapshot_copy_chunk_bytes,
+        sqlite_cache_kib=args.sqlite_cache_kib,
+        index_build_batch_rows=args.index_build_batch_rows,
+        iterator_fetch_rows=args.iterator_fetch_rows,
+    )
     report = benchmark_indexed_dataset(
         args.dataset,
         args.split_manifest,
         random_access_samples=args.random_access_samples,
         seed=args.seed,
+        resource_limits=limits,
     )
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
