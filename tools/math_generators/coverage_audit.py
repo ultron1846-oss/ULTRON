@@ -117,8 +117,17 @@ def build_coverage_audit() -> dict:
         elif row.get("word_problems") not in (False, None):
             raise ValueError(f"word_problems flag is invalid for {catalog_id!r}")
 
-    if len(catalog_ids) != len(set(catalog_ids)):
-        raise ValueError("combined registry contains duplicate scope-qualified catalog IDs")
+    scope_id_counts = Counter(catalog_ids)
+    scope_id_collisions = {
+        catalog_id: count
+        for catalog_id, count in sorted(scope_id_counts.items())
+        if count > 1
+    }
+    if scope_id_collisions:
+        raise ValueError(
+            "combined registry contains duplicate scope-qualified catalog IDs: "
+            + repr(scope_id_collisions)
+        )
 
     catalog_id_set = set(catalog_ids)
     independent_set, benchmark_set, mastered_set = _validate_manifest_and_evidence(catalog_id_set)
@@ -165,7 +174,7 @@ def build_coverage_audit() -> dict:
         "mastered_topic_count": len(mastered_set),
         "unique_catalog_id_count": len(catalog_ids),
         "unique_raw_topic_id_count": len(raw_topic_counts),
-        "scope_qualified_identifier_collision_count": 0,
+        "scope_qualified_identifier_collision_count": len(scope_id_collisions),
         "raw_topic_identifier_collision_count": len(collisions),
         "raw_topic_identifier_collisions": collisions,
         "combined_registry_entry_count": len(rows),

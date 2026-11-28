@@ -280,6 +280,8 @@ No ULTRON training, optimizer steps, model weight updates, production corpus gen
 - Current combined registry: 252 scope-qualified entries, 114 generator-available, 62 with documented independent exercise validation, zero trained-model benchmarked, zero mastered.
 - Evidence manifest: tools/math_generators/validation_manifest.json. Coverage report and prioritized dependency backlog: docs/MATH_CURRICULUM_AUDIT_2026-11-28.md.
 - Prerequisite map: 199 mapped topics and 372 edges; duplicate raw linear_equations labels are distinguished by scope-qualified catalogue IDs.
-- Exact-head validation is not yet reported as passed. Do not merge until all required checks pass on the latest head, the code is independently reviewed, and blocking review comments are resolved.
+- Phase 2 PR: [#209 — bounded exact-rational Green's theorem and curriculum evidence audit](https://github.com/ultron1846-oss/ULTRON/pull/209).
+- Latest implementation commit before this README follow-up: 3282aed47d41116513c86c8e40d9aa0db0647e32. Branch-head workflows are being rerun after the latest code fixes; the first full Python run had 2 failures which were corrected in subsequent commits (full verifier binding and raw-vs-scoped ID collision accounting).
+- Exact latest-head validation is still pending. Do not merge until all required checks pass on the latest head, the code is independently reviewed, and blocking review comments are resolved. PR #209 is stacked on #208, which in turn is stacked on #207; these integration/review gates must be preserved.
 
 No corpus generation/download, model training, optimizer step, remote job, checkpoint publication, Supabase mutation or Pages deployment occurred. Generator availability and independent exercise checks do not establish trained-model mathematical competence or mastery.
