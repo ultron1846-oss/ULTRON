@@ -246,7 +246,7 @@ This is still an engineering/catalogue statement, not a model-capability claim. 
 
 The 199-topic post-Green university curriculum is now expanded to 202 by splitting the broad first_order_ODEs row into four scoped families. homogeneous_constant_coefficient_first_order_ODEs is available for y'=k y with y(0)=y0. separable_first_order_ODEs is available only for the bounded rational power-law family y'=c*x^m*y^n, with an independent exact derivative/initial-value validator. linear_first_order_variable_coefficient_ODEs and exact_first_order_ODEs remain catalogued but unimplemented. The validator checks the exact solution y(t)=y0 exp(k t), the differential identity, the initial condition, and the complete generated problem object.
 
-Current combined coverage candidate: 255 catalogue entries, 114 generator-available, 63 independently validated exercise topics, zero trained-checkpoint benchmarks and zero mastered topics. University coverage: 61/202 generator-available, 141/202 not implemented. The university prerequisite map contains 202 topics and 378 edges.
+Current combined coverage candidate: 255 catalogue entries, 115 generator-available, 64 independently validated exercise topics, zero trained-checkpoint benchmarks and zero mastered topics. University coverage: 62/202 generator-available, 140/202 not implemented. The university prerequisite map contains 202 topics and 378 edges.
 
 This is a scope and exercise-verification improvement, not trained-model capability evidence. No ULTRON weights were trained or updated; no production corpus or remote job was created.
 
