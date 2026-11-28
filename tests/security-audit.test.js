@@ -23,12 +23,25 @@ test('static security audit covers every local module imported by the browser ap
     readFile(new URL('../security-audit.mjs', import.meta.url), 'utf8'),
     readFile(new URL('../app.js', import.meta.url), 'utf8')
   ]);
-  const pathsBlock = audit.match(/const paths = \\[([\\s\\S]*?)\\];/)?.[1];
-  assert.ok(pathsBlock, 'security audit must declare its source path list');
-  const scanned = new Set([...pathsBlock.matchAll(/'([^']+)'/g)].map(match => match[1]));
-  const imported = [...app.matchAll(/from\\s+['"]\\.\\/([^?'"]+)/g)].map(match => match[1]);
+  const pathsStart = audit.indexOf('const paths = [');
+  const pathsEnd = audit.indexOf('];', pathsStart);
+  assert.notEqual(pathsStart, -1, 'security audit must declare its source path list');
+  assert.notEqual(pathsEnd, -1, 'security audit path list must be closed');
+  const pathsBlock = audit.slice(pathsStart, pathsEnd);
+  const scanned = new Set(
+    pathsBlock.split('\\n')
+      .map(line => line.trim())
+      .filter(line => line.startsWith("'"))
+      .map(line => line.slice(1, line.indexOf("'", 1)))
+  );
+  const imported = app.split('\\n').flatMap(line => {
+    const marker = "from './";
+    const index = line.indexOf(marker);
+    if (index < 0) return [];
+    return [line.slice(index + marker.length).split('?')[0].split("'")[0].split('"')[0]];
+  });
   assert.ok(imported.length > 0, 'browser app must declare local module imports');
-  for (const path of imported) {
-    assert.ok(scanned.has(path), `browser module ${path} is missing from the static security audit`);
+  for (const modulePath of imported) {
+    assert.ok(scanned.has(modulePath), `browser module ${modulePath} is missing from the static security audit`);
   }
 });
