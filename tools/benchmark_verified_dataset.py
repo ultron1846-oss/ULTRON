@@ -9,8 +9,11 @@ import argparse
 import json
 import math
 import os
+import platform
 import random
 import statistics
+import sys
+import sqlite3
 import time
 import tracemalloc
 from pathlib import Path
@@ -100,6 +103,12 @@ def benchmark_indexed_dataset(
             "selected_example_count": total_selected,
             "snapshot_bytes": snapshot_bytes,
             "sqlite_index_bytes": sqlite_bytes,
+            "resource_limits": dict(vars(store.resource_limits)),
+            "runtime": {
+                "python_version": sys.version.split()[0],
+                "platform": platform.platform(),
+                "sqlite_version": sqlite3.sqlite_version,
+            },
             "index_build_seconds": index_build_seconds,
             "sequential_scan": {
                 "rows_scanned": rows_scanned,
