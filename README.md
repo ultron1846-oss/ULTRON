@@ -126,7 +126,7 @@ PR #201 was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It adds
 
 ## Prompt 4 — inference and compression validation (2026-11-28)
 
-PR #200 ([checkpoint-backed inference and compressed-artifact validation](https://github.com/ultron1846-oss/ULTRON/pull/200)) now adds the public `ultron_core.inference` API:
+PR #205 ([checkpoint-backed inference and compressed-artifact validation](https://github.com/ultron1846-oss/ULTRON/pull/205)) now adds the public `ultron_core.inference` API:
 - `load_inference_engine` selects a checksum-verified checkpoint/backup, validates model config and canonical tokenizer compatibility, loads weights without restoring training RNG state, and exposes bounded greedy inference.
 - `ULTRONInferenceEngine.generate` validates input/token IDs/logits, returns structured output, runs without tools or external AI APIs, resets ephemeral memory around requests, and restores the model's prior train/eval mode.
 - `load_compressed_inference_engine` reconstructs a versioned compressed deployment artifact from its parent checkpoint and uses the same inference API.
