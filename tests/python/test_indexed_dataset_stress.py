@@ -380,6 +380,28 @@ class IndexedDatasetStressTests(unittest.TestCase):
             self.assertFalse(report["dataset_modified"])
             self.assertFalse(report["training_performed"])
             self.assertEqual(report["optimizer_steps"], 0)
+            print(
+                "ULTRON_12K_SYNTHETIC_DATASET_BENCHMARK="
+                + json.dumps(
+                    {
+                        "dataset_example_count": report["dataset_example_count"],
+                        "selected_example_count": report["selected_example_count"],
+                        "runtime": report["runtime"],
+                        "index_build_seconds": report["index_build_seconds"],
+                        "sequential_scan": report["sequential_scan"],
+                        "random_access": {
+                            "samples": report["random_access"]["samples"],
+                            "median_latency_ms": report["random_access"]["median_latency_ms"],
+                            "p95_latency_ms": report["random_access"]["p95_latency_ms"],
+                        },
+                        "snapshot_bytes": report["snapshot_bytes"],
+                        "sqlite_index_bytes": report["sqlite_index_bytes"],
+                        "tracemalloc_peak_python_bytes": report["tracemalloc_peak_python_bytes"],
+                        "memory_measurement_scope": report["memory_measurement_scope"],
+                    },
+                    sort_keys=True,
+                )
+            )
 
             with VerifiedIndexedSplitStore(dataset, split) as store:
                 self.assertEqual(sum(store.split_counts.values()), 12000)
