@@ -76,8 +76,15 @@ class VerifiedIndexedSplitStore:
                 raise ValueError("dataset path is not a file")
             if not self.split_manifest_path.is_file():
                 raise ValueError("split manifest path is not a file")
+            dataset_sidecar = self.dataset_path.with_suffix(
+                self.dataset_path.suffix + ".manifest.json"
+            )
+            if not dataset_sidecar.is_file():
+                raise ValueError("dataset sidecar manifest path is not a file")
             if self.dataset_path.stat().st_size > self.resource_limits.max_dataset_bytes:
                 raise ValueError("dataset exceeds configured max_dataset_bytes")
+            if dataset_sidecar.stat().st_size > self.resource_limits.max_dataset_manifest_bytes:
+                raise ValueError("dataset sidecar manifest exceeds configured max_dataset_manifest_bytes")
             if self.split_manifest_path.stat().st_size > self.resource_limits.max_split_manifest_bytes:
                 raise ValueError("split manifest exceeds configured max_split_manifest_bytes")
         except OSError as exc:
