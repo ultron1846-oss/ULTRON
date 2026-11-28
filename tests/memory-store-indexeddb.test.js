@@ -189,7 +189,7 @@ async function withFake(run) {
 
 test('local memory schema preserves the planned ULTRON stores', () => {
   assert.equal(DB_NAME, 'ULTRON_MEMORY');
-  assert.equal(DB_VERSION, 1);
+  assert.equal(DB_VERSION, 2);
   assert.deepEqual(STORE_NAMES, ['experiences', 'knowledge', 'mistakes', 'checkpoints']);
 });
 
@@ -224,6 +224,7 @@ test('export and import round-trip experiences and merge records locally', async
   await withFake(async () => {
     await saveExperience({ id: 'roundtrip-1', prompt: '5 × 5', answer: '25', correct: true });
     const backup = await exportMemory();
+    assert.equal(backup.version, 1, 'backup format stays independent from the IndexedDB schema version');
     await clearMemory();
     assert.equal((await listExperiences()).length, 0);
     const result = await importMemory(backup);
