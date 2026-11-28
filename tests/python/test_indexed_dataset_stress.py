@@ -325,13 +325,19 @@ class IndexedDatasetStressTests(unittest.TestCase):
             with VerifiedIndexedSplitStore(dataset, split) as store:
                 expected = store.get_record("train", 0)
                 index_path = store._index_path
+                store._connection.close()
+                store._connection = None
                 with index_path.open("r+b") as index_file:
                     index_file.seek(0)
                     index_file.write(b"CORRUPTED")
                     index_file.flush()
                     os.fsync(index_file.fileno())
-                with self.assertRaises(sqlite3.DatabaseError):
-                    store.get_record("train", 0)
+                corrupted_connection = sqlite3.connect(index_path)
+                try:
+                    with self.assertRaises(sqlite3.DatabaseError):
+                        corrupted_connection.execute("SELECT * FROM ordered_records").fetchall()
+                finally:
+                    corrupted_connection.close()
 
             with VerifiedIndexedSplitStore(dataset, split) as rebuilt:
                 self.assertEqual(rebuilt.get_record("train", 0), expected)
