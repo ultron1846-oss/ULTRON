@@ -1,5 +1,6 @@
 const DB_NAME = 'ULTRON_MEMORY';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+const BACKUP_VERSION = 1;
 const STORE_NAMES = ['experiences', 'knowledge', 'mistakes', 'checkpoints'];
 const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
 const MAX_IMPORT_RECORDS = 50000;
@@ -13,10 +14,26 @@ function openDatabase() {
     request.onupgradeneeded = () => {
       const db = request.result;
       for (const name of STORE_NAMES) {
-        if (!db.objectStoreNames.contains(name)) {
-          const store = db.createObjectStore(name, { keyPath: 'id' });
-          if (name !== 'checkpoints') store.createIndex('createdAt', 'createdAt');
+        const store = db.objectStoreNames.contains(name)
+          ? request.transaction.objectStore(name)
+          : db.createObjectStore(name, { keyPath: 'id' });
+        if (!store.indexNames.contains('createdAt')) {
+          store.createIndex('createdAt', 'createdAt');
         }
+
+        // The v2 index excludes records without the indexed key. Backfill
+        // legacy rows so they remain listable and sort after timestamped rows.
+        const cursorRequest = store.openCursor();
+        cursorRequest.onsuccess = () => {
+          const cursor = cursorRequest.result;
+          if (!cursor) return;
+          const record = cursor.value;
+          if (typeof record.createdAt !== 'string') {
+            record.createdAt = '';
+            cursor.update(record);
+          }
+          cursor.continue();
+        };
       }
     };
     request.onsuccess = () => {
@@ -102,10 +119,29 @@ export async function getMemorySummary() {
 
 export async function listRecords(storeName, limit = 100) {
   if (!STORE_NAMES.includes(storeName)) throw new TypeError('Unknown ULTRON memory store.');
-  const records = await transactionRequest(storeName, 'readonly', store => store.getAll());
-  return records
-    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
-    .slice(0, Math.max(1, Math.min(500, Number(limit) || 100)));
+  const maximum = Math.max(1, Math.min(500, Number(limit) || 100));
+  const db = await openDatabase();
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+      const request = store.index('createdAt').openCursor(null, 'prev');
+      const records = [];
+
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) return;
+        records.push(cursor.value);
+        if (records.length < maximum) cursor.continue();
+      };
+      request.onerror = () => reject(request.error || new Error('Could not list local memory.'));
+      tx.oncomplete = () => resolve(records);
+      tx.onerror = () => reject(tx.error || new Error('Local memory listing failed.'));
+      tx.onabort = () => reject(tx.error || new Error('Local memory listing was aborted.'));
+    });
+  } finally {
+    db.close();
+  }
 }
 
 export async function listExperiences(limit = 100) {
@@ -152,7 +188,7 @@ export async function exportMemory() {
   }
   const backup = {
     format: 'ultron-local-memory',
-    version: DB_VERSION,
+    version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     stores
   };
@@ -161,7 +197,7 @@ export async function exportMemory() {
 }
 
 export async function importMemory(payload) {
-  if (!payload || payload.format !== 'ultron-local-memory' || payload.version !== DB_VERSION || !payload.stores || typeof payload.stores !== 'object' || Array.isArray(payload.stores)) {
+  if (!payload || payload.format !== 'ultron-local-memory' || payload.version !== BACKUP_VERSION || !payload.stores || typeof payload.stores !== 'object' || Array.isArray(payload.stores)) {
     throw new TypeError('This is not a supported ULTRON memory backup.');
   }
   serializeBounded(payload);
@@ -213,7 +249,11 @@ function normalizeStoredRecord(record) {
   }
   const id = typeof record.id === 'string' ? record.id.trim() : '';
   if (!id || id.length > 120) throw new TypeError('Backup record id must contain 1–120 characters.');
-  return { ...record, id };
+  return {
+    ...record,
+    id,
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : new Date().toISOString()
+  };
 }
 
 export { DB_NAME, DB_VERSION, STORE_NAMES, MAX_IMPORT_BYTES, MAX_IMPORT_RECORDS };
