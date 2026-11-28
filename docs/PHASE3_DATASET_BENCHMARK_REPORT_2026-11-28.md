@@ -2,12 +2,13 @@
 
 ## Status and scope
 
-This report records the read-only verified-dataset benchmark executed on final validated PR head `612d0defb2cee05ba6cfffac5f090a222079e0d6`, including separate SQLite main/temp schema page caps and regressions.
+This report records the read-only verified-dataset benchmark executed on implementation + regression-test revision `3c669f442404436acdb69ca488e03eef6976eb4d`, including SQLite main/temp page caps and the quality-audit journal-budget regression.
 
-- GitHub Actions run: [Python AI Core Tests #46150789066](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789066)
-- Job: `python-core`, job ID `140996769630`
+- GitHub Actions run: [Python AI Core Tests #46152095102](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095102)
+- Job: `python-core`, job ID `141000733143`
 - Test command: `python -m unittest discover -s tests/python -v`
-- Result: **713 tests passed in 55.977 seconds**
+- Result: **714 tests passed in 68.754 seconds**
+- Additional regression: `test_quality_audit_disables_sqlite_journals_before_writes` asserts both schema journals are disabled before audit DDL/DML.
 - The 12,000-row input was a temporary synthetic test fixture created within CI; it is not a production corpus and is not retained as project data.
 - The benchmark itself reports `data_generated=false`, `dataset_modified=false`, `training_performed=false`, and `optimizer_steps=0`.
 
@@ -31,12 +32,12 @@ The benchmark verified the existing fixture and split manifest, built a private 
 |---|---:|
 | Verified snapshot copy size | 4,540,482 bytes |
 | SQLite index size | 6,291,456 bytes |
-| Index build time | 3.699706 seconds |
-| Sequential scan duration | 0.397573 seconds |
-| Sequential scan throughput | 30,183.12 rows/second |
-| Random-read median latency | 0.055120 ms |
-| Random-read p95 latency | 0.062486 ms |
-| Traced peak Python allocations | 33,576,465 bytes |
+| Index build time | 4.875146 seconds |
+| Sequential scan duration | 0.505588 seconds |
+| Sequential scan throughput | 23,734.75 rows/second |
+| Random-read median latency | 0.075834 ms |
+| Random-read p95 latency | 0.088252 ms |
+| Traced peak Python allocations | 33,574,697 bytes |
 
 These values are from one hosted CI run. They are observations, not stable performance guarantees or cross-system comparisons. They are not a speedup comparison against an eager loader.
 
@@ -48,11 +49,11 @@ The reported disk bytes are the private snapshot and SQLite index files at measu
 
 ## CI validation on the implementation revision
 
-All workflows passed on exact PR head `d17f1c38bfca0d07c7de8ed46237af4130597b8a`:
+All workflows passed on exact implementation revision `3c669f442404436acdb69ca488e03eef6976eb4d`:
 
-- [Tests / Node Tests — run #46150789071](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789071): success; command `npm test`.
-- [Python AI Core Tests — run #46150789066](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789066): success; command `python -m unittest discover -s tests/python -v` (713 tests), followed by `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` (success).
-- [ULTRON Level 1 Math Tooling — run #46150789152](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789152): success; command `pytest -q`, including the workflow's 5,000 randomized cases.
+- [Tests / Node Tests — run #46152095150](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095150): success; command `npm test`.
+- [Python AI Core Tests — run #46152095102](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095102): success; command `python -m unittest discover -s tests/python -v` (714 tests), followed by `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` (success).
+- [ULTRON Level 1 Math Tooling — run #46152095094](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095094): success; command `pytest -q`, including the workflow's 5,000 randomized cases.
 
 The CPU smoke is a forward/backward validation only. It does not step an optimizer or update ULTRON weights.
 
