@@ -64,7 +64,7 @@ class DatasetQualityAuditTests(unittest.TestCase):
                     first["selected_split_counts"][split_name],
                 )
                 self.assertGreater(first["per_split"][split_name]["topic_coverage_count"], 0)
-                self.assertEqual(first["per_split"][split_name]["seed_use_counts"], {"31": first["selected_split_counts"][split_name]})
+                self.assertEqual(first["per_split"][split_name]["dataset_seed_use_counts"], {"31": first["selected_split_counts"][split_name]})
 
             for pair in first["split_pairwise_leakage_diagnostics"].values():
                 self.assertEqual(pair["normalized_prompt_groups"], 0)

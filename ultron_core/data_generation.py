@@ -924,7 +924,7 @@ def verify_dataset(
                 if not validate_generated_math_sample(row):
                     raise ValueError("dataset row failed independent generation-parameter validation")
                 expected_id = _example_identity_digest(row)
-                if not hmac.compare_digest(row["example_id"], expected_id)
+                if not hmac.compare_digest(row["example_id"], expected_id):
                     raise ValueError("dataset row example_id does not match its content")
                 counts[row["topic"]] += 1
     except OSError as exc:
