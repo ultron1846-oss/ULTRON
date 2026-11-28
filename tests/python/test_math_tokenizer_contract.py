@@ -110,7 +110,7 @@ class MathTokenizerContractTests(unittest.TestCase):
         rng = random.Random(20261128)
         examples = [
             "".join(rng.choice(lexical_tokens) for _ in range(400)),
-            r"\\subseteq\\subset\\supseteq\\supset\\Rightarrow\\to\\Leftrightarrow\\notin",
+            r"\subseteq\subset\supseteq\supset\Rightarrow\to\Leftrightarrow\notin",
             "x + α·y = ∫₀¹ x² dx\n",
         ]
 
