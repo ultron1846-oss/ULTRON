@@ -37,6 +37,7 @@ class DatasetQualityAuditTests(unittest.TestCase):
             self.assertEqual(first["source_dataset_example_count"], 180)
             self.assertEqual(first["reference_answer_recheck"]["rows_rechecked"], 180)
             self.assertEqual(first["reference_answer_recheck"]["invalid_reference_answers"], 0)
+            self.assertEqual(first["prerequisite_coverage"]["status"], "not_assessed")
             self.assertTrue(first["quality_gate_summary"]["manifest_and_split_verified"])
             self.assertTrue(first["quality_gate_summary"]["all_reference_answers_rechecked"])
             self.assertTrue(first["quality_gate_summary"]["prompt_group_split_separation"])
@@ -57,10 +58,12 @@ class DatasetQualityAuditTests(unittest.TestCase):
                     first["selected_split_counts"][split_name],
                 )
                 self.assertGreater(first["per_split"][split_name]["topic_coverage_count"], 0)
+                self.assertEqual(first["per_split"][split_name]["seed_use_counts"], {"31": first["selected_split_counts"][split_name]})
 
             for pair in first["split_pairwise_leakage_diagnostics"].values():
                 self.assertEqual(pair["normalized_prompt_groups"], 0)
                 self.assertEqual(pair["generation_ingredients_shared"], 0)
+                self.assertEqual(pair["generation_seed_values_shared"], 1)
 
     def test_corrupted_dataset_or_split_manifest_fails_before_report(self):
         with tempfile.TemporaryDirectory() as directory:
