@@ -114,3 +114,21 @@ For current feature-specific requirements, use the relevant documents under [doc
 - PR #197 merged as `be318623fc4919bee4848cdc7f7bf6ae155e65fe`: independent mathematical invariant checks across all 20 existing extended university templates, 2,000 deterministic seed/difficulty cases. This adds validator coverage; it does not add generators for the 138 catalog topics still missing implementation.
 - Batch 2 tokenizer/model audit is underway in branch `audit/tokenizer-model-architecture-v2-2026-11-27`: model config now carries tokenizer version; explicit config/vocabulary compatibility checks and checkpoint legacy-v1 normalization are being tested; deterministic model shape, mask, gradient, and numerical tests are added.
 - No ULTRON training, optimizer step, full corpus generation/download, or remote compute was performed. Continue the tokenizer/model audit, then proceed to training-engine recovery and evaluation work only after the relevant PRs are verified.
+
+
+## Batch 1 engineering handoff — PR #201 merged
+
+PR #201 was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It adds synthetic stress coverage for the indexed verified dataset path: 3,500-row filtered split streaming and boundary random access, a 2,400-row read-only benchmark exercise, snapshot-record corruption detection, corrupted/incomplete manifest rejection, idempotent cleanup, and failed-construction cleanup. It also adds an exact Euclidean-algorithm university generator with independent 500-seed Bézout/gcd/quotient-trace tests and registry synchronization. Exact-head Node, Python AI Core, and Level 1 checks passed (runs 46003076411, 46003076428, and 46003076581). Post-merge `main` checks also passed: Node `46003403936`, Python AI Core `46003403876`, Level 1 `46003404073`, and Pages build/deploy `46003403018`. PR #196's benchmark implementation and PR #197's extended-template validators were already merged. No production dataset was supplied, so no production RSS, native SQLite memory, device-memory, or throughput result is claimed. No corpus generation or training was performed.
+
+
+**Dataset memory boundary:** The indexed loader bounds snapshot copying and record iteration, but it is not constant-memory: split-manifest ID arrays are parsed in Python memory up to the 100,000-row preflight cap. The benchmark's `tracemalloc` measurement excludes native SQLite allocations and process RSS/device memory. A production dataset benchmark remains owner-dependent.
+
+
+## Prompt 4 — inference and compression validation (2026-11-28)
+
+PR #200 ([checkpoint-backed inference and compressed-artifact validation](https://github.com/ultron1846-oss/ULTRON/pull/200)) now adds the public `ultron_core.inference` API:
+- `load_inference_engine` selects a checksum-verified checkpoint/backup, validates model config and canonical tokenizer compatibility, loads weights without restoring training RNG state, and exposes bounded greedy inference.
+- `ULTRONInferenceEngine.generate` validates input/token IDs/logits, returns structured output, runs without tools or external AI APIs, resets ephemeral memory around requests, and restores the model's prior train/eval mode.
+- `load_compressed_inference_engine` reconstructs a versioned compressed deployment artifact from its parent checkpoint and uses the same inference API.
+
+Compression validation now reports logical state-tensor bytes, serialized artifact bytes, and ratios; tests exercise exact state/output reconstruction, corruption and truncation rejection, incompatible artifact versions/configs, and numerical output-error measurements. The tests use initialized small models only. CI and review are the remaining PR gates; the work is not yet merged. No ULTRON training, optimizer step, corpus/calibration generation, external AI API, or remote execution was performed. Successful random-weight inference is not evidence of mathematical capability. See [docs/INFERENCE.md](docs/INFERENCE.md) and [docs/COMPRESSION.md](docs/COMPRESSION.md).
