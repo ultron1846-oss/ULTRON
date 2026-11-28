@@ -113,7 +113,7 @@ test('all required Pages runtime assets exist and are non-empty', async () => {
 
 test('settings export loads the new runtime-config module version', async () => {
   const [html, app] = await Promise.all([read('index.html'), read('app.js')]);
-  assert.match(html, /app\.js\?v=20261127-1/);
+  assert.match(html, /app\.js\?v=20261128-1/);
   assert.match(app, /runtime-config\.js\?v=20261127-1/);
   assert.match(app, /serializeRuntimeConfig\(config\)/);
 });
