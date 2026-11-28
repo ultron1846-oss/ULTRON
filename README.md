@@ -692,3 +692,44 @@ No ULTRON training, optimizer step, production corpus generation/download, remot
 ## Conflict-resolution handoff — 2026-11-28
 
 PR #207 was reconciled against current `main` with a three-way comparison. All 127 PR-changed paths were carried forward; the six overlapping files were merged rather than blindly overwritten. The updated branch preserves the merged Phase 3 dataset work (#220) and checkpoint/evaluation work (#204). Merge only when all required workflows pass.
+
+## Final merge handoff — 2026-11-28
+
+**Integrated main revision:** `3d1c4602f3f1ca2d96e2496a9c0fddf2f46b52c9` (at time of this handoff).
+
+### Completed merges
+
+The full-system integration PR #207 was squash-merged as `85412fd62c7893f435f8bf14b45d649d5f92591a`. Its integrated tree contains the Phase 2 curriculum work plus the tokenizer/model architecture audit, frozen evaluation and checkpoint recovery, checkpoint-backed inference/compression, and website runtime/security work. The standalone PRs #199, #203, #205 and #206 were closed as superseded because their implementation and tests were carried into #207; they were not independently merged into `main`.
+
+The following Dependabot maintenance PRs were then merged after their exact-head checks passed:
+
+| PR | Change | Merge commit |
+| --- | --- | --- |
+| #222 | `actions/setup-node` v4 → v7 | `4f5415e7ab611448b70ed204b82eba1d0052ea28` |
+| #221 | `actions/setup-python` v5 → v7 | `45f6b49d3b399cd7e5fd06ee4edfa1724785ce63` |
+| #223 | `actions/upload-artifact` v4 → v7 | `b6d91a89d2ac82e4739a8977251ffad866de1497` |
+| #224 | TypeScript v5.8.3 → v7.0.2; corrected the version-contract test to validate manifest/lockfile consistency | `63de9c10b7fdadcec3bca95954754a11a2c1924f` |
+| #225 | `actions/checkout` v4 → v7 | `cee41f1af02fadd856a64f1ce40c54ac91476fd2` |
+| #226 | Optional seed-data dependency bound: `huggingface_hub>=0.27,<3` | `3d1c4602f3f1ca2d96e2496a9c0fddf2f46b52c9` |
+
+### Validation and current status
+
+- Each merged maintenance PR passed its exact-head Node, Python AI Core, Level 1 Math Tooling, and Security/dependency workflows. PR #224 required two test corrections before all checks passed.
+- On integrated revision `85412fd...`, post-merge Node, Python AI Core, Python dependencies, Level 1, frontend/build, and GitHub Pages deployment checks passed.
+- On maintenance-integrated revision `3d1c460...`, the Pages build/deployment, build, frontend, Node, and Python dependency checks passed. Python AI Core and Level 1 Math Tooling were still running when this handoff was written; verify their final conclusions against the commit's check-runs before treating the final maintenance revision as fully green.
+- At this handoff, GitHub reported **zero open pull requests**.
+
+The historical Phase 0 review-gate and PR #207 "open/unmerged" notes above describe the pre-merge snapshot. They are superseded by the explicit merge recorded here; they are retained as historical audit evidence, not the current repository state.
+
+### Remaining owner acceptance / limits
+
+Automated CI and static/mock contracts do not replace manual iPad Safari acceptance, live provider/runtime integration and quota/persistence checks, Supabase owner configuration, secret-scanning/license decisions, or target-device memory/performance profiling. The website RAM slider and exported runtime config are still preferences, not physical resource enforcement. There is no trained checkpoint or model-accuracy evidence; a catalog entry or generator does not imply a mastered capability.
+
+**Safety boundary:** no ULTRON training, optimizer step on ULTRON weights, production corpus generation/download, external AI API call, Supabase mutation, or remote training execution was performed. Do not begin training without separate explicit authorization.
+
+### Next session
+
+1. Confirm all check-runs on the final `main` head are green after this README update.
+2. Resolve any new Dependabot PRs only after reviewing their diffs and passing exact-head CI.
+3. Continue owner acceptance and remaining engineering gaps from [the full-system readiness report](docs/FULL_SYSTEM_READINESS_2026-11-28.md) and [the Phase 2 curriculum report](docs/PHASE2_MATH_CURRICULUM_COMPLETION_2026-11-28.md).
+4. Preserve the no-training authorization boundary.
