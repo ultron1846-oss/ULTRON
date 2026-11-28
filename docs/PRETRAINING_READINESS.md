@@ -284,3 +284,17 @@ Current candidate metadata: **216 university topics / 69 generated / 147 incompl
 The batch adds `stokes_theorem_horizontal_rectangles` for affine ((P,Q,0)) fields on horizontal rectangles, and `divergence_theorem_axis_aligned_boxes` for diagonal linear fields on rectangular boxes. Both validators independently reconstruct the boundary/face integral and compare it with the curl/divergence integral. Broad Stokes and divergence theorem support remains unimplemented.
 
 Candidate coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, **68 independently validated**. Benchmarks and mastery remain zero. Exact-head CI is pending.
+
+
+## Phase 2 cumulative integration candidate — 2026-11-28
+
+**Candidate branch:** `phase2/integrated-math-curriculum-2026-11-28`. This branch consolidates the multifield batch and bounded vector-calculus follow-up on top of the curriculum scope audit. It is an integration candidate, not a merge to `main`.
+
+- University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
+- Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
+- Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
+- The integrated PR's exact-head CI is the final validation gate; prior individual batch checks passed, but that does not substitute for combined integration checks.
+
+No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.
