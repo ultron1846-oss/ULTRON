@@ -93,6 +93,12 @@ The conservative operation estimate is checked in addition to component/combined
 
 For counter-clockwise orientation, the implementation independently integrates P dx + Q dy over bottom/right/top/left edges and integrates dQ/dx - dP/dy over the rectangle. Clockwise orientation reverses both signs. Exact Fraction equality is required. Tests add an independent reference implementation, hand-computable fields, a gradient-field zero-circulation invariant, 500 deterministic seeds, tamper detection, and malformed/budget boundaries.
 
+## 4a. Difficulty progression audit
+
+The university curriculum and combined registry do not currently carry a global per-topic difficulty-progression field. Existing generator APIs commonly accept levels 1–5, but those levels are implementation-specific and are not safely comparable across subjects. The previous registry also lacked a separate record of what each difficulty level changes.
+
+This batch defines Green difficulty concretely: level 1–5 bounds the maximum total polynomial degree by the level; the same global resource ceilings still apply at every level. Other generator families must document the mathematical feature changed by each difficulty level (not just random coefficient magnitudes) before their progression can be compared. Difficulty labels do not indicate student mastery.
+
 ## 5. Dependency-aware topic expansion order
 
 The remaining 138 university topics are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.

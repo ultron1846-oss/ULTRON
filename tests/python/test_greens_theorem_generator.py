@@ -195,6 +195,11 @@ class GreenTheoremGeneratorTests(unittest.TestCase):
                 with self.assertRaises(GreenTheoremInputError):
                     calculate_green_integrals(data)
 
+        expression = _problem_for()
+        expression["P"] = "sin(x)"
+        with self.assertRaisesRegex(GreenTheoremInputError, "P must be a list"):
+            calculate_green_integrals(expression)
+
         duplicate = _problem_for()
         duplicate["P"] = [duplicate["P"][0], dict(duplicate["P"][0])]
         with self.assertRaisesRegex(GreenTheoremInputError, "duplicate"):
@@ -272,6 +277,17 @@ class GreenTheoremGeneratorTests(unittest.TestCase):
             "orientation": "clockwise",
         }
         self.assertEqual(calculate_green_integrals(zero), (Fraction(0), Fraction(0)))
+
+        # Exercise inclusive maxima for degree, coefficient and rational bounds.
+        maximum_budget = {
+            "topic": "greens_theorem_rectangles",
+            "P": [{"coefficient": [1000, 100], "x_power": MAX_DEGREE, "y_power": 0}],
+            "Q": [],
+            "x_bounds": [[-100, 20], [100, 20]],
+            "y_bounds": [[-100, 20], [100, 20]],
+            "orientation": "counterclockwise",
+        }
+        self.assertEqual(calculate_green_integrals(maximum_budget), (Fraction(0), Fraction(0)))
 
 
 if __name__ == "__main__":
