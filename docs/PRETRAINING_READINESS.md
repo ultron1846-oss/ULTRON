@@ -76,6 +76,7 @@ The authenticated-role TRUNCATE privilege on six owner-linked tables was revoked
 - [x] Add exact definite polynomial-integral generation and independent rational antiderivative evaluation.
 - [x] Add exact 2x2 matrix inverse generation with an independent determinant-based rational validator (generator v0.5.0).
 - [ ] Expand further topics only with independent exact validators.
+- [x] Merge PR #201: deterministic Euclidean algorithm generator for the existing catalog topic; independent 500-seed gcd/Bézout/quotient-trace tests and registry synchronization passed exact-head CI. Coverage is now 60/197 university topics; 137 remain without generators. Generator availability is not mastery.
 - [ ] Ensure ULTRON-generated data only; no external generated corpus.
 
 **Exit criteria:** reproducible manifest, split audit, zero invalid examples, documented coverage.
@@ -219,3 +220,14 @@ A checkpoint generation currently consists of three files: the serialized checkp
 For transfer between sessions, copy the current checkpoint, `.sha256`, and `.metadata.json` together and preserve their basename; include the corresponding `.bak` files only when backup recovery is also required. The metadata sidecar is advisory and is not a substitute for the payload integrity check performed by `load_checkpoint`. Storage capacity must accommodate at least the current checkpoint plus one prior checkpoint generation and temporary-write/transfer overhead. Actual free-tier disk quotas, upload limits, and cross-session persistence are owner/runtime-specific and remain unverified.
 
 - [x] Merge PR #196 read-only indexed dataset benchmark as `faa4b8ea31415598355afa36414092482b1a8e00`; exact-head CI and post-merge Node, Python AI Core, Level 1, and Pages build/deploy passed. The synthetic fixture is not a production memory benchmark; owner-supplied production dataset measurements remain pending.
+
+
+## Prompt 4 — inference and compression validation (2026-11-28)
+
+- [x] Add checkpoint-backed public inference API with checksum/backup verification, config and tokenizer compatibility, bounded greedy decode, structured output, RNG-state non-restoration, and request cleanup.
+- [x] Add compressed-artifact reconstruction through the same inference API using an explicit parent checkpoint identifier.
+- [x] Add deterministic initialized-weight tests for the end-to-end inference path, input/path/vocabulary rejection, parameter immutability, compressed state/output round trips, artifact tampering/truncation/version rejection, and size/numerical-error reporting.
+- [ ] Run and inspect all required checks on the latest PR #200 head; obtain review before merge.
+- [ ] Evaluate a trained checkpoint on the frozen benchmark only after training is separately authorized; current initialized-weight tests do not establish mathematical capability.
+
+No training, optimizer step, calibration/corpus generation, external AI API, or remote compute was performed for this work area. Compressed artifacts are deployment artifacts and do not replace the foundation checkpoint.
