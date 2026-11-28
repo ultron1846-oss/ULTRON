@@ -28,7 +28,7 @@ test('iPad responsive contract includes viewport, safe areas, touch targets and 
   assert.match(css, /min-height:44px/);
   assert.match(app, /id="memory-slider" type="range" min="2" max="10" step="1"/);
   assert.match(app, /safeSet\('ultron-memory-level',slider.value\)/);
-  assert.match(app, /does not allocate device RAM/);
+  assert.match(app, /does not reserve physical RAM/);
   assert.match(app, /Saved in this browser only/);
 });
 test('mobile navigation has accessible controls and closes on Escape/outside interaction', async () => {
