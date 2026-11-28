@@ -341,7 +341,10 @@ def load_compressed_inference_engine(
     """Load a compressed artifact by rebuilding it from its verified parent model."""
     if not isinstance(parent_checkpoint_id, str) or not parent_checkpoint_id.strip():
         raise ValueError("parent_checkpoint_id must be a non-empty stable identifier")
-    target_device = torch.device(device)
+    try:
+        target_device = torch.device(device)
+    except (TypeError, RuntimeError, ValueError) as exc:
+        raise ValueError("device must be a valid torch device") from exc
     parent_engine = load_inference_engine(
         parent_checkpoint_path,
         tokenizer=tokenizer,
