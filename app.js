@@ -212,8 +212,8 @@ function renderTraining(){
 }
 function renderBackend(){
  const audit=supabaseBackendAudit;
- const rows=audit.services.filter(service=>service.name!=='device-control').map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='active'?'available':'planned'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
- const blockers=audit.blockers.filter(item=>!item.toLowerCase().includes('pairing')).map(item=>`<div class="warning-banner">${esc(item)}</div>`).join('');
+ const rows=audit.services.map(service=>`<div class="capability-list"><div><b>${esc(service.name)}</b><span class="tag ${service.state==='active'?'available':'planned'}">${esc(service.label)}</span></div><p class="muted">${esc(service.detail)}</p></div>`).join('');
+ const blockers=audit.blockers.map(item=>`<div class="warning-banner">${esc(item)}</div>`).join('');
  return `${heading('BACKEND / INTEGRATION AUDIT','Supabase backend','Live public status check, with private records and owner-only actions kept outside the public website.','<button class="outline-button" id="supabase-refresh" type="button">↻ Refresh status</button>')}
  <div class="status-grid">
  ${card('<div class="mini-label">PROJECT AUDIT</div><strong class="status-value">ACTIVE</strong><p>ultron-memory · ap-south-1 · project status checked 28 Nov 2026. Security advisor warnings remain outstanding.</p>','status-card')}
