@@ -363,13 +363,26 @@ The repository was validated by GitHub Actions; no local clone or local test exe
 PR #209 has no independent submitted review or inline review threads, and must remain open. PR #208 and PR #207 also remain open pending their own independent reviews and exact-head checks. No merge has been performed.
 
 Remaining work:
-- 138 university topics still have no registered generator.
+- 139 university topics currently have no registered generator after the broad first-order ODE label was correctly demoted.
 - Zero topics are benchmarked on a compatible trained model; zero are mastered.
 - Broad compound curriculum entries complex_numbers_and_topology and Taylor_and_Laurent_series need syllabus-level scope review before splitting.
 - Global difficulty progression is not defined consistently across topic families. Green now defines difficulty levels 1–5 by maximum polynomial total degree; other families need explicit per-level progression.
 - Grade-band prerequisite dependencies remain to be mapped separately.
-- Existing first_order_ODEs is broader than its current generator, which only generates homogeneous constant-coefficient equations y'=ky with an initial value. This is the next focused scope-correction and independent-validator task; do not claim general first-order ODE support.
+- The broad first_order_ODEs label is now catalogued-but-unimplemented. Only the bounded linear_constant_coefficient_first_order_ODEs family is registered; general first-order ODEs remain unsupported.
 
-**Next concrete task:** define and register a narrow homogeneous constant-coefficient first-order ODE family, independently verify its analytic solution (including initial condition and edge cases), split/generalize the curriculum label without overstating support, and add deterministic/tamper/boundary tests. Keep separable non-homogeneous and exact first-order equations marked incomplete until independently implemented.
+**Next concrete task:** implement a bounded exact double-integral family for rational bivariate polynomials over rational rectangles, with a separately implemented validator, explicit degree/term/operation budgets, orientation-independent invariants, deterministic/tamper/negative tests, and a separate curriculum entry. Review existing multiple-integral and multivariable-calculus labels before registration.
 
 No training, optimizer step, production corpus generation/download, external AI API call, remote training job, model-weight publication, Supabase mutation, or Pages deployment occurred.
+
+
+## Phase 2 ODE scope-correction batch
+
+**Branch:** phase2/linear-ode-scope-batch-2026-11-28  
+**Base:** Phase 2 Green theorem candidate PR #209 at f4bd0f98a05ff72a956a02f80bfdaf20bdf92476  
+**Status:** code, exact independent validator, tests, curriculum registry and prerequisite-map updates committed; exact-head CI still pending at the time of this README update. This is a child branch and must not be merged ahead of PR #209, #208 or #207.
+
+The broad first_order_ODEs curriculum item is now catalogued but not implemented. The new linear_constant_coefficient_first_order_ODEs family solves exact rational y'=a*y+b with y(0)=y0. It handles both the affine case a=0 and the exponential-affine case a!=0. Its validator checks the exact differential identity and initial condition from problem ingredients and does not rely on seeded replay. Inputs have bounded rational numerators/denominators and difficulty levels 1-5; seeds are bounded to the non-negative 31-bit range.
+
+Candidate coverage after this correction: 253 combined catalogue entries, 114 generator-available entries, 63 independently validated exercise topics, zero trained-model benchmarks, and zero mastered topics. The university map has 200 topics, 61 generator-available and 139 catalogued-but-unimplemented. The prerequisite map covers 200 topics and 373 directed edges. These are evidence states, not claims about model capability.
+
+Files added or updated in this batch: tools/math_generators/university/linear_first_order_ode.py; tests/python/test_linear_first_order_ode.py; tools/math_generators/university/generators.py; university and combined registry JSON; curriculum and prerequisite JSON; validation_manifest.json; docs/MATH_CURRICULUM_AUDIT_2026-11-28.md; docs/UNIVERSITY_PREREQUISITES.md; docs/LINEAR_CONSTANT_COEFFICIENT_ODE_SCOPE_2026-11-28.md; README.md. No training, optimizer step, production corpus generation/download, remote job, deployment or model-weight publication occurred.
