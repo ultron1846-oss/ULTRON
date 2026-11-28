@@ -29,12 +29,12 @@ test('static security audit covers every local module imported by the browser ap
   assert.notEqual(pathsEnd, -1, 'security audit path list must be closed');
   const pathsBlock = audit.slice(pathsStart, pathsEnd);
   const scanned = new Set(
-    pathsBlock.split('\\n')
+    pathsBlock.split(String.fromCharCode(10))
       .map(line => line.trim())
       .filter(line => line.startsWith("'"))
       .map(line => line.slice(1, line.indexOf("'", 1)))
   );
-  const imported = app.split('\\n').flatMap(line => {
+  const imported = app.split(String.fromCharCode(10)).flatMap(line => {
     const marker = "from './";
     const index = line.indexOf(marker);
     if (index < 0) return [];
