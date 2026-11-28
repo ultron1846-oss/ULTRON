@@ -14,6 +14,7 @@ from ultron_core.verified_dataset import (
     build_verified_split_loaders,
     close_verified_split_loaders,
 )
+from tools.benchmark_verified_dataset import _validate_output_path
 
 
 class DatasetResourceLimitTests(unittest.TestCase):
@@ -102,6 +103,43 @@ class DatasetResourceLimitTests(unittest.TestCase):
             dataset, split = self._prepare(Path(directory))
             with self.assertRaisesRegex(TypeError, "DatasetResourceLimits"):
                 VerifiedIndexedSplitStore(dataset, split, resource_limits=object())
+
+
+    def test_split_and_benchmark_outputs_cannot_alias_dataset_or_sidecar(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset, split = self._prepare(root)
+            sidecar = dataset.with_suffix(dataset.suffix + ".manifest.json")
+            dataset_bytes = dataset.read_bytes()
+            sidecar_bytes = sidecar.read_bytes()
+            protected = (dataset, sidecar)
+
+            for source in protected:
+                with self.subTest(source=source):
+                    with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                        prepare_dataset_split_manifest(
+                            dataset, source, split_seed=93
+                        )
+                    with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                        _validate_output_path(source, dataset, split)
+
+            for source in protected:
+                alias = root / f"alias-{source.name}"
+                try:
+                    alias.hardlink_to(source)
+                except OSError:
+                    continue
+                with self.subTest(alias=alias):
+                    with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                        prepare_dataset_split_manifest(
+                            dataset, alias, split_seed=93
+                        )
+                    with self.assertRaisesRegex(ValueError, "must not overwrite"):
+                        _validate_output_path(alias, dataset, split)
+
+            self.assertEqual(dataset.read_bytes(), dataset_bytes)
+            self.assertEqual(sidecar.read_bytes(), sidecar_bytes)
+
 
 
 if __name__ == "__main__":
