@@ -25,6 +25,16 @@ class IndependentDatasetMathValidationTests(unittest.TestCase):
         self.assertFalse(validate_generated_math_sample(changed_answer))
         self.assertFalse(validate_generated_math_sample(dict(row, difficulty=row["difficulty"] + 1)))
 
+    def test_arithmetic_recheck_accepts_valid_values_outside_sampler_range(self):
+        example = generate_examples(8125, 1, topics=("arithmetic",))[0]
+        row = example.to_dict()
+        row["generation_parameters"] = {"a": 90, "operator": "+", "b": 2}
+        row["input_text"] = "90 + 2"
+        row["target_text"] = "92"
+        row["exact_answer"] = "92"
+        row["difficulty"] = 2
+        self.assertTrue(validate_generated_math_sample(row))
+
     def test_unknown_or_ambiguous_parameter_schema_fails_closed(self):
         example = generate_examples(8124, 1, topics=("matrix_determinant_2x2",))[0]
         row = example.to_dict()

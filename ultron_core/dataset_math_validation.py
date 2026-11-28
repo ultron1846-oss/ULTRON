@@ -74,8 +74,10 @@ def _expected(topic: str, parameters: Mapping[str, object]) -> tuple[str, str, i
     if topic == "arithmetic":
         if set(parameters) != {"a", "operator", "b"}:
             raise ValueError("arithmetic parameter schema mismatch")
-        a = _integer(parameters["a"], minimum=-50, maximum=50)
-        b = _integer(parameters["b"], minimum=-50, maximum=50)
+        # Verification checks the supplied equation, not the random sampler range.
+        # Keep integer magnitude bounded for predictable exact arithmetic in fixtures.
+        a = _integer(parameters["a"], minimum=-(10 ** 12), maximum=10 ** 12)
+        b = _integer(parameters["b"], minimum=-(10 ** 12), maximum=10 ** 12)
         operator = parameters["operator"]
         if operator not in ("+", "-", "*"):
             raise ValueError("arithmetic operator is invalid")
