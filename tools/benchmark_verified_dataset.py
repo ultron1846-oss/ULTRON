@@ -172,6 +172,8 @@ def main() -> int:
     parser.add_argument("--max-rows", type=int, default=defaults.max_rows)
     parser.add_argument("--max-line-bytes", type=int, default=defaults.max_line_bytes)
     parser.add_argument("--max-split-manifest-bytes", type=int, default=defaults.max_split_manifest_bytes)
+    parser.add_argument("--max-index-bytes", type=int, default=defaults.max_index_bytes)
+    parser.add_argument("--max-temporary-bytes", type=int, default=defaults.max_temporary_bytes)
     parser.add_argument("--snapshot-copy-chunk-bytes", type=int, default=defaults.snapshot_copy_chunk_bytes)
     parser.add_argument("--sqlite-cache-kib", type=int, default=defaults.sqlite_cache_kib)
     parser.add_argument("--index-build-batch-rows", type=int, default=defaults.index_build_batch_rows)
@@ -184,6 +186,8 @@ def main() -> int:
         max_rows=args.max_rows,
         max_line_bytes=args.max_line_bytes,
         max_split_manifest_bytes=args.max_split_manifest_bytes,
+        max_index_bytes=args.max_index_bytes,
+        max_temporary_bytes=args.max_temporary_bytes,
         snapshot_copy_chunk_bytes=args.snapshot_copy_chunk_bytes,
         sqlite_cache_kib=args.sqlite_cache_kib,
         index_build_batch_rows=args.index_build_batch_rows,
