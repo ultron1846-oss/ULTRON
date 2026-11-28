@@ -497,6 +497,20 @@
         "test": "test_500_seeded_graphs_handshaking_and_connectivity",
         "validator": "Independent graph adjacency traversal and degree recomputation; simple connected graph invariants and handshaking lemma."
       }
+    ],
+    "university:stokes_theorem_horizontal_rectangles": [
+      {
+        "path": "tests/python/test_vector_calculus_theorems.py",
+        "test": "test_500_stokes_rectangle_boundary_and_curl_surface_integrals",
+        "validator": "Independent exact integration of all four oriented boundary edges, compared with the curl surface integral over the same horizontal rectangle."
+      }
+    ],
+    "university:divergence_theorem_axis_aligned_boxes": [
+      {
+        "path": "tests/python/test_vector_calculus_theorems.py",
+        "test": "test_500_divergence_box_outward_flux_equals_volume_integral",
+        "validator": "Independent exact recomputation of all six outward face fluxes, compared with the triple integral of the diagonal field divergence."
+      }
     ]
   },
   "benchmarked": [],
