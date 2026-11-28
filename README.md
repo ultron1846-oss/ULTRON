@@ -684,6 +684,11 @@ Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemen
 
 PR #208's exact integrated head also passed its five workflows, including the Phase 1 benchmark: Tests `46144035743`, Python `46144035740`, Level 1 `46144035753`, Security/dependency `46144035729`, and benchmark `46144035783`.
 
-This documentation refresh changes README/report/audit/readiness text only; it does not alter runtime or generator code. GitHub Actions will rerun on the documentation-updated PR head. `main` remains untouched, and PR #207 is intentionally left open because merging it would trigger the separate Pages deployment gate.
+Historical note: the earlier PR #207 candidate was based on `2ba3340dbc841699ad98e651c86f2e227be8cac0`. The conflict-resolved head `3b4cccd18f434ccb58b5f016e22c5101fc9427bc` is based on current main `0d62a59433398d254f947ef9a9f8a5cb48b08ff3`. Its fresh Node, Level 1 Math Tooling, and Security/dependency workflows passed; Python AI Core was in progress when this handoff was written. The PR is mergeable; merge remains gated on Python AI Core. No ULTRON training, optimizer step, or production corpus generation was performed.
 
 No ULTRON training, optimizer step, production corpus generation/download, remote training, external AI API, deployment, Supabase mutation, or model-weight publication was performed.
+
+
+## Conflict-resolution handoff — 2026-11-28
+
+PR #207 was reconciled against current `main` with a three-way comparison. All 127 PR-changed paths were carried forward; the six overlapping files were merged rather than blindly overwritten. The updated branch preserves the merged Phase 3 dataset work (#220) and checkpoint/evaluation work (#204). Merge only when all required workflows pass.
