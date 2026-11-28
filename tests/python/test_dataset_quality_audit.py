@@ -1,5 +1,6 @@
 """Deterministic read-only quality-report tests; fixtures only."""
 import hashlib
+import sqlite3
 import json
 import shutil
 import tempfile
@@ -228,6 +229,74 @@ class DatasetQualityAuditTests(unittest.TestCase):
                 stream.write(b"tampered-transfer\n")
             with self.assertRaises(ValueError):
                 audit_dataset_quality(copied_dataset, copied_split)
+
+
+    def test_quality_audit_disables_sqlite_journals_before_writes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=180)
+            real_connect = sqlite3.connect
+            observed = {
+                "main_journal_mode": None,
+                "temp_journal_mode": None,
+                "write_before_journals_disabled": False,
+            }
+
+            class JournalGuardConnection:
+                def __init__(self, connection):
+                    self.connection = connection
+
+                def _check_write(self, sql):
+                    statement = " ".join(sql.strip().lower().split())
+                    is_write = statement.startswith(
+                        ("create ", "insert ", "update ", "delete ", "drop ", "replace ", "alter ")
+                    )
+                    if is_write and (
+                        observed["main_journal_mode"] != "off"
+                        or observed["temp_journal_mode"] != "off"
+                    ):
+                        observed["write_before_journals_disabled"] = True
+                        raise AssertionError(
+                            "quality database write occurred before journal limits were applied"
+                        )
+
+                def execute(self, sql, parameters=()):
+                    statement = " ".join(sql.strip().lower().split())
+                    self._check_write(sql)
+                    cursor = self.connection.execute(sql, parameters)
+                    if statement == "pragma main.journal_mode=off":
+                        observed["main_journal_mode"] = cursor.fetchone()[0]
+                    elif statement == "pragma temp.journal_mode=off":
+                        observed["temp_journal_mode"] = cursor.fetchone()[0]
+                    return cursor
+
+                def executemany(self, sql, parameters):
+                    self._check_write(sql)
+                    return self.connection.executemany(sql, parameters)
+
+                def commit(self):
+                    return self.connection.commit()
+
+                def rollback(self):
+                    return self.connection.rollback()
+
+                def close(self):
+                    return self.connection.close()
+
+            def guarded_connect(database, *args, **kwargs):
+                connection = real_connect(database, *args, **kwargs)
+                if Path(database).name == "quality.sqlite3":
+                    return JournalGuardConnection(connection)
+                return connection
+
+            with patch.object(
+                quality_module.sqlite3, "connect", side_effect=guarded_connect
+            ):
+                report = audit_dataset_quality(dataset, split)
+
+            self.assertEqual(observed["main_journal_mode"], "off")
+            self.assertEqual(observed["temp_journal_mode"], "off")
+            self.assertFalse(observed["write_before_journals_disabled"])
+            self.assertFalse(report["quality_gate_summary"]["production_readiness"])
 
 
     def test_quality_audit_enforces_sqlite_temp_schema_disk_budget(self):

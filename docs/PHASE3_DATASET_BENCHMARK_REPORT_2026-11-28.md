@@ -58,7 +58,7 @@ The CPU smoke is a forward/backward validation only. It does not step an optimiz
 
 ## Acceptance and remaining limitations
 
-The synthetic benchmark demonstrates bounded disk-backed behavior for a 12,000-row fixture, deterministic scans, seeded random access, and a bounded Python-allocation measurement. The resource-limit and stress tests exercise size/row/line boundaries, manifests, index limits, temporary disk limits, concurrency, corruption, interrupted snapshot/index writes, rebuild, and lifecycle cleanup.
+The synthetic benchmark demonstrates bounded disk-backed behavior for a 12,000-row fixture, deterministic scans, seeded random access, and a bounded Python-allocation measurement. The resource-limit and stress tests exercise size/row/line boundaries, manifests, index limits, temporary disk limits, concurrency, corruption, interrupted snapshot/index writes, rebuild, and lifecycle cleanup. The read-only quality auditor's disposable SQLite main and temp schemas also disable journaling before writes and are independently page-capped, so rollback-journal growth cannot bypass the configured temporary-disk budget.
 
 It does not demonstrate production-scale corpus performance, complete process/device memory use, or behavior under a specific cloud service's free-tier limits. A production benchmark remains blocked on an owner-supplied, already-existing dataset and an approved execution environment.
 

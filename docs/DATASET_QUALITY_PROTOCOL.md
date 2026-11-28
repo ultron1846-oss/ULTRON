@@ -7,6 +7,8 @@
 
 The audit accepts only an existing JSONL dataset with its sidecar manifest and a dataset-bound split manifest. Both are revalidated before any quality result is produced. Run it with python -m ultron_core.dataset_quality --dataset existing.jsonl --split-manifest existing.splits.json --output quality-report.json. Byte, row, line, sidecar-manifest, split-manifest, SQLite page-cache, index and temporary-disk limits are configurable through the CLI. The quality report is metadata, not an authorization token, mathematical proof, owner acceptance, or evidence of trained-model ability.
 
+The quality auditor's SQLite database is disposable scratch state. It disables both main and temporary-schema journaling before creating or inserting audit tables, then applies separate page-count caps to both schemas. This prevents rollback-journal files from creating an unaccounted disk peak outside `max_temporary_bytes`; on any failure the scratch database is closed and removed, while input files remain unchanged.
+
 The report is deterministic for identical verified input bytes and uses canonical UTF-8 JSON with sorted keys and compact separators. report_sha256 is computed over the report before that field is added. The tool writes no data rows and does not mutate the inputs.
 
 ## 2. Duplicate classes

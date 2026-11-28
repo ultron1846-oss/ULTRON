@@ -124,6 +124,13 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
         connection = sqlite3.connect(db_path)
         try:
             connection.execute("PRAGMA temp_store=FILE")
+            # This database is disposable scratch state. Disable both journals
+            # before DDL/DML so rollback journals cannot bypass the main/temp
+            # page caps and max_temporary_bytes accounting.
+            connection.execute("PRAGMA main.journal_mode=OFF")
+            connection.execute("PRAGMA temp.journal_mode=OFF")
+            connection.execute("PRAGMA main.synchronous=OFF")
+            connection.execute("PRAGMA temp.synchronous=OFF")
             main_cache_kib = max(1, resource_limits.sqlite_cache_kib // 2)
             temp_cache_kib = max(1, resource_limits.sqlite_cache_kib - main_cache_kib)
             connection.execute(f"PRAGMA main.cache_size=-{main_cache_kib}")
