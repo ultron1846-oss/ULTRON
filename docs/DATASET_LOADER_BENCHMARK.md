@@ -35,14 +35,14 @@ The indexed path bounds record payload handling, but it is not fully constant-me
 
 The loader and semantic split path now accept a shared immutable DatasetResourceLimits policy. Defaults and hard ceilings are defined in ultron_core/dataset_resource_limits.py. The policy controls:
 
-- source dataset bytes, row count and per-line bytes;
+- source dataset bytes, row count, per-line bytes and dataset-sidecar manifest bytes;
 - split-manifest byte size;
 - snapshot copy chunk size;
 - SQLite page-cache KiB;
 - SQLite index-build batch size and iterator fetch batch size;
 - SQLite index bytes and combined temporary-directory bytes.
 
-The benchmark CLI exposes these values as --max-dataset-bytes, --max-rows, --max-line-bytes, --max-split-manifest-bytes, --snapshot-copy-chunk-bytes, --sqlite-cache-kib, --index-build-batch-rows, --iterator-fetch-rows, --max-index-bytes and --max-temporary-bytes. It records the selected resource policy plus Python, platform and SQLite versions. The verified-loader and non-authorizing preflight APIs accept the same policy object.
+The benchmark CLI exposes these values as --max-dataset-bytes, --max-rows, --max-line-bytes, --max-dataset-manifest-bytes, --max-split-manifest-bytes, --snapshot-copy-chunk-bytes, --sqlite-cache-kib, --index-build-batch-rows, --iterator-fetch-rows, --max-index-bytes and --max-temporary-bytes. It records the selected resource policy plus Python, platform and SQLite versions. The verified-loader and non-authorizing preflight APIs accept the same policy object.
 
 The SQLite index configures PRAGMA max_page_count from the smaller of the index-byte cap and the temporary-disk remainder after the snapshot copy. Temporary-directory usage is inspected during snapshot copying and after index construction; configured caps reject an input rather than silently truncate. The split builder and quality audit also cap their temporary SQLite databases. These limits govern the paths explicitly measured and are not a guarantee about all OS-level filesystem accounting or unrelated processes.
 
