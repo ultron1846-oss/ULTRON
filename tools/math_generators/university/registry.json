@@ -1834,14 +1834,15 @@
       "topic": "separable_first_order_ODEs",
       "title": "separable first-order ODEs",
       "field": "Differential equations",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
       "catalog_id": "university:separable_first_order_ODEs",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false,
-      "independent_validation_status": "not_independently_validated",
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
-      "mastery_status": "not_mastered"
+      "mastery_status": "not_mastered",
+      "generator_topic": "separable_first_order_ODEs"
     },
     {
       "topic": "linear_first_order_variable_coefficient_ODEs",
