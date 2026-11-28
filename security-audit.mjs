@@ -8,6 +8,7 @@ const paths = [
   'math-tools.js',
   'memory-store.js',
   'runtime-config.js',
+  'runtime-status.js',
   'provider-directory.js',
   'supabase-integration.js',
   'styles.css'
