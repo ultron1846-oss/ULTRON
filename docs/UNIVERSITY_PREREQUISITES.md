@@ -1,6 +1,6 @@
 # University curriculum prerequisite map
 
-**Status:** curated map for all 214 of 214 university curriculum topics across 17 fields. No university catalogue topic remains unmapped.
+**Status:** curated map for all 216 of 216 university curriculum topics across 17 fields. No university catalogue topic remains unmapped.
 
 The source curriculum is tools/math_generators/university/curriculum.json. The separate edge map is tools/math_generators/university/prerequisites.json; it records the source commit, coverage fields, and per-topic prerequisite IDs.
 
@@ -16,9 +16,9 @@ The former first_order_ODEs entry was replaced by four scoped items:
 
 The homogeneous ODE generator has an independent analytic validator for y(t)=y0 exp(k t), its derivative identity and initial condition. The separable ODE family is restricted to rational power-law factors y'=c*x^m*y^n with bounded integer powers and an independent exact derivative/initial-value validator. Neither family claims arbitrary first-order ODE solving.
 
-Field counts are: Foundations and logic (10), Linear algebra (16), Calculus (28), Real analysis (13), Complex analysis (12), Abstract algebra (12), Number theory (10), Topology (10), Discrete mathematics and combinatorics (12), Probability (13), Statistics (9), Differential equations (17), Optimization and operations research (11), Numerical and computational mathematics (11), Geometry (9), Applied mathematics and mathematical physics (11), and Advanced and interdisciplinary (10), totalling 214.
+Field counts are: Foundations and logic (10), Linear algebra (16), Calculus (28), Real analysis (13), Complex analysis (12), Abstract algebra (12), Number theory (10), Topology (10), Discrete mathematics and combinatorics (12), Probability (13), Statistics (9), Differential equations (19), Optimization and operations research (11), Numerical and computational mathematics (11), Geometry (9), Applied mathematics and mathematical physics (11), and Advanced and interdisciplinary (10), totalling 216.
 
-The prerequisite graph has 403 edges. It is a curated starting sequence, not an exhaustive universal course plan. The grade-band curricula still require separate dependency mapping. A mapped prerequisite is a proposed learning dependency, not proof that ULTRON has mastered it. No training data is generated or imported by this catalogue.
+The prerequisite graph has 407 edges. It is a curated starting sequence, not an exhaustive universal course plan. The grade-band curricula still require separate dependency mapping. A mapped prerequisite is a proposed learning dependency, not proof that ULTRON has mastered it. No training data is generated or imported by this catalogue.
 
 
 ## Scope-specific calculus, complex-analysis, and ODE families
@@ -40,3 +40,10 @@ The `divergence_theorem_axis_aligned_boxes` family checks only diagonal linear f
 ## Bounded exact first-order ODE family
 
 The broad `exact_first_order_ODEs` topic remains incomplete. The separate `quadratic_potential_exact_first_order_ODEs` family covers exact one-forms derived from a quadratic potential `Phi(x,y)=a*x^2+b*x*y+c*y^2`. Its coefficients and initial point are bounded exact rationals, and its implicit solution is `Phi(x,y)=Phi(x0,y0)`. The independent tests verify both potential derivatives, equality of the mixed partial derivatives, the initial level-set constant, and tamper rejection. This is not a general exact-ODE solver.
+
+
+## Bounded second-order ODE and transport PDE families
+
+The broad `second_order_linear_ODEs` row remains incomplete. The new `distinct_real_root_second_order_linear_homogeneous_ODEs` family covers homogeneous constant-coefficient equations whose characteristic polynomial has two distinct real rational roots. It computes the exponential solution from two rational initial conditions and validates both characteristic roots and the initial equations exactly. Repeated roots, complex roots, forcing terms, and variable coefficients are not included.
+
+The broad `characteristics_PDE` row remains incomplete. The new `constant_speed_transport_polynomial_initial_data_PDEs` family covers only (u_t+c u_x=0) with nonzero rational constant speed and polynomial initial data of degree at most three. Its independent test evaluates the PDE residual at rational points and checks the initial data at (t=0). It does not represent general first-order PDE support.

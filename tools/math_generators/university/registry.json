@@ -2045,6 +2045,20 @@
       "mastery_status": "not_mastered"
     },
     {
+      "topic": "distinct_real_root_second_order_linear_homogeneous_ODEs",
+      "title": "homogeneous second-order linear ODEs with distinct real roots",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "distinct_real_root_second_order_linear_homogeneous_ODEs",
+      "catalog_id": "university:distinct_real_root_second_order_linear_homogeneous_ODEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
       "topic": "systems_of_ODEs",
       "title": "systems of ODEs",
       "field": "Differential equations",
@@ -2171,6 +2185,20 @@
       "includes_word_problems": false,
       "has_generator": false,
       "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "constant_speed_transport_polynomial_initial_data_PDEs",
+      "title": "constant-speed transport PDEs with polynomial initial data",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "constant_speed_transport_polynomial_initial_data_PDEs",
+      "catalog_id": "university:constant_speed_transport_polynomial_initial_data_PDEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },

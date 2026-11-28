@@ -23,8 +23,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 214)
-        self.assertEqual(mapping.source_topic_count, 214)
+        self.assertEqual(mapping.mapped_topic_count, 216)
+        self.assertEqual(mapping.source_topic_count, 216)
         self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
@@ -95,6 +95,10 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("root_finding", "Newton_and_secant_methods"))
         self.assertTrue(mapping.is_prerequisite("numerical_integration", "ODE_numerical_methods"))
         self.assertTrue(mapping.is_prerequisite("probability_spaces", "Monte_Carlo_methods"))
+        self.assertTrue(mapping.is_prerequisite("second_order_linear_ODEs", "distinct_real_root_second_order_linear_homogeneous_ODEs"))
+        self.assertTrue(mapping.is_prerequisite("homogeneous_constant_coefficient_first_order_ODEs", "distinct_real_root_second_order_linear_homogeneous_ODEs"))
+        self.assertTrue(mapping.is_prerequisite("characteristics_PDE", "constant_speed_transport_polynomial_initial_data_PDEs"))
+        self.assertTrue(mapping.is_prerequisite("partial_derivatives", "constant_speed_transport_polynomial_initial_data_PDEs"))
 
     def test_unknown_topic_does_not_get_inferred_prerequisites(self):
         mapping = load_curriculum_prerequisites()

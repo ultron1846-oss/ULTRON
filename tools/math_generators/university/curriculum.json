@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 214,
+  "topic_count": 216,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -981,6 +981,13 @@
       "status": "catalogued_not_implemented"
     },
     {
+      "topic": "distinct_real_root_second_order_linear_homogeneous_ODEs",
+      "title": "homogeneous second-order linear ODEs with distinct real roots",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "distinct_real_root_second_order_linear_homogeneous_ODEs"
+    },
+    {
       "topic": "systems_of_ODEs",
       "title": "systems of ODEs",
       "field": "Differential equations",
@@ -1039,6 +1046,13 @@
       "title": "characteristics PDE",
       "field": "Differential equations",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "constant_speed_transport_polynomial_initial_data_PDEs",
+      "title": "constant-speed transport PDEs with polynomial initial data",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "constant_speed_transport_polynomial_initial_data_PDEs"
     },
     {
       "topic": "convex_sets_and_functions",

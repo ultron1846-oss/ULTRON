@@ -19,6 +19,8 @@ from .ode_variable_coefficient import TOPIC as VARIABLE_COEFFICIENT_ODE_TOPIC, b
 from .stokes_horizontal_rectangle import TOPIC as STOKES_RECTANGLE_TOPIC, build_stokes_horizontal_rectangle_fields, verify_stokes_horizontal_rectangle
 from .quadratic_potential_exact_ode import TOPIC as QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC, build_quadratic_potential_exact_ode_fields, verify_quadratic_potential_exact_ode
 from .divergence_box import TOPIC as DIVERGENCE_BOX_TOPIC, build_divergence_box_fields, verify_divergence_box
+from .ode_second_order_distinct_roots import TOPIC as SECOND_ORDER_DISTINCT_ROOTS_TOPIC, build_distinct_root_second_order_ode_fields, verify_distinct_root_second_order_ode
+from .pde_transport_polynomial import TOPIC as TRANSPORT_POLYNOMIAL_PDE_TOPIC, build_polynomial_transport_pde_fields, verify_polynomial_transport_pde
 
 BANDS = {
     "linear_algebra": "University",
@@ -31,6 +33,8 @@ BANDS = {
     STOKES_RECTANGLE_TOPIC: "University",
     DIVERGENCE_BOX_TOPIC: "University",
     QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC: "University",
+    SECOND_ORDER_DISTINCT_ROOTS_TOPIC: "University",
+    TRANSPORT_POLYNOMIAL_PDE_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -105,6 +109,10 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         return build_divergence_box_fields(rng, difficulty)
     if topic == QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC:
         return build_quadratic_potential_exact_ode_fields(rng, difficulty)
+    if topic == SECOND_ORDER_DISTINCT_ROOTS_TOPIC:
+        return build_distinct_root_second_order_ode_fields(rng, difficulty)
+    if topic == TRANSPORT_POLYNOMIAL_PDE_TOPIC:
+        return build_polynomial_transport_pde_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -535,6 +543,10 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ArithmeticError("independent first-order ODE verification failed")
     if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
         raise ArithmeticError("independent separable ODE verification failed")
+    if topic == SECOND_ORDER_DISTINCT_ROOTS_TOPIC and not verify_distinct_root_second_order_ode(fields):
+        raise ArithmeticError("independent second-order ODE verification failed")
+    if topic == TRANSPORT_POLYNOMIAL_PDE_TOPIC and not verify_polynomial_transport_pde(fields):
+        raise ArithmeticError("independent transport PDE verification failed")
     if topic == QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC and not verify_quadratic_potential_exact_ode(fields):
         raise ArithmeticError("independent quadratic-potential exact ODE verification failed")
     if topic == STOKES_RECTANGLE_TOPIC and not verify_stokes_horizontal_rectangle(fields):
@@ -562,6 +574,10 @@ def verify(problem: dict) -> bool:
         return verify_separable_problem(problem)
     if isinstance(problem, dict) and problem.get("topic") == QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC:
         return verify_quadratic_potential_exact_ode(problem)
+    if isinstance(problem, dict) and problem.get("topic") == SECOND_ORDER_DISTINCT_ROOTS_TOPIC:
+        return verify_distinct_root_second_order_ode(problem)
+    if isinstance(problem, dict) and problem.get("topic") == TRANSPORT_POLYNOMIAL_PDE_TOPIC:
+        return verify_polynomial_transport_pde(problem)
     if isinstance(problem, dict) and problem.get("topic") == STOKES_RECTANGLE_TOPIC:
         return verify_stokes_horizontal_rectangle(problem)
     if isinstance(problem, dict) and problem.get("topic") == DIVERGENCE_BOX_TOPIC:
