@@ -10,11 +10,11 @@ The Calculus field contains 20 topics. The former Green_stokes_divergence_theore
 
 The former first_order_ODEs entry was replaced by four scoped items:
 - homogeneous_constant_coefficient_first_order_ODEs — generator available for y'=k y with y(0)=y0 only.
-- separable_first_order_ODEs — catalogued, no generator.
+- separable_first_order_ODEs — generator available only for bounded rational power-law equations y'=c*x^m*y^n; arbitrary separable factors remain unsupported.
 - linear_first_order_variable_coefficient_ODEs — catalogued, no generator.
 - exact_first_order_ODEs — catalogued, no generator.
 
-The narrow ODE generator has an independent analytic validator for y(t)=y0 exp(k t), its derivative identity and its initial condition. It does not claim arbitrary first-order ODE solving.
+The homogeneous ODE generator has an independent analytic validator for y(t)=y0 exp(k t), its derivative identity and initial condition. The separable ODE family is restricted to rational power-law factors y'=c*x^m*y^n with bounded integer powers and an independent exact derivative/initial-value validator. Neither family claims arbitrary first-order ODE solving.
 
 Field counts are: Foundations and logic (10), Linear algebra (16), Calculus (20), Real analysis (13), Complex analysis (10), Abstract algebra (12), Number theory (10), Topology (10), Discrete mathematics and combinatorics (12), Probability (13), Statistics (9), Differential equations (15), Optimization and operations research (11), Numerical and computational mathematics (11), Geometry (9), Applied mathematics and mathematical physics (11), and Advanced and interdisciplinary (10), totalling 202.
 
