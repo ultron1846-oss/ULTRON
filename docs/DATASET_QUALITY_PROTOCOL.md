@@ -5,7 +5,7 @@
 
 ## 1. Inputs and trust boundary
 
-The audit accepts only an existing JSONL dataset with its sidecar manifest and a dataset-bound split manifest. Both are revalidated before any quality result is produced. The quality report is metadata, not an authorization token, mathematical proof, owner acceptance, or evidence of trained-model ability.
+The audit accepts only an existing JSONL dataset with its sidecar manifest and a dataset-bound split manifest. Both are revalidated before any quality result is produced. Run it with python -m ultron_core.dataset_quality --dataset existing.jsonl --split-manifest existing.splits.json --output quality-report.json. Byte, row, line, sidecar-manifest, split-manifest, SQLite page-cache, index and temporary-disk limits are configurable through the CLI. The quality report is metadata, not an authorization token, mathematical proof, owner acceptance, or evidence of trained-model ability.
 
 The report is deterministic for identical verified input bytes and uses canonical UTF-8 JSON with sorted keys and compact separators. report_sha256 is computed over the report before that field is added. The tool writes no data rows and does not mutate the inputs.
 
