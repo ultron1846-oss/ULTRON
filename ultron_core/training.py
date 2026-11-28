@@ -526,12 +526,21 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                 if accumulated == 0:
                     step_profile_started = time.perf_counter()
                     step_profile_tokens = 0
+                valid_target_tokens = ids[:, 1:].ne(0)
                 if mask is not None:
-                    if not isinstance(mask, torch.Tensor) or mask.shape != ids.shape:
-                        raise ValueError("attention_mask must match input_ids when profiling")
-                    step_profile_tokens += int(mask[:, 1:].sum().detach().cpu())
-                else:
-                    step_profile_tokens += max(0, ids.numel() - ids.shape[0])
+                    if (
+                        not isinstance(mask, torch.Tensor)
+                        or mask.dtype != torch.bool
+                        or mask.shape != ids.shape
+                        or mask.device != ids.device
+                    ):
+                        raise ValueError(
+                            "attention_mask must be boolean and match input_ids shape/device when profiling"
+                        )
+                    valid_target_tokens &= mask[:, :-1] & mask[:, 1:]
+                # Match causal_language_model_loss exactly: PAD targets and
+                # pairs with a padded predictor or target are not scored.
+                step_profile_tokens += int(valid_target_tokens.sum().detach().cpu())
             memory_monitor.check("before_batch", device=ids.device)
             reset_memory()
             try:
