@@ -11,7 +11,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - Repository: `ultron1846-oss/ULTRON`
 - Branch: `phase3/dataset-engineering-quality-2026-11-28`
 - PR base: `main` at `2ba3340dbc841699ad98e651c86f2e227be8cac0`
-- Latest code + regression-test revision (includes combined writer temporary-output quota and destination-copy integrity test): `d17f1c38bfca0d07c7de8ed46237af4130597b8a`
+- Latest code + regression-test revision (includes streamed-writer disk budget, destination-copy integrity, and separate SQLite main/temp page caps): `612d0defb2cee05ba6cfffac5f090a222079e0d6`
 - Benchmark report refresh revision: see the latest branch commit; the recorded measurements below are from code/test revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a`.
 - Review gate: no independent review or unresolved review thread was present at the last live check. PR remains open and unmerged.
 
@@ -33,13 +33,13 @@ The corrected implementation revision ran the benchmark on a 12,000-row syntheti
 | Runner | GitHub-hosted Ubuntu 26.04.1 |
 | Python / SQLite | 3.11.18 / 3.46.1 |
 | Rows scanned / selected | 12,000 / 12,000 |
-| Index build | 6.407709 s |
-| Sequential scan | 0.636071 s |
-| Sequential throughput | 18,865.80 rows/s |
+| Index build | 3.699706 s |
+| Sequential scan | 0.397573 s |
+| Sequential throughput | 30,183.12 rows/s |
 | Random reads | 64 seeded samples |
-| Random-read median / p95 | 0.106935 ms / 0.127158 ms |
+| Random-read median / p95 | 0.055120 ms / 0.062486 ms |
 | Snapshot / SQLite index | 4,540,482 / 6,291,456 bytes |
-| Peak traced Python allocations | 33,576,362 bytes |
+| Peak traced Python allocations | 33,576,465 bytes |
 
 These are single-run synthetic-fixture CI measurements, not a production corpus benchmark, comparative speedup, or total RAM result. `tracemalloc` excludes native SQLite allocations, PyTorch tensors, process RSS, OS page cache, and device memory. Full details are in [docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md](docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md).
 
@@ -47,9 +47,9 @@ These are single-run synthetic-fixture CI measurements, not a production corpus 
 
 All three workflows passed on exact code + test revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a`:
 
-- [Node Tests #46150315124](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150315124): `npm test` — passed.
-- [Python AI Core #46150315082](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150315082): `python -m unittest discover -s tests/python -v` — 711 tests passed in 97.032 seconds; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
-- [Level 1 Math Tooling #46150315102](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150315102): `pytest -q` — passed, including the workflow's 5,000 randomized cases.
+- [Node Tests #46150789071](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789071): `npm test` — passed.
+- [Python AI Core #46150789066](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789066): `python -m unittest discover -s tests/python -v` — 713 tests passed in 55.977 seconds; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
+- [Level 1 Math Tooling #46150789152](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789152): `pytest -q` — passed, including the workflow's 5,000 randomized cases.
 
 The CPU smoke performs forward/backward validation only; it does not step an optimizer or update ULTRON model weights. This code + test revision passed; the subsequent documentation-only handoff commit has its own final-head CI run.
 
