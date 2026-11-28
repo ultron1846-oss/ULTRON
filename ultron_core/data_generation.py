@@ -62,6 +62,8 @@ class MathExample:
             for item in self.generation_parameters
         ):
             raise TypeError("generation_parameters must be an immutable tuple of string/value pairs")
+        if len({item[0] for item in self.generation_parameters}) != len(self.generation_parameters):
+            raise ValueError("generation_parameters keys must be unique")
         if self.validation_status not in ("semantically_checked", "rejected"):
             raise ValueError("unsupported validation status")
 
@@ -74,6 +76,23 @@ class MathExample:
         """Adapt this legacy core record to the shared Problem schema."""
         from ultron_core.problem import Problem
         return Problem.from_core(self)
+
+
+def _example_identity_digest(row: dict) -> str:
+    """Hash the canonical identity fields shared by generation, writing and verification."""
+    identity_payload = {
+        "generator_version": row["generator_version"],
+        "seed": row["seed"],
+        "index": row["index"],
+        "topic": row["topic"],
+        "input_text": row["input_text"],
+        "target_text": row["target_text"],
+        "generation_parameters": row["generation_parameters"],
+    }
+    canonical = json.dumps(
+        identity_payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _parse_integer_polynomial(text: str) -> dict[int, int]:
@@ -388,8 +407,7 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         "topic": topic, "input_text": prompt, "target_text": answer_text,
         "generation_parameters": params,
     }
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    identifier = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    identifier = _example_identity_digest(payload)
     return MathExample(
         example_id=identifier, generator_version=GENERATOR_VERSION, topic=topic,
         difficulty=difficulty, input_text=prompt, target_text=answer_text,
@@ -622,9 +640,12 @@ def write_dataset(
                 ) or item.exact_answer != item.target_text:
                     raise ValueError("dataset contains an example that failed exact semantic validation")
 
+                row = item.to_dict()
+                if not hmac.compare_digest(item.example_id, _example_identity_digest(row)):
+                    raise ValueError("dataset example ID does not match its canonical content")
                 row_bytes = (
                     json.dumps(
-                        item.to_dict(),
+                        row,
                         sort_keys=True,
                         ensure_ascii=False,
                         separators=(",", ":"),
@@ -893,15 +914,7 @@ def verify_dataset(
                         or row["target_text"] != row["exact_answer"]
                         or not validate_example_text(row["input_text"], row["exact_answer"], row["topic"])):
                     raise ValueError("dataset row failed exact semantic validation")
-                identity_payload = {
-                    "generator_version": row["generator_version"], "seed": row["seed"],
-                    "index": row["index"], "topic": row["topic"],
-                    "input_text": row["input_text"], "target_text": row["target_text"],
-                    "generation_parameters": params,
-                }
-                canonical = json.dumps(identity_payload, sort_keys=True, separators=(",", ":"),
-                                        ensure_ascii=False)
-                expected_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+                expected_id = _example_identity_digest(row)
                 if not hmac.compare_digest(row["example_id"], expected_id):
                     raise ValueError("dataset row example_id does not match its content")
                 counts[row["topic"]] += 1

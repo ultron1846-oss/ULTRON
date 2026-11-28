@@ -105,6 +105,41 @@ class StreamingDatasetWriterTests(unittest.TestCase):
             self.assertEqual(manifest_path.read_bytes(), original_manifest)
             self.assertEqual(list(Path(directory).glob(".*.tmp")), [])
 
+    def test_writer_rejects_content_identity_mismatch_before_replacing_existing_pair(self):
+        example = generate_examples(101, 1, topics=("arithmetic",))[0]
+        params = dict(example.generation_parameters)
+        params["a"] += 1
+        tampered = replace(
+            example,
+            generation_parameters=tuple(sorted(params.items())),
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "identity-bound.jsonl"
+            topics = ("arithmetic",)
+            original_manifest = write_dataset(
+                path, (example,), seed=101, topics=topics
+            )
+            original_dataset_bytes = path.read_bytes()
+            manifest_path = path.with_suffix(path.suffix + ".manifest.json")
+            original_manifest_bytes = manifest_path.read_bytes()
+
+            with self.assertRaisesRegex(ValueError, "example ID does not match"):
+                write_dataset(path, (tampered,), seed=101, topics=topics)
+
+            self.assertEqual(path.read_bytes(), original_dataset_bytes)
+            self.assertEqual(manifest_path.read_bytes(), original_manifest_bytes)
+            self.assertEqual(verify_dataset(path), original_manifest)
+
+    def test_math_example_rejects_duplicate_generation_parameter_names(self):
+        example = generate_examples(101, 1, topics=("arithmetic",))[0]
+        with self.assertRaisesRegex(ValueError, "keys must be unique"):
+            replace(
+                example,
+                generation_parameters=example.generation_parameters
+                + (example.generation_parameters[0],),
+            )
+
     def test_writer_rejects_duplicate_ids_indices_and_unknown_topic_sequence(self):
         examples = self._examples()
         topics = ("arithmetic", "rational_arithmetic", "linear_equations")

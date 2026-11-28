@@ -75,7 +75,7 @@ The provenance string is descriptive metadata, not an authenticated signature. S
 
 ## 5. Mathematical and structural validation
 
-write_dataset rejects empty/non-MathExample inputs, duplicate IDs, seed/topic mismatches, rejected status, and answers that fail the current exact topic validator. verify_dataset independently checks:
+write_dataset rejects empty/non-MathExample inputs, duplicate IDs and row indices, duplicate generation-parameter names, seed/topic mismatches, rejected status, answers that fail the current exact topic validator, and any sample ID that does not match the canonical identity hash before either destination file is replaced. The generator, writer and verifier share one canonical identity-digest helper to prevent hash-contract drift. verify_dataset independently checks:
 
 - strict manifest schema/version, seed, topics, count, topic counts and digest;
 - byte, row and line limits before/until parsing;
