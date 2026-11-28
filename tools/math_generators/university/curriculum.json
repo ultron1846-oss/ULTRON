@@ -876,7 +876,7 @@
       "title": "homogeneous constant-coefficient first-order ODEs",
       "field": "Differential equations",
       "status": "generator_available_not_mastered",
-      "generator_topic": "differential_equations"
+      "generator_topic": "homogeneous_constant_coefficient_first_order_ODEs"
     },
     {
       "topic": "separable_first_order_ODEs",
