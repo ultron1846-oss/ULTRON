@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
-  "source_commit": "f10e8e4ee2c4757b617ffc4486040b1f70d326b5",
-  "source_topic_count": 202,
-  "mapped_topic_count": 202,
+  "source_commit": "efcadcacd459f7a2049d2247ac1dfbf91dcf187f",
+  "source_topic_count": 218,
+  "mapped_topic_count": 218,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -23,7 +23,7 @@
     "Applied mathematics and mathematical physics",
     "Advanced and interdisciplinary"
   ],
-  "scope_note": "Curated prerequisite edges for all 197 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
+  "scope_note": "Curated prerequisite edges for all 218 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -133,6 +133,10 @@
       "derivative_theory",
       "power_series"
     ],
+    "quadratic_Taylor_polynomials": [
+      "derivative_theory",
+      "power_series"
+    ],
     "Riemann_integral": [
       "limits_and_continuity"
     ],
@@ -163,7 +167,20 @@
       "multivariable_limits",
       "Riemann_integral"
     ],
+    "rectangular_linear_polynomial_double_integrals": [
+      "multiple_integrals",
+      "Riemann_integral"
+    ],
+    "rectangular_quadratic_polynomial_double_integrals": [
+      "multiple_integrals",
+      "rectangular_linear_polynomial_double_integrals",
+      "Riemann_integral"
+    ],
     "change_of_variables": [
+      "multiple_integrals",
+      "partial_derivatives"
+    ],
+    "diagonal_linear_change_of_variables_rectangles": [
       "multiple_integrals",
       "partial_derivatives"
     ],
@@ -171,11 +188,27 @@
       "partial_derivatives",
       "multiple_integrals"
     ],
+    "constant_vector_field_segment_line_integrals": [
+      "vectors_and_vector_spaces",
+      "Riemann_integral"
+    ],
+    "polynomial_vector_field_segment_line_integrals": [
+      "constant_vector_field_segment_line_integrals",
+      "vectors_and_vector_spaces"
+    ],
     "surface_integrals": [
       "multiple_integrals",
       "partial_derivatives"
     ],
+    "flat_rectangular_surface_area_integrals": [
+      "multiple_integrals",
+      "Riemann_integral"
+    ],
     "vector_calculus": [
+      "partial_derivatives",
+      "gradient_and_directional_derivatives"
+    ],
+    "diagonal_linear_vector_field_divergence": [
       "partial_derivatives",
       "gradient_and_directional_derivatives"
     ],
@@ -230,12 +263,16 @@
       "pointwise_and_uniform_convergence",
       "metric_spaces"
     ],
-    "complex_numbers_and_topology": [
+    "complex_number_arithmetic": [
+      "sets_and_functions"
+    ],
+    "complex_topology": [
       "sets_and_functions",
       "metric_spaces"
     ],
     "holomorphic_functions": [
-      "complex_numbers_and_topology",
+      "complex_number_arithmetic",
+      "complex_topology",
       "limits_and_continuity"
     ],
     "Cauchy_Riemann_equations": [
@@ -250,17 +287,21 @@
       "contour_integrals",
       "holomorphic_functions"
     ],
-    "Taylor_and_Laurent_series": [
+    "complex_Taylor_series": [
+      "Cauchy_integral_formula",
+      "power_series"
+    ],
+    "Laurent_series": [
       "Cauchy_integral_formula",
       "power_series"
     ],
     "residues": [
-      "Taylor_and_Laurent_series",
+      "Laurent_series",
       "contour_integrals"
     ],
     "singularities": [
       "holomorphic_functions",
-      "Taylor_and_Laurent_series"
+      "Laurent_series"
     ],
     "conformal_maps": [
       "holomorphic_functions",
@@ -348,7 +389,7 @@
     ],
     "analytic_number_theory_intro": [
       "sequences_and_series",
-      "complex_numbers_and_topology"
+      "complex_number_arithmetic"
     ],
     "topological_spaces": [
       "sets_and_functions",
@@ -415,6 +456,10 @@
       "sets_and_functions",
       "counting_principles"
     ],
+    "finite_simple_graph_handshaking": [
+      "graph_theory_basics",
+      "counting_principles"
+    ],
     "trees_and_spanning_trees": [
       "graph_theory_basics"
     ],
@@ -447,6 +492,10 @@
     ],
     "discrete_distributions": [
       "random_variables"
+    ],
+    "binomial_distribution_exact_probabilities": [
+      "discrete_distributions",
+      "counting_principles"
     ],
     "continuous_distributions": [
       "random_variables",
@@ -557,7 +606,12 @@
     ],
     "characteristics_PDE": [
       "partial_derivatives",
-      "separable_first_order_ODEs"
+      "separable_first_order_ODEs",
+      "affine_transport_first_order_PDEs"
+    ],
+    "affine_transport_first_order_PDEs": [
+      "partial_derivatives",
+      "vectors_and_vector_spaces"
     ],
     "convex_sets_and_functions": [
       "vectors_and_vector_spaces",
@@ -802,9 +856,22 @@
       "derivative_theory",
       "Riemann_integral"
     ],
+    "homogeneous_variable_coefficient_linear_first_order_ODEs": [
+      "homogeneous_constant_coefficient_first_order_ODEs",
+      "Riemann_integral",
+      "derivative_theory"
+    ],
     "exact_first_order_ODEs": [
       "partial_derivatives",
       "Riemann_integral"
+    ],
+    "stokes_theorem_horizontal_rectangles": [
+      "stokes_theorem",
+      "greens_theorem_rectangles"
+    ],
+    "divergence_theorem_axis_aligned_boxes": [
+      "divergence_theorem",
+      "diagonal_linear_vector_field_divergence"
     ]
   }
 }
