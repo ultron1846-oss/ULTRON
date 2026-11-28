@@ -16,9 +16,11 @@ test('training control page is read-only and exposes no job or checkpoint contro
   assert.match(html, /data-page="training"/);
   assert.match(app, /training:'Training control'/);
   assert.match(app, /function renderTraining\(/);
-  assert.match(app, /function loadTrainingStatus\(/);
-  assert.match(app, /fetchSupabasePublicStatus\(\)/);
-  assert.match(app, /READ-ONLY CONTROL PLANE/);
+  assert.match(app, /const runtimeStatusMonitor = new RuntimeStatusMonitor/);
+  assert.match(app, /function startPublicStatusPolling\(/);
+  assert.match(app, /function requestPublicStatus\(/);
+  assert.match(app, /GENERIC SERVICE STATUS/);
+  assert.doesNotMatch(app, /READ-ONLY CONTROL PLANE|PUBLIC STATUS ONLY/);
   assert.match(app, /No job controls/);
   assert.doesNotMatch(app, /id="training-(?:start|pause|stop|resume|save)"/);
   assert.doesNotMatch(app, /data-page="owner"|data-page="pairing"|id="pairing/);
@@ -140,7 +142,7 @@ test('overview contains real project status and actionable navigation instead of
 });
 
 test('browser entry and imported modules pass JavaScript syntax checks', async () => {
-  for (const path of ['app.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
+  for (const path of ['app.js', 'runtime-status.js', 'provider-directory.js', 'math-engine.js', 'supabase-integration.js', 'memory-store.js']) {
     execFileSync(process.execPath, ['--check', new URL('../' + path, import.meta.url).pathname]);
   }
 });
@@ -228,4 +230,28 @@ test('workload preference safely normalizes invalid and out-of-range browser sto
   assert.equal(normalizeMemoryPreference('Infinity'), 6);
   assert.equal(normalizeMemoryPreference(''), 6);
   assert.equal(normalizeMemoryPreference(null), 6);
+});
+
+test('public status lifecycle refreshes only while the status page is active and handles offline transitions', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  const monitor = await readFile(new URL('../runtime-status.js', import.meta.url), 'utf8');
+  assert.match(app, /stopPublicStatusPolling\(\);\s*const key=/);
+  assert.match(app, /runtimeStatusMonitor\.start\(\)/);
+  assert.match(app, /runtimeStatusMonitor\.stop\(\)/);
+  assert.match(app, /window\.addEventListener\('online'/);
+  assert.match(app, /window\.addEventListener\('offline'/);
+  assert.match(app, /document\.addEventListener\('visibilitychange'/);
+  assert.match(monitor, /RUNTIME_STATUS_REFRESH_MS = 60_000/);
+  assert.match(monitor, /RUNTIME_STATUS_STALE_MS = 120_000/);
+  assert.match(monitor, /lastSuccessAt/);
+  assert.match(monitor, /state = this\.data \? 'stale' : \(this\.online \? 'unavailable' : 'offline'\)/);
+});
+
+test('resource slider is identified as a requested GiB preference and never a guaranteed memory limit', async () => {
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  assert.match(app, /Requested workload memory budget/);
+  assert.match(app, /aria-valuetext/);
+  assert.match(app, /does not reserve physical RAM/);
+  assert.match(app, /does not allocate device RAM/);
+  assert.doesNotMatch(app, /guaranteed physical memory limit/);
 });
