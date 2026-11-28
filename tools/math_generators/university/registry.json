@@ -739,6 +739,20 @@
       "mastery_status": "not_mastered"
     },
     {
+      "topic": "stokes_theorem_horizontal_rectangles",
+      "title": "Stokes theorem for affine fields on horizontal rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "stokes_theorem_horizontal_rectangles",
+      "catalog_id": "university:stokes_theorem_horizontal_rectangles",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
       "topic": "divergence_theorem",
       "title": "Divergence theorem",
       "field": "Calculus",
@@ -748,6 +762,20 @@
       "includes_word_problems": false,
       "has_generator": false,
       "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "divergence_theorem_axis_aligned_boxes",
+      "title": "divergence theorem for diagonal linear fields on rectangular boxes",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "divergence_theorem_axis_aligned_boxes",
+      "catalog_id": "university:divergence_theorem_axis_aligned_boxes",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },
