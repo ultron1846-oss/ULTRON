@@ -11,7 +11,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - Repository: `ultron1846-oss/ULTRON`
 - Branch: `phase3/dataset-engineering-quality-2026-11-28`
 - PR base: `main` at `2ba3340dbc841699ad98e651c86f2e227be8cac0`
-- Latest implementation + regression-test revision (including the quality-audit SQLite journal-budget fix): `3c669f442404436acdb69ca488e03eef6976eb4d`
+- Latest implementation + regression-test revision (including the quality-audit SQLite journal-budget fix and writer-side canonical sample-identity check): `37afd461e8ba2599feeb979f878684b954d8cc57`
 - Benchmark and full Python regression measurements below were rerun on this exact implementation revision. A documentation-only follow-up records the results.
 - Review gate: no independent review or unresolved review thread was present at the last live check. PR remains open and unmerged.
 
@@ -26,32 +26,32 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 
 ### Measured CI fixture benchmark
 
-The journal-bounded quality-audit implementation reran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46152095102](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095102), job `141000733143`, on exact implementation revision `3c669f442404436acdb69ca488e03eef6976eb4d`.
+The journal-bounded quality-audit implementation reran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46152501626](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501626), job `141001954481`, on exact implementation revision `37afd461e8ba2599feeb979f878684b954d8cc57`.
 
 | Metric | Result |
 |---|---:|
 | Runner | GitHub-hosted Ubuntu 26.04.1 |
 | Python / SQLite | 3.11.18 / 3.46.1 |
 | Rows scanned / selected | 12,000 / 12,000 |
-| Index build | 4.875146 s |
-| Sequential scan | 0.505588 s |
-| Sequential throughput | 23,734.75 rows/s |
+| Index build | 6.189540 s |
+| Sequential scan | 0.662774 s |
+| Sequential throughput | 18,105.71 rows/s |
 | Random reads | 64 seeded samples |
-| Random-read median / p95 | 0.075834 ms / 0.088252 ms |
+| Random-read median / p95 | 0.109926 ms / 0.133991 ms |
 | Snapshot / SQLite index | 4,540,482 / 6,291,456 bytes |
-| Peak traced Python allocations | 33,574,697 bytes |
+| Peak traced Python allocations | 33,576,293 bytes |
 
 These are single-run synthetic-fixture CI measurements, not a production corpus benchmark, comparative speedup, or total RAM result. `tracemalloc` excludes native SQLite allocations, PyTorch tensors, process RSS, OS page cache, and device memory. Full details are in [docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md](docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md).
 
 ### Validation on the exact code revision
 
-All three workflows passed on exact implementation + regression-test revision `3c669f442404436acdb69ca488e03eef6976eb4d`:
+All three workflows passed on exact implementation + regression-test revision `37afd461e8ba2599feeb979f878684b954d8cc57`:
 
-- [Node Tests #46152095150](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095150): `npm test` — passed.
-- [Python AI Core #46152095102](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095102): `python -m unittest discover -s tests/python -v` — **714 tests passed in 68.754 seconds**; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
-- [Level 1 Math Tooling #46152095094](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152095094): `pytest -q` — passed, including the workflow's 5,000 randomized cases.
+- [Node Tests #46152501592](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501592): `npm test` — passed.
+- [Python AI Core #46152501626](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501626): `python -m unittest discover -s tests/python -v` — **716 tests passed in 100.625 seconds**; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
+- [Level 1 Math Tooling #46152501685](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501685): `pytest -q` — passed, including the workflow's 5,000 randomized cases.
 
-The Python test suite includes `test_quality_audit_disables_sqlite_journals_before_writes`, which guards against DDL/DML until both main and temporary SQLite journal modes are `off`. The CPU smoke performs forward/backward validation only; it does not step an optimizer or update ULTRON model weights. The synthetic benchmark ran in the Python AI Core job above; its measurement limits are stated below.
+The Python test suite includes `test_quality_audit_disables_sqlite_journals_before_writes`, `test_writer_rejects_content_identity_mismatch_before_replacing_existing_pair`, and `test_math_example_rejects_duplicate_generation_parameter_names`. These protect the resource budget and canonical sample-identity contract. The CPU smoke performs forward/backward validation only; it does not step an optimizer or update ULTRON model weights. The synthetic benchmark ran in the Python AI Core job above; its measurement limits are stated below.
 
 ### Exact PR file inventory (19 files including this handoff)
 
