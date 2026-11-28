@@ -77,7 +77,7 @@ class Grade8To12GeneratorTests(unittest.TestCase):
         flags = {row["topic"]: row["includes_word_problems"] for row in grade8["topics"]}
         self.assertEqual({topic for topic, enabled in flags.items() if enabled}, EXPECTED_WORD_TOPICS)
         combined = json.loads(rendered["registry.json"])
-        self.assertEqual(combined["coverage_through"], "Core + G1-12 + 199-topic university mathematics curriculum; scoped IDs and explicit evidence states")
+        self.assertEqual(combined["coverage_through"], "Core + G1-12 + 202-topic university mathematics curriculum; scoped IDs and explicit evidence states")
 
     def test_semantic_domains(self):
         self.assertFalse(semantic_check(
