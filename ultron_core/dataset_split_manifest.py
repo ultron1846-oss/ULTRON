@@ -199,7 +199,15 @@ def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,valid
     if not isinstance(resource_limits, DatasetResourceLimits):
         raise TypeError("resource_limits must be DatasetResourceLimits")
     dataset=Path(dataset_path).resolve(); output=Path(output_path).resolve()
-    if output in (dataset,dataset.with_suffix(dataset.suffix+".manifest.json")):
+    protected_inputs = (
+        dataset,
+        dataset.with_suffix(dataset.suffix + ".manifest.json"),
+    )
+    if output in protected_inputs or (
+        output.exists()
+        and any(input_path.exists() and os.path.samefile(output, input_path)
+                for input_path in protected_inputs)
+    ):
         raise ValueError("split manifest output must not overwrite dataset or sidecar")
     manifest, split_ids = _derive_split_ids(
         dataset, split_seed, validation_fraction, test_fraction,
