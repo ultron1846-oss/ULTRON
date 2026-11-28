@@ -147,8 +147,10 @@ def _validate_output_path(output_path, dataset_path, split_manifest_path):
     if output_path is None:
         return
     output = Path(output_path).expanduser().resolve()
+    dataset = Path(dataset_path).expanduser().resolve()
     inputs = {
-        Path(dataset_path).expanduser().resolve(),
+        dataset,
+        dataset.with_suffix(dataset.suffix + ".manifest.json"),
         Path(split_manifest_path).expanduser().resolve(),
     }
     aliases_input = output in inputs
