@@ -72,7 +72,8 @@ Severity definitions: P1 means a resource or correctness boundary could be bypas
 | P1 — unbounded token materialization before sequence rejection | The in-memory and indexed dataset adapters tokenized the complete Question/Answer string, then checked the token count. Checkpoint-backed inference did the same with prompts. The tokenizer had no max-token contract. | Fixed by adding max_tokens to tokenize/encode; the scanner now stops before creating token objects beyond the budget. Dataset adapters and inference pass their sequence budget into tokenization and preserve explicit no-truncation behavior. Regression tests cover tokenizer budget accounting, in-memory and indexed datasets, and inference prompts. |
 | P2 — benchmark peak contaminated by prior tracing | tools/benchmark_verified_dataset.py called get_traced_memory when tracemalloc was already active and could report allocations made before the benchmark as its own peak. | Fixed. The benchmark only reports a peak when it owns the tracing session. When a caller already owns tracing, the function records the baseline, does not reset or stop the tracer, and returns null for the benchmark-specific peak. A regression test creates unrelated prior allocations and verifies that the caller's tracer remains intact. |
 | P2 — inconsistent compressed inference device error | load_compressed_inference_engine constructed torch.device outside the normalization guard used by load_inference_engine. Invalid device input could expose a raw Torch exception rather than the documented ValueError contract. | Fixed with the same normalized error message and a negative regression test. |
-| P2 — benchmark coverage incomplete | Existing benchmark tooling covered indexed dataset construction/scan/random access and a single-config inference smoke, but did not consolidate tokenizer comparison, multi-length forward latency, attention/router components, checkpoint save/load, inference latency by prompt size, and frontend transfer-size data into one reproducible report. | Added tools/benchmark_phase1.py and a dedicated PR-targeted GitHub workflow. Its report records hardware/OS/runtime, seed, warmups, repetitions, batch, sequence lengths, dataset fixture size, measurement methods, and measurement gaps. Exact-head benchmark artifact is pending. |
+| P2 — benchmark coverage incomplete | Existing benchmark tooling covered indexed dataset construction/scan/random access and a single-config inference smoke, but did not consolidate tokenizer comparison, multi-length forward latency, attention/router components, checkpoint save/load, inference latency by prompt size, and frontend transfer-size data into one reproducible report. | Added tools/benchmark_phase1.py and a dedicated PR-targeted GitHub workflow. The initial unsupported \\sin sample was corrected to use the existing tokenizer vocabulary. Corrected benchmark workflows pass and upload JSON artifacts. |
+| P2 — unbounded browser memory-list materialization | memory-store.js listRecords used getAll(), sorted all IndexedDB rows in JavaScript, then sliced to the requested 100/500-row display limit. This allowed a bounded UI request to allocate and sort the entire growing store. | Fixed by adding a version-2 IndexedDB schema with a createdAt index on all four stores and a reverse cursor limited to the requested 1–500 records. The migration backfills missing timestamps with an empty string. The exported/imported backup contract remains version 1. New tests cover v1-to-v2 migration, legacy records without timestamps, backup-version compatibility, and exact cursor-visit limits. |
 | P3 — full-size and real-device performance unmeasured | The small model and synthetic dataset cannot establish the 60M+ model's memory/latency on intended hardware. Static frontend transfer bytes do not establish browser load time. | No claim made. The benchmark report explicitly separates CPU CI measurements from CUDA, target-device, production dataset, and real-browser owner acceptance. |
 | P3 — indexed manifest metadata has an O(N) component | The disk-backed store streams record payloads and stores row offsets in SQLite, but selected split-ID metadata is parsed into Python structures under an explicit dataset/preflight cap. | Retained and documented as a bounded design limitation. No unmeasured redesign was made. |
 | P3 — no full learned capability evidence | The foundation architecture is formula-counted at 63,400,451 total / 61,826,048 trainable parameters, but has not been fully instantiated/profiled or trained. | No training or full-size allocation was attempted. Random initialized inference/benchmark results are software-pipeline measurements only. |
@@ -108,6 +109,15 @@ Regression coverage uses a prior unrelated allocation to ensure the benchmark do
 - Compressed checkpoint inference now normalizes invalid torch.device values to the same ValueError contract as ordinary checkpoint inference.
 - Regression test ensures invalid device input is rejected before attempting to open checkpoint/artifact files.
 
+### Bounded IndexedDB memory listing
+
+- Increased the IndexedDB schema version from 1 to 2 and added a non-unique createdAt index to all four object stores.
+- Version upgrade backfills legacy rows without string createdAt values using an empty string. This keeps legacy records queryable and preserves the former sort convention in which missing timestamps appear last.
+- listRecords now uses a reverse cursor on createdAt and stops after the bounded display limit (1–500); it no longer calls getAll() or sorts the full object store for list views.
+- The portable JSON backup schema remains version 1 through a separate BACKUP_VERSION constant, so an internal database schema migration does not make existing exported backups incompatible.
+- tests/memory-store-indexeddb.test.js now models indexes/cursors and checks: legacy v1 migration, all four index creations, legacy timestamp handling, backup schema compatibility, and a 1,500-record fixture where requesting 25 rows visits exactly 25 cursor entries and does not call getAll().
+- The exportMemory backup path still intentionally materializes a complete bounded export (20 MB safety cap); this change only bounds list views, not full backup serialization.
+
 ### Reproducible performance harness
 
 tools/benchmark_phase1.py reports:
@@ -141,17 +151,17 @@ The Phase 1 benchmark workflow invokes:
 
 python -m tools.benchmark_phase1 --output artifacts/phase1-benchmark.json
 
-**Phase 1 implementation/test validation — commit 7ff7f592b8eacc357469e695022ee0e727fefc29:**
+**Phase 1 implementation/test validation — commit 15a7d518fd4aeadcd4166b792282f306600e1e2e:**
 
 | Workflow | Run ID | Result |
 | --- | ---: | --- |
-| Tests | [46116204458](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204458) | Success; 128 Node tests passed, 0 failed |
-| Python AI Core Tests | [46116204522](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204522) | Success; 734 tests passed; CPU forward/backward smoke passed with no optimizer step |
-| ULTRON Level 1 Math Tooling | [46116204450](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204450) | Success; 5 tests passed; workflow covers 5,000 randomized cases |
-| Security and dependency audit | [46116204552](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204552) | Success; npm audit 0 vulnerabilities; pip-audit reported no known vulnerabilities in all three declared groups |
-| ULTRON Phase 1 performance benchmarks | [46116204496](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204496) | Success; uploaded JSON artifact |
+| Tests | [46116772850](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772850) | Success; 130 Node tests passed, 0 failed, including the v2 IndexedDB migration and cursor-bound tests |
+| Python AI Core Tests | [46116772844](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772844) | Success; 734 tests passed; CPU forward/backward smoke passed with no optimizer step |
+| ULTRON Level 1 Math Tooling | [46116772851](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772851) | Success; 5 tests passed; workflow covers 5,000 randomized cases |
+| Security and dependency audit | [46116772867](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772867) | Success; npm audit 0 vulnerabilities; pip-audit reported no known vulnerabilities in all three declared groups |
+| ULTRON Phase 1 performance benchmarks | [46116772901](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772901) | Success; uploaded JSON artifact |
 
-Benchmark artifact: workflow run 46116204496, artifact name ultron-phase1-benchmark, artifact ID 15251224326.
+Latest benchmark artifact: workflow run 46116772901, artifact name ultron-phase1-benchmark, artifact ID 15252171168 (4,559 bytes). The benchmark was rerun after the IndexedDB code change. The detailed numeric table below is the explicitly decoded measurement set from successful run 46116204496; the repeated run above confirms the harness still completes on the later code head.
 
 ### Measured Phase 1 benchmark results
 
@@ -189,7 +199,7 @@ No training, optimizer step on ULTRON weights, production corpus generation/down
 
 ## 7. Phase status and next task
 
-**Phase 1 status: confirmed fixes and regression coverage passed on the implementation/test revision above; all five workflows and the benchmark artifact passed. Repository-wide audit remains risk-based and incomplete. A final documentation-only follow-up commit must still receive exact-head workflow confirmation and independent review.**
+**Phase 1 status: five confirmed fixes/improvements and their regression coverage passed on implementation/test head 15a7d518fd4aeadcd4166b792282f306600e1e2e; all five workflows and the repeated benchmark artifact passed. Repository-wide audit remains risk-based and incomplete. The PR is unmerged pending independent review; a documentation-only follow-up commit still requires exact-head workflow confirmation.**
 
 The next task after this audit batch is to resolve review feedback, verify all exact-head checks and benchmark artifact, and have an independent reviewer assess the Phase 1 PR. Do not merge while independent review is absent. PR #207 also remains open and unmerged because its own independent-review gate is still unsatisfied.
 
