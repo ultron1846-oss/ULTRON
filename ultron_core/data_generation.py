@@ -15,6 +15,8 @@ import re
 import tempfile
 from typing import Iterable
 
+from .dataset_resource_limits import DatasetResourceLimits
+
 GENERATOR_VERSION = "0.5.0"
 SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral", "matrix_determinant_2x2", "linear_system_2x2", "matrix_inverse_2x2")
 _MAX_EXAMPLES = 100_000
@@ -550,55 +552,132 @@ def split_examples(
         raise ValueError("split seed/fractions produced an empty split; increase unique prompt count")
     return {name: tuple(values) for name, values in result.items()}
 
-def write_dataset(path: str | Path, examples: Iterable[MathExample],
-                  *, seed: int, topics: Iterable[str]) -> dict:
-    """Write deterministic JSONL and a deterministic SHA-256 manifest atomically."""
-    examples = tuple(examples)
-    if not examples or any(not isinstance(item, MathExample) for item in examples):
-        raise ValueError("dataset must contain at least one MathExample")
+def write_dataset(
+    path: str | Path,
+    examples: Iterable[MathExample],
+    *,
+    seed: int,
+    topics: Iterable[str],
+    resource_limits: DatasetResourceLimits | None = None,
+) -> dict:
+    """Stream a validated JSONL dataset and sidecar under explicit byte/row caps.
+
+    The data file and sidecar are each fsynced and atomically replaced, but the
+    pair is not a multi-file transaction. A mismatched pair always fails later
+    verification. Rows and the encoded full dataset are never accumulated.
+    """
     if isinstance(seed, bool) or not isinstance(seed, int):
         raise TypeError("dataset seed must be an integer")
     topics = tuple(topics)
-    if not topics or any(topic not in SUPPORTED_TOPICS for topic in topics):
-        raise ValueError("dataset topics must be a non-empty supported-topic sequence")
-    if len({item.example_id for item in examples}) != len(examples):
-        raise ValueError("dataset contains duplicate example IDs")
-    for item in examples:
-        if item.seed != seed or item.topic not in topics:
-            raise ValueError("example seed/topic does not match dataset manifest configuration")
-        if item.validation_status != "semantically_checked" or not validate_example_text(
-            item.input_text, item.target_text, item.topic
-        ) or item.exact_answer != item.target_text:
-            raise ValueError("dataset contains an example that failed exact semantic validation")
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    rows = "".join(json.dumps(item.to_dict(), sort_keys=True, ensure_ascii=False,
-                              separators=(",", ":")) + "\n" for item in examples)
-    encoded = rows.encode("utf-8")
-    digest = hashlib.sha256(encoded).hexdigest()
-    counts = dict(sorted(Counter(item.topic for item in examples).items()))
-    manifest = {
-        "schema_version": 1, "generator_version": GENERATOR_VERSION,
-        "seed": seed, "topics": list(topics), "example_count": len(examples),
-        "topic_counts": counts, "sha256": digest,
-    }
-    manifest_text = json.dumps(manifest, sort_keys=True, ensure_ascii=False,
-                               separators=(",", ":")) + "\n"
-    for output, content in (
-        (target, encoded),
-        (target.with_suffix(target.suffix + ".manifest.json"), manifest_text.encode("utf-8")),
+    if (
+        not topics
+        or any(topic not in SUPPORTED_TOPICS for topic in topics)
+        or len(set(topics)) != len(topics)
     ):
-        fd, temporary_name = tempfile.mkstemp(prefix=f".{output.name}.", dir=output.parent)
-        try:
-            with os.fdopen(fd, "wb") as stream:
-                stream.write(content)
-                stream.flush()
-                os.fsync(stream.fileno())
-            os.replace(temporary_name, output)
-        finally:
-            if os.path.exists(temporary_name):
-                os.unlink(temporary_name)
-    return manifest
+        raise ValueError("dataset topics must be a non-empty unique supported-topic sequence")
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
+
+    target = Path(path)
+    manifest_path = target.with_suffix(target.suffix + ".manifest.json")
+    if target.resolve() == manifest_path.resolve():
+        raise ValueError("dataset path and sidecar path must be distinct")
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    dataset_fd, dataset_temp_name = tempfile.mkstemp(
+        prefix=f".{target.name}.", suffix=".tmp", dir=target.parent
+    )
+    manifest_temp_name = None
+    identifiers: set[str] = set()
+    indexes: set[int] = set()
+    topic_counts: Counter[str] = Counter()
+    digest = hashlib.sha256()
+    examples_seen = 0
+    bytes_seen = 0
+    try:
+        with os.fdopen(dataset_fd, "wb") as stream:
+            for item in examples:
+                if examples_seen >= resource_limits.max_rows:
+                    raise ValueError("dataset exceeds configured max_rows")
+                if not isinstance(item, MathExample):
+                    raise TypeError("dataset rows must be MathExample instances")
+                if item.example_id in identifiers:
+                    raise ValueError("dataset contains duplicate example IDs")
+                if item.index in indexes:
+                    raise ValueError("dataset contains duplicate example indices")
+                if item.seed != seed or item.topic not in topics:
+                    raise ValueError("example seed/topic does not match dataset manifest configuration")
+                if item.validation_status != "semantically_checked" or not validate_example_text(
+                    item.input_text, item.target_text, item.topic
+                ) or item.exact_answer != item.target_text:
+                    raise ValueError("dataset contains an example that failed exact semantic validation")
+
+                row_bytes = (
+                    json.dumps(
+                        item.to_dict(),
+                        sort_keys=True,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                        allow_nan=False,
+                    ).encode("utf-8")
+                    + b"\n"
+                )
+                if len(row_bytes) > resource_limits.max_line_bytes:
+                    raise ValueError("dataset row exceeds configured max_line_bytes")
+                if bytes_seen + len(row_bytes) > resource_limits.max_dataset_bytes:
+                    raise ValueError("dataset exceeds configured max_dataset_bytes")
+
+                stream.write(row_bytes)
+                digest.update(row_bytes)
+                bytes_seen += len(row_bytes)
+                examples_seen += 1
+                identifiers.add(item.example_id)
+                indexes.add(item.index)
+                topic_counts[item.topic] += 1
+
+            if examples_seen == 0:
+                raise ValueError("dataset must contain at least one MathExample")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        manifest = {
+            "schema_version": 1,
+            "generator_version": GENERATOR_VERSION,
+            "seed": seed,
+            "topics": list(topics),
+            "example_count": examples_seen,
+            "topic_counts": dict(sorted(topic_counts.items())),
+            "sha256": digest.hexdigest(),
+        }
+        manifest_bytes = (
+            json.dumps(
+                manifest, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+            + b"\n"
+        )
+        if len(manifest_bytes) > resource_limits.max_dataset_manifest_bytes:
+            raise ValueError("dataset sidecar manifest exceeds configured max_dataset_manifest_bytes")
+
+        manifest_fd, manifest_temp_name = tempfile.mkstemp(
+            prefix=f".{manifest_path.name}.", suffix=".tmp", dir=manifest_path.parent
+        )
+        with os.fdopen(manifest_fd, "wb") as stream:
+            stream.write(manifest_bytes)
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        os.replace(dataset_temp_name, target)
+        dataset_temp_name = None
+        os.replace(manifest_temp_name, manifest_path)
+        manifest_temp_name = None
+        return manifest
+    finally:
+        if dataset_temp_name is not None and os.path.exists(dataset_temp_name):
+            os.unlink(dataset_temp_name)
+        if manifest_temp_name is not None and os.path.exists(manifest_temp_name):
+            os.unlink(manifest_temp_name)
 
 
 _MAX_DATASET_BYTES = 1024 * 1024 * 1024
