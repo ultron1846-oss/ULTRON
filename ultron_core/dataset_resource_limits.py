@@ -7,6 +7,7 @@ MAX_DATASET_BYTES = 1024 * 1024 * 1024
 MAX_DATASET_ROWS = 100_000
 MAX_LINE_BYTES = 8 * 1024 * 1024
 MAX_SPLIT_MANIFEST_BYTES = 32 * 1024 * 1024
+MAX_DATASET_MANIFEST_BYTES = 1024 * 1024
 MAX_INDEX_BYTES = 1024 * 1024 * 1024
 MAX_TEMPORARY_BYTES = 2 * 1024 * 1024 * 1024
 
@@ -19,6 +20,7 @@ class DatasetResourceLimits:
     max_rows: int = MAX_DATASET_ROWS
     max_line_bytes: int = MAX_LINE_BYTES
     max_split_manifest_bytes: int = MAX_SPLIT_MANIFEST_BYTES
+    max_dataset_manifest_bytes: int = MAX_DATASET_MANIFEST_BYTES
     max_index_bytes: int = 256 * 1024 * 1024
     max_temporary_bytes: int = MAX_DATASET_BYTES + 256 * 1024 * 1024
     snapshot_copy_chunk_bytes: int = 1024 * 1024
@@ -32,6 +34,7 @@ class DatasetResourceLimits:
             ("max_rows", self.max_rows, MAX_DATASET_ROWS),
             ("max_line_bytes", self.max_line_bytes, MAX_LINE_BYTES),
             ("max_split_manifest_bytes", self.max_split_manifest_bytes, MAX_SPLIT_MANIFEST_BYTES),
+            ("max_dataset_manifest_bytes", self.max_dataset_manifest_bytes, MAX_DATASET_MANIFEST_BYTES),
             ("max_index_bytes", self.max_index_bytes, MAX_INDEX_BYTES),
             ("max_temporary_bytes", self.max_temporary_bytes, MAX_TEMPORARY_BYTES),
             ("snapshot_copy_chunk_bytes", self.snapshot_copy_chunk_bytes, 8 * 1024 * 1024),
