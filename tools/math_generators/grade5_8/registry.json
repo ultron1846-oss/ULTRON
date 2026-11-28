@@ -3,69 +3,134 @@
   "batch": "Batch 2 - Grades 5-8",
   "topics": [
     {
+      "catalog_id": "g5_6:decimal_operations",
       "topic": "decimal_operations",
       "grade_band": "G5-6",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:fraction_operations",
       "topic": "fraction_operations",
       "grade_band": "G5-6",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:ratios",
       "topic": "ratios",
       "grade_band": "G5-6",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:percentages",
       "topic": "percentages",
       "grade_band": "G5-6",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:integers",
       "topic": "integers",
       "grade_band": "G5-6",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:exponents",
       "topic": "exponents",
       "grade_band": "G5-6",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:order_of_operations",
       "topic": "order_of_operations",
       "grade_band": "G5-6",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g7_8:linear_equations",
       "topic": "linear_equations",
       "grade_band": "G7-8",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g7_8:inequalities",
       "topic": "inequalities",
       "grade_band": "G7-8",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:basic_geometry",
       "topic": "basic_geometry",
       "grade_band": "G5-8",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:angles",
       "topic": "angles",
       "grade_band": "G5-8",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:statistics_basics",
       "topic": "statistics_basics",
       "grade_band": "G5-8",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:simple_probability",
       "topic": "simple_probability",
       "grade_band": "G5-8",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     }
   ]
 }

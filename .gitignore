@@ -1,0 +1,31 @@
+# Secrets and local environment configuration
+.env
+.env.*
+!.env.example
+.secrets/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Node and generated build/test output
+node_modules/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Local model/checkpoint and generated dataset artifacts
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+data/hf_seed/

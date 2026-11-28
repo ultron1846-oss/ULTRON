@@ -4,7 +4,7 @@ import { DB_NAME, DB_VERSION, STORE_NAMES, saveExperience, importMemory } from '
 
 test('local memory schema preserves the planned ULTRON stores', () => {
   assert.equal(DB_NAME, 'ULTRON_MEMORY');
-  assert.equal(DB_VERSION, 1);
+  assert.equal(DB_VERSION, 2);
   assert.deepEqual(STORE_NAMES, ['experiences', 'knowledge', 'mistakes', 'checkpoints']);
 });
 

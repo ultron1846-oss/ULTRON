@@ -1,0 +1,196 @@
+import hashlib
+import tempfile
+import unittest
+from unittest.mock import patch
+from pathlib import Path
+
+import torch
+
+from ultron_core.checkpoint import save_checkpoint
+from ultron_core.config import NeuroSparseConfig
+from ultron_core.inference import (
+    ULTRONInferenceEngine,
+    load_compressed_inference_engine,
+    load_inference_engine,
+)
+from ultron_core.math_tokenizer import MathTokenizer, TokenLimitExceeded
+from ultron_core.model import NeuroSparseModel
+
+
+def tiny_config(vocab_size=None):
+    tokenizer = MathTokenizer()
+    return NeuroSparseConfig(
+        vocab_size=len(tokenizer.vocabulary) if vocab_size is None else vocab_size,
+        hidden_size=32,
+        num_layers=1,
+        num_experts=4,
+        top_k=2,
+        expert_multiplier=2,
+        max_refinements=1,
+        fast_memory_slots=4,
+        num_attention_heads=4,
+        max_sequence_length=64,
+        dropout=0.0,
+    )
+
+
+def clone_state(model):
+    return {name: value.detach().clone() for name, value in model.state_dict().items()}
+
+
+class InferencePipelineTests(unittest.TestCase):
+    def test_verified_checkpoint_load_and_deterministic_end_to_end_inference(self):
+        torch.manual_seed(8102)
+        tokenizer = MathTokenizer()
+        config = tiny_config()
+        source_model = NeuroSparseModel(config).eval()
+        source_state = clone_state(source_model)
+
+        with tempfile.TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "initialized-test-checkpoint.pt"
+            save_checkpoint(checkpoint, source_model, config, step=0)
+
+            with patch("ultron_core.inference.torch.load", wraps=torch.load) as load_mock:
+                engine = load_inference_engine(checkpoint, tokenizer=tokenizer, device="cpu")
+            # A current checkpoint sidecar provides config without loading all
+            # tensors twice; only load_checkpoint deserializes the weight payload.
+            self.assertEqual(load_mock.call_count, 1)
+            self.assertTrue(engine.load_metadata["weights_loaded"])
+            self.assertEqual(engine.load_metadata["checkpoint_step"], 0)
+            self.assertFalse(engine.load_metadata["optimizer_loaded"])
+            self.assertFalse(engine.load_metadata["rng_restored"])
+            loaded_state = clone_state(engine.model)
+            for name, tensor in engine.model.state_dict().items():
+                self.assertTrue(torch.equal(tensor, source_state[name]), name)
+
+            before_inference = clone_state(engine.model)
+            first = engine.generate("2+2=", max_new_tokens=4)
+            second = engine.generate("2+2=", max_new_tokens=4)
+            self.assertEqual(first, second)
+            self.assertIsInstance(first["text"], str)
+            self.assertIsInstance(first["token_ids"], list)
+            self.assertIn(first["finish_reason"], {"eos", "max_new_tokens", "max_sequence_length"})
+            self.assertTrue(first["model_invoked"])
+            self.assertFalse(first["tools_available_to_model"])
+            self.assertFalse(first["external_ai_apis_used"])
+            self.assertFalse(first["training_performed"])
+            self.assertFalse(first["trained_model_capability_verified"])
+            for token_id in first["token_ids"]:
+                self.assertGreaterEqual(token_id, 0)
+                self.assertLess(token_id, len(tokenizer.vocabulary))
+            for name, tensor in engine.model.state_dict().items():
+                self.assertTrue(torch.equal(tensor, before_inference[name]), name)
+            for name, tensor in source_model.state_dict().items():
+                self.assertTrue(torch.equal(tensor, source_state[name]), name)
+
+            engine.close()
+            engine.close()
+            self.assertTrue(engine.closed)
+            with self.assertRaisesRegex(RuntimeError, "closed"):
+                engine.generate("3+3=")
+            self.assertEqual(set(loaded_state), set(source_state))
+
+    def test_input_validation_rejects_malformed_prompts_and_generation_limits(self):
+        tokenizer = MathTokenizer()
+        config = tiny_config()
+        model = NeuroSparseModel(config).eval()
+        from ultron_core.inference import ULTRONInferenceEngine
+
+        engine = ULTRONInferenceEngine(model, tokenizer)
+        with self.assertRaisesRegex(ValueError, "must not be empty"):
+            engine.generate("   ")
+        with self.assertRaises(TypeError):
+            engine.generate(None)
+        with self.assertRaisesRegex(ValueError, "max_new_tokens"):
+            engine.generate("1+1=", max_new_tokens=0)
+        with self.assertRaisesRegex(ValueError, "max_new_tokens"):
+            engine.generate("1+1=", max_new_tokens=True)
+        with self.assertRaisesRegex(ValueError, "unsupported mathematical character"):
+            engine.generate("1$1=")
+        with self.assertRaisesRegex(ValueError, "no room"):
+            engine.generate("1" * config.max_sequence_length)
+        engine.close()
+
+    def test_compressed_loader_normalizes_invalid_device_errors(self):
+        with self.assertRaisesRegex(ValueError, "device must be a valid torch device"):
+            load_compressed_inference_engine(
+                "unused-artifact.bin",
+                "unused-checkpoint.pt",
+                parent_checkpoint_id="test-parent",
+                device="not-a-real-device",
+            )
+
+    def test_missing_and_corrupted_checkpoint_paths_fail_closed(self):
+        config = tiny_config()
+        model = NeuroSparseModel(config).eval()
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing.pt"
+            with self.assertRaises(FileNotFoundError):
+                load_inference_engine(missing)
+
+            checkpoint = Path(directory) / "corrupt.pt"
+            save_checkpoint(checkpoint, model, config, step=0)
+            checkpoint.write_bytes(checkpoint.read_bytes()[:32])
+            with self.assertRaisesRegex(ValueError, "integrity verification failed"):
+                load_inference_engine(checkpoint)
+
+    def test_checkpoint_vocabulary_mismatch_is_rejected_before_inference(self):
+        bad_config = tiny_config(vocab_size=len(MathTokenizer().vocabulary) + 1)
+        model = NeuroSparseModel(bad_config).eval()
+        with tempfile.TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "wrong-vocabulary.pt"
+            save_checkpoint(checkpoint, model, bad_config, step=0)
+            with self.assertRaisesRegex(ValueError, "vocabulary size does not match"):
+                load_inference_engine(checkpoint, tokenizer=MathTokenizer())
+
+    def test_checkpoint_tokenizer_version_mismatch_is_rejected(self):
+        config = tiny_config()
+        model = NeuroSparseModel(config).eval()
+        with tempfile.TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "wrong-tokenizer-version.pt"
+            save_checkpoint(checkpoint, model, config, step=0)
+            payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+            payload["config"]["tokenizer_version"] = 2
+            torch.save(payload, checkpoint)
+            digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+            Path(str(checkpoint) + ".sha256").write_text(
+                digest + "  " + checkpoint.name + "\\n", encoding="utf-8"
+            )
+            Path(str(checkpoint) + ".metadata.json").unlink()
+            with self.assertRaisesRegex(ValueError, "configuration is invalid"):
+                load_inference_engine(checkpoint, tokenizer=MathTokenizer())
+
+    def test_inference_failure_restores_mode_and_resets_runtime_memory(self):
+        tokenizer = MathTokenizer()
+        config = tiny_config()
+
+        class NonFiniteModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.config = config
+                self.anchor = torch.nn.Parameter(torch.zeros(()))
+                self.reset_calls = 0
+
+            def reset_memory(self):
+                self.reset_calls += 1
+
+            def forward(self, input_ids):
+                logits = torch.zeros(
+                    (1, input_ids.shape[1], len(tokenizer.vocabulary)),
+                    device=input_ids.device,
+                )
+                logits[0, -1, 1] = float("nan")
+                return {"logits": logits}
+
+        model = NonFiniteModel().train()
+        engine = ULTRONInferenceEngine(model, tokenizer)
+        with self.assertRaisesRegex(ValueError, "non-finite"):
+            engine.generate("4+4=", max_new_tokens=2)
+        self.assertTrue(model.training)
+        self.assertEqual(model.reset_calls, 2)
+        engine.close()
+        self.assertEqual(model.reset_calls, 3)
+
+
+if __name__ == "__main__":
+    unittest.main()

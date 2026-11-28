@@ -38,6 +38,7 @@ CANONICAL_TOKENS = SPECIAL_TOKENS + tuple(dict.fromkeys(
     sorted(MULTI_TOKENS, key=lambda item: (-len(item), item))
     + list(dict.fromkeys(SINGLE_TOKENS))
 ))
+VOCAB_SIZE = len(CANONICAL_TOKENS)
 
 
 def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict:
@@ -55,6 +56,19 @@ class MathToken:
     kind: str
     value: str
     offset: int
+
+
+class TokenLimitExceeded(ValueError):
+    """Raised when bounded tokenization would exceed its caller's token budget."""
+
+
+def _validate_max_tokens(max_tokens: int | None) -> None:
+    if max_tokens is None:
+        return
+    if isinstance(max_tokens, bool) or not isinstance(max_tokens, int):
+        raise TypeError("max_tokens must be a non-negative integer or None")
+    if max_tokens < 0:
+        raise ValueError("max_tokens must be a non-negative integer or None")
 
 
 class MathVocabulary:
@@ -126,8 +140,22 @@ class MathTokenizer:
     """Longest-match lexer; whitespace and source spelling are preserved."""
 
     def __init__(self, vocabulary: MathVocabulary | None = None):
-        self.vocabulary = vocabulary or MathVocabulary.default()
+        self.vocabulary = vocabulary if vocabulary is not None else MathVocabulary.default()
         self._tokens = self.vocabulary._lexer_tokens
+
+        # A trie avoids scanning the complete vocabulary for every source
+        # character. Terminal values are stored under the None key, which
+        # cannot collide with a one-character token.
+        self._token_trie: dict = {}
+        for token in self._tokens:
+            node = self._token_trie
+            for character in token:
+                child = node.get(character)
+                if child is None:
+                    child = {}
+                    node[character] = child
+                node = child
+            node[None] = token
 
     @staticmethod
     def _kind(value: str) -> str:
@@ -149,23 +177,70 @@ class MathTokenizer:
             raise ValueError("model config tokenizer version does not match vocabulary")
         if getattr(config, "vocab_size", None) != len(self.vocabulary):
             raise ValueError("model config vocabulary size does not match vocabulary")
+        if getattr(config, "pad_token_id", None) != self.vocabulary.token_id("<PAD>"):
+            raise ValueError("model config padding token ID does not match vocabulary")
 
-    def tokenize(self, text: str) -> tuple[MathToken, ...]:
+    def tokenize(
+        self, text: str, *, max_tokens: int | None = None
+    ) -> tuple[MathToken, ...]:
+        """Tokenize losslessly, optionally stopping before a token budget is exceeded."""
         if not isinstance(text, str):
             raise TypeError("mathematical input must be a string")
+        _validate_max_tokens(max_tokens)
         result: list[MathToken] = []
         offset = 0
         while offset < len(text):
-            match = next((token for token in self._tokens if text.startswith(token, offset)), None)
+            if max_tokens is not None and len(result) >= max_tokens:
+                raise TokenLimitExceeded(
+                    f"tokenized input exceeds max_tokens limit ({max_tokens})"
+                )
+            node = self._token_trie
+            cursor = offset
+            match = None
+            match_end = offset
+
+            # Continue while the source follows a vocabulary path, retaining
+            # the deepest terminal to preserve canonical longest-match rules.
+            while cursor < len(text):
+                child = node.get(text[cursor])
+                if child is None:
+                    break
+                node = child
+                cursor += 1
+                terminal = node.get(None)
+                if terminal is not None:
+                    match = terminal
+                    match_end = cursor
+
             if match is None:
                 raise ValueError(f"unsupported mathematical character {text[offset]!r} at offset {offset}")
             result.append(MathToken(self.vocabulary.token_id(match),
                                     self._kind(match), match, offset))
-            offset += len(match)
+            offset = match_end
         return tuple(result)
 
-    def encode(self, text: str, *, add_bos: bool = False, add_eos: bool = False) -> list[int]:
-        ids = [token.token_id for token in self.tokenize(text)]
+    def encode(
+        self,
+        text: str,
+        *,
+        add_bos: bool = False,
+        add_eos: bool = False,
+        max_tokens: int | None = None,
+    ) -> list[int]:
+        """Encode text, optionally bounding the total IDs including special tokens.
+
+        The lexical scan stops as soon as the budget would be exceeded, rather
+        than first allocating a complete token-object tuple and ID list.
+        """
+        _validate_max_tokens(max_tokens)
+        reserved = int(bool(add_bos)) + int(bool(add_eos))
+        if max_tokens is not None and max_tokens < reserved:
+            raise ValueError("max_tokens is smaller than the requested special-token count")
+        lexical_budget = None if max_tokens is None else max_tokens - reserved
+        ids = [
+            token.token_id
+            for token in self.tokenize(text, max_tokens=lexical_budget)
+        ]
         if add_bos:
             ids.insert(0, self.vocabulary.token_id("<BOS>"))
         if add_eos:

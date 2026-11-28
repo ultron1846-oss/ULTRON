@@ -11,7 +11,7 @@ dependencies = ["torch>=2.2,<3.0"]
 
 [project.optional-dependencies]
 test = ["sympy>=1.12"]
-seed-data = ["datasets>=3,<5", "huggingface_hub>=0.27,<2"]
+seed-data = ["datasets>=5.0.1,<6", "fsspec>=2026.6.0,<2027", "huggingface_hub>=0.27,<2"]
 
 [tool.setuptools.packages.find]
 include = ["ultron_core*"]

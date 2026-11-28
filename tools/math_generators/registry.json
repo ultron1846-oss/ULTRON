@@ -1,1469 +1,2724 @@
 {
-  "version": 1,
-  "coverage_through": "G1-12 + university mathematics curriculum catalog (generator status explicit)",
+  "version": 2,
+  "coverage_through": "Core + G1-12 + 218-topic university mathematics curriculum; scoped IDs and explicit evidence states",
   "topics": [
     {
+      "catalog_id": "core:arithmetic",
       "topic": "arithmetic",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:rational_arithmetic",
       "topic": "rational_arithmetic",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:linear_equations",
       "topic": "linear_equations",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:polynomial_derivative",
       "topic": "polynomial_derivative",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:polynomial_definite_integral",
       "topic": "polynomial_definite_integral",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:matrix_determinant_2x2",
       "topic": "matrix_determinant_2x2",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:linear_system_2x2",
       "topic": "linear_system_2x2",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "core:matrix_inverse_2x2",
       "topic": "matrix_inverse_2x2",
       "source": "ultron_core.data_generation",
       "grade_band": "Core",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:counting",
       "topic": "counting",
       "grade_band": "G1-2",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:addition",
       "topic": "addition",
       "grade_band": "G1-2",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:subtraction",
       "topic": "subtraction",
       "grade_band": "G1-2",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:place_value",
       "topic": "place_value",
       "grade_band": "G1-2",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:multiplication",
       "topic": "multiplication",
       "grade_band": "G3-4",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:division",
       "topic": "division",
       "grade_band": "G3-4",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:fractions_basics",
       "topic": "fractions_basics",
       "grade_band": "G3-4",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:simple_word_problems",
       "topic": "simple_word_problems",
       "grade_band": "G3-4",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:time_and_money",
       "topic": "time_and_money",
       "grade_band": "G3-4",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:perimeter_and_area",
       "topic": "perimeter_and_area",
       "grade_band": "G3-4",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:decimal_operations",
       "topic": "decimal_operations",
       "grade_band": "G5-6",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:fraction_operations",
       "topic": "fraction_operations",
       "grade_band": "G5-6",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:ratios",
       "topic": "ratios",
       "grade_band": "G5-6",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:percentages",
       "topic": "percentages",
       "grade_band": "G5-6",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:integers",
       "topic": "integers",
       "grade_band": "G5-6",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:exponents",
       "topic": "exponents",
       "grade_band": "G5-6",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_6:order_of_operations",
       "topic": "order_of_operations",
       "grade_band": "G5-6",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g7_8:linear_equations",
       "topic": "linear_equations",
       "grade_band": "G7-8",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g7_8:inequalities",
       "topic": "inequalities",
       "grade_band": "G7-8",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:basic_geometry",
       "topic": "basic_geometry",
       "grade_band": "G5-8",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:angles",
       "topic": "angles",
       "grade_band": "G5-8",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:statistics_basics",
       "topic": "statistics_basics",
       "grade_band": "G5-8",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g5_8:simple_probability",
       "topic": "simple_probability",
       "grade_band": "G5-8",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_9:linear_equations",
       "topic": "linear_equations",
       "grade_band": "G8-9",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:systems_of_equations",
       "topic": "systems_of_equations",
       "grade_band": "G8-10",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_10:quadratic_equations",
       "topic": "quadratic_equations",
       "grade_band": "G9-10",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_10:polynomial_operations",
       "topic": "polynomial_operations",
       "grade_band": "G9-10",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_10:polynomial_factoring",
       "topic": "polynomial_factoring",
       "grade_band": "G9-10",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:functions",
       "topic": "functions",
       "grade_band": "G8-10",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:coordinate_geometry",
       "topic": "coordinate_geometry",
       "grade_band": "G8-10",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:triangle_geometry",
       "topic": "triangle_geometry",
       "grade_band": "G8-10",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:trigonometry",
       "topic": "trigonometry",
       "grade_band": "G10-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_12:sequences_series",
       "topic": "sequences_series",
       "grade_band": "G9-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:logarithms",
       "topic": "logarithms",
       "grade_band": "G10-12",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g11_12:limits",
       "topic": "limits",
       "grade_band": "G11-12",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g11_12:derivatives",
       "topic": "derivatives",
       "grade_band": "G11-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g11_12:definite_integrals",
       "topic": "definite_integrals",
       "grade_band": "G11-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:matrices",
       "topic": "matrices",
       "grade_band": "G10-12",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:combinatorics",
       "topic": "combinatorics",
       "grade_band": "G10-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_12:number_theory",
       "topic": "number_theory",
       "grade_band": "G8-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:complex_numbers",
       "topic": "complex_numbers",
       "grade_band": "G10-12",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:vectors",
       "topic": "vectors",
       "grade_band": "G10-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_12:statistics",
       "topic": "statistics",
       "grade_band": "G9-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_12:probability",
       "topic": "probability",
       "grade_band": "G9-12",
-      "word_problems": true
+      "word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_12:proof_logic",
       "topic": "proof_logic",
       "grade_band": "G8-12",
-      "word_problems": false
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:sets_and_functions",
       "topic": "sets_and_functions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:propositional_logic",
       "topic": "propositional_logic",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:predicate_logic",
       "topic": "predicate_logic",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:quantifiers",
       "topic": "quantifiers",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:proof_methods",
       "topic": "proof_methods",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:mathematical_induction",
       "topic": "mathematical_induction",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:relations_and_equivalence",
       "topic": "relations_and_equivalence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:cardinality",
       "topic": "cardinality",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:countable_and_uncountable_sets",
       "topic": "countable_and_uncountable_sets",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:axiom_of_choice_intro",
       "topic": "axiom_of_choice_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:vectors_and_vector_spaces",
       "topic": "vectors_and_vector_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:subspaces_and_span",
       "topic": "subspaces_and_span",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:linear_independence",
       "topic": "linear_independence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:basis_and_dimension",
       "topic": "basis_and_dimension",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:linear_transformations",
       "topic": "linear_transformations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:matrix_rank",
       "topic": "matrix_rank",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:systems_linear_equations",
       "topic": "systems_linear_equations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:determinants",
       "topic": "determinants",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:eigenvalues_and_eigenvectors",
       "topic": "eigenvalues_and_eigenvectors",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:diagonalization",
       "topic": "diagonalization",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:inner_product_spaces",
       "topic": "inner_product_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:orthogonality_and_projection",
       "topic": "orthogonality_and_projection",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:least_squares",
       "topic": "least_squares",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:spectral_theorem",
       "topic": "spectral_theorem",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Jordan_form",
       "topic": "Jordan_form",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:bilinear_and_quadratic_forms",
       "topic": "bilinear_and_quadratic_forms",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:limits_and_continuity",
       "topic": "limits_and_continuity",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:derivative_theory",
       "topic": "derivative_theory",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:mean_value_theorems",
       "topic": "mean_value_theorems",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Taylor_series",
       "topic": "Taylor_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:quadratic_Taylor_polynomials",
+      "topic": "quadratic_Taylor_polynomials",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:Riemann_integral",
       "topic": "Riemann_integral",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:improper_integrals",
       "topic": "improper_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:sequences_and_series",
       "topic": "sequences_and_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:power_series",
       "topic": "power_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:multivariable_limits",
       "topic": "multivariable_limits",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:partial_derivatives",
       "topic": "partial_derivatives",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:gradient_and_directional_derivatives",
       "topic": "gradient_and_directional_derivatives",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:chain_rule_multivariable",
       "topic": "chain_rule_multivariable",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:multiple_integrals",
       "topic": "multiple_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:rectangular_linear_polynomial_double_integrals",
+      "topic": "rectangular_linear_polynomial_double_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:rectangular_quadratic_polynomial_double_integrals",
+      "topic": "rectangular_quadratic_polynomial_double_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:change_of_variables",
       "topic": "change_of_variables",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:diagonal_linear_change_of_variables_rectangles",
+      "topic": "diagonal_linear_change_of_variables_rectangles",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:line_integrals",
       "topic": "line_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:constant_vector_field_segment_line_integrals",
+      "topic": "constant_vector_field_segment_line_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:polynomial_vector_field_segment_line_integrals",
+      "topic": "polynomial_vector_field_segment_line_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:surface_integrals",
       "topic": "surface_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:flat_rectangular_surface_area_integrals",
+      "topic": "flat_rectangular_surface_area_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:vector_calculus",
       "topic": "vector_calculus",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "Green_stokes_divergence_theorems",
+      "catalog_id": "university:diagonal_linear_vector_field_divergence",
+      "topic": "diagonal_linear_vector_field_divergence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:greens_theorem_rectangles",
+      "topic": "greens_theorem_rectangles",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:stokes_theorem",
+      "topic": "stokes_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:stokes_theorem_horizontal_rectangles",
+      "topic": "stokes_theorem_horizontal_rectangles",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:divergence_theorem",
+      "topic": "divergence_theorem",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:divergence_theorem_axis_aligned_boxes",
+      "topic": "divergence_theorem_axis_aligned_boxes",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:metric_spaces",
       "topic": "metric_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:convergence_of_sequences",
       "topic": "convergence_of_sequences",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Cauchy_sequences",
       "topic": "Cauchy_sequences",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:pointwise_and_uniform_convergence",
       "topic": "pointwise_and_uniform_convergence",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:compactness",
       "topic": "compactness",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:connectedness",
       "topic": "connectedness",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:continuity_metric_spaces",
       "topic": "continuity_metric_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:differentiation_real_analysis",
       "topic": "differentiation_real_analysis",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:measure_intro",
       "topic": "measure_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Lebesgue_measure",
       "topic": "Lebesgue_measure",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Lebesgue_integral",
       "topic": "Lebesgue_integral",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Lp_spaces",
       "topic": "Lp_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:functional_sequences",
       "topic": "functional_sequences",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "complex_numbers_and_topology",
+      "catalog_id": "university:complex_number_arithmetic",
+      "topic": "complex_number_arithmetic",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:complex_topology",
+      "topic": "complex_topology",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:holomorphic_functions",
       "topic": "holomorphic_functions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Cauchy_Riemann_equations",
       "topic": "Cauchy_Riemann_equations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:contour_integrals",
       "topic": "contour_integrals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Cauchy_integral_formula",
       "topic": "Cauchy_integral_formula",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "Taylor_and_Laurent_series",
+      "catalog_id": "university:complex_Taylor_series",
+      "topic": "complex_Taylor_series",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Laurent_series",
+      "topic": "Laurent_series",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:residues",
       "topic": "residues",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:singularities",
       "topic": "singularities",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:conformal_maps",
       "topic": "conformal_maps",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:maximum_modulus_principle",
       "topic": "maximum_modulus_principle",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:groups_and_subgroups",
       "topic": "groups_and_subgroups",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:cyclic_groups",
       "topic": "cyclic_groups",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:permutation_groups",
       "topic": "permutation_groups",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:cosets_and_Lagrange_theorem",
       "topic": "cosets_and_Lagrange_theorem",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:normal_subgroups_and_quotients",
       "topic": "normal_subgroups_and_quotients",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:group_homomorphisms",
       "topic": "group_homomorphisms",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:rings_and_ideals",
       "topic": "rings_and_ideals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:integral_domains",
       "topic": "integral_domains",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:fields_and_extensions",
       "topic": "fields_and_extensions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:polynomial_rings",
       "topic": "polynomial_rings",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:modules_intro",
       "topic": "modules_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Galois_theory_intro",
       "topic": "Galois_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:divisibility_and_gcd",
       "topic": "divisibility_and_gcd",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Euclidean_algorithm",
       "topic": "Euclidean_algorithm",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:congruences",
       "topic": "congruences",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Chinese_remainder_theorem",
       "topic": "Chinese_remainder_theorem",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Fermat_and_Euler_theorems",
       "topic": "Fermat_and_Euler_theorems",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:multiplicative_order",
       "topic": "multiplicative_order",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Diophantine_equations",
       "topic": "Diophantine_equations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:quadratic_residues",
       "topic": "quadratic_residues",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:continued_fractions",
       "topic": "continued_fractions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:analytic_number_theory_intro",
       "topic": "analytic_number_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:topological_spaces",
       "topic": "topological_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:open_and_closed_sets",
       "topic": "open_and_closed_sets",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:basis_for_topology",
       "topic": "basis_for_topology",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:continuity_topological_spaces",
       "topic": "continuity_topological_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:homeomorphisms",
       "topic": "homeomorphisms",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:compact_topological_spaces",
       "topic": "compact_topological_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:connected_spaces",
       "topic": "connected_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:product_and_quotient_topology",
       "topic": "product_and_quotient_topology",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:fundamental_group_intro",
       "topic": "fundamental_group_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:covering_spaces_intro",
       "topic": "covering_spaces_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:counting_principles",
       "topic": "counting_principles",
       "grade_band": "University",
       "word_problems": true,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:permutations_and_combinations",
       "topic": "permutations_and_combinations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:pigeonhole_principle",
       "topic": "pigeonhole_principle",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:inclusion_exclusion",
       "topic": "inclusion_exclusion",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:recurrence_relations",
       "topic": "recurrence_relations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:generating_functions",
       "topic": "generating_functions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:graph_theory_basics",
       "topic": "graph_theory_basics",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:finite_simple_graph_handshaking",
+      "topic": "finite_simple_graph_handshaking",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:trees_and_spanning_trees",
       "topic": "trees_and_spanning_trees",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:planar_graphs",
       "topic": "planar_graphs",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:matching_and_networks",
       "topic": "matching_and_networks",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:extremal_combinatorics",
       "topic": "extremal_combinatorics",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:designs_and_codes_intro",
       "topic": "designs_and_codes_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:probability_spaces",
       "topic": "probability_spaces",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:conditional_probability",
       "topic": "conditional_probability",
       "grade_band": "University",
       "word_problems": true,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Bayes_theorem",
       "topic": "Bayes_theorem",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:random_variables",
       "topic": "random_variables",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:discrete_distributions",
       "topic": "discrete_distributions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:binomial_distribution_exact_probabilities",
+      "topic": "binomial_distribution_exact_probabilities",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:continuous_distributions",
       "topic": "continuous_distributions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:expectation_and_variance",
       "topic": "expectation_and_variance",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:joint_distributions",
       "topic": "joint_distributions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:law_of_large_numbers",
       "topic": "law_of_large_numbers",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:central_limit_theorem",
       "topic": "central_limit_theorem",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Markov_chains",
       "topic": "Markov_chains",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:martingales_intro",
       "topic": "martingales_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:stochastic_processes_intro",
       "topic": "stochastic_processes_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:descriptive_statistics",
       "topic": "descriptive_statistics",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:sampling_and_estimators",
       "topic": "sampling_and_estimators",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:confidence_intervals",
       "topic": "confidence_intervals",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:hypothesis_testing",
       "topic": "hypothesis_testing",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:linear_regression",
       "topic": "linear_regression",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:generalized_linear_models_intro",
       "topic": "generalized_linear_models_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:ANOVA",
       "topic": "ANOVA",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Bayesian_statistics_intro",
       "topic": "Bayesian_statistics_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:statistical_learning_theory_intro",
       "topic": "statistical_learning_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "first_order_ODEs",
+      "catalog_id": "university:homogeneous_constant_coefficient_first_order_ODEs",
+      "topic": "homogeneous_constant_coefficient_first_order_ODEs",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:separable_first_order_ODEs",
+      "topic": "separable_first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:linear_first_order_variable_coefficient_ODEs",
+      "topic": "linear_first_order_variable_coefficient_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "topic": "homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:exact_first_order_ODEs",
+      "topic": "exact_first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:second_order_linear_ODEs",
       "topic": "second_order_linear_ODEs",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:systems_of_ODEs",
       "topic": "systems_of_ODEs",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:phase_portraits",
       "topic": "phase_portraits",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Laplace_transform",
       "topic": "Laplace_transform",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:series_solutions_ODE",
       "topic": "series_solutions_ODE",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:boundary_value_problems",
       "topic": "boundary_value_problems",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Fourier_methods_PDE",
       "topic": "Fourier_methods_PDE",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:heat_equation",
       "topic": "heat_equation",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:wave_equation",
       "topic": "wave_equation",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Laplace_equation",
       "topic": "Laplace_equation",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:characteristics_PDE",
       "topic": "characteristics_PDE",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:affine_transport_first_order_PDEs",
+      "topic": "affine_transport_first_order_PDEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:convex_sets_and_functions",
       "topic": "convex_sets_and_functions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:unconstrained_optimization",
       "topic": "unconstrained_optimization",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Lagrange_multipliers",
       "topic": "Lagrange_multipliers",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:KKT_conditions",
       "topic": "KKT_conditions",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:linear_programming",
       "topic": "linear_programming",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:simplex_method",
       "topic": "simplex_method",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:dualities",
       "topic": "dualities",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:integer_programming_intro",
       "topic": "integer_programming_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:dynamic_programming",
       "topic": "dynamic_programming",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:network_optimization",
       "topic": "network_optimization",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:stochastic_optimization_intro",
       "topic": "stochastic_optimization_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:floating_point_error",
       "topic": "floating_point_error",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:conditioning_and_stability",
       "topic": "conditioning_and_stability",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:root_finding",
       "topic": "root_finding",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Newton_and_secant_methods",
       "topic": "Newton_and_secant_methods",
       "grade_band": "University",
       "word_problems": false,
-      "status": "generator_available_not_mastered"
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:numerical_linear_algebra",
       "topic": "numerical_linear_algebra",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:interpolation",
       "topic": "interpolation",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:numerical_differentiation",
       "topic": "numerical_differentiation",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:numerical_integration",
       "topic": "numerical_integration",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:ODE_numerical_methods",
       "topic": "ODE_numerical_methods",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:iterative_methods",
       "topic": "iterative_methods",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Monte_Carlo_methods",
       "topic": "Monte_Carlo_methods",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Euclidean_geometry_proofs",
       "topic": "Euclidean_geometry_proofs",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:analytic_geometry",
       "topic": "analytic_geometry",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:affine_geometry",
       "topic": "affine_geometry",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:projective_geometry_intro",
       "topic": "projective_geometry_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:differential_geometry_curves",
       "topic": "differential_geometry_curves",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:surfaces_and_curvature",
       "topic": "surfaces_and_curvature",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:manifolds_intro",
       "topic": "manifolds_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Riemannian_geometry_intro",
       "topic": "Riemannian_geometry_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:tensor_calculus_intro",
       "topic": "tensor_calculus_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:dimensional_analysis",
       "topic": "dimensional_analysis",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Fourier_series_and_transforms",
       "topic": "Fourier_series_and_transforms",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Laplace_transforms_applications",
       "topic": "Laplace_transforms_applications",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:calculus_of_variations",
       "topic": "calculus_of_variations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:Hamiltonian_and_Lagrangian_mechanics",
       "topic": "Hamiltonian_and_Lagrangian_mechanics",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:mathematical_modeling",
       "topic": "mathematical_modeling",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:fluid_dynamics_math_intro",
       "topic": "fluid_dynamics_math_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:elasticity_math_intro",
       "topic": "elasticity_math_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:control_theory_intro",
       "topic": "control_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:information_theory_intro",
       "topic": "information_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:cryptography_math_foundations",
       "topic": "cryptography_math_foundations",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:category_theory_intro",
       "topic": "category_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:order_and_lattice_theory",
       "topic": "order_and_lattice_theory",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:representation_theory_intro",
       "topic": "representation_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:algebraic_topology_intro",
       "topic": "algebraic_topology_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:homological_algebra_intro",
       "topic": "homological_algebra_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:functional_analysis_intro",
       "topic": "functional_analysis_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:operator_theory_intro",
       "topic": "operator_theory_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:harmonic_analysis_intro",
       "topic": "harmonic_analysis_intro",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:partial_order_and_fixed_points",
       "topic": "partial_order_and_fixed_points",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:mathematical_logic_advanced",
       "topic": "mathematical_logic_advanced",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented"
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     }
   ]
 }

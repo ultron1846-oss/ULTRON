@@ -45,3 +45,37 @@ test('public status client rejects non-success responses', async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+
+test('public status rejects a response that enables training or remote execution', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    ok: true,
+    control_plane: 'online',
+    model_status: 'untrained',
+    training_enabled: true,
+    remote_execution_enabled: false,
+    provider_directory: 'informational_only',
+    checked_at: '2026-11-28T04:00:00.000Z'
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
+  try {
+    await assert.rejects(fetchSupabasePublicStatus(), /safe read-only contract/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('public status rejects malformed JSON from the status endpoint', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response('{not json', {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  try {
+    await assert.rejects(fetchSupabasePublicStatus(), /invalid JSON/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

@@ -6,6 +6,7 @@ from test_dataset_split_manifest import fixture
 import ultron_core.dataset_split_manifest as split_module
 from ultron_core.dataset_split_manifest import (prepare_dataset_split_manifest, _read_dataset, load_verified_split_rows)
 from ultron_core.verified_dataset import (VerifiedMathDataset, IndexedVerifiedMathDataset, build_verified_split_loader, build_verified_split_loaders, close_verified_split_loaders, collate_verified_math_batch)
+from ultron_core.math_tokenizer import MathTokenizer
 
 class VerifiedDatasetTests(unittest.TestCase):
  def setup_data(self,root,count=90):
@@ -226,6 +227,19 @@ class VerifiedDatasetTests(unittest.TestCase):
  def test_oversize_sequence_rejected_without_truncation(self):
   with tempfile.TemporaryDirectory() as d:
    data,split,_=self.setup_data(Path(d))
-   ds=VerifiedMathDataset(data,split,split_name="train",max_sequence_length=3)
+   class RecordingTokenizer(MathTokenizer):
+    def __init__(self):
+     super().__init__()
+     self.last_max_tokens=None
+    def encode(self,text,*,add_bos=False,add_eos=False,max_tokens=None):
+     self.last_max_tokens=max_tokens
+     return super().encode(text,add_bos=add_bos,add_eos=add_eos,max_tokens=max_tokens)
+   tokenizer=RecordingTokenizer()
+   ds=VerifiedMathDataset(data,split,split_name="train",max_sequence_length=3,tokenizer=tokenizer)
    with self.assertRaisesRegex(ValueError,"truncation is disabled"): ds[0]
+   self.assertEqual(tokenizer.last_max_tokens,3)
+   loader=build_verified_split_loader(data,split,split_name="train",batch_size=2,seed=0,max_sequence_length=3,tokenizer=tokenizer)
+   with self.assertRaisesRegex(ValueError,"truncation is disabled"): loader.dataset[0]
+   self.assertEqual(tokenizer.last_max_tokens,3)
+   loader.dataset.close()
 if __name__=="__main__": unittest.main()

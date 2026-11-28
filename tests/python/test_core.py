@@ -769,6 +769,33 @@ class CoreTests(unittest.TestCase):
         loss = causal_language_model_loss(logits, ids, ignore_index=0)
         self.assertAlmostEqual(float(loss), torch.log(torch.tensor(4.0)).item(), places=6)
 
+    def test_loss_attention_mask_excludes_left_pad_prediction_and_padding_targets(self):
+        logits = torch.zeros(1, 6, 4, requires_grad=True)
+        logits.data[0, 1, 1] = 20.0  # This PAD-query prediction must not enter the loss.
+        ids = torch.tensor([[0, 0, 1, 2, 3, 0]], dtype=torch.long)
+        mask = ids.ne(0)
+        actual = causal_language_model_loss(logits, ids, ignore_index=0, attention_mask=mask, loss_chunk_size=1)
+        expected = F.cross_entropy(logits[:, 2:4, :].reshape(-1, 4), ids[:, 3:5].reshape(-1))
+        torch.testing.assert_close(actual, expected, rtol=1e-6, atol=1e-7)
+        actual.backward()
+        self.assertEqual(float(logits.grad[:, 1, :].abs().sum()), 0.0)
+        self.assertEqual(float(logits.grad[:, 4, :].abs().sum()), 0.0)
+
+    def test_loss_attention_mask_requires_boolean_matching_shape_and_device(self):
+        logits = torch.randn(1, 3, 5)
+        ids = torch.tensor([[1, 2, 3]])
+        with self.assertRaisesRegex(TypeError, "boolean"):
+            causal_language_model_loss(logits, ids, attention_mask=torch.ones((1, 3), dtype=torch.long))
+        with self.assertRaisesRegex(ValueError, "shape and device"):
+            causal_language_model_loss(logits, ids, attention_mask=torch.ones((1, 2), dtype=torch.bool))
+
+    def test_loss_rejects_attention_mask_with_no_valid_causal_pairs(self):
+        logits = torch.randn(1, 3, 5)
+        ids = torch.tensor([[1, 0, 2]])
+        mask = torch.tensor([[True, False, True]])
+        with self.assertRaisesRegex(ValueError, "all next-token targets are masked"):
+            causal_language_model_loss(logits, ids, attention_mask=mask)
+
     def test_loss_accepts_int32_token_ids(self):
         logits = torch.zeros(1, 3, 4)
         ids = torch.tensor([[1, 2, 3]], dtype=torch.int32)

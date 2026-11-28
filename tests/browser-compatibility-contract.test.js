@@ -14,8 +14,8 @@ test('browser shell declares mobile viewport and keeps a visible startup fallbac
 
 test('responsive styles cover narrow portrait and landscape viewports', async () => {
   const css = await read('styles.css');
-  assert.match(css, /@media\(max-width:760px\)/);
-  assert.match(css, /@media\(max-width:760px\) and \(orientation:landscape\)/);
+  assert.match(css, /@media\(max-width:900px\)/);
+  assert.match(css, /@media\(max-width:900px\) and \(orientation:landscape\)/);
   assert.match(css, /min-width:0/);
   assert.match(css, /max-width:100%/);
   assert.match(css, /env\(safe-area-inset-bottom\)/);
