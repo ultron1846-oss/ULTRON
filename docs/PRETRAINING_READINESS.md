@@ -220,3 +220,23 @@ A checkpoint generation currently consists of three files: the serialized checkp
 For transfer between sessions, copy the current checkpoint, `.sha256`, and `.metadata.json` together and preserve their basename; include the corresponding `.bak` files only when backup recovery is also required. The metadata sidecar is advisory and is not a substitute for the payload integrity check performed by `load_checkpoint`. Storage capacity must accommodate at least the current checkpoint plus one prior checkpoint generation and temporary-write/transfer overhead. Actual free-tier disk quotas, upload limits, and cross-session persistence are owner/runtime-specific and remain unverified.
 
 - [x] Merge PR #196 read-only indexed dataset benchmark as `faa4b8ea31415598355afa36414092482b1a8e00`; exact-head CI and post-merge Node, Python AI Core, Level 1, and Pages build/deploy passed. The synthetic fixture is not a production memory benchmark; owner-supplied production dataset measurements remain pending.
+
+
+## Prompt 5 — website/runtime integration and security (2026-11-28)
+
+- [x] Add bounded 60-second generic status refresh while status pages are active; stop polling on navigation/hidden-tab and resume when visible.
+- [x] Preserve last successful status and timestamp; distinguish fresh, stale, offline, and unavailable states; add online/offline event handling and safe mock-response tests.
+- [x] Strictly validate the versioned informational provider directory; reject execution-enabled providers and invalid/duplicate fields/URLs.
+- [x] Clarify that the memory slider is a requested GiB workload budget only, not a physical-memory limit or allocation.
+- [x] Extend responsive navigation to 900px tablet widths, preserve safe-area/touch/reduced-motion support, and remove the external web-font request.
+- [x] Add npm lockfile, pinned CI test dependencies, npm/pip audit workflows, Dependabot, .gitignore and focused static frontend security checks.
+- [x] Add focused security documentation and owner findings.
+- [ ] Run exact-head CI and obtain PR review.
+- [ ] Owner: complete actual iPad Safari portrait/landscape and network offline/reconnect acceptance.
+- [ ] Owner: decide whether to upgrade the Free Supabase organization to Pro+ for leaked-password protection.
+- [ ] Owner: review the three RLS-enabled, policy-less retired pairing/device tables and decide on safe cleanup after dependency/backup checks.
+- [ ] Owner: decommission or formally retain the retired HTTP-410 device-control function and its stale CORS origin.
+- [ ] Owner: resolve the deployed owner-only CPU diagnostic action referencing missing .github/workflows/cpu-diagnostic.yml.
+- [ ] Owner: choose a project license, complete transitive license review, verify GitHub secret scanning/push protection, and consider full-SHA GitHub Action pins.
+
+No Supabase mutations, external AI APIs, training runs, optimizer steps, corpus generation, or remote jobs were performed for this milestone.
