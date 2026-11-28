@@ -252,7 +252,7 @@ function normalizeStoredRecord(record) {
   return {
     ...record,
     id,
-    createdAt: typeof record.createdAt === 'string' ? record.createdAt : new Date().toISOString()
+    createdAt: typeof record.createdAt === 'string' ? record.createdAt : ''
   };
 }
 
