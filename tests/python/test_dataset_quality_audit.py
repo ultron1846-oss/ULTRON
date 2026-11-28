@@ -1,6 +1,7 @@
 """Deterministic read-only quality-report tests; fixtures only."""
 import hashlib
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -195,6 +196,38 @@ class DatasetQualityAuditTests(unittest.TestCase):
             self.assertEqual(report["normalized_prompt_duplicate_rows_after_first"], 1)
             for pair in report["split_pairwise_leakage_diagnostics"].values():
                 self.assertEqual(pair["normalized_prompt_groups"], 0)
+
+
+
+    def test_copied_dataset_pair_and_split_reverify_before_use(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            destination = root / "transferred"
+            source.mkdir()
+            destination.mkdir()
+            dataset, split = self._prepare(source, count=90)
+            report = audit_dataset_quality(dataset, split)
+
+            copied_dataset = destination / dataset.name
+            copied_split = destination / split.name
+            copied_sidecar = dataset.with_suffix(dataset.suffix + ".manifest.json")
+            copied_dataset_sidecar = copied_dataset.with_suffix(
+                copied_dataset.suffix + ".manifest.json"
+            )
+            shutil.copy2(dataset, copied_dataset)
+            shutil.copy2(copied_sidecar, copied_dataset_sidecar)
+            shutil.copy2(split, copied_split)
+
+            copied_report = audit_dataset_quality(copied_dataset, copied_split)
+            self.assertEqual(copied_report["dataset_manifest_sha256"], report["dataset_manifest_sha256"])
+            self.assertEqual(copied_report["split_manifest_sha256"], report["split_manifest_sha256"])
+            self.assertEqual(copied_report["report_sha256"], report["report_sha256"])
+
+            with copied_dataset.open("ab") as stream:
+                stream.write(b"tampered-transfer\n")
+            with self.assertRaises(ValueError):
+                audit_dataset_quality(copied_dataset, copied_split)
 
 
 
