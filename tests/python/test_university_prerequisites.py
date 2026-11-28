@@ -23,8 +23,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 213)
-        self.assertEqual(mapping.source_topic_count, 213)
+        self.assertEqual(mapping.mapped_topic_count, 214)
+        self.assertEqual(mapping.source_topic_count, 214)
         self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
@@ -88,6 +88,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("linear_first_order_variable_coefficient_ODEs", "second_order_linear_ODEs"))
         self.assertTrue(mapping.is_prerequisite("separable_first_order_ODEs", "ODE_numerical_methods"))
         self.assertTrue(mapping.is_prerequisite("partial_derivatives", "exact_first_order_ODEs"))
+        self.assertTrue(mapping.is_prerequisite("exact_first_order_ODEs", "quadratic_potential_exact_first_order_ODEs"))
+        self.assertTrue(mapping.is_prerequisite("partial_derivatives", "quadratic_potential_exact_first_order_ODEs"))
         self.assertNotIn("first_order_ODEs", mapping.prerequisites)
         self.assertTrue(mapping.is_prerequisite("Lagrange_multipliers", "KKT_conditions"))
         self.assertTrue(mapping.is_prerequisite("root_finding", "Newton_and_secant_methods"))

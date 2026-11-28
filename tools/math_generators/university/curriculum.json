@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 213,
+  "topic_count": 214,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -966,6 +966,13 @@
       "title": "exact first-order ODEs",
       "field": "Differential equations",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "quadratic_potential_exact_first_order_ODEs",
+      "title": "exact first-order ODEs from quadratic potentials",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "quadratic_potential_exact_first_order_ODEs"
     },
     {
       "topic": "second_order_linear_ODEs",
