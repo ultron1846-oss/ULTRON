@@ -221,9 +221,9 @@ This Phase 0 audit did not modify executable source or tests. It did not run mod
 
 - Branch: audit/repository-quality-phase1-2026-11-28
 - Base branch: full-system-readiness-batch-7-2026-11-28 at 4b9308bcbc8a96b24af4c67a0a9bb90fd63ece85
-- Implementation/test head with all code and benchmark checks passed: 7ff7f592b8eacc357469e695022ee0e727fefc29.
-- Documentation/report follow-up head: 8c6b4570bf909197a2176e0de6aef35835b0299f.
-- PR #208 currently targets the PR #207 integration branch; 13 paths changed, and the branch is ahead of its stacked base. Exact current PR head should be refreshed after this README commit.
+- Latest code/test head with all five workflows passing: 15a7d518fd4aeadcd4166b792282f306600e1e2e.
+- Latest audit-report update before this README edit: b0a81f6bc0139f4ff6c7b48de8f65e605d6c9e2c.
+- PR #208 stacks on the PR #207 integration branch; 16 changed paths, open and unmerged. Current exact head must be refreshed after this README commit.
 - Audit report: docs/PHASE1_REPOSITORY_AUDIT_2026-11-28.md.
 
 ### Confirmed fixes
@@ -231,6 +231,7 @@ This Phase 0 audit did not modify executable source or tests. It did not run mod
 1. Tokenizer resource budget: added max_tokens to MathTokenizer.tokenize/encode. Tokenization stops before materializing token objects beyond the budget. Both in-memory and indexed dataset adapters enforce max_sequence_length during tokenization, and inference bounds prompt encoding while reserving generation space. Added tokenizer, dataset and inference regression coverage.
 2. Indexed dataset benchmark isolation: when this process owns tracemalloc, the benchmark measures its own peak. When a caller already owns the process-global tracer, it does not reset or stop that tracer and reports the benchmark-specific peak as unavailable. Added a regression proving prior caller allocations are not misreported and tracer state remains intact.
 3. Inference API contract: compressed inference now normalizes invalid device input to the same clear ValueError used by ordinary inference. Added a negative test.
+4. Browser memory listing: listRecords previously read every IndexedDB record using getAll(), sorted the full store in JavaScript, and only then applied the 100/500-row UI limit. IndexedDB v2 now creates a createdAt index on all four stores and listRecords reads a reverse cursor only until the requested limit. Migration backfills legacy missing timestamps with an empty sort key. Exported/imported backups remain schema version 1. Regression tests verify v1-to-v2 migration, legacy row retention, backup-version compatibility, and that requesting 25 records from a 1,500-record store visits exactly 25 cursor entries with no getAll() call.
 
 ### Benchmark harness
 
@@ -238,15 +239,15 @@ Added tools/benchmark_phase1.py and .github/workflows/phase1-benchmarks.yml. The
 
 ### Validation boundary and measured results
 
-Phase 1 code/test head 7ff7f592b8eacc357469e695022ee0e727fefc29 passed all five workflows:
+Latest code/test head 15a7d518fd4aeadcd4166b792282f306600e1e2e passed all five workflows:
 
 | Workflow | Run ID | Result |
 | --- | ---: | --- |
-| Tests | [46116204458](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204458) | 128 passed, 0 failed |
-| Python AI Core | [46116204522](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204522) | 734 tests passed; CPU forward/backward only, no optimizer step |
-| Level 1 Math Tooling | [46116204450](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204450) | 5 passed, including the workflow's 5,000 randomized cases |
-| Security/dependency audit | [46116204552](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204552) | Passed; npm audit 0 vulnerabilities; pip-audit no known vulnerabilities in the three declared groups |
-| Phase 1 performance benchmarks | [46116204496](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204496) | Passed; JSON artifact uploaded as ultron-phase1-benchmark (artifact ID 15251224326) |
+| Tests | [46116772850](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772850) | 130 passed, 0 failed |
+| Python AI Core | [46116772844](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772844) | 734 tests passed; CPU forward/backward only, no optimizer step |
+| Level 1 Math Tooling | [46116772851](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772851) | 5 passed, including the workflow's 5,000 randomized cases |
+| Security/dependency audit | [46116772867](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772867) | Passed; npm audit 0 vulnerabilities; pip-audit no known vulnerabilities in the three declared groups |
+| Phase 1 performance benchmarks | [46116772901](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116772901) | Passed; JSON artifact uploaded as ultron-phase1-benchmark (artifact ID 15252171168) |
 
 Benchmark conditions: GitHub-hosted Linux CPU runner, AMD EPYC 9V74, 4 logical CPUs exposed, Python 3.11.18, PyTorch 2.15.0+cpu, Node 22.23.5, one Torch CPU thread, seed 20261128, three warmups and 12 repetitions. The model was a 42,593-parameter random-initialized smoke model, batch 2, sequence lengths 16/32/64—not the 60M+ foundation model.
 
@@ -254,7 +255,7 @@ Measured results:
 - Tokenizer: reference scanner about 129k tokens/s; trie about 1.10M tokens/s; observed 8.50x ratio on five fixed supported expressions (91 tokens/iteration).
 - 3,500-row temporary indexed dataset: 1.292s index build, 23,958 rows/s sequential scan, random-access median 0.071ms and p95 0.083ms.
 - Small model forward median: 0.758ms / 0.810ms / 0.963ms for sequence lengths 16 / 32 / 64. Attention component median 0.054ms; top-k router 0.024ms.
-- Tiny checkpoint: 201,747 bytes; median save 318.5ms, load 6.24ms. Inference with two generated tokens: median 1.819ms / 1.921ms / 2.021ms for nominal 8 / 24 / 48 token prompts.
+- Tiny checkpoint: 201,747 bytes. In the first successful measurement run, median save was 318.5ms and load 6.24ms; timings vary substantially between hosted CI runs. The later successful run measured about 6.14ms median save and 5.39ms load. Inference with two generated tokens: median 1.819ms / 1.921ms / 2.021ms for nominal 8 / 24 / 48 token prompts.
 - Frontend assets: 127,907 raw bytes and 40,620 deterministic gzip bytes across 13 files.
 
 The initial benchmark attempt failed because a test expression used unsupported tokenizer command \sin; the benchmark correctly rejected it. The fixture was changed to an expression composed only of supported vocabulary tokens. The corrected benchmark run above passed. The tokenizer scope itself was not expanded.
@@ -263,6 +264,6 @@ These are CI observations, not device-independent performance guarantees. The da
 
 No local test commands were run because this environment could not clone the repository over its network. The audit is risk-based, not a line-by-line verification of every file. Full-size 60M+ memory/CUDA profiling, production dataset results, browser load timing and real iPad acceptance remain outstanding. PR #208 has not received independent review and remains unmerged. PR #207 itself also remains open pending its own independent review.
 
-This README/report-only follow-up creates a new PR head; exact-head workflows are being rechecked. Do not merge until those checks pass on the latest head and an independent review is recorded.
+The audit report also records the second successful benchmark artifact and the browser-memory store fix. This README update itself creates a new PR head; exact-head workflows are being rechecked. Do not merge until those checks pass on the latest head and an independent review is recorded.
 
 No ULTRON training, optimizer steps, model weight updates, production corpus generation/download, external AI API call, Supabase mutation, Pages deployment or remote training job occurred.
