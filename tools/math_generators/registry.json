@@ -1905,8 +1905,8 @@
       "topic": "separable_first_order_ODEs",
       "grade_band": "University",
       "word_problems": false,
-      "status": "catalogued_not_implemented",
-      "independent_validation_status": "not_independently_validated",
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },
