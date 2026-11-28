@@ -12,11 +12,13 @@ from fractions import Fraction
 from .extended_generators import EXTENDED_BANDS, build as build_extended
 from .green_theorem import TOPIC as GREEN_TOPIC, build_green_fields, verify_green_problem
 from .ode_first_order import verify_homogeneous_constant_coefficient_first_order_ode
+from .ode_separable import TOPIC as SEPARABLE_ODE_TOPIC, MAX_SEED as MAX_SEPARABLE_ODE_SEED, build_separable_fields, verify_separable_problem
 
 BANDS = {
     "linear_algebra": "University",
     "multivariable_calculus": "University",
     "homogeneous_constant_coefficient_first_order_ODEs": "University",
+    SEPARABLE_ODE_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -77,6 +79,8 @@ GENERATOR_METADATA = {
 def _build(topic: str, rng: random.Random, difficulty: int):
     if topic == GREEN_TOPIC:
         return build_green_fields(rng, difficulty)
+    if topic == SEPARABLE_ODE_TOPIC:
+        return build_separable_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -496,12 +500,16 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ValueError("difficulty must be an integer from 1 through 5")
     if topic not in BANDS:
         raise ValueError("unknown topic: "+str(topic))
+    if topic == SEPARABLE_ODE_TOPIC and not 0 <= seed <= MAX_SEPARABLE_ODE_SEED:
+        raise ValueError(f"seed must be between 0 and {MAX_SEPARABLE_ODE_SEED} for {SEPARABLE_ODE_TOPIC}")
     fields,check=_build(topic,random.Random(seed),difficulty)
     fields.update(id=f"university-{topic}-{seed}-{difficulty}",seed=seed)
     if not check():
         raise ArithmeticError("exact answer verification failed")
     if topic == "homogeneous_constant_coefficient_first_order_ODEs" and not verify_homogeneous_constant_coefficient_first_order_ode(fields):
         raise ArithmeticError("independent first-order ODE verification failed")
+    if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
+        raise ArithmeticError("independent separable ODE verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!={k:v for k,v in fields.items() if k not in ("id","seed")}:
         raise ArithmeticError("deterministic replay failed")
@@ -513,6 +521,8 @@ def verify(problem: dict) -> bool:
         return verify_green_problem(problem)
     if isinstance(problem, dict) and problem.get("topic") == "homogeneous_constant_coefficient_first_order_ODEs":
         return verify_homogeneous_constant_coefficient_first_order_ode(problem)
+    if isinstance(problem, dict) and problem.get("topic") == SEPARABLE_ODE_TOPIC:
+        return verify_separable_problem(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):
