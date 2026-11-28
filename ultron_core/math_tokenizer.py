@@ -38,6 +38,7 @@ CANONICAL_TOKENS = SPECIAL_TOKENS + tuple(dict.fromkeys(
     sorted(MULTI_TOKENS, key=lambda item: (-len(item), item))
     + list(dict.fromkeys(SINGLE_TOKENS))
 ))
+VOCAB_SIZE = len(CANONICAL_TOKENS)
 
 
 def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict:
@@ -149,6 +150,8 @@ class MathTokenizer:
             raise ValueError("model config tokenizer version does not match vocabulary")
         if getattr(config, "vocab_size", None) != len(self.vocabulary):
             raise ValueError("model config vocabulary size does not match vocabulary")
+        if getattr(config, "pad_token_id", None) != self.vocabulary.token_id("<PAD>"):
+            raise ValueError("model config padding token ID does not match vocabulary")
 
     def tokenize(self, text: str) -> tuple[MathToken, ...]:
         if not isinstance(text, str):

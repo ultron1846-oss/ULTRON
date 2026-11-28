@@ -88,6 +88,54 @@ class MathTokenizerContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported tokenizer version"):
             NeuroSparseConfig(tokenizer_version=2)
 
+    def test_default_model_config_matches_the_canonical_vocabulary_and_pad_id(self):
+        tokenizer = MathTokenizer()
+        config = NeuroSparseConfig()
+        tokenizer.assert_compatible_config(config)
+        self.assertEqual(config.vocab_size, 240)
+        self.assertEqual(config.pad_token_id, 0)
+
+    def test_model_config_with_wrong_reserved_padding_id_is_rejected(self):
+        tokenizer = MathTokenizer()
+        config = NeuroSparseConfig(pad_token_id=1)
+        with self.assertRaisesRegex(ValueError, "padding token ID"):
+            tokenizer.assert_compatible_config(config)
+
+    def test_longest_match_and_boundary_sequences_are_deterministic(self):
+        tokenizer = MathTokenizer()
+        for token in (r"\subseteq", r"\supseteq", r"\Rightarrow", r"\Leftrightarrow", r"\notin"):
+            with self.subTest(token=token):
+                ids = tokenizer.encode(token)
+                self.assertEqual(ids, [tokenizer.vocabulary.token_id(token)])
+                self.assertEqual(tokenizer.decode(ids), token)
+        self.assertEqual(tokenizer.encode(""), [])
+        self.assertEqual(tokenizer.decode([]), "")
+        pad_id = tokenizer.vocabulary.token_id("<PAD>")
+        self.assertEqual(tokenizer.decode([pad_id]), "")
+        self.assertEqual(tokenizer.decode([pad_id], skip_special_tokens=False), "<PAD>")
+
+    def test_unicode_error_offsets_are_python_codepoint_offsets(self):
+        tokenizer = MathTokenizer()
+        for text, offset in (("x+🙂", 2), ("x\u0301", 1), ("x\u00a0y", 1)):
+            with self.subTest(text=text):
+                with self.assertRaisesRegex(ValueError, f"offset {offset}"):
+                    tokenizer.encode(text)
+
+    def test_non_text_input_and_non_integer_decode_ids_are_rejected(self):
+        tokenizer = MathTokenizer()
+        with self.assertRaises(TypeError):
+            tokenizer.encode(b"x+y")
+        for token_ids in ([1.0], ["1"], [None]):
+            with self.subTest(token_ids=token_ids), self.assertRaises(TypeError):
+                tokenizer.decode(token_ids)
+
+    def test_vocab_is_fixed_and_does_not_assign_unknown_characters(self):
+        tokenizer = MathTokenizer()
+        before = tokenizer.vocabulary.to_json()
+        with self.assertRaisesRegex(ValueError, "unsupported mathematical character"):
+            tokenizer.encode("x+🧮")
+        self.assertEqual(tokenizer.vocabulary.to_json(), before)
+
     def test_decode_rejects_boolean_and_out_of_range_token_ids(self):
         tokenizer = MathTokenizer()
         for token_id in (True, -1, len(tokenizer.vocabulary)):

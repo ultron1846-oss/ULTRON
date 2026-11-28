@@ -5,6 +5,8 @@ The registry is metadata only: it does not generate examples or run training.
 from __future__ import annotations
 
 from collections import Counter
+import hashlib
+import json
 from dataclasses import dataclass
 import random
 import re
@@ -317,6 +319,68 @@ def validate_concept_transfer_split(
             "The protocol validates split properties; it does not establish model capability or run evaluation.",
         ],
     }
+
+
+
+def build_concept_transfer_manifest(
+    train_examples: Iterable,
+    test_examples: Iterable,
+    *,
+    test_categories: Mapping[str, str],
+) -> dict:
+    """Create a stable hash-bound manifest for a validated held-out split.
+
+    The manifest stores example IDs and normalized prompt hashes, not prompt
+    text. Reordering input collections does not change its digest.
+    """
+    train, test = tuple(train_examples), tuple(test_examples)
+    split_report = validate_concept_transfer_split(
+        train, test, test_categories=test_categories
+    )
+
+    def example_records(items):
+        records = []
+        for item in items:
+            normalized_prompt = _prompt(item)
+            records.append({
+                "example_id": _example_id(item),
+                "topic": _example_topic(item),
+                "normalized_prompt_sha256": hashlib.sha256(
+                    normalized_prompt.encode("utf-8")
+                ).hexdigest(),
+                "concept_ids": sorted(_concept_ids(item)),
+            })
+        return sorted(records, key=lambda record: record["example_id"])
+
+    registry_payload = [
+        {
+            "concept_id": concept.concept_id,
+            "title": concept.title,
+            "principle": concept.principle,
+            "prerequisites": list(concept.prerequisites),
+            "assumptions": list(concept.assumptions),
+            "misconceptions": list(concept.misconceptions),
+        }
+        for _, concept in sorted(CONCEPTS.items())
+    ]
+    registry_digest = hashlib.sha256(
+        json.dumps(registry_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    manifest = {
+        "schema_version": 1,
+        "protocol": "ultron_concept_transfer_v1",
+        "concept_registry_sha256": registry_digest,
+        "train_examples": example_records(train),
+        "test_examples": example_records(test),
+        "test_categories": dict(sorted(test_categories.items())),
+        "split_report": split_report,
+        "data_generated": False,
+        "training_performed": False,
+    }
+    digest = hashlib.sha256(
+        json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return {**manifest, "manifest_sha256": digest}
 
 
 validate_concept_registry()

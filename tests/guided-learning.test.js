@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const source = await readFile(new URL('../app.js', import.meta.url), 'utf8');
 const start = source.indexOf('function answerAgent(){');
-const end = source.indexOf('async function loadTrainingStatus()', start);
+const end = source.indexOf('function bindLearning()', start);
 assert.notEqual(start, -1, 'answerAgent exists');
 assert.notEqual(end, -1, 'answerAgent has a stable boundary');
 const answerAgent = source.slice(start, end);

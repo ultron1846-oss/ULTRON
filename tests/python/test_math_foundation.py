@@ -436,6 +436,12 @@ class TrainingPreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not match canonical tokenizer"):
             preflight_training_plan(NeuroSparseConfig(**wrong_vocab), self.splits)
 
+    def test_preflight_rejects_noncanonical_pad_token_id(self):
+        wrong_pad = self.config.to_dict()
+        wrong_pad["pad_token_id"] = 1
+        with self.assertRaisesRegex(ValueError, "padding token ID"):
+            preflight_training_plan(NeuroSparseConfig(**wrong_pad), self.splits)
+
     def test_preflight_rejects_prompt_overlap_across_splits(self):
         invalid = dict(self.splits)
         invalid["validation"] = invalid["validation"] + (invalid["train"][0],)

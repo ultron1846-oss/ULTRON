@@ -1,0 +1,4 @@
+# CI-only Python regression dependencies. Runtime PyTorch is installed separately
+# from the CPU wheel index in GitHub Actions.
+pytest==9.2.0
+sympy==1.14.0

@@ -14,6 +14,7 @@ from ultron_core.compress import (
     prune_experts,
     simulate_int8_quantization,
     load_compression_artifact,
+    load_compressed_model_artifact,
     run_compression_pipeline,
     save_compression_artifact,
 )
@@ -261,6 +262,27 @@ class CompressionArtifactAndPipelineTests(unittest.TestCase):
             self.assertFalse(artifact["foundation_parameter_floor_applies"])
             self.assertEqual(len(artifact["compression_steps"]), 2)
             self.assertIn(path + ".down.weight", artifact["model_state"])
+
+            restored, load_report = load_compressed_model_artifact(
+                artifact_path,
+                model,
+                parent_checkpoint_id="seeded-foundation-checkpoint",
+            )
+            self.assertTrue(load_report["success"])
+            self.assertEqual(load_report["replayed_steps"], ["factorize", "quantize_int8"])
+            for name, value in result.state_dict().items():
+                self.assertTrue(torch.equal(value, restored.state_dict()[name]), name)
+            with torch.inference_mode():
+                sample_ids = torch.tensor([[1, 2, 3]], dtype=torch.long)
+                result_logits = result(sample_ids)["logits"]
+                restored_logits = restored(sample_ids)["logits"]
+            self.assertTrue(torch.equal(result_logits, restored_logits))
+            with self.assertRaisesRegex(ValueError, "parent checkpoint identifier"):
+                load_compressed_model_artifact(
+                    artifact_path,
+                    model,
+                    parent_checkpoint_id="wrong-parent",
+                )
 
     def test_pipeline_rolls_back_all_steps_on_failure(self):
         model = small_model().eval()

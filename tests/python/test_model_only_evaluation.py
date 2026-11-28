@@ -4,6 +4,9 @@ import torch
 from torch import nn
 
 from ultron_core.data_generation import generate_examples
+from ultron_core.config import NeuroSparseConfig
+from ultron_core.math_tokenizer import MathTokenizer
+from ultron_core.model import NeuroSparseModel
 from ultron_core.model_only_evaluation import (
     evaluate_prediction_modes,
     run_model_only_evaluation,
@@ -88,6 +91,39 @@ class ModelOnlyEvaluationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "vocabulary size does not match tokenizer"):
             run_model_only_evaluation(model, tokenizer, [example])
         self.assertEqual(model.forward_calls, 0)
+
+
+    def test_real_small_model_tokenizer_inference_pipeline_is_read_only(self):
+        tokenizer = MathTokenizer()
+        config = NeuroSparseConfig(
+            vocab_size=len(tokenizer.vocabulary),
+            hidden_size=32,
+            num_layers=1,
+            num_experts=4,
+            top_k=2,
+            expert_multiplier=2,
+            max_refinements=1,
+            fast_memory_slots=4,
+            num_attention_heads=4,
+            max_sequence_length=64,
+            dropout=0.0,
+        )
+        torch.manual_seed(303)
+        model = NeuroSparseModel(config).eval()
+        before = {name: tensor.detach().clone() for name, tensor in model.state_dict().items()}
+        example = generate_examples(105, 1, topics=("arithmetic",))[0]
+
+        report = run_model_only_evaluation(
+            model, tokenizer, [example], max_new_tokens=3
+        )
+
+        self.assertTrue(report["model_invoked"])
+        self.assertFalse(report["tools_available_to_model"])
+        self.assertEqual(report["tool_calls"], 0)
+        self.assertEqual(set(report["predictions"]), {example.example_id})
+        self.assertFalse(report["training_performed"])
+        for name, tensor in model.state_dict().items():
+            self.assertTrue(torch.equal(tensor, before[name]), name)
 
     def test_tool_assisted_and_model_only_metrics_are_separate(self):
         example = generate_examples(102, 1, topics=("arithmetic",))[0]

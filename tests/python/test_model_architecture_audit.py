@@ -161,6 +161,49 @@ class ModelArchitectureAuditTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "tokenizer version is unsupported"):
                     load_checkpoint(path, target, restore_rng=False)
 
+    def test_padding_does_not_change_valid_logits_or_auxiliary_metrics(self):
+        torch.manual_seed(20261127)
+        model = NeuroSparseModel(small_config()).eval()
+        unpadded = torch.tensor([[1, 4, 5, 2]], dtype=torch.long)
+        padded = torch.tensor([[1, 4, 5, 2, 0, 0]], dtype=torch.long)
+        mask = padded.ne(0)
+        with torch.inference_mode():
+            expected = model(unpadded)
+            actual = model(padded, attention_mask=mask)
+        torch.testing.assert_close(actual["logits"][:, :4], expected["logits"], rtol=1e-5, atol=1e-6)
+        torch.testing.assert_close(actual["load_balance_loss"], expected["load_balance_loss"], rtol=1e-6, atol=1e-7)
+        torch.testing.assert_close(actual["prediction_error"], expected["prediction_error"], rtol=1e-6, atol=1e-7)
+        self.assertEqual(int(actual["refinement_steps"]), int(expected["refinement_steps"]))
+
+    def test_meta_instantiated_foundation_parameter_count_matches_formula_without_weight_allocation(self):
+        config = NeuroSparseConfig.foundation()
+        with torch.device("meta"):
+            model = NeuroSparseModel(config)
+        total = sum(parameter.numel() for parameter in model.parameters())
+        trainable = sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
+        self.assertTrue(all(parameter.is_meta for parameter in model.parameters()))
+        self.assertEqual(total, 63_400_451)
+        self.assertEqual(trainable, 61_826_048)
+        self.assertGreaterEqual(trainable, 60_000_000)
+
+    def test_initialization_is_finite_and_layer_norm_starts_neutral(self):
+        torch.manual_seed(2026)
+        model = NeuroSparseModel(small_config())
+        for name, parameter in model.named_parameters():
+            self.assertTrue(torch.isfinite(parameter).all(), name)
+        for module in model.modules():
+            if isinstance(module, torch.nn.LayerNorm):
+                torch.testing.assert_close(module.weight, torch.ones_like(module.weight))
+                torch.testing.assert_close(module.bias, torch.zeros_like(module.bias))
+        self.assertTrue(torch.equal(model.embedding.weight[0], torch.zeros_like(model.embedding.weight[0])))
+
+    def test_forward_rejects_non_integer_ids_and_non_boolean_attention_masks(self):
+        model = NeuroSparseModel(small_config())
+        with self.assertRaisesRegex(TypeError, "integer"):
+            model(torch.ones((1, 4), dtype=torch.float32))
+        with self.assertRaisesRegex(TypeError, "torch.bool"):
+            model(torch.ones((1, 4), dtype=torch.long), attention_mask=torch.ones((1, 4), dtype=torch.int32))
+
     def test_foundation_parameter_floor_is_not_reduced_by_tokenizer_binding(self):
         config = NeuroSparseConfig.foundation()
         self.assertGreaterEqual(count_parameters(config), 60_000_000)

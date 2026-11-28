@@ -1,5 +1,6 @@
 """Mock-only checkpoint transfer/recovery and streaming scan contracts."""
 import hashlib
+import random
 import json
 import shutil
 import tempfile
@@ -173,6 +174,74 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
             self.assertEqual(metadata["data_state"], cursor)
             self.assertEqual(float(restored.weight.detach().item()), 2.5)
 
+    def test_rng_restore_failure_rolls_back_model_optimizer_scheduler_and_rng(self):
+        source = _TinyModel(2.75)
+        source_optimizer = torch.optim.SGD(
+            source.parameters(), lr=0.03, momentum=0.9
+        )
+        source_optimizer.state[source.weight]["momentum_buffer"] = torch.tensor([0.125])
+        source_scheduler = torch.optim.lr_scheduler.StepLR(
+            source_optimizer, step_size=2, gamma=0.5
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "rng-rollback.pt"
+            save_checkpoint(
+                path, source, source.config,
+                optimizer=source_optimizer, scheduler=source_scheduler, step=4,
+            )
+            payload = torch.load(path, map_location="cpu", weights_only=True)
+            # The Python state is valid but intentionally different. The following
+            # CPU state is malformed, so restore fails after partially changing RNG.
+            payload["rng"]["python"] = random.Random(444).getstate()
+            payload["rng"]["torch_cpu"] = torch.tensor([1], dtype=torch.uint8)
+            torch.save(payload, path)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            path.with_suffix(path.suffix + ".sha256").write_text(
+                digest + "  " + path.name + "\\n", encoding="utf-8"
+            )
+            metadata_path = Path(str(path) + ".metadata.json")
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            metadata["checkpoint_sha256"] = digest
+            metadata_path.write_text(
+                json.dumps(metadata, sort_keys=True, separators=(",", ":")) + "\\n",
+                encoding="utf-8",
+            )
+
+            target = _TinyModel(-8.0)
+            target_optimizer = torch.optim.SGD(
+                target.parameters(), lr=0.8, momentum=0.1
+            )
+            target_optimizer.state[target.weight]["momentum_buffer"] = torch.tensor([0.9])
+            target_scheduler = torch.optim.lr_scheduler.StepLR(
+                target_optimizer, step_size=7, gamma=0.2
+            )
+            model_before = target.weight.detach().clone()
+            optimizer_lr_before = target_optimizer.param_groups[0]["lr"]
+            optimizer_momentum_before = target_optimizer.state[target.weight]["momentum_buffer"].clone()
+            scheduler_before = target_scheduler.state_dict()
+            random.seed(23)
+            torch.manual_seed(29)
+            python_rng_before = random.getstate()
+            torch_rng_before = torch.random.get_rng_state().clone()
+
+            with self.assertRaises(Exception):
+                load_checkpoint(
+                    path, target,
+                    optimizer=target_optimizer,
+                    scheduler=target_scheduler,
+                    restore_rng=True,
+                )
+
+            self.assertTrue(torch.equal(target.weight, model_before))
+            self.assertEqual(target_optimizer.param_groups[0]["lr"], optimizer_lr_before)
+            self.assertTrue(torch.equal(
+                target_optimizer.state[target.weight]["momentum_buffer"],
+                optimizer_momentum_before,
+            ))
+            self.assertEqual(target_scheduler.state_dict(), scheduler_before)
+            self.assertEqual(random.getstate(), python_rng_before)
+            self.assertTrue(torch.equal(torch.random.get_rng_state(), torch_rng_before))
+
     def test_interrupted_manifest_commit_recovers_previous_verified_checkpoint(self):
         model = _TinyModel(1.5)
         config = model.config
@@ -194,6 +263,9 @@ class CheckpointTransferRecoveryTests(unittest.TestCase):
                     save_checkpoint(
                         path, model, config, step=3, dataset_manifest_sha256="b" * 64
                     )
+
+            self.assertEqual(list(Path(directory).glob(".atomic.pt.*.tmp")), [])
+            self.assertEqual(list(Path(directory).glob(".atomic.pt.sha256.*.tmp")), [])
 
             restored = _TinyModel(-2.0)
             metadata = load_checkpoint(

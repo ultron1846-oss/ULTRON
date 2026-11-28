@@ -1,0 +1,51 @@
+name: Security and dependency audit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked frontend dependencies
+        run: npm ci
+      - name: Audit npm dependency tree
+        run: npm audit --audit-level=high
+      - name: Run focused frontend source security scan
+        run: npm run security:audit
+      - name: Run frontend regression tests
+        run: npm test
+
+  python-dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pip-audit
+        run: python -m pip install pip-audit
+      - name: Audit PyTorch runtime dependency constraints
+        run: pip-audit -r requirements-ai.txt
+      - name: Audit pinned Python test dependencies
+        run: pip-audit -r requirements-test.txt
+      - name: Audit optional seed-data tooling dependencies
+        run: pip-audit -r requirements-seed.txt

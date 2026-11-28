@@ -19,12 +19,14 @@ from .resource_monitor import RuntimeMemoryMonitor
 def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         load_balance: torch.Tensor | None = None, prediction_error: torch.Tensor | None = None,
         balance_weight: float = 0.01, prediction_weight: float = 0.01,
-        ignore_index: int | None = 0, loss_chunk_size: int = 1024) -> torch.Tensor:
-    """Causal next-token loss with chunked FP32 CE to bound temporary memory.
+        ignore_index: int | None = 0, loss_chunk_size: int = 1024,
+        attention_mask: torch.Tensor | None = None) -> torch.Tensor:
+    """Causal next-token loss with chunked FP32 CE and explicit validity masking.
 
-    Logits are processed per batch row and token chunk. This avoids creating a
-    full flattened FP32 copy of [B,T,V] when logits were produced in BF16/FP16.
-    Chunked reductions preserve the global token mean, including padding masks.
+    attention_mask uses True for real tokens. A target contributes only when
+    both its predicting position and target position are valid, preventing
+    left-padding positions from predicting the first real token from PAD.
+    PAD target IDs are also ignored by ignore_index.
     """
     if logits.ndim != 3 or input_ids.ndim != 2:
         raise ValueError('expected logits [B,T,V] and input_ids [B,T]')
@@ -47,6 +49,12 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
         raise ValueError("logits and input_ids must be on the same device")
     if ignore_index is not None and (isinstance(ignore_index, bool) or not isinstance(ignore_index, int)):
         raise TypeError("ignore_index must be an integer or None")
+    if attention_mask is not None:
+        if not isinstance(attention_mask, torch.Tensor) or attention_mask.dtype != torch.bool:
+            raise TypeError("attention_mask must be a boolean tensor")
+        if attention_mask.shape != input_ids.shape or attention_mask.device != input_ids.device:
+            raise ValueError("attention_mask must match input_ids shape and device")
+
     for name, auxiliary in (("load_balance", load_balance), ("prediction_error", prediction_error)):
         if auxiliary is not None:
             if not isinstance(auxiliary, torch.Tensor) or auxiliary.numel() != 1:
@@ -55,13 +63,16 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
                 raise ValueError(f"{name} must be a floating-point scalar on the logits device")
 
     targets = input_ids[:, 1:].long()
-    if ignore_index is None:
-        valid_count = targets.numel()
-    else:
-        valid_targets = targets.ne(ignore_index)
-        if not bool(valid_targets.any()):
-            raise ValueError('all next-token targets are padding; loss is undefined')
-        valid_count = valid_targets.sum().clamp_min(1)
+    valid_targets = torch.ones_like(targets, dtype=torch.bool)
+    if ignore_index is not None:
+        valid_targets &= targets.ne(ignore_index)
+    if attention_mask is not None:
+        valid_targets &= attention_mask[:, :-1] & attention_mask[:, 1:]
+    valid_count = valid_targets.sum()
+    if not bool(valid_targets.any()):
+        if attention_mask is None and ignore_index == 0:
+            raise ValueError("all next-token targets are padding; loss is undefined")
+        raise ValueError("all next-token targets are masked; loss is undefined")
 
     loss_sum = None
     time_steps = targets.shape[1]
@@ -70,11 +81,17 @@ def causal_language_model_loss(logits: torch.Tensor, input_ids: torch.Tensor,
             end = min(start + loss_chunk_size, time_steps)
             chunk_logits = logits[batch_index, start:end, :].float()
             chunk_targets = targets[batch_index, start:end]
-            if ignore_index is None:
+            if ignore_index is None and attention_mask is None:
                 chunk_sum = F.cross_entropy(chunk_logits, chunk_targets, reduction='sum')
             else:
+                effective_ignore_index = ignore_index if ignore_index is not None else -100
+                chunk_targets = chunk_targets.masked_fill(
+                    ~valid_targets[batch_index, start:end], effective_ignore_index
+                )
                 chunk_sum = F.cross_entropy(
-                    chunk_logits, chunk_targets, ignore_index=ignore_index, reduction='sum'
+                    chunk_logits, chunk_targets,
+                    ignore_index=effective_ignore_index,
+                    reduction='sum',
                 )
             loss_sum = chunk_sum if loss_sum is None else loss_sum + chunk_sum
     loss = loss_sum / valid_count
@@ -525,7 +542,7 @@ def run_training_steps(model, batches, optimizer, preflight_report, *, settings,
                         raise ValueError("model output must contain logits")
                     loss = causal_language_model_loss(
                         output["logits"], ids, load_balance=output.get("load_balance_loss"),
-                        prediction_error=output.get("prediction_error"))
+                        prediction_error=output.get("prediction_error"), attention_mask=mask)
                 if time_expired():
                     stop_reason = "time_limit"
                     break

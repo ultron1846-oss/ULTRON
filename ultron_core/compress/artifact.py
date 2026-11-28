@@ -6,6 +6,7 @@ import hmac
 import io
 import math
 import os
+import pickle
 import re
 import tempfile
 from pathlib import Path
@@ -126,7 +127,12 @@ def save_compression_artifact(
 
 def load_compression_artifact(path: str | os.PathLike) -> dict:
     """Load and validate artifact metadata and tensor-state integrity."""
-    payload = torch.load(path, map_location="cpu", weights_only=True)
+    try:
+        payload = torch.load(path, map_location="cpu", weights_only=True)
+    except FileNotFoundError:
+        raise
+    except (OSError, RuntimeError, EOFError, pickle.UnpicklingError, ValueError) as exc:
+        raise ValueError("compressed artifact is unreadable or truncated") from exc
     required = {
         "format", "format_version", "artifact_version", "parent_checkpoint_id",
         "model_scope", "foundation_parameter_floor_applies", "config",
@@ -134,7 +140,12 @@ def load_compression_artifact(path: str | os.PathLike) -> dict:
     }
     if not isinstance(payload, dict) or set(payload) != required:
         raise ValueError("compressed artifact structure is invalid")
-    if payload["format"] != _FORMAT or payload["format_version"] != _FORMAT_VERSION:
+    if (
+        payload["format"] != _FORMAT
+        or isinstance(payload["format_version"], bool)
+        or not isinstance(payload["format_version"], int)
+        or payload["format_version"] != _FORMAT_VERSION
+    ):
         raise ValueError("unsupported compressed artifact format")
     _validate_artifact_version(payload["artifact_version"])
     if not isinstance(payload["parent_checkpoint_id"], str) or not payload["parent_checkpoint_id"].strip():

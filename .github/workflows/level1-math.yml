@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install test dependencies
-        run: python -m pip install "sympy>=1.12" "pytest>=8" torch
+      - name: Install declared runtime and pinned test dependencies
+        run: python -m pip install -r ../../requirements-ai.txt -r ../../requirements-test.txt
       - name: Run regression tests (includes 5,000 randomized cases)
         run: pytest -q

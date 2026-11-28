@@ -4,7 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:math": "npx --yes --package typescript@5.8.3 tsc --strict --target ES2022 --module ES2022 --skipLibCheck --outDir . --rootDir src src/math-engine.ts",
-    "test": "npm run build:math && node --test"
+    "build:math": "tsc --strict --target ES2022 --module ES2022 --skipLibCheck --outDir . --rootDir src src/math-engine.ts",
+    "test": "npm run build:math && node --test",
+    "security:audit": "node security-audit.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
   }
 }
