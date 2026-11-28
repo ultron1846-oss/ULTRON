@@ -178,5 +178,22 @@ class DatasetQualityAuditTests(unittest.TestCase):
 
 
 
+    def test_duplicate_prompt_group_is_counted_and_unselected_row_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset = Path(directory) / "duplicate-fixture.jsonl"
+            split = Path(directory) / "duplicate-fixture.splits.json"
+            fixture(dataset, 90, duplicate=True)
+            prepare_dataset_split_manifest(dataset, split, split_seed=41)
+            report = audit_dataset_quality(dataset, split)
+            self.assertEqual(report["source_dataset_example_count"], 91)
+            self.assertEqual(report["audited_selected_example_count"], 90)
+            self.assertEqual(report["unassigned_source_rows"], 1)
+            self.assertEqual(report["normalized_prompt_duplicate_groups"], 1)
+            self.assertEqual(report["normalized_prompt_duplicate_rows_after_first"], 1)
+            for pair in report["split_pairwise_leakage_diagnostics"].values():
+                self.assertEqual(pair["normalized_prompt_groups"], 0)
+
+
+
 if __name__ == "__main__":
     unittest.main()
