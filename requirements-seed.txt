@@ -1,3 +1,5 @@
-# Optional seed-data tooling dependencies. These do not create or download a corpus.
-datasets>=3,<5
+# Optional seed-data tooling dependencies. Security audit floors reflect fixed releases
+# for PYSEC-2026-3716 (datasets) and PYSEC-2026-4217 (fsspec).
+datasets>=5.0.1,<6
+fsspec>=2026.6.0,<2027
 huggingface_hub>=0.27,<2
