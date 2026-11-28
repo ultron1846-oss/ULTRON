@@ -161,3 +161,55 @@ These validations ran on GitHub-hosted Linux CI. They do not constitute target-d
 ### Exact next engineering task
 
 After independent review of PR #207, implement a bounded exact-rational **Green's theorem** generator tranche for the existing `Green_stokes_divergence_theorems` university catalog entry. Use polynomial vector fields over axis-aligned rational rectangles; independently verify the counter-clockwise boundary line integral against the double integral of the curl; add deterministic, tamper, orientation and resource-bound tests; update the registry and coverage audit without claiming Stokes/divergence coverage. Use fixtures only—no production corpus, training, optimizer step or remote compute.
+
+
+## Phase 0 review-gate audit — 2026-11-28
+
+**Outcome: BLOCKED — do not merge PR #207 until an independent review is recorded.**
+
+This audit checked the live GitHub state before making this README-only handoff update.
+
+- Repository: ultron1846-oss/ULTRON; default branch: main.
+- Base main SHA at audit: 2ba3340dbc841699ad98e651c86f2e227be8cac0.
+- Integration PR: [#207 — Run integrated full-system readiness validation](https://github.com/ultron1846-oss/ULTRON/pull/207).
+- PR branch: full-system-readiness-batch-7-2026-11-28.
+- Exact code/documentation head audited before this README update: 8a49eb5ef120f1edebdeaaaedb7dc62479f6ac86.
+- PR #207 targeted main at the same base SHA, was 18 commits ahead and 0 behind, had 70 changed paths, and GitHub reported it mergeable at audit time.
+- PR #207 was open and unmerged. GitHub reported **zero submitted reviews** and **zero inline review threads**. The visible conversation comments were authored by the PR author; none is an independent review. Independent review is therefore unavailable in the recorded PR state.
+
+### Exact-head workflow evidence
+
+All four workflows fetched for audited commit 8a49eb5ef120f1edebdeaaaedb7dc62479f6ac86 were completed with conclusion success:
+
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Tests | [46109232702](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109232702) | Success |
+| Security and dependency audit | [46109232711](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109232711) | Success |
+| Python AI Core Tests | [46109232698](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109232698) | Success |
+| ULTRON Level 1 Math Tooling | [46109232715](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109232715) | Success |
+
+The connector's legacy combined-status endpoint returned no separate status entries; the four completed Actions workflow runs above are the available CI evidence. No failed workflow was present in that exact-head run listing.
+
+### Open-PR overlap and duplicate-work warning
+
+The live open-PR inventory contained #207, #206, #205, #204, #203 and #199. Comparing changed-path lists showed:
+
+| Open PR | Changed paths | Paths also changed by #207 | Note |
+| --- | ---: | ---: | --- |
+| #206 | 32 | 32 | All changed paths overlap #207. |
+| #205 | 15 | 14 | One additional path is outside #207. |
+| #204 | 14 | 13 | One additional path is outside #207. |
+| #203 | 17 | 16 | One additional path is outside #207; GitHub reported it non-mergeable. |
+| #199 | 8 | 6 | Two additional paths are outside #207; its base is older and GitHub reported it non-mergeable. |
+
+These are **changed-path overlaps**, not a claim that every file's patch or resulting content is identical. PR #207's description says it integrates #203–#206 and retains the newer #204 clean-process recovery test rather than #199's older duplicate recovery test. Do not merge the component PRs independently while #207 is the integration candidate. After the integration decision, reconcile or close superseded PRs deliberately; check their unique documentation/tests first.
+
+### Phase decision and next action
+
+- **Phase 0 remains blocked.** CI is green on the audited head, and the branch is current with main, but the independent-review requirement is not met.
+- Do not self-approve, fabricate a review, resolve nonexistent threads, or merge around this gate.
+- Required owner/reviewer action: arrange an independent review of PR #207, triage any findings, and rerun all required workflows if code changes.
+- Immediately before any future merge, re-fetch the PR and main, verify the latest head/base SHAs, changed files, review state, unresolved threads, and exact-head checks. Merge only if every gate is then satisfied.
+- Once PR #207 is reviewed and safely integrated, the next planned engineering task is the bounded exact-rational Green's theorem generator described above. Stokes' theorem and the divergence theorem must remain marked incomplete until separately implemented and validated.
+
+This Phase 0 audit did not modify executable source or tests. It did not run model training, step an optimizer on ULTRON weights, generate or download a production corpus, deploy Pages, mutate Supabase, call an external AI API, or launch remote compute. Training remains blocked pending separate explicit authorization.
