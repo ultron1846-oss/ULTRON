@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+import hmac
+import json
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +13,7 @@ from torch import nn
 from .checkpoint import (
     _backup,
     _manifest,
+    _metadata_path,
     _normalize_saved_config,
     _valid_pair,
     load_checkpoint,
@@ -34,17 +37,55 @@ def _verified_checkpoint_source(path: str | Path) -> Path:
 
 
 def _read_checkpoint_config(path: str | Path) -> tuple[NeuroSparseConfig, Path]:
-    source = _verified_checkpoint_source(path)
+    target = Path(path)
+    source = _verified_checkpoint_source(target)
+
+    # Current checkpoints include a JSON sidecar bound to the checkpoint's
+    # SHA-256. Reading that small file avoids deserializing a 60M+ tensor payload
+    # merely to discover the model config before load_checkpoint restores it.
+    metadata_path = (
+        _backup(_metadata_path(target))
+        if source == _backup(target)
+        else _metadata_path(target)
+    )
+    manifest_path = _backup(_manifest(target)) if source == _backup(target) else _manifest(target)
+    saved_config = None
+    saved_format_version = None
     try:
-        payload = torch.load(source, map_location="cpu", weights_only=True)
-    except Exception as exc:
-        raise ValueError("verified checkpoint payload is unreadable") from exc
-    if not isinstance(payload, dict):
-        raise ValueError("checkpoint payload must be a mapping")
-    version = payload.get("format_version")
-    if isinstance(version, bool) or not isinstance(version, int) or version not in (2, 3, 4, 5):
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        manifest_fields = manifest_path.read_text(encoding="utf-8").split()
+        digest = metadata.get("checkpoint_sha256") if isinstance(metadata, dict) else None
+        if (
+            isinstance(metadata, dict)
+            and metadata.get("schema_version") == 1
+            and isinstance(digest, str)
+            and len(digest) == 64
+            and all(character in "0123456789abcdef" for character in digest)
+            and manifest_fields
+            and hmac.compare_digest(digest, manifest_fields[0])
+        ):
+            saved_config = metadata.get("config")
+            saved_format_version = metadata.get("format_version")
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        # Legacy/partial metadata falls back to the integrity-verified payload.
+        pass
+
+    if saved_config is None:
+        try:
+            payload = torch.load(source, map_location="cpu", weights_only=True)
+        except Exception as exc:
+            raise ValueError("verified checkpoint payload is unreadable") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("checkpoint payload must be a mapping")
+        saved_format_version = payload.get("format_version")
+        saved_config = payload.get("config")
+
+    if (
+        isinstance(saved_format_version, bool)
+        or not isinstance(saved_format_version, int)
+        or saved_format_version not in (2, 3, 4, 5)
+    ):
         raise ValueError("unsupported checkpoint format")
-    saved_config = payload.get("config")
     if not isinstance(saved_config, dict):
         raise ValueError("checkpoint config is malformed")
     try:
@@ -252,7 +293,7 @@ def load_inference_engine(
     _validate_tokenizer(active_tokenizer, config)
     try:
         target_device = torch.device(device)
-    except (TypeError, RuntimeError) as exc:
+    except (TypeError, RuntimeError, ValueError) as exc:
         raise ValueError("device must be a valid torch device") from exc
 
     # Initialization must not perturb the caller's global CPU RNG stream.
