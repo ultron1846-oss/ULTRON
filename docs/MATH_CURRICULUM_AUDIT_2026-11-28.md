@@ -212,7 +212,7 @@ The latest follow-up adds two separately identified theorem exercises while pres
 - `stokes_theorem_horizontal_rectangles`: affine fields (F=(P,Q,0)) on horizontal axis-aligned rectangles, with upward surface orientation and counter-clockwise boundary traversal. The independent validator recomputes all four boundary-edge integrals and the curl surface integral.
 - `divergence_theorem_axis_aligned_boxes`: diagonal linear fields (F=(ax,by,cz)) on axis-aligned boxes. The independent validator recomputes six oriented face fluxes and the volume integral of `div F`.
 
-Current candidate coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, and **68 independently validated**. Trained-checkpoint benchmarks and mastered topics remain zero. These additions do not imply general Stokes or divergence theorem support.
+Standalone vector-calculus follow-up coverage before integration with batch 9: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, and **68 independently validated**. Trained-checkpoint benchmarks and mastered topics remain zero. These additions do not imply general Stokes or divergence theorem support.
 
 
 ## Phase 2 cumulative integration candidate — 2026-11-28
