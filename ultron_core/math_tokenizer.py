@@ -127,8 +127,22 @@ class MathTokenizer:
     """Longest-match lexer; whitespace and source spelling are preserved."""
 
     def __init__(self, vocabulary: MathVocabulary | None = None):
-        self.vocabulary = vocabulary or MathVocabulary.default()
+        self.vocabulary = vocabulary if vocabulary is not None else MathVocabulary.default()
         self._tokens = self.vocabulary._lexer_tokens
+
+        # A trie avoids scanning the complete vocabulary for every source
+        # character. Terminal values are stored under the None key, which
+        # cannot collide with a one-character token.
+        self._token_trie: dict = {}
+        for token in self._tokens:
+            node = self._token_trie
+            for character in token:
+                child = node.get(character)
+                if child is None:
+                    child = {}
+                    node[character] = child
+                node = child
+            node[None] = token
 
     @staticmethod
     def _kind(value: str) -> str:
@@ -159,12 +173,29 @@ class MathTokenizer:
         result: list[MathToken] = []
         offset = 0
         while offset < len(text):
-            match = next((token for token in self._tokens if text.startswith(token, offset)), None)
+            node = self._token_trie
+            cursor = offset
+            match = None
+            match_end = offset
+
+            # Continue while the source follows a vocabulary path, retaining
+            # the deepest terminal to preserve canonical longest-match rules.
+            while cursor < len(text):
+                child = node.get(text[cursor])
+                if child is None:
+                    break
+                node = child
+                cursor += 1
+                terminal = node.get(None)
+                if terminal is not None:
+                    match = terminal
+                    match_end = cursor
+
             if match is None:
                 raise ValueError(f"unsupported mathematical character {text[offset]!r} at offset {offset}")
             result.append(MathToken(self.vocabulary.token_id(match),
                                     self._kind(match), match, offset))
-            offset += len(match)
+            offset = match_end
         return tuple(result)
 
     def encode(self, text: str, *, add_bos: bool = False, add_eos: bool = False) -> list[int]:
