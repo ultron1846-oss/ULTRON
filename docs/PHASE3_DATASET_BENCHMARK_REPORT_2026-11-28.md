@@ -2,13 +2,13 @@
 
 ## Status and scope
 
-This report records the read-only verified-dataset benchmark executed on implementation + regression-test revision `37afd461e8ba2599feeb979f878684b954d8cc57`, including SQLite main/temp page caps, the quality-audit journal-budget regression, and writer-side sample identity validation.
+This report records the read-only verified-dataset benchmark executed on implementation + regression-test revision `17a59284459f503adc4002b70af8d538c043c14d`, including SQLite main/temp page caps, the quality-audit journal-budget regression, writer-side identity checks, and independent parameter-based sample reconstruction.
 
-- GitHub Actions run: [Python AI Core Tests #46152501626](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501626)
-- Job: `python-core`, job ID `141001954481`
+- GitHub Actions run: [Python AI Core Tests #46154661483](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661483)
+- Job: `python-core`, job ID `141008547123`
 - Test command: `python -m unittest discover -s tests/python -v`
-- Result: **716 tests passed in 100.625 seconds**
-- Additional regressions: the quality-journal guard asserts both schema journals are disabled before audit DDL/DML; writer identity tests reject mutated generation ingredients and duplicate parameter names before destination replacement.
+- Result: **722 tests passed in 67.686 seconds**
+- Additional regressions: journal guards prove main/temp schemas disable journaling before audit writes; the independent checker reconstructs all eight supported topics, rejects tampered ingredients/prompts/answers/difficulty, and the writer rejects parameter tampering even when a content-derived identity is recomputed.
 - The 12,000-row input was a temporary synthetic test fixture created within CI; it is not a production corpus and is not retained as project data.
 - The benchmark itself reports `data_generated=false`, `dataset_modified=false`, `training_performed=false`, and `optimizer_steps=0`.
 
@@ -32,14 +32,14 @@ The benchmark verified the existing fixture and split manifest, built a private 
 |---|---:|
 | Verified snapshot copy size | 4,540,482 bytes |
 | SQLite index size | 6,291,456 bytes |
-| Index build time | 6.189540 seconds |
-| Sequential scan duration | 0.662774 seconds |
-| Sequential scan throughput | 18,105.71 rows/second |
-| Random-read median latency | 0.109926 ms |
-| Random-read p95 latency | 0.133991 ms |
-| Traced peak Python allocations | 33,576,293 bytes |
+| Index build time | 4.812796 seconds |
+| Sequential scan duration | 0.500137 seconds |
+| Sequential scan throughput | 23,993.42 rows/second |
+| Random-read median latency | 0.075542 ms |
+| Random-read p95 latency | 0.088531 ms |
+| Traced peak Python allocations | 33,575,004 bytes |
 
-These values are from one hosted CI run. They are observations, not stable performance guarantees or cross-system comparisons. They are not a speedup comparison against an eager loader.
+These values are from one hosted CI run on the same code/test revision listed above. They are observations, not stable performance guarantees or cross-system comparisons. They are not a speedup comparison against an eager loader. The benchmark output is part of the Python AI Core job log and uses a temporary 12,000-row synthetic fixture.
 
 ## Memory and measurement limits
 
@@ -49,11 +49,11 @@ The reported disk bytes are the private snapshot and SQLite index files at measu
 
 ## CI validation on the implementation revision
 
-All workflows passed on exact implementation revision `37afd461e8ba2599feeb979f878684b954d8cc57`:
+All workflows passed on exact implementation + regression-test revision `17a59284459f503adc4002b70af8d538c043c14d`:
 
-- [Tests / Node Tests — run #46152501592](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501592): success; command `npm test`.
-- [Python AI Core Tests — run #46152501626](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501626): success; command `python -m unittest discover -s tests/python -v` (716 tests), followed by `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` (success).
-- [ULTRON Level 1 Math Tooling — run #46152501685](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501685): success; command `pytest -q`, including the workflow's 5,000 randomized cases.
+- [Tests / Node Tests — run #46154661494](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661494): success; command `npm test`.
+- [Python AI Core Tests — run #46154661483](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661483): success; command `python -m unittest discover -s tests/python -v` (722 tests), followed by `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` (success; forward/backward only).
+- [ULTRON Level 1 Math Tooling — run #46154661437](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661437): success; command `pytest -q`, including the workflow's 5,000 randomized cases.
 
 The CPU smoke is a forward/backward validation only. It does not step an optimizer or update ULTRON weights.
 
@@ -65,4 +65,4 @@ It does not demonstrate production-scale corpus performance, complete process/de
 
 Sample schema v1 does not carry prerequisite IDs, explicit boundary/adversarial annotations, per-generator schema versions, source-commit/runtime provenance, or a standalone row-schema version. The quality auditor therefore reports prerequisite coverage and boundary coverage as not assessed, and semantic near-duplicate detection as not assessed. Split-manifest ID arrays and writer ID/index uniqueness sets remain bounded but O(N) in Python memory.
 
-No production corpus was generated or downloaded. No real ULTRON training, optimizer step, remote job, checkpoint publishing, or model-weight publishing occurred. PR #220 remains open pending independent review; this report is validation evidence, not production acceptance.
+No production corpus was generated or downloaded. No real ULTRON training, optimizer step, remote job, checkpoint publishing, or model-weight publishing occurred. The separate parameter-based checker independently reconstructs the eight supported schema-v1 generator families, but it is not a formally verified proof kernel. PR #220 remains open pending independent review; this report is validation evidence, not production acceptance.

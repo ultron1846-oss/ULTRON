@@ -65,17 +65,17 @@ The 12,000-row test and fixture benchmarks are correctness/stress evidence only.
 
 ## Phase 3 measured 12,000-row synthetic fixture — 2026-11-28
 
-The measured benchmark was emitted by Python AI Core CI run [#46152501626](https://github.com/ultron1846-oss/ULTRON/actions/runs/46152501626), job `141001954481`, on exact implementation revision `37afd461e8ba2599feeb979f878684b954d8cc57`, including separate SQLite main/temp schema page caps, journal disabling in the quality auditor, and writer-side sample identity validation. Conditions: GitHub-hosted Ubuntu 26.04.1, Python 3.11.18, SQLite 3.46.1; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
+The measured benchmark was emitted by Python AI Core CI run [#46154661483](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661483), job `141008547123`, on exact implementation + regression-test revision `17a59284459f503adc4002b70af8d538c043c14d`, including separate SQLite main/temp schema page caps, journal disabling in the quality auditor, writer-side sample identity validation, and independent generation-parameter checks. Conditions: GitHub-hosted runner, Python 3.11.18, SQLite 3.46.1; platform fingerprint Linux 7.0.0-1020-azure x86_64 with glibc 2.43; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
 
 | Metric | Result |
 |---|---:|
 | Snapshot bytes | 4,540,482 |
 | SQLite index bytes | 6,291,456 |
-| Index build | 6.189540 s |
-| Sequential scan | 0.662774 s |
-| Sequential throughput | 18,105.71 rows/s |
-| Random-read median | 0.109926 ms |
-| Random-read p95 | 0.133991 ms |
-| Python tracemalloc peak | 33,576,293 bytes |
+| Index build | 4.812796 s |
+| Sequential scan | 0.500137 s |
+| Sequential throughput | 23,993.42 rows/s |
+| Random-read median | 0.075542 ms |
+| Random-read p95 | 0.088531 ms |
+| Python tracemalloc peak | 33,575,004 bytes |
 
 The benchmark did not modify its input, generate data itself, train, or step an optimizer. The temporary test fixture was synthetic and was created only inside CI. The `tracemalloc` measurement excludes native SQLite allocations, PyTorch tensors, process RSS, operating-system page cache and device memory. This is not a complete RAM measurement or an eager-loader speedup comparison. See [the full Phase 3 benchmark report](PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md) for validation commands, runner conditions and limitations.
