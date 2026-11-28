@@ -17,7 +17,7 @@ test('account-free frontend exposes no job, checkpoint mutation or pairing contr
   assert.doesNotMatch(app, /id="training-(?:start|pause|stop|resume|save)"/);
   assert.doesNotMatch(app, /data-page="owner"|data-page="pairing"|id="pairing/);
   assert.doesNotMatch(html, /data-page="owner"|data-page="pairing"|Owner sign in/i);
-  assert.match(app, /READ-ONLY CONTROL PLANE/);
+  assert.match(app, /NO JOB CONTROLS/);
   assert.match(app, /No job controls/);
 });
 test('iPad responsive contract includes viewport, safe areas, touch targets and local RAM preference', async () => {
