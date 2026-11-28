@@ -552,10 +552,15 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
     if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
         raise ArithmeticError("independent separable ODE verification failed")
     if topic == POLYNOMIAL_LINE_INTEGRAL_TOPIC and not verify_polynomial_line_integral(fields):
+        raise ArithmeticError("independent polynomial line-integral verification failed")
     if topic == QUADRATIC_DOUBLE_INTEGRAL_TOPIC and not verify_quadratic_double_integral(fields):
+        raise ArithmeticError("independent quadratic double-integral verification failed")
     if topic == AFFINE_TRANSPORT_PDE_TOPIC and not verify_affine_transport_pde(fields):
+        raise ArithmeticError("independent affine transport PDE verification failed")
     if topic == BINOMIAL_PROBABILITY_TOPIC and not verify_binomial_probability(fields):
+        raise ArithmeticError("independent binomial probability verification failed")
     if topic == FINITE_GRAPH_TOPIC and not verify_finite_graph(fields):
+        raise ArithmeticError("independent finite graph verification failed")
     if topic == STOKES_RECTANGLE_TOPIC and not verify_stokes_horizontal_rectangle(fields):
         raise ArithmeticError("independent Stokes theorem verification failed")
     if topic == DIVERGENCE_BOX_TOPIC and not verify_divergence_box(fields):
