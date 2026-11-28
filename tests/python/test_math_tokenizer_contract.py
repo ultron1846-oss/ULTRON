@@ -1,5 +1,6 @@
 """Round-trip and strict-schema contracts for ULTRON's canonical math tokenizer."""
 import json
+import random
 import tempfile
 import unittest
 from pathlib import Path
@@ -100,6 +101,41 @@ class MathTokenizerContractTests(unittest.TestCase):
         config = NeuroSparseConfig(pad_token_id=1)
         with self.assertRaisesRegex(ValueError, "padding token ID"):
             tokenizer.assert_compatible_config(config)
+
+
+    def test_trie_longest_match_matches_reference_scanner_on_mixed_input(self):
+        tokenizer = MathTokenizer()
+        lexical_tokens = tokenizer.vocabulary.tokens[3:]
+        ordered_tokens = sorted(lexical_tokens, key=lambda token: (-len(token), token))
+        rng = random.Random(20261128)
+        examples = [
+            "".join(rng.choice(lexical_tokens) for _ in range(400)),
+            r"\\subseteq\\subset\\supseteq\\supset\\Rightarrow\\to\\Leftrightarrow\\notin",
+            "x + α·y = ∫₀¹ x² dx\n",
+        ]
+
+        for source in examples:
+            with self.subTest(source_prefix=source[:40]):
+                expected = []
+                offset = 0
+                while offset < len(source):
+                    match = next(
+                        (token for token in ordered_tokens if source.startswith(token, offset)),
+                        None,
+                    )
+                    self.assertIsNotNone(match, f"reference scanner failed at offset {offset}")
+                    expected.append((tokenizer.vocabulary.token_id(match), match, offset))
+                    offset += len(match)
+
+                actual = [
+                    (token.token_id, token.value, token.offset)
+                    for token in tokenizer.tokenize(source)
+                ]
+                self.assertEqual(actual, expected)
+                self.assertEqual(
+                    tokenizer.decode(token_id for token_id, _value, _offset in actual),
+                    source,
+                )
 
     def test_longest_match_and_boundary_sequences_are_deterministic(self):
         tokenizer = MathTokenizer()
