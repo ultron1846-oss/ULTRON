@@ -434,6 +434,13 @@
         "test": "test_bayes_posterior_matches_count_definition",
         "validator": "Independent count-based posterior recomputation"
       }
+    ],
+    "university:linear_constant_coefficient_first_order_ODEs": [
+      {
+        "path": "tests/python/test_linear_first_order_ode.py",
+        "test": "test_seeded_determinism_and_independent_solution_validation",
+        "validator": "Independent exact symbolic coefficient comparison for the derivative, right-hand side and initial condition of y'=a*y+b"
+      }
     ]
   },
   "benchmarked": [],
