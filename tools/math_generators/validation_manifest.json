@@ -441,6 +441,13 @@
         "test": "test_seeded_generation_is_deterministic_and_analytically_valid",
         "validator": "Independent analytic derivative identity d(y0*exp(k*t))/dt = k*y(t), exact initial-value evaluation at t=0, and full canonical problem reconstruction."
       }
+    ],
+    "university:separable_first_order_ODEs": [
+      {
+        "path": "tests/python/test_separable_first_order_ode.py",
+        "test": "test_seeded_generation_and_independent_derivative_identities",
+        "validator": "Independent exact derivative coefficient identities and exact initial-value substitution for polynomial, exponential, and reciprocal solution branches"
+      }
     ]
   },
   "benchmarked": [],
