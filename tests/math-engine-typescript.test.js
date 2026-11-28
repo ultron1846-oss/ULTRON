@@ -8,8 +8,10 @@ test('TypeScript source declares explicit token and equation result types', asyn
     readFile(new URL('../src/math-engine.ts', import.meta.url), 'utf8'),
     readFile(new URL('../package.json', import.meta.url), 'utf8'),
   ]);
-  const scripts = JSON.parse(packageJson).scripts;
-  assert.match(scripts['build:math'], /typescript@5\.8\.3/);
+  const manifest = JSON.parse(packageJson);
+  const scripts = manifest.scripts;
+  assert.equal(manifest.devDependencies.typescript, '5.8.3');
+  assert.match(scripts['build:math'], /\\btsc\\b/);
   assert.match(scripts.test, /build:math/);
   assert.match(source, /export type LinearEquationSolution/);
   assert.match(source, /export function tokenize\(source: string\): string\[\]/);
