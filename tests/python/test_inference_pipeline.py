@@ -8,7 +8,11 @@ import torch
 
 from ultron_core.checkpoint import save_checkpoint
 from ultron_core.config import NeuroSparseConfig
-from ultron_core.inference import ULTRONInferenceEngine, load_inference_engine
+from ultron_core.inference import (
+    ULTRONInferenceEngine,
+    load_compressed_inference_engine,
+    load_inference_engine,
+)
 from ultron_core.math_tokenizer import MathTokenizer, TokenLimitExceeded
 from ultron_core.model import NeuroSparseModel
 
@@ -106,6 +110,15 @@ class InferencePipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no room"):
             engine.generate("1" * config.max_sequence_length)
         engine.close()
+
+    def test_compressed_loader_normalizes_invalid_device_errors(self):
+        with self.assertRaisesRegex(ValueError, "device must be a valid torch device"):
+            load_compressed_inference_engine(
+                "unused-artifact.bin",
+                "unused-checkpoint.pt",
+                parent_checkpoint_id="test-parent",
+                device="not-a-real-device",
+            )
 
     def test_missing_and_corrupted_checkpoint_paths_fail_closed(self):
         config = tiny_config()
