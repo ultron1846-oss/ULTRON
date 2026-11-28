@@ -65,17 +65,17 @@ The 12,000-row test and fixture benchmarks are correctness/stress evidence only.
 
 ## Phase 3 measured 12,000-row synthetic fixture — 2026-11-28
 
-The corrected implementation revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a` emitted a measured benchmark summary from Python AI Core CI run [#46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135), job `140993841838`. Conditions: GitHub-hosted Ubuntu 26.04.1, Python 3.11.18, SQLite 3.46.1; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
+The corrected implementation revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a` was validated on PR head `d11b9b249a9608f3fc9d8d571407dfcb9ce1bb7e`; the measured benchmark was emitted by Python AI Core CI run [#46150315082](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150315082), job `140995305156`. Conditions: GitHub-hosted Ubuntu 26.04.1, Python 3.11.18, SQLite 3.46.1; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
 
 | Metric | Result |
 |---|---:|
 | Snapshot bytes | 4,540,482 |
 | SQLite index bytes | 6,291,456 |
-| Index build | 6.392324 s |
-| Sequential scan | 0.660702 s |
-| Sequential throughput | 18,162.50 rows/s |
-| Random-read median | 0.108978 ms |
-| Random-read p95 | 0.128690 ms |
-| Python tracemalloc peak | 33,574,865 bytes |
+| Index build | 6.407709 s |
+| Sequential scan | 0.636071 s |
+| Sequential throughput | 18,865.80 rows/s |
+| Random-read median | 0.106935 ms |
+| Random-read p95 | 0.127158 ms |
+| Python tracemalloc peak | 33,576,362 bytes |
 
 The benchmark did not modify its input, generate data itself, train, or step an optimizer. The temporary test fixture was synthetic and was created only inside CI. The `tracemalloc` measurement excludes native SQLite allocations, PyTorch tensors, process RSS, operating-system page cache and device memory. This is not a complete RAM measurement or an eager-loader speedup comparison. See [the full Phase 3 benchmark report](PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md) for validation commands, runner conditions and limitations.
