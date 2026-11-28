@@ -141,7 +141,36 @@ The Phase 1 benchmark workflow invokes:
 
 python -m tools.benchmark_phase1 --output artifacts/phase1-benchmark.json
 
-**Phase 1 exact-head validation:** pending workflow execution on this branch. Record the exact commit SHA, workflow IDs/conclusions, Python and Node test counts, dependency audit, and benchmark artifact location here after GitHub Actions completes. Do not copy baseline PR #207 run IDs as Phase 1 results.
+**Phase 1 implementation/test validation — commit 7ff7f592b8eacc357469e695022ee0e727fefc29:**
+
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Tests | [46116204458](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204458) | Success; 128 Node tests passed, 0 failed |
+| Python AI Core Tests | [46116204522](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204522) | Success; 734 tests passed; CPU forward/backward smoke passed with no optimizer step |
+| ULTRON Level 1 Math Tooling | [46116204450](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204450) | Success; 5 tests passed; workflow covers 5,000 randomized cases |
+| Security and dependency audit | [46116204552](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204552) | Success; npm audit 0 vulnerabilities; pip-audit reported no known vulnerabilities in all three declared groups |
+| ULTRON Phase 1 performance benchmarks | [46116204496](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204496) | Success; uploaded JSON artifact |
+
+Benchmark artifact: workflow run 46116204496, artifact name ultron-phase1-benchmark, artifact ID 15251224326.
+
+### Measured Phase 1 benchmark results
+
+Environment: GitHub-hosted Linux runner, CPU AMD EPYC 9V74, 4 logical CPUs exposed to the job, Python 3.11.18, PyTorch 2.15.0+cpu, Node 22.23.5, one PyTorch CPU thread. Seed 20261128; three warm-ups and 12 measured repetitions for tokenizer/model/dataset throughput timing. Model batch size 2; forward sequence lengths 16, 32 and 64. The model contained 42,593 randomly initialized parameters; it was not the 60M+ foundation model.
+
+| Area | Measured result | Conditions / limit |
+| --- | --- | --- |
+| Tokenizer | Reference scanner 129,231 tokens/s; trie 1,098,192 tokens/s; ratio 8.50x | Five fixed supported math inputs; 112 characters and 91 tokens per iteration. Token ID equivalence checked first. One CI CPU runner; not a device guarantee. |
+| Indexed dataset | 3,500 rows; build 1.292 s; full scan 0.146 s (23,958 rows/s); random access median 0.071 ms, p95 0.083 ms | Temporary synthetic fixture; 100 random accesses. Snapshot 1,380,474 bytes; SQLite index 1,859,584 bytes; tracemalloc peak 33,575,212 bytes. Native SQLite/Torch/RSS/device memory are excluded from tracemalloc. |
+| Small-model forward | Median 0.758 ms at sequence 16; 0.810 ms at 32; 0.963 ms at 64 | Batch 2; CPU, random weights, 12 repetitions after warm-up. |
+| Attention / router components | Attention median 0.054 ms; top-k router median 0.024 ms | Isolated component microbenchmarks on the same tiny configuration; not full model FLOPs. |
+| Checkpoint | Save median 318.5 ms; load median 6.24 ms; serialized file 201,747 bytes | Three save/load iterations, tiny model, no optimizer state, RNG not restored. |
+| Checkpoint-backed inference | Median 1.819 ms for an 8-token prompt; 1.921 ms at 24; 2.021 ms at 48; two generated tokens | Eight measured repetitions per prompt size; random-initialized small model; no quality claim. |
+| Frontend assets | 127,907 raw bytes; 40,620 deterministic gzip bytes across 13 assets | Static transfer-size proxy only; no browser/network waterfall or page-load time measurement. |
+| Process memory | 341,680,128 bytes process high-water RSS | Run-wide high-water mark, not per-component peak memory. No CUDA available. |
+
+The first attempt of the new benchmark workflow (run 46116108239) correctly failed because one selected sample used the unsupported tokenizer command \\sin. The fixture was replaced with a supported expression using only commands and symbols in the canonical vocabulary; tokenizer scope was not expanded. The corrected benchmark workflow passed as run 46116204496. This failed first attempt is retained in the history, not counted as a successful measurement.
+
+These values are reproducible CI observations under the listed conditions, not stable performance thresholds or predictions for iPad, a free cloud runtime, production data, CUDA or the foundation model.
 
 ## 6. Scope limits and unresolved audit areas
 
@@ -160,7 +189,7 @@ No training, optimizer step on ULTRON weights, production corpus generation/down
 
 ## 7. Phase status and next task
 
-**Phase 1 status: implementation and test/benchmark harness added; final CI and benchmark evidence pending; repository-wide audit remains bounded/incomplete.**
+**Phase 1 status: confirmed fixes and regression coverage passed on the implementation/test revision above; all five workflows and the benchmark artifact passed. Repository-wide audit remains risk-based and incomplete. A final documentation-only follow-up commit must still receive exact-head workflow confirmation and independent review.**
 
 The next task after this audit batch is to resolve review feedback, verify all exact-head checks and benchmark artifact, and have an independent reviewer assess the Phase 1 PR. Do not merge while independent review is absent. PR #207 also remains open and unmerged because its own independent-review gate is still unsatisfied.
 
