@@ -5,7 +5,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ultron_core.math_tokenizer import MathTokenizer, MathVocabulary, SPECIAL_TOKENS
+from ultron_core.math_tokenizer import (
+    MathTokenizer,
+    MathVocabulary,
+    SPECIAL_TOKENS,
+    TokenLimitExceeded,
+)
 from ultron_core.config import NeuroSparseConfig
 
 
@@ -171,6 +176,22 @@ class MathTokenizerContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported mathematical character"):
             tokenizer.encode("x+🧮")
         self.assertEqual(tokenizer.vocabulary.to_json(), before)
+
+    def test_tokenization_enforces_a_hard_token_budget_before_materializing_the_tail(self):
+        tokenizer = MathTokenizer()
+        self.assertEqual(
+            tokenizer.encode("123", add_bos=True, add_eos=True, max_tokens=5),
+            tokenizer.encode("123", add_bos=True, add_eos=True),
+        )
+        with self.assertRaisesRegex(TokenLimitExceeded, "max_tokens limit"):
+            tokenizer.tokenize("123456789", max_tokens=3)
+        with self.assertRaisesRegex(TokenLimitExceeded, "max_tokens limit"):
+            tokenizer.encode("123456789", add_bos=True, add_eos=True, max_tokens=5)
+        with self.assertRaisesRegex(ValueError, "special-token count"):
+            tokenizer.encode("", add_bos=True, add_eos=True, max_tokens=1)
+        for invalid in (True, -1, 1.5):
+            with self.subTest(invalid=invalid), self.assertRaises((TypeError, ValueError)):
+                tokenizer.encode("1", max_tokens=invalid)
 
     def test_decode_rejects_boolean_and_out_of_range_token_ids(self):
         tokenizer = MathTokenizer()
