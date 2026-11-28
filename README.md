@@ -221,10 +221,10 @@ This Phase 0 audit did not modify executable source or tests. It did not run mod
 
 - Branch: audit/repository-quality-phase1-2026-11-28
 - Base branch: full-system-readiness-batch-7-2026-11-28 at 4b9308bcbc8a96b24af4c67a0a9bb90fd63ece85
-- Phase 1 initial PR head before this README update: 370c5243162b52d96044431b0547cc36993ed8cf
-- Current PR: #208, 12 changed files at creation, 16 commits ahead of its stacked base.
-- Audit report: docs/PHASE1_REPOSITORY_AUDIT_2026-11-28.md
-- Exact-head CI and benchmark artifact: pending at the time of this handoff update; do not treat PR #207 baseline runs as Phase 1 results.
+- Implementation/test head with all code and benchmark checks passed: 7ff7f592b8eacc357469e695022ee0e727fefc29.
+- Documentation/report follow-up head: 8c6b4570bf909197a2176e0de6aef35835b0299f.
+- PR #208 currently targets the PR #207 integration branch; 13 paths changed, and the branch is ahead of its stacked base. Exact current PR head should be refreshed after this README commit.
+- Audit report: docs/PHASE1_REPOSITORY_AUDIT_2026-11-28.md.
 
 ### Confirmed fixes
 
@@ -236,10 +236,33 @@ This Phase 0 audit did not modify executable source or tests. It did not run mod
 
 Added tools/benchmark_phase1.py and .github/workflows/phase1-benchmarks.yml. The PR-targeted job measures the trie tokenizer against a reference full-vocabulary scanner, a temporary synthetic disk-backed dataset fixture, small random-initialized CPU forward latency at sequence lengths 16/32/64, separate attention/router latency, checkpoint save/load, checkpoint-backed inference at several prompt sizes, and raw/gzip frontend asset transfer-size proxies. It uploads a JSON artifact. No device-dependent performance thresholds are added.
 
-### Validation boundary and next action
+### Validation boundary and measured results
 
-The verified pre-Phase-1 baseline is PR #207 head 4b9308bcbc8a96b24af4c67a0a9bb90fd63ece85: Node 128 passed; Python 725 passed with forward/backward smoke only; Level 1 workflow passed including its 5,000 randomized cases; security/dependency audit passed with npm audit 0 vulnerabilities and no known vulnerabilities in the declared pip-audit groups. Those results are not Phase 1 results.
+Phase 1 code/test head 7ff7f592b8eacc357469e695022ee0e727fefc29 passed all five workflows:
 
-No local test commands were run because the execution environment could not clone the repository over its network. GitHub Actions is the validation source for PR #208. The audit is risk-based, not a line-by-line verification of every file. Full-size 60M+ memory/CUDA profiling, production dataset results, browser load timing and real iPad acceptance remain outstanding. PR #208 must receive independent review and exact-head green checks before merge. PR #207 itself also remains open pending its own independent review.
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Tests | [46116204458](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204458) | 128 passed, 0 failed |
+| Python AI Core | [46116204522](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204522) | 734 tests passed; CPU forward/backward only, no optimizer step |
+| Level 1 Math Tooling | [46116204450](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204450) | 5 passed, including the workflow's 5,000 randomized cases |
+| Security/dependency audit | [46116204552](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204552) | Passed; npm audit 0 vulnerabilities; pip-audit no known vulnerabilities in the three declared groups |
+| Phase 1 performance benchmarks | [46116204496](https://github.com/ultron1846-oss/ULTRON/actions/runs/46116204496) | Passed; JSON artifact uploaded as ultron-phase1-benchmark (artifact ID 15251224326) |
+
+Benchmark conditions: GitHub-hosted Linux CPU runner, AMD EPYC 9V74, 4 logical CPUs exposed, Python 3.11.18, PyTorch 2.15.0+cpu, Node 22.23.5, one Torch CPU thread, seed 20261128, three warmups and 12 repetitions. The model was a 42,593-parameter random-initialized smoke model, batch 2, sequence lengths 16/32/64—not the 60M+ foundation model.
+
+Measured results:
+- Tokenizer: reference scanner about 129k tokens/s; trie about 1.10M tokens/s; observed 8.50x ratio on five fixed supported expressions (91 tokens/iteration).
+- 3,500-row temporary indexed dataset: 1.292s index build, 23,958 rows/s sequential scan, random-access median 0.071ms and p95 0.083ms.
+- Small model forward median: 0.758ms / 0.810ms / 0.963ms for sequence lengths 16 / 32 / 64. Attention component median 0.054ms; top-k router 0.024ms.
+- Tiny checkpoint: 201,747 bytes; median save 318.5ms, load 6.24ms. Inference with two generated tokens: median 1.819ms / 1.921ms / 2.021ms for nominal 8 / 24 / 48 token prompts.
+- Frontend assets: 127,907 raw bytes and 40,620 deterministic gzip bytes across 13 files.
+
+The initial benchmark attempt failed because a test expression used unsupported tokenizer command \sin; the benchmark correctly rejected it. The fixture was changed to an expression composed only of supported vocabulary tokens. The corrected benchmark run above passed. The tokenizer scope itself was not expanded.
+
+These are CI observations, not device-independent performance guarantees. The dataset is synthetic. The RSS figure is a process high-water mark, and tracemalloc excludes native SQLite/Torch/device allocations. No CUDA or full-size model profile was performed. Frontend byte counts are transfer-size proxies, not browser page-load measurements.
+
+No local test commands were run because this environment could not clone the repository over its network. The audit is risk-based, not a line-by-line verification of every file. Full-size 60M+ memory/CUDA profiling, production dataset results, browser load timing and real iPad acceptance remain outstanding. PR #208 has not received independent review and remains unmerged. PR #207 itself also remains open pending its own independent review.
+
+This README/report-only follow-up creates a new PR head; exact-head workflows are being rechecked. Do not merge until those checks pass on the latest head and an independent review is recorded.
 
 No ULTRON training, optimizer steps, model weight updates, production corpus generation/download, external AI API call, Supabase mutation, Pages deployment or remote training job occurred.
