@@ -24,6 +24,7 @@ class MathCoverageAuditTests(unittest.TestCase):
         self.assertEqual(report["unique_catalog_id_count"], 252)
         self.assertEqual(report["unique_raw_topic_id_count"], 250)
         self.assertEqual(report["scope_qualified_identifier_collision_count"], 0)
+        self.assertEqual(report["raw_topic_identifier_collision_count"], 1)
         self.assertEqual(report["raw_topic_identifier_collisions"], {"linear_equations": 3})
 
     def test_university_topic_split_and_prerequisite_graph(self):
