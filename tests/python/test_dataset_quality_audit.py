@@ -4,11 +4,14 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from test_dataset_split_manifest import fixture
 from ultron_core.dataset_split_manifest import prepare_dataset_split_manifest
 from ultron_core.data_generation import SUPPORTED_TOPICS, generate_examples
+import ultron_core.dataset_quality as quality_module
 from ultron_core.dataset_quality import audit_dataset_quality, _reject_output_aliases
+from ultron_core.dataset_resource_limits import DatasetResourceLimits
 
 
 class DatasetQualityAuditTests(unittest.TestCase):
@@ -144,6 +147,35 @@ class DatasetQualityAuditTests(unittest.TestCase):
             self.assertEqual(report["semantic_near_duplicates"]["owner_review_required"], True)
             self.assertIn("diagnostic only", report["answer_leakage"]["interpretation"].lower())
             self.assertIn("not semantic equivalence", report["template_leakage"]["interpretation"].lower())
+
+
+    def test_audit_rejects_dataset_mutation_after_manifest_verification(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            real_validate = quality_module.validate_dataset_split_manifest
+
+            def verify_then_mutate(*args, **kwargs):
+                verified = real_validate(*args, **kwargs)
+                original = dataset.read_bytes()
+                dataset.write_bytes(original.replace(b"1 + 2", b"9 + 2", 1))
+                return verified
+
+            with patch.object(
+                quality_module, "validate_dataset_split_manifest",
+                side_effect=verify_then_mutate,
+            ):
+                with self.assertRaisesRegex(ValueError, "dataset changed during quality audit"):
+                    audit_dataset_quality(dataset, split)
+
+    def test_quality_audit_obeys_caller_resource_limits(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            with self.assertRaisesRegex(ValueError, "max_line_bytes"):
+                audit_dataset_quality(
+                    dataset, split,
+                    resource_limits=DatasetResourceLimits(max_line_bytes=32),
+                )
+
 
 
 if __name__ == "__main__":
