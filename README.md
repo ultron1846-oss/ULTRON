@@ -499,7 +499,7 @@ PR #212 changed: README.md; docs/MATH_CURRICULUM_AUDIT_2026-11-28.md; docs/PRETR
 ## Phase 2 curriculum scope expansion — 2026-11-28
 
 **Current implementation branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28`  
-**Proposed PR:** [#213 — Split over-broad curriculum labels and add four independently checked mathematics families](https://github.com/ultron1846-oss/ULTRON/pull/213)  
+**Proposed PR:** [#213 — Split over-broad curriculum labels and add three independently checked mathematics families](https://github.com/ultron1846-oss/ULTRON/pull/213)  
 **Base:** PR #212 head `dc0ee7763b2a7c6e7f01e9e310a25da8975fb573`.  
 **Validation:** exact-head GitHub Actions runs will be recorded here after the branch is pushed.
 

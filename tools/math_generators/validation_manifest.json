@@ -416,9 +416,9 @@
     ],
     "university:rectangular_linear_polynomial_double_integrals": [
       {
-        "path": "tests/python/test_university_extended_independent_validation.py",
-        "test": "test_independent_invariants_across_all_extended_topics",
-        "validator": "Independent per-topic invariant recomputation from generated ingredients"
+        "path": "tests/python/test_rectangular_double_integral_generator.py",
+        "test": "test_500_seeded_integrals_and_independent_fubini_recomputation",
+        "validator": "Independent exact integration in both orders (Fubini), rational affine coefficient reconstruction, deterministic replay, and rectangle additivity."
       }
     ],
     "university:diagonal_linear_change_of_variables_rectangles": [
