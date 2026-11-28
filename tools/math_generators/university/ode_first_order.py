@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-TOPIC = "differential_equations"
+TOPIC = "homogeneous_constant_coefficient_first_order_ODEs"
 
 
 def _is_int(value: Any) -> bool:
