@@ -228,7 +228,7 @@ function renderBackend(){
 function renderSettings(){
  const level=normalizeMemoryPreference(safeGet('ultron-memory-level','6'));
  return `${heading('DEVICE MEMORY SETTINGS','Settings','Local interface preferences. No account is required.')}
- ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Requested workload memory budget</h2><p class="muted">Choose a target memory budget to include in a future approved runtime configuration. This is a requested setting only: ULTRON does not reserve physical RAM, set a device limit, or guarantee that a hosted runtime provides this amount.</p><div class="memory-box"><div class="memory-heading"><b>Requested workload budget</b><strong id="memory-value">'+level+' GiB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Requested workload memory budget in GiB"><div class="slider-labels"><span>2 GiB · Lower request</span><span>10 GiB · Higher request</span></div></div><button class="outline-button" id="export-runtime-config" type="button">Export runtime config (JSON)</button><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
+ ${card('<div class="eyebrow">DEVICE MEMORY SETTINGS</div><h2>Requested workload memory budget</h2><p class="muted">Choose a target memory budget to include in a future approved runtime configuration. This is a requested setting only: ULTRON does not reserve physical RAM, set a device limit, or guarantee that a hosted runtime provides this amount.</p><div class="memory-box"><div class="memory-heading"><b>Requested workload budget</b><strong id="memory-value">'+level+' GiB</strong></div><input class="memory-slider" id="memory-slider" type="range" min="2" max="10" step="1" value="'+level+'" aria-label="Requested workload memory budget in GiB" aria-valuetext="+level+ GiB requested"><div class="slider-labels"><span>2 GiB · Lower request</span><span>10 GiB · Higher request</span></div></div><button class="outline-button" id="export-runtime-config" type="button">Export runtime config (JSON)</button><div class="warning-banner">Saved in this browser only. This preference is not connected to remote training or hosted-runner memory controls.</div><p class="muted small">A future approved runtime would need to translate this preference into safe batch sizes and memory-aware settings. The slider does not change physical RAM or GPU VRAM today.</p>')}
  ${card('<div class="eyebrow">LOCAL DATA</div><h2>Browser storage</h2><p class="muted">Interface preferences and a legacy practice counter are stored locally on this device when browser storage is available.</p><button class="outline-button" id="clear-local">Clear local preferences and legacy counter</button><p id="settings-result" class="muted" role="status"></p>')}`;
 }
 function renderMemory(){
@@ -382,6 +382,7 @@ function bind(page){
  if(page==='backend'){document.querySelector('#supabase-refresh').addEventListener('click',requestPublicStatus);startPublicStatusPolling();}
  if(page==='settings'){
   const slider=document.querySelector('#memory-slider');
+  slider.setAttribute('aria-valuetext',slider.value+' GiB requested');
   slider.addEventListener('input',()=>{document.querySelector('#memory-value').textContent=slider.value+' GiB';slider.setAttribute('aria-valuetext',slider.value+' GiB requested');safeSet('ultron-memory-level',slider.value);});
   document.querySelector('#export-runtime-config').addEventListener('click',()=>{
    const config=createRuntimeConfig(Number(slider.value));
@@ -396,7 +397,7 @@ function bind(page){
    setTimeout(()=>URL.revokeObjectURL(url),1000);
    document.querySelector('#settings-result').textContent='Exported configuration only. It does not start training or connect a runtime.';
   });
-  document.querySelector('#clear-local').addEventListener('click',()=>{try{['ultron-memory-level','ultron-practice-count','ultron-practice-index'].forEach(k=>localStorage.removeItem(k));document.querySelector('#memory-value').textContent='6 GB';slider.value='6';document.querySelector('#settings-result').textContent='Local preferences and practice count cleared.';}catch{document.querySelector('#settings-result').textContent='Browser storage is unavailable.';}});
+  document.querySelector('#clear-local').addEventListener('click',()=>{try{['ultron-memory-level','ultron-practice-count','ultron-practice-index'].forEach(k=>localStorage.removeItem(k));document.querySelector('#memory-value').textContent='6 GiB';slider.value='6';slider.setAttribute('aria-valuetext','6 GiB requested');document.querySelector('#settings-result').textContent='Local preferences and practice count cleared.';}catch{document.querySelector('#settings-result').textContent='Browser storage is unavailable.';}});
  }
 }
 nav.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)navigate(b.dataset.page);});
