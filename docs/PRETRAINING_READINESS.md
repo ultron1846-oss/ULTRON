@@ -289,3 +289,10 @@ Adds `quadratic_potential_exact_first_order_ODEs` for exact one-forms generated 
 **Candidate branch:** `phase2/second-order-ode-pde-transport-2026-11-28`.
 
 Adds the bounded `distinct_real_root_second_order_linear_homogeneous_ODEs` and `constant_speed_transport_polynomial_initial_data_PDEs` families. The broad second-order ODE and characteristics-PDE catalogue entries remain incomplete. Tests independently validate characteristic-root equations, initial conditions, transport PDE residuals, and initial profiles. Exact-head CI is pending.
+
+
+## Phase 2 — finite probability/statistics follow-up
+
+**Candidate branch:** `phase2/finite-distribution-probability-statistics-2026-11-28`.
+
+Adds exact moment calculations for three-point finite distributions and exact point-probability/moment calculations for binomial distributions. Both are separate scoped curriculum IDs with 500-seed independent validation; the binomial tests check normalization across the full PMF support. Broad discrete-distribution and general expectation/variance topics remain incomplete. Exact-head CI is pending.

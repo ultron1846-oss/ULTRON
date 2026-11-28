@@ -1,6 +1,6 @@
 # University curriculum prerequisite map
 
-**Status:** curated map for all 216 of 216 university curriculum topics across 17 fields. No university catalogue topic remains unmapped.
+**Status:** curated map for all 218 of 218 university curriculum topics across 17 fields. No university catalogue topic remains unmapped.
 
 The source curriculum is tools/math_generators/university/curriculum.json. The separate edge map is tools/math_generators/university/prerequisites.json; it records the source commit, coverage fields, and per-topic prerequisite IDs.
 
@@ -16,9 +16,9 @@ The former first_order_ODEs entry was replaced by four scoped items:
 
 The homogeneous ODE generator has an independent analytic validator for y(t)=y0 exp(k t), its derivative identity and initial condition. The separable ODE family is restricted to rational power-law factors y'=c*x^m*y^n with bounded integer powers and an independent exact derivative/initial-value validator. Neither family claims arbitrary first-order ODE solving.
 
-Field counts are: Foundations and logic (10), Linear algebra (16), Calculus (28), Real analysis (13), Complex analysis (12), Abstract algebra (12), Number theory (10), Topology (10), Discrete mathematics and combinatorics (12), Probability (13), Statistics (9), Differential equations (19), Optimization and operations research (11), Numerical and computational mathematics (11), Geometry (9), Applied mathematics and mathematical physics (11), and Advanced and interdisciplinary (10), totalling 216.
+Field counts are: Foundations and logic (10), Linear algebra (16), Calculus (28), Real analysis (13), Complex analysis (12), Abstract algebra (12), Number theory (10), Topology (10), Discrete mathematics and combinatorics (12), Probability (14), Statistics (10), Differential equations (19), Optimization and operations research (11), Numerical and computational mathematics (11), Geometry (9), Applied mathematics and mathematical physics (11), and Advanced and interdisciplinary (10), totalling 218.
 
-The prerequisite graph has 407 edges. It is a curated starting sequence, not an exhaustive universal course plan. The grade-band curricula still require separate dependency mapping. A mapped prerequisite is a proposed learning dependency, not proof that ULTRON has mastered it. No training data is generated or imported by this catalogue.
+The prerequisite graph has 412 edges. It is a curated starting sequence, not an exhaustive universal course plan. The grade-band curricula still require separate dependency mapping. A mapped prerequisite is a proposed learning dependency, not proof that ULTRON has mastered it. No training data is generated or imported by this catalogue.
 
 
 ## Scope-specific calculus, complex-analysis, and ODE families
@@ -47,3 +47,8 @@ The broad `exact_first_order_ODEs` topic remains incomplete. The separate `quadr
 The broad `second_order_linear_ODEs` row remains incomplete. The new `distinct_real_root_second_order_linear_homogeneous_ODEs` family covers homogeneous constant-coefficient equations whose characteristic polynomial has two distinct real rational roots. It computes the exponential solution from two rational initial conditions and validates both characteristic roots and the initial equations exactly. Repeated roots, complex roots, forcing terms, and variable coefficients are not included.
 
 The broad `characteristics_PDE` row remains incomplete. The new `constant_speed_transport_polynomial_initial_data_PDEs` family covers only (u_t+c u_x=0) with nonzero rational constant speed and polynomial initial data of degree at most three. Its independent test evaluates the PDE residual at rational points and checks the initial data at (t=0). It does not represent general first-order PDE support.
+
+
+## Bounded probability and statistics families
+
+The broad `discrete_distributions` and `expectation_and_variance` topics remain catalogued but unimplemented. The scoped `binomial_distribution_point_probabilities` family computes one exact binomial point probability, mean and variance for bounded trial counts and rational success probabilities. The scoped `finite_discrete_distribution_expectation_variance` family computes exact moments for a three-point finite distribution with integer support and relative weights. Tests independently normalize probabilities, recompute moments, and verify the binomial PMF sums to one over its full support. These families do not imply coverage of arbitrary named distributions or general statistical inference.

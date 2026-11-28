@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 216,
+  "topic_count": 218,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -833,6 +833,13 @@
       "status": "catalogued_not_implemented"
     },
     {
+      "topic": "binomial_distribution_point_probabilities",
+      "title": "binomial distribution point probabilities and moments",
+      "field": "Probability",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "binomial_distribution_point_probabilities"
+    },
+    {
       "topic": "continuous_distributions",
       "title": "continuous distributions",
       "field": "Probability",
@@ -843,6 +850,13 @@
       "title": "expectation and variance",
       "field": "Probability",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "finite_discrete_distribution_expectation_variance",
+      "title": "expectation and variance of finite three-point distributions",
+      "field": "Statistics",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "finite_discrete_distribution_expectation_variance"
     },
     {
       "topic": "joint_distributions",

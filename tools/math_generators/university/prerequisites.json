@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
   "source_commit": "dc0ee7763b2a7c6e7f01e9e310a25da8975fb573",
-  "source_topic_count": 216,
-  "mapped_topic_count": 216,
+  "source_topic_count": 218,
+  "mapped_topic_count": 218,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -23,7 +23,7 @@
     "Applied mathematics and mathematical physics",
     "Advanced and interdisciplinary"
   ],
-  "scope_note": "Curated prerequisite edges for all 216 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
+  "scope_note": "Curated prerequisite edges for all 218 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -480,6 +480,11 @@
     "discrete_distributions": [
       "random_variables"
     ],
+    "binomial_distribution_point_probabilities": [
+      "discrete_distributions",
+      "probability_spaces",
+      "counting_principles"
+    ],
     "continuous_distributions": [
       "random_variables",
       "Riemann_integral"
@@ -487,6 +492,10 @@
     "expectation_and_variance": [
       "discrete_distributions",
       "continuous_distributions"
+    ],
+    "finite_discrete_distribution_expectation_variance": [
+      "expectation_and_variance",
+      "probability_spaces"
     ],
     "joint_distributions": [
       "random_variables"

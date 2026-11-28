@@ -566,3 +566,14 @@ Adds:
 - `constant_speed_transport_polynomial_initial_data_PDEs`: (u_t+c u_x=0) with nonzero rational constant speed and polynomial initial data of degree at most three.
 
 The broad `second_order_linear_ODEs` and `characteristics_PDE` topics remain catalogued but unimplemented. Tests independently recompute characteristic identities, initial conditions, PDE residuals, and initial data. Candidate counts: 216 university topics; 69 generator-available; 147 unimplemented; 216 prerequisite nodes / 407 edges; 269 combined entries; 122 generator-available; 71 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head CI is pending.
+
+
+## Phase 2 probability/statistics follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/finite-distribution-probability-statistics-2026-11-28`.
+
+Adds:
+- `finite_discrete_distribution_expectation_variance`: exact moments for bounded three-point finite distributions.
+- `binomial_distribution_point_probabilities`: exact binomial PMF point probabilities, mean, and variance for bounded rational parameters.
+
+The broad `expectation_and_variance` and `discrete_distributions` entries remain catalogued but unimplemented. Tests cover 500 seeds per family, recompute all values using exact fractions, and verify binomial PMF normalization. Candidate counts: 218 university topics; 71 generator-available; 147 unimplemented; 218 prerequisite nodes / 412 edges; 271 combined entries; 124 generator-available; 73 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head CI is pending.

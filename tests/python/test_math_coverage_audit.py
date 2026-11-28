@@ -16,24 +16,24 @@ class MathCoverageAuditTests(unittest.TestCase):
 
     def test_catalogued_generated_validated_benchmarked_and_mastered_are_separate(self):
         report = build_coverage_audit()
-        self.assertEqual(report["catalogued_topic_count"], 269)
-        self.assertEqual(report["generator_available_topic_count"], 122)
-        self.assertEqual(report["independently_validated_topic_count"], 71)
+        self.assertEqual(report["catalogued_topic_count"], 271)
+        self.assertEqual(report["generator_available_topic_count"], 124)
+        self.assertEqual(report["independently_validated_topic_count"], 73)
         self.assertEqual(report["benchmarked_topic_count"], 0)
         self.assertEqual(report["mastered_topic_count"], 0)
-        self.assertEqual(report["unique_catalog_id_count"], 269)
-        self.assertEqual(report["unique_raw_topic_id_count"], 267)
+        self.assertEqual(report["unique_catalog_id_count"], 271)
+        self.assertEqual(report["unique_raw_topic_id_count"], 269)
         self.assertEqual(report["scope_qualified_identifier_collision_count"], 0)
         self.assertEqual(report["raw_topic_identifier_collision_count"], 1)
         self.assertEqual(report["raw_topic_identifier_collisions"], {"linear_equations": 3})
 
     def test_university_topic_split_and_prerequisite_graph(self):
         report = build_coverage_audit()
-        self.assertEqual(report["university_curriculum_topic_count"], 216)
-        self.assertEqual(report["university_generator_available_count"], 69)
+        self.assertEqual(report["university_curriculum_topic_count"], 218)
+        self.assertEqual(report["university_generator_available_count"], 71)
         self.assertEqual(report["university_catalogued_not_implemented_count"], 147)
-        self.assertEqual(report["university_prerequisite_mapped_topic_count"], 216)
-        self.assertEqual(report["university_prerequisite_edge_count"], 407)
+        self.assertEqual(report["university_prerequisite_mapped_topic_count"], 218)
+        self.assertEqual(report["university_prerequisite_edge_count"], 412)
         self.assertTrue(report["university_prerequisite_graph_acyclic"])
 
     def test_scope_qualified_registry_entries_are_unique(self):
