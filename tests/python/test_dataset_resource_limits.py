@@ -33,6 +33,7 @@ class DatasetResourceLimitTests(unittest.TestCase):
                 (DatasetResourceLimits(max_rows=10), "row limit"),
                 (DatasetResourceLimits(max_line_bytes=32), "line byte limit"),
                 (DatasetResourceLimits(max_split_manifest_bytes=10), "max_split_manifest_bytes"),
+                (DatasetResourceLimits(max_dataset_manifest_bytes=10), "dataset manifest exceeds byte limit"),
             ):
                 with self.subTest(message=message):
                     with self.assertRaisesRegex(ValueError, message):
