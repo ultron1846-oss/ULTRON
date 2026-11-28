@@ -12,11 +12,31 @@ from .dataset_split_manifest import (
     load_verified_split_rows,
     load_verified_split_rows_by_split,
 )
-from .math_tokenizer import MathTokenizer, MathVocabulary
+from .math_tokenizer import MathTokenizer, MathVocabulary, TokenLimitExceeded
 from .resumable_sampler import ResumableRandomSampler
 from .indexed_verified_dataset import VerifiedIndexedSplitStore
 
 _SPLITS = ("train", "validation", "test")
+
+
+def _encode_verified_record(
+    tokenizer: MathTokenizer,
+    example_id: str,
+    prompt: str,
+    answer: str,
+    max_sequence_length: int,
+) -> list[int]:
+    try:
+        return tokenizer.encode(
+            f"Question: {prompt}\nAnswer: {answer}",
+            add_bos=True,
+            add_eos=True,
+            max_tokens=max_sequence_length,
+        )
+    except TokenLimitExceeded as exc:
+        raise ValueError(
+            f"example {example_id} exceeds {max_sequence_length} tokens; truncation is disabled"
+        ) from exc
 
 
 class VerifiedMathDataset(Dataset):
@@ -123,10 +143,8 @@ class VerifiedMathDataset(Dataset):
         if not 0 <= index < len(self._records):
             raise IndexError(index)
         example_id, prompt, answer = self._records[index]
-        token_ids = self.tokenizer.encode(
-            f"Question: {prompt}\nAnswer: {answer}",
-            add_bos=True,
-            add_eos=True,
+        token_ids = _encode_verified_record(
+            self.tokenizer, example_id, prompt, answer, self.max_sequence_length
         )
         if len(token_ids) > self.max_sequence_length:
             raise ValueError(
@@ -177,10 +195,8 @@ class IndexedVerifiedMathDataset(Dataset):
 
     def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
         example_id, prompt, answer = self._store.get_record(self.split_name, index)
-        token_ids = self.tokenizer.encode(
-            f"Question: {prompt}\nAnswer: {answer}",
-            add_bos=True,
-            add_eos=True,
+        token_ids = _encode_verified_record(
+            self.tokenizer, example_id, prompt, answer, self.max_sequence_length
         )
         if len(token_ids) > self.max_sequence_length:
             raise ValueError(
