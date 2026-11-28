@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import torch
@@ -44,7 +45,11 @@ class InferencePipelineTests(unittest.TestCase):
             checkpoint = Path(directory) / "initialized-test-checkpoint.pt"
             save_checkpoint(checkpoint, source_model, config, step=0)
 
-            engine = load_inference_engine(checkpoint, tokenizer=tokenizer, device="cpu")
+            with patch("ultron_core.inference.torch.load", wraps=torch.load) as load_mock:
+                engine = load_inference_engine(checkpoint, tokenizer=tokenizer, device="cpu")
+            # A current checkpoint sidecar provides config without loading all
+            # tensors twice; only load_checkpoint deserializes the weight payload.
+            self.assertEqual(load_mock.call_count, 1)
             self.assertTrue(engine.load_metadata["weights_loaded"])
             self.assertEqual(engine.load_metadata["checkpoint_step"], 0)
             self.assertFalse(engine.load_metadata["optimizer_loaded"])
