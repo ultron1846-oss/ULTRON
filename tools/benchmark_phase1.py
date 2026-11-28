@@ -33,7 +33,7 @@ TOKENIZER_INPUTS = (
     r"\frac{1}{2} + \frac{1}{3} = \frac{5}{6}",
     "∀x∈ℝ: x²≥0",
     "∫₀¹ x² dx = 1/3",
-    r"\lim_{x\to0}\frac{\sin x}{x}=1",
+    r"\lim_{x\to0}\frac{x^2}{x}=0",
 )
 FRONTEND_ASSETS = (
     "index.html", "styles.css", "app.js", "preferences.js", "graph-tool.js",
