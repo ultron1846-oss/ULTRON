@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-27**
+**Status snapshot: 2026-11-28 — integrated readiness documented in PR #207; not merged.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
