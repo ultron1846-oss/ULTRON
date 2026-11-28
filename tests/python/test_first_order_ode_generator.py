@@ -12,7 +12,7 @@ def _expected_problem(seed, difficulty, rate, initial_value):
     solution = f"{initial_value}*exp({rate}t)"
     return {
         "grade_band": "University",
-        "topic": "differential_equations",
+        "topic": "homogeneous_constant_coefficient_first_order_ODEs",
         "subtopic": "homogeneous constant-coefficient first-order ODEs",
         "difficulty": difficulty,
         "problem": f"Solve y'=({rate})y with initial condition y(0)={initial_value}.",
@@ -24,13 +24,13 @@ def _expected_problem(seed, difficulty, rate, initial_value):
         "answer": f"y(t)={initial_value}e^({rate}t)",
         "answer_type": "expression",
         "ingredients": {
-            "topic": "differential_equations",
+            "topic": "homogeneous_constant_coefficient_first_order_ODEs",
             "rate": rate,
             "initial_value": initial_value,
             "solution": solution,
         },
         "verifier": "independent_homogeneous_constant_coefficient_ode_analytic_check",
-        "id": f"university-differential_equations-{seed}-{difficulty}",
+        "id": f"university-homogeneous_constant_coefficient_first_order_ODEs-{seed}-{difficulty}",
         "seed": seed,
     }
 
@@ -39,9 +39,9 @@ class FirstOrderODEGeneratorTests(unittest.TestCase):
     def test_seeded_generation_is_deterministic_and_analytically_valid(self):
         for seed in range(500):
             difficulty = 1 + seed % 5
-            item = generate(seed, difficulty, "differential_equations")
+            item = generate(seed, difficulty, "homogeneous_constant_coefficient_first_order_ODEs")
             self.assertEqual(
-                item, generate(seed, difficulty, "differential_equations")
+                item, generate(seed, difficulty, "homogeneous_constant_coefficient_first_order_ODEs")
             )
             self.assertTrue(verify(item), (seed, difficulty, item))
             data = item["ingredients"]
@@ -93,7 +93,7 @@ class FirstOrderODEGeneratorTests(unittest.TestCase):
                     self.assertEqual(item["ingredients"]["solution"], f"{initial_value}*exp(0t)")
 
     def test_rejects_tampered_solution_question_steps_and_metadata(self):
-        original = generate(71, 4, "differential_equations")
+        original = generate(71, 4, "homogeneous_constant_coefficient_first_order_ODEs")
         mutations = (
             lambda item: item.update(answer="y(t)=tampered"),
             lambda item: item.update(problem="Solve y'=sin(t)y."),
@@ -112,7 +112,7 @@ class FirstOrderODEGeneratorTests(unittest.TestCase):
             self.assertFalse(verify(altered))
 
     def test_rejects_malformed_values_and_out_of_budget_inputs(self):
-        original = generate(7, 3, "differential_equations")
+        original = generate(7, 3, "homogeneous_constant_coefficient_first_order_ODEs")
         for field, value in (
             ("rate", True),
             ("rate", 1.5),
@@ -135,14 +135,14 @@ class FirstOrderODEGeneratorTests(unittest.TestCase):
 
         self.assertFalse(verify_homogeneous_constant_coefficient_first_order_ode(None))
         with self.assertRaises(TypeError):
-            generate(True, 1, "differential_equations")
+            generate(True, 1, "homogeneous_constant_coefficient_first_order_ODEs")
         with self.assertRaises(ValueError):
-            generate(0, True, "differential_equations")
+            generate(0, True, "homogeneous_constant_coefficient_first_order_ODEs")
         with self.assertRaises(ValueError):
-            generate(0, 6, "differential_equations")
+            generate(0, 6, "homogeneous_constant_coefficient_first_order_ODEs")
 
     def test_unknown_or_tampered_seed_and_identifier_are_rejected(self):
-        original = generate(19, 2, "differential_equations")
+        original = generate(19, 2, "homogeneous_constant_coefficient_first_order_ODEs")
         for key, value in (("seed", True), ("id", "other"), ("topic", "first_order_ODEs")):
             altered = dict(original)
             altered[key] = value
