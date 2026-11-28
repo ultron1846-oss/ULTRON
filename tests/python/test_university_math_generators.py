@@ -190,12 +190,18 @@ class UniversityFoundationTests(unittest.TestCase):
         import json
         payload=json.loads(registry)
         rows={x["topic"]:x for x in payload["topics"]}
-        self.assertEqual(len(rows),197)
+        self.assertEqual(len(rows),199)
         generator_topics = {x["generator_topic"] for x in payload["topics"] if x.get("generator_topic")}
         self.assertEqual(generator_topics, set(TOPICS))
         mapped = [x for x in payload["topics"] if x.get("generator_topic")]
         self.assertEqual(len(mapped), len(TOPICS))
         self.assertTrue(all(x["has_generator"] for x in mapped))
+        self.assertTrue(rows["greens_theorem_rectangles"]["has_generator"])
+        self.assertEqual(rows["greens_theorem_rectangles"]["status"], "generator_available_not_mastered")
+        self.assertFalse(rows["stokes_theorem"]["has_generator"])
+        self.assertEqual(rows["stokes_theorem"]["status"], "catalogued_not_implemented")
+        self.assertFalse(rows["divergence_theorem"]["has_generator"])
+        self.assertEqual(rows["divergence_theorem"]["status"], "catalogued_not_implemented")
         self.assertTrue(rows["conditional_probability"]["includes_word_problems"])
         self.assertTrue(rows["counting_principles"]["includes_word_problems"])
         combined = json.loads(render_registries()["registry.json"])

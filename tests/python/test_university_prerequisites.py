@@ -23,8 +23,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 197)
-        self.assertEqual(mapping.source_topic_count, 197)
+        self.assertEqual(mapping.mapped_topic_count, 199)
+        self.assertEqual(mapping.source_topic_count, 199)
         self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
@@ -40,6 +40,10 @@ class UniversityPrerequisiteTests(unittest.TestCase):
 
     def test_calculus_and_real_analysis_edges_are_present(self):
         mapping = load_curriculum_prerequisites()
+        self.assertTrue(mapping.is_prerequisite("greens_theorem_rectangles", "stokes_theorem"))
+        self.assertTrue(mapping.is_prerequisite("vector_calculus", "greens_theorem_rectangles"))
+        self.assertTrue(mapping.is_prerequisite("surface_integrals", "divergence_theorem"))
+        self.assertNotIn("Green_stokes_divergence_theorems", mapping.prerequisites)
         self.assertTrue(mapping.is_prerequisite("power_series", "Taylor_series"))
         self.assertTrue(mapping.is_prerequisite("derivative_theory", "Taylor_series"))
         self.assertTrue(mapping.is_prerequisite("Cauchy_sequences", "pointwise_and_uniform_convergence"))

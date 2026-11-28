@@ -10,6 +10,7 @@ import random
 from fractions import Fraction
 
 from .extended_generators import EXTENDED_BANDS, build as build_extended
+from .green_theorem import TOPIC as GREEN_TOPIC, build_green_fields, verify_green_problem
 
 BANDS = {
     "linear_algebra": "University",
@@ -52,6 +53,7 @@ BANDS = {
     "power_series": "University",
     "gradient_and_directional_derivatives": "University",
     "chain_rule_multivariable": "University",
+    GREEN_TOPIC: "University",
 }
 BANDS.update(EXTENDED_BANDS)
 TOPICS = tuple(BANDS)
@@ -72,6 +74,8 @@ GENERATOR_METADATA = {
 
 
 def _build(topic: str, rng: random.Random, difficulty: int):
+    if topic == GREEN_TOPIC:
+        return build_green_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -484,8 +488,8 @@ def _build(topic: str, rng: random.Random, difficulty: int):
 def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
     if not isinstance(seed,int) or isinstance(seed,bool):
         raise TypeError("seed must be int")
-    if difficulty not in (1,2,3,4,5):
-        raise ValueError("difficulty must be 1..5")
+    if not isinstance(difficulty, int) or isinstance(difficulty, bool) or difficulty not in (1,2,3,4,5):
+        raise ValueError("difficulty must be an integer from 1 through 5")
     if topic not in BANDS:
         raise ValueError("unknown topic: "+str(topic))
     fields,check=_build(topic,random.Random(seed),difficulty)
@@ -499,6 +503,8 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
 
 
 def verify(problem: dict) -> bool:
+    if isinstance(problem, dict) and problem.get("topic") == GREEN_TOPIC:
+        return verify_green_problem(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):

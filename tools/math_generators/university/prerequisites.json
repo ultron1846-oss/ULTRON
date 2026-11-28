@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
   "source_commit": "f10e8e4ee2c4757b617ffc4486040b1f70d326b5",
-  "source_topic_count": 197,
-  "mapped_topic_count": 197,
+  "source_topic_count": 199,
+  "mapped_topic_count": 199,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -178,11 +178,6 @@
     "vector_calculus": [
       "partial_derivatives",
       "gradient_and_directional_derivatives"
-    ],
-    "Green_stokes_divergence_theorems": [
-      "vector_calculus",
-      "line_integrals",
-      "surface_integrals"
     ],
     "metric_spaces": [
       "sets_and_functions",
@@ -783,6 +778,21 @@
       "predicate_logic",
       "proof_methods",
       "mathematical_induction"
+    ],
+    "greens_theorem_rectangles": [
+      "vector_calculus",
+      "line_integrals",
+      "multiple_integrals"
+    ],
+    "stokes_theorem": [
+      "greens_theorem_rectangles",
+      "surface_integrals",
+      "vector_calculus"
+    ],
+    "divergence_theorem": [
+      "vector_calculus",
+      "multiple_integrals",
+      "surface_integrals"
     ]
   }
 }

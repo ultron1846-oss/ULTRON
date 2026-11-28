@@ -267,3 +267,19 @@ No local test commands were run because this environment could not clone the rep
 The audit report also records the second successful benchmark artifact and the browser-memory store fix. This README update itself creates a new PR head; exact-head workflows are being rechecked. Do not merge until those checks pass on the latest head and an independent review is recorded.
 
 No ULTRON training, optimizer steps, model weight updates, production corpus generation/download, external AI API call, Supabase mutation, Pages deployment or remote training job occurred.
+
+
+## Phase 2 mathematics curriculum and Green's theorem
+
+**Status:** implementation submitted on a dedicated branch; CI and independent review pending. No merge or training is authorized by this phase.
+
+- Branch: phase2/green-theorem-curriculum-batch-2026-11-28
+- Base: Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1 on audit/repository-quality-phase1-2026-11-28 (PR #208).
+- Scope: split the broad Green/Stokes/divergence catalogue entry; implement only exact-rational Green's theorem for polynomial P(x,y), Q(x,y) over non-degenerate axis-aligned rational rectangles; add independent boundary and curl-area computations, clockwise sign handling, resource bounds and tests.
+- Current university catalogue: 199 topics, 61 generator-available and 138 without generators. Stokes' theorem and divergence theorem remain incomplete.
+- Current combined registry: 252 scope-qualified entries, 114 generator-available, 62 with documented independent exercise validation, zero trained-model benchmarked, zero mastered.
+- Evidence manifest: tools/math_generators/validation_manifest.json. Coverage report and prioritized dependency backlog: docs/MATH_CURRICULUM_AUDIT_2026-11-28.md.
+- Prerequisite map: 199 mapped topics and 372 edges; duplicate raw linear_equations labels are distinguished by scope-qualified catalogue IDs.
+- Exact-head validation is not yet reported as passed. Do not merge until all required checks pass on the latest head, the code is independently reviewed, and blocking review comments are resolved.
+
+No corpus generation/download, model training, optimizer step, remote job, checkpoint publication, Supabase mutation or Pages deployment occurred. Generator availability and independent exercise checks do not establish trained-model mathematical competence or mastery.

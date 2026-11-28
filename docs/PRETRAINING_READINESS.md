@@ -231,3 +231,12 @@ The combined validation candidate is [PR #207](https://github.com/ultron1846-oss
 **Training gate remains blocked.** No optimizer step on ULTRON weights, production data generation/download, calibration-data generation, Supabase mutation, deployment, external AI API call or remote job was performed. Controller step-count tests use a meta-device mock model and a mock optimizer that only increments a counter; CI smoke is forward/backward only.
 
 **Exact next engineering task:** after review of PR #207, implement a bounded exact-rational Green's theorem generator for the currently unimplemented `Green_stokes_divergence_theorems` topic, with polynomial vector fields and rational rectangular regions; independently verify line-integral and curl double-integral equality; add deterministic seed, orientation, tamper and resource-limit tests; synchronize registry/coverage while explicitly leaving Stokes/divergence marked incomplete. Test fixtures only; no corpus or training.
+
+
+## Phase 2 — curriculum and Green's theorem expansion (2026-11-28)
+
+The former 197-topic university curriculum has been revised to 199 topics by splitting the combined Green/Stokes/divergence umbrella into three separate theorem entries. The exact-rational Green generator is bounded to sparse polynomial vector fields of total degree at most 5 on non-degenerate axis-aligned rational rectangles. It independently checks the oriented rectangle-boundary integral against the double integral of dQ/dx − dP/dy. Clockwise traversal reverses both signs. **Stokes' theorem and the divergence theorem remain catalogued but unimplemented.**
+
+The new coverage model distinguishes catalogue presence, generator availability, independent exercise validation, measured trained-model benchmarking and mastery. The live candidate counts are 252 catalogue entries overall, 114 with generators, 62 independently validated exercise topics, zero trained-model benchmarks and zero mastered topics. University coverage is 61/199 generator-available and 138/199 not implemented. The historical 60/197 statement above is the pre-Phase-2 baseline, not the current curriculum state. See docs/MATH_CURRICULUM_AUDIT_2026-11-28.md and tools/math_generators/validation_manifest.json for scope and evidence.
+
+This is still an engineering/catalogue statement, not a model-capability claim. No ULTRON training, optimizer step, production corpus generation/download, external AI API, remote job, or deployment was performed.
