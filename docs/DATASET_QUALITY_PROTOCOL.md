@@ -40,7 +40,7 @@ The v1 audit reports pairwise train/validation/test overlaps for:
 - lexical template signatures;
 - generator-ingredient hashes.
 
-Prompt-group split separation and ingredient overlap are integrity gates. Shared answer values and broad template signatures are diagnostic findings, not automatic leakage conclusions: independent questions can share an answer or template. Repeated seed values are measured per split, while repeated full ingredients are detected by canonical ingredient hashes.
+Prompt-group split separation and ingredient overlap are integrity gates. Shared answer values and broad template signatures are diagnostic findings, not automatic leakage conclusions: independent questions can share an answer or template. Seed-use counts are reported per split and shared seed values are exposed as a diagnostic. A single dataset-wide seed appearing in every split is expected under schema v1; it is not, by itself, sample-level leakage. Repeated full ingredients are detected by canonical ingredient hashes.
 
 Evaluation records remain disjoint from training records by the manifest's selected IDs and exact prompt-group assignment. This is data-split integrity only. It does not establish an unseen-concept test, owner-curated semantic separation, or freedom from all conceptual leakage. Topic/difficulty/answer-format distributions and dominant template shares are shown per split so easy-template dominance and coverage imbalance can be reviewed explicitly.
 
@@ -57,9 +57,11 @@ The report emits, for each split:
 
 These are descriptive distributions. The current generator does not define a calibrated cross-topic difficulty scale. Counts must not be interpreted as equivalent difficulty across topics. No universal balance threshold is asserted; future acceptance thresholds must be topic-specific and justified by coverage goals.
 
-## 6. Adversarial and boundary samples
+## 6. Prerequisite, adversarial and boundary coverage
 
-The current JSONL v1 row schema has no explicit boundary/adversarial-case annotation or per-case validation class. The report therefore returns not_annotated_in_schema_v1 and a count of zero rather than infer boundary coverage from extreme numeric values. A future version should record the generator family, named boundary category, parameter constraints and expected validator behavior, then independently test valid boundary and rejected out-of-domain cases.
+The current JSONL v1 row schema has no prerequisite identifiers, explicit boundary/adversarial-case annotation, or per-case validation class. Prerequisite coverage is therefore reported as `not_assessed`; topic counts are not used as a substitute for prerequisite coverage. To assess it, a future schema must bind topic IDs to the versioned curriculum prerequisite graph and report both direct-node coverage and prerequisite-closure coverage by split.
+
+Boundary coverage is also not currently measurable: The report therefore returns not_annotated_in_schema_v1 and a count of zero rather than infer boundary coverage from extreme numeric values. A future version should record the generator family, named boundary category, parameter constraints and expected validator behavior, then independently test valid boundary and rejected out-of-domain cases.
 
 ## 7. Reproducibility evidence
 
