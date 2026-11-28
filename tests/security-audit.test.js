@@ -17,3 +17,8 @@ test('security and dependency workflow is read-only and audits declared dependen
   assert.match(workflow, /pip-audit -r requirements-test\.txt/);
   assert.match(workflow, /pip-audit -r requirements-seed\.txt/);
 });
+
+test('static security audit includes the runtime status browser module', async () => {
+  const audit = await readFile(new URL('../security-audit.mjs', import.meta.url), 'utf8');
+  assert.match(audit, /'runtime-status\\.js'/);
+});
