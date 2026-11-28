@@ -213,3 +213,33 @@ These are **changed-path overlaps**, not a claim that every file's patch or resu
 - Once PR #207 is reviewed and safely integrated, the next planned engineering task is the bounded exact-rational Green's theorem generator described above. Stokes' theorem and the divergence theorem must remain marked incomplete until separately implemented and validated.
 
 This Phase 0 audit did not modify executable source or tests. It did not run model training, step an optimizer on ULTRON weights, generate or download a production corpus, deploy Pages, mutate Supabase, call an external AI API, or launch remote compute. Training remains blocked pending separate explicit authorization.
+
+
+## Phase 1 repository audit — 2026-11-28
+
+**Status: implementation submitted for CI and independent review; not merged.** Phase 1 is tracked in [PR #208 — Audit repository correctness and add bounded performance benchmarks](https://github.com/ultron1846-oss/ULTRON/pull/208), stacked on the integrated readiness candidate PR #207 rather than directly on main.
+
+- Branch: audit/repository-quality-phase1-2026-11-28
+- Base branch: full-system-readiness-batch-7-2026-11-28 at 4b9308bcbc8a96b24af4c67a0a9bb90fd63ece85
+- Phase 1 initial PR head before this README update: 370c5243162b52d96044431b0547cc36993ed8cf
+- Current PR: #208, 12 changed files at creation, 16 commits ahead of its stacked base.
+- Audit report: docs/PHASE1_REPOSITORY_AUDIT_2026-11-28.md
+- Exact-head CI and benchmark artifact: pending at the time of this handoff update; do not treat PR #207 baseline runs as Phase 1 results.
+
+### Confirmed fixes
+
+1. Tokenizer resource budget: added max_tokens to MathTokenizer.tokenize/encode. Tokenization stops before materializing token objects beyond the budget. Both in-memory and indexed dataset adapters enforce max_sequence_length during tokenization, and inference bounds prompt encoding while reserving generation space. Added tokenizer, dataset and inference regression coverage.
+2. Indexed dataset benchmark isolation: when this process owns tracemalloc, the benchmark measures its own peak. When a caller already owns the process-global tracer, it does not reset or stop that tracer and reports the benchmark-specific peak as unavailable. Added a regression proving prior caller allocations are not misreported and tracer state remains intact.
+3. Inference API contract: compressed inference now normalizes invalid device input to the same clear ValueError used by ordinary inference. Added a negative test.
+
+### Benchmark harness
+
+Added tools/benchmark_phase1.py and .github/workflows/phase1-benchmarks.yml. The PR-targeted job measures the trie tokenizer against a reference full-vocabulary scanner, a temporary synthetic disk-backed dataset fixture, small random-initialized CPU forward latency at sequence lengths 16/32/64, separate attention/router latency, checkpoint save/load, checkpoint-backed inference at several prompt sizes, and raw/gzip frontend asset transfer-size proxies. It uploads a JSON artifact. No device-dependent performance thresholds are added.
+
+### Validation boundary and next action
+
+The verified pre-Phase-1 baseline is PR #207 head 4b9308bcbc8a96b24af4c67a0a9bb90fd63ece85: Node 128 passed; Python 725 passed with forward/backward smoke only; Level 1 workflow passed including its 5,000 randomized cases; security/dependency audit passed with npm audit 0 vulnerabilities and no known vulnerabilities in the declared pip-audit groups. Those results are not Phase 1 results.
+
+No local test commands were run because the execution environment could not clone the repository over its network. GitHub Actions is the validation source for PR #208. The audit is risk-based, not a line-by-line verification of every file. Full-size 60M+ memory/CUDA profiling, production dataset results, browser load timing and real iPad acceptance remain outstanding. PR #208 must receive independent review and exact-head green checks before merge. PR #207 itself also remains open pending its own independent review.
+
+No ULTRON training, optimizer steps, model weight updates, production corpus generation/download, external AI API call, Supabase mutation, Pages deployment or remote training job occurred.
