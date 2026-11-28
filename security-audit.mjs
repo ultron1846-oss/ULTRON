@@ -3,12 +3,14 @@ import { readFile } from 'node:fs/promises';
 const paths = [
   'index.html',
   'app.js',
+  'preferences.js',
   'graph-tool.js',
   'math-engine.js',
   'math-tools.js',
   'memory-store.js',
   'runtime-config.js',
   'runtime-status.js',
+  'word-problems.js',
   'provider-directory.js',
   'supabase-integration.js',
   'styles.css'
