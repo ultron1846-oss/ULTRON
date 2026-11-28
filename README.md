@@ -546,3 +546,12 @@ This batch adds:
 - `divergence_theorem_axis_aligned_boxes`: diagonal linear field (F=(ax,by,cz)) on an axis-aligned rectangular box. Tests independently recompute six outward face fluxes and compare with the volume integral of divergence.
 
 Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemented. Candidate coverage: 213 university topics; 66 generator-available; 147 unimplemented; 213 prerequisite nodes / 401 edges; 266 combined entries; 119 generator-available; 68 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.
+
+
+## Phase 2 exact first-order ODE follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/quadratic-potential-exact-ode-2026-11-28`.
+
+Adds `quadratic_potential_exact_first_order_ODEs` for exact equations derived from `Phi(x,y)=a*x^2+b*x*y+c*y^2`, with bounded rational coefficients and rational initial point. The answer is an implicit potential level set. Independent tests recompute both gradient components and both cross-partials using exact central differences, verify the initial-value constant, and reject tampering. The broad `exact_first_order_ODEs` topic remains catalogued but unimplemented.
+
+Candidate counts: 214 university topics; 67 generator-available; 147 unimplemented; 214 prerequisite nodes / 403 edges; 267 combined entries; 120 generator-available; 69 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.

@@ -476,6 +476,13 @@
         "test": "test_500_divergence_box_outward_flux_equals_volume_integral",
         "validator": "Independent exact recomputation of all six outward face fluxes, compared with the triple integral of the diagonal field divergence."
       }
+    ],
+    "university:quadratic_potential_exact_first_order_ODEs": [
+      {
+        "path": "tests/python/test_quadratic_potential_exact_ode.py",
+        "test": "test_500_seeded_exactness_gradient_and_initial_value_checks",
+        "validator": "Independent Fraction central-difference recomputation of the quadratic potential gradient and both cross-partials, plus initial-point level-set substitution."
+      }
     ]
   },
   "benchmarked": [],

@@ -2018,6 +2018,20 @@
       "mastery_status": "not_mastered"
     },
     {
+      "topic": "quadratic_potential_exact_first_order_ODEs",
+      "title": "exact first-order ODEs from quadratic potentials",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "quadratic_potential_exact_first_order_ODEs",
+      "catalog_id": "university:quadratic_potential_exact_first_order_ODEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
       "topic": "second_order_linear_ODEs",
       "title": "second order linear ODEs",
       "field": "Differential equations",
