@@ -9,15 +9,76 @@ class FakeRequest {
   onerror;
 }
 class FakeStore {
-  constructor() { this.records = new Map(); this.failNextPut = false; }
+  constructor() {
+    this.records = new Map();
+    this.failNextPut = false;
+    this.indexes = new Map();
+    this.indexNames = { contains: name => this.indexes.has(name) };
+    this.getAllCalls = 0;
+    this.cursorEntriesVisited = 0;
+  }
   put(record) {
     if (this.failNextPut) { this.failNextPut = false; throw new Error('QuotaExceededError: simulated storage write failure'); }
     this.records.set(record.id, structuredClone(record));
     return this.request(record.id);
   }
-  getAll() { return this.request([...this.records.values()].map(value => structuredClone(value))); }
+  getAll() {
+    this.getAllCalls += 1;
+    return this.request([...this.records.values()].map(value => structuredClone(value)));
+  }
   count() { return this.request(this.records.size); }
-  createIndex() { return {}; }
+  createIndex(name, keyPath) {
+    this.indexes.set(name, keyPath);
+    return new FakeIndex(this, keyPath);
+  }
+  index(name) {
+    if (!this.indexes.has(name)) throw new Error('NotFoundError: missing index ' + name);
+    return new FakeIndex(this, this.indexes.get(name));
+  }
+  openCursor(_query = null, direction = 'next') {
+    const records = [...this.records.values()].sort((a, b) =>
+      String(a.id).localeCompare(String(b.id))
+    );
+    if (direction === 'prev') records.reverse();
+    return this.cursorRequest(records);
+  }
+  cursorRequest(records) {
+    const req = new FakeRequest();
+    const tx = this.transaction;
+    tx.pending++;
+    let position = 0;
+    const dispatch = () => queueMicrotask(() => {
+      if (position >= records.length) {
+        req.result = null;
+        req.onsuccess?.();
+        tx.pending--;
+        tx.completeWhenIdle();
+        return;
+      }
+      this.cursorEntriesVisited += 1;
+      let continued = false;
+      req.result = {
+        value: structuredClone(records[position]),
+        continue: () => {
+          if (continued) return;
+          continued = true;
+          position += 1;
+          dispatch();
+        },
+        update: value => {
+          this.records.set(value.id, structuredClone(value));
+          return this.request(value.id);
+        }
+      };
+      req.onsuccess?.();
+      if (!continued) {
+        tx.pending--;
+        tx.completeWhenIdle();
+      }
+    });
+    dispatch();
+    return req;
+  }
   clear() { this.records.clear(); return this.request(undefined); }
   request(result) {
     const req = new FakeRequest();
@@ -30,6 +91,22 @@ class FakeStore {
       tx.completeWhenIdle();
     });
     return req;
+  }
+}
+
+class FakeIndex {
+  constructor(store, keyPath) {
+    this.store = store;
+    this.keyPath = keyPath;
+  }
+  openCursor(_query = null, direction = 'next') {
+    const records = [...this.store.records.values()].sort((a, b) => {
+      const left = String(a[this.keyPath] ?? '');
+      const right = String(b[this.keyPath] ?? '');
+      return left.localeCompare(right) || String(a.id).localeCompare(String(b.id));
+    });
+    if (direction === 'prev') records.reverse();
+    return this.store.cursorRequest(records);
   }
 }
 class FakeTransaction {
@@ -53,11 +130,19 @@ class FakeTransaction {
   }
 }
 class FakeDatabase {
-  constructor() {
-    this.version = 1; this.stores = new Map(); this.closed = false;
+  constructor(version = 0) {
+    this.version = version;
+    this.stores = new Map();
+    this.closed = false;
+    this.upgradeTransaction = null;
     this.objectStoreNames = { contains: name => this.stores.has(name) };
   }
-  createObjectStore(name) { const store = new FakeStore(); this.stores.set(name, store); return store; }
+  createObjectStore(name) {
+    const store = new FakeStore();
+    store.transaction = this.upgradeTransaction;
+    this.stores.set(name, store);
+    return store;
+  }
   transaction(names) { return new FakeTransaction(this, Array.isArray(names) ? names : [names]); }
   close() { this.closed = true; }
 }
@@ -67,15 +152,29 @@ class FakeIndexedDB {
     const request = new FakeRequest();
     queueMicrotask(() => {
       let db = this.databases.get(name);
-      if (!db) { db = new FakeDatabase(); this.databases.set(name, db); }
+      if (!db) { db = new FakeDatabase(0); this.databases.set(name, db); }
       request.result = db;
       if (version > db.version) {
+        request.oldVersion = db.version;
+        const transaction = new FakeTransaction(db, STORE_NAMES);
+        request.transaction = transaction;
+        db.upgradeTransaction = transaction;
+        transaction.oncomplete = () => request.onsuccess?.();
+        transaction.onerror = () => {
+          request.error = transaction.error || new Error('Upgrade failed.');
+          request.onerror?.();
+        };
+        transaction.onabort = () => {
+          request.error = transaction.error || new Error('Upgrade was aborted.');
+          request.onerror?.();
+        };
+        request.onupgradeneeded?.();
         db.version = version;
-        request.onupgradeneeded?.();
-      } else if (db.stores.size === 0) {
-        request.onupgradeneeded?.();
+        db.upgradeTransaction = null;
+        transaction.completeWhenIdle();
+      } else {
+        request.onsuccess?.();
       }
-      request.onsuccess?.();
     });
     return request;
   }
@@ -196,4 +295,54 @@ test('unavailable IndexedDB fails clearly rather than claiming to save', async (
   } finally {
     globalThis.indexedDB = original;
   }
+});
+
+
+test('version 2 migration indexes all stores and preserves legacy rows without timestamps', async () => {
+  await withFake(async fake => {
+    const legacy = new FakeDatabase(1);
+    for (const name of STORE_NAMES) legacy.createObjectStore(name);
+    legacy.stores.get('knowledge').records.set('legacy-1', {
+      id: 'legacy-1',
+      statement: 'legacy knowledge'
+    });
+    fake.databases.set(DB_NAME, legacy);
+
+    const rows = await listRecords('knowledge', 10);
+    assert.equal(legacy.version, DB_VERSION);
+    for (const name of STORE_NAMES) {
+      assert.equal(legacy.stores.get(name).indexNames.contains('createdAt'), true);
+    }
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].id, 'legacy-1');
+    assert.equal(rows[0].createdAt, '');
+  });
+});
+
+test('memory listings read only the requested number of newest records', async () => {
+  await withFake(async fake => {
+    const payload = {
+      format: 'ultron-local-memory',
+      version: 1,
+      stores: {
+        experiences: Array.from({ length: 1500 }, (_, index) => ({
+          id: 'record-' + index,
+          prompt: 'question ' + index,
+          answer: String(index),
+          createdAt: new Date(index * 1000).toISOString()
+        }))
+      }
+    };
+    await importMemory(payload);
+    const store = fake.store(DB_NAME, 'experiences');
+    const beforeGetAll = store.getAllCalls;
+    const beforeVisits = store.cursorEntriesVisited;
+    const records = await listRecords('experiences', 25);
+
+    assert.equal(records.length, 25);
+    assert.equal(store.getAllCalls, beforeGetAll);
+    assert.equal(store.cursorEntriesVisited - beforeVisits, 25);
+    assert.equal(records[0].id, 'record-1499');
+    assert.equal(records[24].id, 'record-1475');
+  });
 });
