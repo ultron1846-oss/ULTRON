@@ -16,7 +16,7 @@ from .ode_first_order import verify_homogeneous_constant_coefficient_first_order
 BANDS = {
     "linear_algebra": "University",
     "multivariable_calculus": "University",
-    "differential_equations": "University",
+    "homogeneous_constant_coefficient_first_order_ODEs": "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -100,7 +100,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"df/dx={dx}; df/dy={dy}"
         steps=[f"∂f/∂x=2({a})x+({b})y; at point: {dx}.",f"∂f/∂y=({b})x+2({c})y; at point: {dy}."]
         exact=lambda:dx==2*a*x+b*y and dy==b*x+2*c*y
-    elif topic == "differential_equations":
+    elif topic == "homogeneous_constant_coefficient_first_order_ODEs":
         k,y0=n(-4*d,4*d),n(1,8*d)
         data.update(rate=k,initial_value=y0,solution=f"{y0}*exp({k}t)")
         problem=f"Solve y'=({k})y with initial condition y(0)={y0}."
@@ -483,7 +483,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
     fields={"grade_band":BANDS[topic],"topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
             "problem":problem,"steps":steps,"answer":str(answer),"answer_type":"expression",
             "ingredients":data,"verifier":topic+"_seed_replay_exact_check"}
-    if topic == "differential_equations":
+    if topic == "homogeneous_constant_coefficient_first_order_ODEs":
         fields["subtopic"] = "homogeneous constant-coefficient first-order ODEs"
         fields["verifier"] = "independent_homogeneous_constant_coefficient_ode_analytic_check"
     return fields, exact
@@ -500,7 +500,7 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
     fields.update(id=f"university-{topic}-{seed}-{difficulty}",seed=seed)
     if not check():
         raise ArithmeticError("exact answer verification failed")
-    if topic == "differential_equations" and not verify_homogeneous_constant_coefficient_first_order_ode(fields):
+    if topic == "homogeneous_constant_coefficient_first_order_ODEs" and not verify_homogeneous_constant_coefficient_first_order_ode(fields):
         raise ArithmeticError("independent first-order ODE verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!={k:v for k,v in fields.items() if k not in ("id","seed")}:
@@ -511,7 +511,7 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
 def verify(problem: dict) -> bool:
     if isinstance(problem, dict) and problem.get("topic") == GREEN_TOPIC:
         return verify_green_problem(problem)
-    if isinstance(problem, dict) and problem.get("topic") == "differential_equations":
+    if isinstance(problem, dict) and problem.get("topic") == "homogeneous_constant_coefficient_first_order_ODEs":
         return verify_homogeneous_constant_coefficient_first_order_ode(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
