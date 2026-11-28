@@ -626,6 +626,7 @@ def verify_dataset(
     max_bytes: int = _MAX_DATASET_BYTES,
     max_rows: int = _MAX_DATASET_ROWS,
     max_line_bytes: int = _MAX_DATASET_LINE_BYTES,
+    max_manifest_bytes: int = _MAX_DATASET_MANIFEST_BYTES,
 ) -> dict:
     """Verify a dataset incrementally with strict byte, row, and line bounds.
 
@@ -637,6 +638,7 @@ def verify_dataset(
         ("max_bytes", max_bytes, _MAX_DATASET_BYTES),
         ("max_rows", max_rows, _MAX_DATASET_ROWS),
         ("max_line_bytes", max_line_bytes, _MAX_DATASET_LINE_BYTES),
+        ("max_manifest_bytes", max_manifest_bytes, _MAX_DATASET_MANIFEST_BYTES),
     ):
         if isinstance(value, bool) or not isinstance(value, int):
             raise TypeError(f"{name} must be an integer")
@@ -647,11 +649,11 @@ def verify_dataset(
     manifest_path = target.with_suffix(target.suffix + ".manifest.json")
     try:
         with manifest_path.open("rb") as manifest_stream:
-            manifest_bytes = manifest_stream.read(_MAX_DATASET_MANIFEST_BYTES + 1)
+            manifest_bytes = manifest_stream.read(max_manifest_bytes + 1)
     except OSError as exc:
         raise ValueError("dataset or manifest is missing or malformed") from exc
-    if len(manifest_bytes) > _MAX_DATASET_MANIFEST_BYTES:
-        raise ValueError("dataset manifest exceeds byte limit")
+    if len(manifest_bytes) > max_manifest_bytes:
+        raise ValueError(f"dataset manifest exceeds byte limit ({max_manifest_bytes} bytes)")
     try:
         manifest = json.loads(
             manifest_bytes.decode("utf-8"),
