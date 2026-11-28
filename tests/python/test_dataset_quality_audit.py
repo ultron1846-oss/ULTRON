@@ -170,7 +170,7 @@ class DatasetQualityAuditTests(unittest.TestCase):
     def test_quality_audit_obeys_caller_resource_limits(self):
         with tempfile.TemporaryDirectory() as directory:
             dataset, split = self._prepare(Path(directory), count=90)
-            with self.assertRaisesRegex(ValueError, "max_line_bytes"):
+            with self.assertRaisesRegex(ValueError, "line byte limit"):
                 audit_dataset_quality(
                     dataset, split,
                     resource_limits=DatasetResourceLimits(max_line_bytes=32),
