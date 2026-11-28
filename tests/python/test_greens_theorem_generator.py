@@ -162,6 +162,18 @@ class GreenTheoremGeneratorTests(unittest.TestCase):
         over_difficulty["ingredients"]["Q"] = []
         over_difficulty["answer"] = "boundary=0; area=0"
         self.assertFalse(verify(over_difficulty))
+        altered_prompt = dict(item)
+        altered_prompt["problem"] = "Compute sin(x) around a circle."
+        self.assertFalse(verify(altered_prompt))
+        altered_steps = dict(item)
+        altered_steps["steps"] = ["Skip the calculations."]
+        self.assertFalse(verify(altered_steps))
+        altered_metadata = dict(item)
+        altered_metadata["verifier"] = "seed_replay"
+        self.assertFalse(verify(altered_metadata))
+        extra_field = dict(item)
+        extra_field["unreviewed"] = True
+        self.assertFalse(verify(extra_field))
 
     def test_rejects_malformed_polynomial_and_rectangle_inputs(self):
         invalid = [

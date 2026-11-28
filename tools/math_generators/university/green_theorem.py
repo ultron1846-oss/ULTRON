@@ -301,7 +301,33 @@ def verify_green_problem(problem: Any) -> bool:
         p_terms, q_terms, *_ = _validated_input(ingredients)
         if any(x_power + y_power > problem["difficulty"] for _, x_power, y_power in p_terms + q_terms):
             return False
+        p_terms, q_terms, x0, x1, y0, y1, orientation = _validated_input(ingredients)
+        if any(x_power + y_power > problem["difficulty"] for _, x_power, y_power in p_terms + q_terms):
+            return False
         boundary, area = calculate_green_integrals(ingredients)
-        return problem["answer"] == f"boundary={boundary}; area={area}"
+        expected = {
+            "grade_band": "University",
+            "topic": TOPIC,
+            "subtopic": "Green theorem for rational polynomial fields on rectangles",
+            "difficulty": problem["difficulty"],
+            "problem": (
+                f"For P(x,y)={_polynomial_text(ingredients['P'])} and "
+                f"Q(x,y)={_polynomial_text(ingredients['Q'])}, evaluate the oriented "
+                f"boundary integral and the curl area integral on "
+                f"[{x0},{x1}] x [{y0},{y1}] with {orientation} orientation."
+            ),
+            "steps": [
+                "Evaluate P dx + Q dy separately on the four oriented rectangle edges.",
+                "Compute dQ/dx - dP/dy and integrate it exactly over the rectangle.",
+                "The two exact rational values agree by Green's theorem for this supported region.",
+            ],
+            "answer": f"boundary={boundary}; area={area}",
+            "answer_type": "exact_rational_pair",
+            "ingredients": ingredients,
+            "verifier": "independent_exact_green_boundary_and_area_integrals",
+            "id": f"university-{TOPIC}-{problem['seed']}-{problem['difficulty']}",
+            "seed": problem["seed"],
+        }
+        return problem == expected
     except (KeyError, TypeError, ValueError, ArithmeticError):
         return False
