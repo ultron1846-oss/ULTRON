@@ -354,18 +354,17 @@ class IndexedDatasetStressTests(unittest.TestCase):
             self.assertGreater(manifest_bytes, 500_000)
             with VerifiedIndexedSplitStore(dataset, split) as store:
                 self.assertEqual(sum(store.split_counts.values()), 12000)
-                first_pass = [
-                    example_id
+                first_pass = {
+                    split_name: [example_id for example_id, _prompt, _answer in store.iter_records(split_name)]
                     for split_name in ("train", "validation", "test")
-                    for example_id, _prompt, _answer in store.iter_records(split_name)
-                ]
-                second_pass = [
-                    example_id
+                }
+                second_pass = {
+                    split_name: [example_id for example_id, _prompt, _answer in store.iter_records(split_name)]
                     for split_name in ("train", "validation", "test")
-                    for example_id, _prompt, _answer in store.iter_records(split_name)
-                ]
+                }
                 self.assertEqual(first_pass, second_pass)
-                self.assertEqual(first_pass, sorted(first_pass))
+                for ids in first_pass.values():
+                    self.assertEqual(ids, sorted(ids))
                 self.assertGreater(store._index_path.stat().st_size, 0)
 
 
