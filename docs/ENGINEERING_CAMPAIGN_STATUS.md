@@ -37,7 +37,7 @@ Do not generate/download the full training corpus, train ULTRON weights, perform
 
 ## Prompt 6 — full-system validation and handoff (2026-11-28)
 
-**Integrated candidate:** [PR #207](https://github.com/ultron1846-oss/ULTRON/pull/207), based on `2ba3340dbc841699ad98e651c86f2e227be8cac0`. Exact code/test revision `bfb48af944c9dfba8e387d9c39f9a1b39a31145f` passed the full current CI matrix: Node 127/127 (run 46107031153), Python AI Core 722 tests (run 46107031165), Level 1 5/5 plus 5,000 randomized cases (run 46107031224), and security/dependency audit (run 46107031196). The Python CPU smoke was forward/backward only and explicitly did not perform an optimizer step.
+**Integrated candidate:** [PR #207](https://github.com/ultron1846-oss/ULTRON/pull/207), based on `2ba3340dbc841699ad98e651c86f2e227be8cac0`. Exact code/test revision `bfb48af944c9dfba8e387d9c39f9a1b39a31145f` passed the full current CI matrix: Node 127/127 (run 46107031153), Python AI Core 722 tests (run 46107031165), Level 1 5/5 plus 5,000 randomized cases (run 46107031224), and security/dependency audit (run 46107031196). The Python CPU smoke was forward/backward only and explicitly did not perform an optimizer step. A second documentation-only pass also passed on the handoff revision: Node 127/127 (run 46107500105), Python 722 (46107500109), Level 1 5 plus 5,000 randomized cases (46107500160), and security/dependency audit (46107500169). No executable source or test files changed between passes.
 
 | Prompt 6 area | Status | Notes |
 |---|---|---|
