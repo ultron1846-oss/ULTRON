@@ -122,3 +122,13 @@ PR #201 was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It adds
 
 
 **Dataset memory boundary:** The indexed loader bounds snapshot copying and record iteration, but it is not constant-memory: split-manifest ID arrays are parsed in Python memory up to the 100,000-row preflight cap. The benchmark's `tracemalloc` measurement excludes native SQLite allocations and process RSS/device memory. A production dataset benchmark remains owner-dependent.
+
+
+## Prompt 4 — inference and compression validation (2026-11-28)
+
+PR #200 ([checkpoint-backed inference and compressed-artifact validation](https://github.com/ultron1846-oss/ULTRON/pull/200)) now adds the public `ultron_core.inference` API:
+- `load_inference_engine` selects a checksum-verified checkpoint/backup, validates model config and canonical tokenizer compatibility, loads weights without restoring training RNG state, and exposes bounded greedy inference.
+- `ULTRONInferenceEngine.generate` validates input/token IDs/logits, returns structured output, runs without tools or external AI APIs, resets ephemeral memory around requests, and restores the model's prior train/eval mode.
+- `load_compressed_inference_engine` reconstructs a versioned compressed deployment artifact from its parent checkpoint and uses the same inference API.
+
+Compression validation now reports logical state-tensor bytes, serialized artifact bytes, and ratios; tests exercise exact state/output reconstruction, corruption and truncation rejection, incompatible artifact versions/configs, and numerical output-error measurements. The tests use initialized small models only. CI and review are the remaining PR gates; the work is not yet merged. No ULTRON training, optimizer step, corpus/calibration generation, external AI API, or remote execution was performed. Successful random-weight inference is not evidence of mathematical capability. See [docs/INFERENCE.md](docs/INFERENCE.md) and [docs/COMPRESSION.md](docs/COMPRESSION.md).
