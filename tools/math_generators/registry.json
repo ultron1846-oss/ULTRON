@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "coverage_through": "Core + G1-12 + 202-topic university mathematics curriculum; scoped IDs and explicit evidence states",
+  "coverage_through": "Core + G1-12 + 211-topic university mathematics curriculum; scoped IDs and explicit evidence states",
   "topics": [
     {
       "catalog_id": "core:arithmetic",
@@ -835,6 +835,16 @@
       "topic": "Taylor_series",
       "grade_band": "University",
       "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:quadratic_Taylor_polynomials",
+      "topic": "quadratic_Taylor_polynomials",
+      "grade_band": "University",
+      "word_problems": false,
       "status": "generator_available_not_mastered",
       "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
@@ -925,6 +935,16 @@
       "topic": "multiple_integrals",
       "grade_band": "University",
       "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:rectangular_linear_polynomial_double_integrals",
+      "topic": "rectangular_linear_polynomial_double_integrals",
+      "grade_band": "University",
+      "word_problems": false,
       "status": "generator_available_not_mastered",
       "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
@@ -933,6 +953,16 @@
     {
       "catalog_id": "university:change_of_variables",
       "topic": "change_of_variables",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:diagonal_linear_change_of_variables_rectangles",
+      "topic": "diagonal_linear_change_of_variables_rectangles",
       "grade_band": "University",
       "word_problems": false,
       "status": "generator_available_not_mastered",
@@ -945,6 +975,16 @@
       "topic": "line_integrals",
       "grade_band": "University",
       "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:constant_vector_field_segment_line_integrals",
+      "topic": "constant_vector_field_segment_line_integrals",
+      "grade_band": "University",
+      "word_problems": false,
       "status": "generator_available_not_mastered",
       "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
@@ -955,6 +995,16 @@
       "topic": "surface_integrals",
       "grade_band": "University",
       "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:flat_rectangular_surface_area_integrals",
+      "topic": "flat_rectangular_surface_area_integrals",
+      "grade_band": "University",
+      "word_problems": false,
       "status": "generator_available_not_mastered",
       "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
@@ -963,6 +1013,16 @@
     {
       "catalog_id": "university:vector_calculus",
       "topic": "vector_calculus",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:diagonal_linear_vector_field_divergence",
+      "topic": "diagonal_linear_vector_field_divergence",
       "grade_band": "University",
       "word_problems": false,
       "status": "generator_available_not_mastered",
@@ -1131,8 +1191,18 @@
       "mastery_status": "not_mastered"
     },
     {
-      "catalog_id": "university:complex_numbers_and_topology",
-      "topic": "complex_numbers_and_topology",
+      "catalog_id": "university:complex_number_arithmetic",
+      "topic": "complex_number_arithmetic",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:complex_topology",
+      "topic": "complex_topology",
       "grade_band": "University",
       "word_problems": false,
       "status": "catalogued_not_implemented",
@@ -1181,8 +1251,18 @@
       "mastery_status": "not_mastered"
     },
     {
-      "catalog_id": "university:Taylor_and_Laurent_series",
-      "topic": "Taylor_and_Laurent_series",
+      "catalog_id": "university:complex_Taylor_series",
+      "topic": "complex_Taylor_series",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:Laurent_series",
+      "topic": "Laurent_series",
       "grade_band": "University",
       "word_problems": false,
       "status": "catalogued_not_implemented",
@@ -1917,6 +1997,16 @@
       "word_problems": false,
       "status": "catalogued_not_implemented",
       "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "topic": "homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },

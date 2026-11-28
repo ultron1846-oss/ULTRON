@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 202,
+  "topic_count": 211,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -210,8 +210,14 @@
       "topic": "Taylor_series",
       "title": "Taylor series",
       "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "quadratic_Taylor_polynomials",
+      "title": "quadratic Taylor polynomials",
+      "field": "Calculus",
       "status": "generator_available_not_mastered",
-      "generator_topic": "Taylor_series"
+      "generator_topic": "quadratic_Taylor_polynomials"
     },
     {
       "topic": "Riemann_integral",
@@ -273,36 +279,66 @@
       "topic": "multiple_integrals",
       "title": "multiple integrals",
       "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "rectangular_linear_polynomial_double_integrals",
+      "title": "rectangular affine-polynomial double integrals",
+      "field": "Calculus",
       "status": "generator_available_not_mastered",
-      "generator_topic": "multiple_integrals"
+      "generator_topic": "rectangular_linear_polynomial_double_integrals"
     },
     {
       "topic": "change_of_variables",
       "title": "change of variables",
       "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "diagonal_linear_change_of_variables_rectangles",
+      "title": "diagonal linear changes of variables on rectangles",
+      "field": "Calculus",
       "status": "generator_available_not_mastered",
-      "generator_topic": "change_of_variables"
+      "generator_topic": "diagonal_linear_change_of_variables_rectangles"
     },
     {
       "topic": "line_integrals",
       "title": "line integrals",
       "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "constant_vector_field_segment_line_integrals",
+      "title": "constant-vector-field line integrals on segments",
+      "field": "Calculus",
       "status": "generator_available_not_mastered",
-      "generator_topic": "line_integrals"
+      "generator_topic": "constant_vector_field_segment_line_integrals"
     },
     {
       "topic": "surface_integrals",
       "title": "surface integrals",
       "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "flat_rectangular_surface_area_integrals",
+      "title": "surface integrals of one over flat rectangles",
+      "field": "Calculus",
       "status": "generator_available_not_mastered",
-      "generator_topic": "surface_integrals"
+      "generator_topic": "flat_rectangular_surface_area_integrals"
     },
     {
       "topic": "vector_calculus",
       "title": "vector calculus",
       "field": "Calculus",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "diagonal_linear_vector_field_divergence",
+      "title": "divergence of diagonal linear vector fields",
+      "field": "Calculus",
       "status": "generator_available_not_mastered",
-      "generator_topic": "vector_calculus"
+      "generator_topic": "diagonal_linear_vector_field_divergence"
     },
     {
       "topic": "greens_theorem_rectangles",
@@ -410,8 +446,15 @@
       "status": "catalogued_not_implemented"
     },
     {
-      "topic": "complex_numbers_and_topology",
-      "title": "complex numbers and topology",
+      "topic": "complex_number_arithmetic",
+      "title": "complex-number arithmetic",
+      "field": "Complex analysis",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "complex_number_arithmetic"
+    },
+    {
+      "topic": "complex_topology",
+      "title": "topology of the complex plane",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented"
     },
@@ -440,8 +483,14 @@
       "status": "catalogued_not_implemented"
     },
     {
-      "topic": "Taylor_and_Laurent_series",
-      "title": "Taylor and Laurent series",
+      "topic": "complex_Taylor_series",
+      "title": "complex Taylor series",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "Laurent_series",
+      "title": "Laurent series",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented"
     },
@@ -890,6 +939,13 @@
       "title": "linear first-order ODEs with variable coefficients",
       "field": "Differential equations",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "title": "homogeneous variable-coefficient linear first-order ODEs",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "homogeneous_variable_coefficient_linear_first_order_ODEs"
     },
     {
       "topic": "exact_first_order_ODEs",

@@ -23,8 +23,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 202)
-        self.assertEqual(mapping.source_topic_count, 202)
+        self.assertEqual(mapping.mapped_topic_count, 211)
+        self.assertEqual(mapping.source_topic_count, 211)
         self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
@@ -48,11 +48,21 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("derivative_theory", "Taylor_series"))
         self.assertTrue(mapping.is_prerequisite("Cauchy_sequences", "pointwise_and_uniform_convergence"))
         self.assertTrue(mapping.is_prerequisite("Lebesgue_measure", "Lebesgue_integral"))
+        self.assertTrue(mapping.is_prerequisite("multiple_integrals", "rectangular_linear_polynomial_double_integrals"))
+        self.assertTrue(mapping.is_prerequisite("multiple_integrals", "diagonal_linear_change_of_variables_rectangles"))
+        self.assertTrue(mapping.is_prerequisite("Riemann_integral", "flat_rectangular_surface_area_integrals"))
+        self.assertTrue(mapping.is_prerequisite("partial_derivatives", "diagonal_linear_vector_field_divergence"))
+        self.assertTrue(mapping.is_prerequisite("vectors_and_vector_spaces", "constant_vector_field_segment_line_integrals"))
+        self.assertTrue(mapping.is_prerequisite("derivative_theory", "quadratic_Taylor_polynomials"))
 
 
     def test_complex_algebra_and_number_theory_edges_are_present(self):
         mapping = load_curriculum_prerequisites()
-        self.assertTrue(mapping.is_prerequisite("Taylor_and_Laurent_series", "residues"))
+        self.assertTrue(mapping.is_prerequisite("Laurent_series", "residues"))
+        self.assertTrue(mapping.is_prerequisite("complex_number_arithmetic", "holomorphic_functions"))
+        self.assertTrue(mapping.is_prerequisite("complex_topology", "holomorphic_functions"))
+        self.assertTrue(mapping.is_prerequisite("Cauchy_integral_formula", "complex_Taylor_series"))
+        self.assertTrue(mapping.is_prerequisite("Cauchy_integral_formula", "Laurent_series"))
         self.assertTrue(mapping.is_prerequisite("groups_and_subgroups", "cyclic_groups"))
         self.assertTrue(mapping.is_prerequisite("fields_and_extensions", "Galois_theory_intro"))
         self.assertTrue(mapping.is_prerequisite("congruences", "Chinese_remainder_theorem"))
@@ -69,6 +79,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
     def test_ode_optimization_and_numerical_edges(self):
         mapping = load_curriculum_prerequisites()
         self.assertTrue(mapping.is_prerequisite("homogeneous_constant_coefficient_first_order_ODEs", "Laplace_transforms_applications"))
+        self.assertTrue(mapping.is_prerequisite("homogeneous_constant_coefficient_first_order_ODEs", "homogeneous_variable_coefficient_linear_first_order_ODEs"))
+        self.assertTrue(mapping.is_prerequisite("Riemann_integral", "homogeneous_variable_coefficient_linear_first_order_ODEs"))
         self.assertTrue(mapping.is_prerequisite("linear_first_order_variable_coefficient_ODEs", "second_order_linear_ODEs"))
         self.assertTrue(mapping.is_prerequisite("separable_first_order_ODEs", "ODE_numerical_methods"))
         self.assertTrue(mapping.is_prerequisite("partial_derivatives", "exact_first_order_ODEs"))

@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-28 — integrated readiness documented in PR #207; not merged.**
+**Status snapshot: 2026-11-28 — curriculum-scope expansion in PR #213, stacked on PR #212; not merged.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -494,3 +494,32 @@ PR #212 is open and unmerged; it has no independent submitted review or inline r
 
 PR #212 changed: README.md; docs/MATH_CURRICULUM_AUDIT_2026-11-28.md; docs/PRETRAINING_READINESS.md; docs/UNIVERSITY_PREREQUISITES.md; tests/python/test_math_coverage_audit.py; tests/python/test_separable_first_order_ode.py; tests/python/test_university_math_generators.py; tools/math_generators/registry.json; tools/math_generators/university/curriculum.json; tools/math_generators/university/generators.py; tools/math_generators/university/ode_separable.py; tools/math_generators/university/registry.json; tools/math_generators/validation_manifest.json.
 
+
+
+## Phase 2 curriculum scope expansion — 2026-11-28
+
+**Current implementation branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28`  
+**Proposed PR:** [#213 — Split over-broad curriculum labels and add four independently checked mathematics families](https://github.com/ultron1846-oss/ULTRON/pull/213)  
+**Base:** PR #212 head `dc0ee7763b2a7c6e7f01e9e310a25da8975fb573`.  
+**Validation:** exact-head GitHub Actions runs will be recorded here after the branch is pushed.
+
+### Scope corrections
+
+Broad catalogue entries remain visible but are no longer marked generator-available when the actual template supports only a narrow subfamily. This batch scopes the former Taylor, multiple-integral, change-of-variables, line-integral, surface-integral, and vector-calculus templates to explicit narrow IDs. The compound complex-number/topology and complex Taylor/Laurent entries are split. General Taylor series, multiple integrals, complex topology, complex Taylor series, Laurent series, change of variables, line integrals, surface integrals, and vector calculus remain incomplete where no general implementation exists.
+
+### New independently checked families
+
+- Exact rational complex arithmetic: addition, multiplication, conjugation, and squared modulus.
+- Exact affine-polynomial double integrals over bounded axis-aligned rectangles, with Fubini and rectangle-additivity checks.
+- Homogeneous variable-coefficient linear first-order ODEs restricted to `y' + a*x^m*y = 0`, `m ∈ {1,2}`, with an exact log-derivative and initial-value validator.
+
+The existing degree-two Taylor template is renamed `quadratic_Taylor_polynomials`; it is not reported as general Taylor-series support. Existing narrow calculus templates now have IDs naming their supported structures.
+
+### Current candidate coverage
+
+- University curriculum: **211 topics**, **64 generator-available**, **147 catalogued but not implemented**.
+- Combined registry: **264** scope-qualified entries, **117 generator-available**, **66 independently validated**.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- University prerequisite graph: **211 nodes**, **397 edges**; validator checks complete mapping, topological order, dangling references, duplicate edges, and cycles.
+
+These are registry/evidence counts, not ULTRON model capability. No training, optimizer step, production corpus generation/download, external AI API, remote training job, deployment, or model-weight publication was performed. Continue with dependency-aware bounded topic families and per-topic difficulty semantics; do not convert catalogue entries into generated/validated/mastered claims without evidence.

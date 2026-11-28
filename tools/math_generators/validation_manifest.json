@@ -99,13 +99,6 @@
         "validator": "Independent formulas recomputed from ingredients in test code"
       }
     ],
-    "university:Taylor_series": [
-      {
-        "path": "tests/python/test_university_math_generators.py",
-        "test": "test_second_batch_answers_match_math_definitions",
-        "validator": "Independent formulas recomputed from ingredients in test code"
-      }
-    ],
     "university:conditional_probability": [
       {
         "path": "tests/python/test_university_math_generators.py",
@@ -323,41 +316,6 @@
         "validator": "Independent per-topic invariant recomputation from generated ingredients"
       }
     ],
-    "university:multiple_integrals": [
-      {
-        "path": "tests/python/test_university_extended_independent_validation.py",
-        "test": "test_independent_invariants_across_all_extended_topics",
-        "validator": "Independent per-topic invariant recomputation from generated ingredients"
-      }
-    ],
-    "university:change_of_variables": [
-      {
-        "path": "tests/python/test_university_extended_independent_validation.py",
-        "test": "test_independent_invariants_across_all_extended_topics",
-        "validator": "Independent per-topic invariant recomputation from generated ingredients"
-      }
-    ],
-    "university:line_integrals": [
-      {
-        "path": "tests/python/test_university_extended_independent_validation.py",
-        "test": "test_independent_invariants_across_all_extended_topics",
-        "validator": "Independent per-topic invariant recomputation from generated ingredients"
-      }
-    ],
-    "university:surface_integrals": [
-      {
-        "path": "tests/python/test_university_extended_independent_validation.py",
-        "test": "test_independent_invariants_across_all_extended_topics",
-        "validator": "Independent per-topic invariant recomputation from generated ingredients"
-      }
-    ],
-    "university:vector_calculus": [
-      {
-        "path": "tests/python/test_university_extended_independent_validation.py",
-        "test": "test_independent_invariants_across_all_extended_topics",
-        "validator": "Independent per-topic invariant recomputation from generated ingredients"
-      }
-    ],
     "university:metric_spaces": [
       {
         "path": "tests/python/test_university_extended_independent_validation.py",
@@ -447,6 +405,62 @@
         "path": "tests/python/test_separable_first_order_ode.py",
         "test": "test_seeded_generation_and_independent_derivative_identities",
         "validator": "Independent exact derivative coefficient identities and exact initial-value substitution for polynomial, exponential, and reciprocal solution branches"
+      }
+    ],
+    "university:quadratic_Taylor_polynomials": [
+      {
+        "path": "tests/python/test_university_math_generators.py",
+        "test": "test_second_batch_answers_match_math_definitions",
+        "validator": "Independent formulas recomputed from ingredients in test code"
+      }
+    ],
+    "university:rectangular_linear_polynomial_double_integrals": [
+      {
+        "path": "tests/python/test_university_extended_independent_validation.py",
+        "test": "test_independent_invariants_across_all_extended_topics",
+        "validator": "Independent per-topic invariant recomputation from generated ingredients"
+      }
+    ],
+    "university:diagonal_linear_change_of_variables_rectangles": [
+      {
+        "path": "tests/python/test_university_extended_independent_validation.py",
+        "test": "test_independent_invariants_across_all_extended_topics",
+        "validator": "Independent per-topic invariant recomputation from generated ingredients"
+      }
+    ],
+    "university:constant_vector_field_segment_line_integrals": [
+      {
+        "path": "tests/python/test_university_extended_independent_validation.py",
+        "test": "test_independent_invariants_across_all_extended_topics",
+        "validator": "Independent per-topic invariant recomputation from generated ingredients"
+      }
+    ],
+    "university:flat_rectangular_surface_area_integrals": [
+      {
+        "path": "tests/python/test_university_extended_independent_validation.py",
+        "test": "test_independent_invariants_across_all_extended_topics",
+        "validator": "Independent per-topic invariant recomputation from generated ingredients"
+      }
+    ],
+    "university:diagonal_linear_vector_field_divergence": [
+      {
+        "path": "tests/python/test_university_extended_independent_validation.py",
+        "test": "test_independent_invariants_across_all_extended_topics",
+        "validator": "Independent per-topic invariant recomputation from generated ingredients"
+      }
+    ],
+    "university:complex_number_arithmetic": [
+      {
+        "path": "tests/python/test_complex_number_arithmetic.py",
+        "test": "test_500_seeded_exact_operations_and_conjugate_identity",
+        "validator": "Independent Fraction-based recomputation of addition, multiplication, conjugation, and z*conjugate(z)=|z|^2."
+      }
+    ],
+    "university:homogeneous_variable_coefficient_linear_first_order_ODEs": [
+      {
+        "path": "tests/python/test_variable_coefficient_first_order_ode.py",
+        "test": "test_500_seeded_log_derivative_and_initial_value",
+        "validator": "Independent exact check that the exponent derivative gives y'/y=-a*x^m and the exponent vanishes at the initial point."
       }
     ]
   },

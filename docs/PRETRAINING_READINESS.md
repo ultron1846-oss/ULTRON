@@ -252,3 +252,14 @@ This is a scope and exercise-verification improvement, not trained-model capabil
 
 
 The separable ODE family is restricted to c≠0, rational initial data with y0>0, integer m=0..3 and n=0..2 under difficulty-specific bounds; n=2 is valid only where the reciprocal solution denominator is nonzero. This is not general separable-equation support. No ULTRON training or optimizer step was performed.
+
+
+## Latest mathematics curriculum scope handoff — 2026-11-28
+
+**Candidate branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28` (proposed PR #213, based on PR #212 head `dc0ee7763b2a7c6e7f01e9e310a25da8975fb573`).
+
+This batch tightens implementation claims before further expansion. General catalogue rows remain unimplemented where existing templates cover only specific subfamilies. It scopes the quadratic Taylor template, affine-polynomial rectangular double integrals, diagonal linear rectangular substitutions, constant-vector-field segment integrals, flat rectangular surface integrals, and divergence of diagonal linear vector fields. It splits the former complex-number/topology and complex Taylor/Laurent compound labels. Newly added independent families cover exact rational complex arithmetic and homogeneous variable-coefficient linear first-order ODEs restricted to `y' + a*x^m*y = 0`, `m ∈ {1,2}`.
+
+Current candidate counts: **211 university topics**, **64 generator-available**, **147 catalogued but not implemented**; **264 combined entries**, **117 generator-available**, **66 independently validated**; **397 prerequisite edges**; **0 compatible trained-checkpoint benchmarks** and **0 mastered topics**. CI is the validation authority for the proposed branch and will be recorded in README after exact-head runs complete.
+
+No model training, optimizer step, production corpus generation/download, external AI API, remote training job, Pages deployment, Supabase mutation, or model-weight publication was performed. Continue with the remaining dependency-aware topic batches and a per-topic difficulty audit; do not infer broad capability from narrow templates.

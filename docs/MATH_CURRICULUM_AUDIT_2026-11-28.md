@@ -2,8 +2,8 @@
 
 **Audit date:** 2026-11-28  
 **Baseline commit:** Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1  
-**Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28 (PR #209); phase2/ode-scope-and-validator-2026-11-28 (PR #210); phase2/separable-first-order-ode-family-2026-11-28 (PR #212)  
-**Status:** Three bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, and a restricted separable power-law ODE family. All three bounded families passed exact-head GitHub Actions checks: Green's theorem in PR #209, homogeneous first-order ODEs in PR #210, and the restricted separable power-law family in PR #212 (exact head 094c0bcb51e2449bebe62875dce3f5e85bb33b9f). All Phase 2 PRs remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
+**Implementation branches:** PRs #209, #210, and #212 for Green/ODE foundations; phase2/curriculum-scope-expansion-batch-8-2026-11-28 (proposed PR #213) for scope corrections and further families  
+**Status:** Five new independently checked families are now in the Phase 2 candidate: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, restricted separable power-law ODEs, rational complex arithmetic, bounded affine-polynomial double integrals, and homogeneous variable-coefficient linear first-order ODEs. Existing narrow Taylor/integral/vector-calculus templates have also been separated from broad catalogue labels. All three bounded families passed exact-head GitHub Actions checks: Green's theorem in PR #209, homogeneous first-order ODEs in PR #210, and the restricted separable power-law family in PR #212 (exact head 094c0bcb51e2449bebe62875dce3f5e85bb33b9f). All Phase 2 PRs remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
 
 ## 1. Coverage counts: baseline and current candidate
 
@@ -11,42 +11,42 @@ The counts below are derived from the combined committed topic registry, the per
 
 | State | Phase 2 baseline | Current candidate |
 |---|---:|---:|
-| Catalogued scope entries | 250 | 255 |
-| Generator available | 113 | 115 |
-| Independently validated exercise topics | 61 | 64 |
+| Catalogued scope entries | 250 | 264 |
+| Generator available | 113 | 117 |
+| Independently validated exercise topics | 61 | 66 |
 | Measured model-task benchmarks | 0 | 0 |
 | Mastered topics | 0 | 0 |
 
-The baseline independent-validation count is 53 university topics plus eight core exact-math topics. The current candidate adds three independently checked families (Green's theorem, homogeneous first-order ODEs, and restricted separable power-law ODEs), giving 56 university topics plus eight core topics. The school-band generators remain implemented but are not included in the independent-validation total unless a separate mathematical recomputation is recorded for each topic.
+The baseline independent-validation count is 53 university topics plus eight core exact-math topics. The current candidate adds five independently checked families relative to the Phase 2 baseline, giving 58 university topics plus eight core topics. The latest batch contributes exact rational complex arithmetic and a bounded homogeneous variable-coefficient ODE family; exact affine double integrals are independently tested as a separate catalogue scope while earlier narrow generator scopes are re-identified. The school-band generators remain implemented but are not included in the independent-validation total unless a separate mathematical recomputation is recorded for each topic.
 
 The manifest requires named test methods and independent-validator descriptions. It rejects evidence paths or methods that are missing. Benchmark and mastery lists are empty: generator tests, generator throughput, synthetic CI fixtures, and random-initialized model smoke tests are not trained-model mathematical benchmarks or mastery evidence.
 
 ## 2. University curriculum and prerequisite graph
 
-The university curriculum now contains **202 unique topic IDs across 17 fields**. The original 197-topic count was first increased to 199 by splitting the Green/Stokes/divergence umbrella into three; the follow-up split of the broad first-order ODE entry into four bounded families increased it to 202.
+The university curriculum now contains **211 unique topic IDs across 17 fields**. The original 197-topic count was first increased to 199 by splitting the Green/Stokes/divergence umbrella into three; the ODE split increased it to 202. The current batch raises it to 211 by separating over-broad Taylor, integral, vector-calculus, and complex-analysis scopes and adding one bounded variable-coefficient ODE family.
 
 | Field | Topics |
 |---|---:|
 | Foundations and logic | 10 |
 | Linear algebra | 16 |
-| Calculus | 20 |
+| Calculus | 26 |
 | Real analysis | 13 |
-| Complex analysis | 10 |
+| Complex analysis | 12 |
 | Abstract algebra | 12 |
 | Number theory | 10 |
 | Topology | 10 |
 | Discrete mathematics and combinatorics | 12 |
 | Probability | 13 |
 | Statistics | 9 |
-| Differential equations | 15 |
+| Differential equations | 16 |
 | Optimization and operations research | 11 |
 | Numerical and computational mathematics | 11 |
 | Geometry | 9 |
 | Applied mathematics and mathematical physics | 11 |
 | Advanced and interdisciplinary | 10 |
-| **Total** | **202** |
+| **Total** | **211** |
 
-The prerequisite mapping covers all 202 topics and has 378 directed edges. The graph validator checks duplicate IDs, missing mappings, dangling edges, duplicate/self edges, cycles, and prerequisite-first ordering. The Green/Stokes/divergence split increased the previous 366-edge graph to 372; the ODE split adds six more edges (two on the replacement homogeneous family and two each for three unimplemented sibling families).
+The prerequisite mapping covers all 211 topics and has 397 directed edges. The graph validator checks duplicate IDs, missing mappings, dangling edges, duplicate/self edges, cycles, and prerequisite-first ordering. The Green/Stokes/divergence split increased the previous 366-edge graph to 372; the ODE split adds six more edges (two on the replacement homogeneous family and two each for three unimplemented sibling families).
 
 The combined registry now assigns scope-qualified catalog_id values so identically named exercises in different bands do not collide. The raw identifier linear_equations occurs in Core, G7-8, and G8-9; these are separate catalogue entries, not one topic. There are 255 unique scope-qualified IDs and 253 distinct raw topic strings.
 
@@ -110,7 +110,7 @@ This batch defines Green difficulty concretely: level 1–5 bounds the maximum t
 
 ## 5. Dependency-aware topic expansion order
 
-The remaining 140 university topics without generators are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.
+The remaining 147 university topics without generators are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.
 
 1. **Calculus and vector calculus:** complete partial derivatives and gradient/directional-derivative families; bounded multiple integrals; line integrals over parameterized segments; surface integrals over explicitly parameterized patches; Green's theorem extensions only after the rectangle family; then Stokes and divergence theorem as separate workstreams.
 2. **Ordinary differential equations:** the current batch bounds the existing y'=k y generator as homogeneous constant-coefficient first-order ODEs. Remaining work includes broader separable equations beyond the implemented power-law family, variable-coefficient linear equations, exact equations, second-order constant-coefficient equations, systems, series solutions and numerical ODE schemes. A single exponential-decay example does not establish general first-order ODE coverage.
@@ -161,3 +161,18 @@ PR #212 exact validated head: 094c0bcb51e2449bebe62875dce3f5e85bb33b9f.
 The first Python run on the initial PR #212 head failed because the committed university registry did not match builder output ordering and one test still expected the separable topic to be unimplemented. Those two registry/test issues were fixed. The final exact-head run above is green. The NumPy-unavailable PyTorch warning was non-fatal. No local test execution is claimed; validation was performed by GitHub Actions.
 
 PR #212 is open, unmerged and has no independent submitted review or inline review threads. It is stacked on PR #210, which is stacked on #209 → #208 → #207. Do not merge this child ahead of any parent. No training or optimizer step occurred.
+
+
+## 9. Scope audit and curriculum expansion — batch 8
+
+The generator audit found that several available templates were materially narrower than their original catalogue names. The catalogue now keeps broad parent topics but marks them incomplete, while moving the existing examples to explicit subfamily IDs:
+
+- `Taylor_series` remains incomplete; the existing quadratic-polynomial expansion is now `quadratic_Taylor_polynomials`.
+- `multiple_integrals` remains incomplete; the new `rectangular_linear_polynomial_double_integrals` family integrates affine rational polynomials over bounded axis-aligned rectangles exactly.
+- `change_of_variables`, `line_integrals`, `surface_integrals`, and `vector_calculus` remain broad/incomplete. The existing templates are separately labelled diagonal linear substitutions on rectangles, constant-vector-field segment integrals, flat rectangular surface integrals of one, and divergence of diagonal linear vector fields.
+- `complex_numbers_and_topology` is replaced by `complex_number_arithmetic` and `complex_topology`; `Taylor_and_Laurent_series` is replaced by `complex_Taylor_series` and `Laurent_series`.
+- `homogeneous_variable_coefficient_linear_first_order_ODEs` is added as a restricted family for `y' + a*x^m*y = 0`, nonzero rational a and m in {1,2}; the broader variable-coefficient linear ODE topic remains incomplete.
+
+The new complex arithmetic and variable-coefficient ODE families have independent exact validators. The double-integral tests independently recompute both Fubini integration orders and rectangle additivity across fixed seeds. The current candidate has 211 university topics, 64 generator-available topics, 147 not implemented, 397 prerequisite edges, 264 combined catalogue entries, 117 generators, and 66 independently validated exercise topics. Benchmarks and mastery remain zero. These counts are generated from registry metadata and evidence; they do not measure trained-model ability.
+
+No training, optimizer step, production corpus generation/download, remote execution, deployment, or model-weight publication was performed in this batch.

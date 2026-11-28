@@ -13,12 +13,18 @@ from .extended_generators import EXTENDED_BANDS, build as build_extended
 from .green_theorem import TOPIC as GREEN_TOPIC, build_green_fields, verify_green_problem
 from .ode_first_order import verify_homogeneous_constant_coefficient_first_order_ode
 from .ode_separable import TOPIC as SEPARABLE_ODE_TOPIC, MAX_SEED as MAX_SEPARABLE_ODE_SEED, build_separable_fields, verify_separable_problem
+from .rectangular_double_integrals import TOPIC as RECTANGULAR_DOUBLE_INTEGRAL_TOPIC, build_rectangular_double_integral_fields, verify_rectangular_double_integral
+from .complex_arithmetic import TOPIC as COMPLEX_ARITHMETIC_TOPIC, build_complex_arithmetic_fields, verify_complex_arithmetic
+from .ode_variable_coefficient import TOPIC as VARIABLE_COEFFICIENT_ODE_TOPIC, build_variable_coefficient_ode_fields, verify_variable_coefficient_ode
 
 BANDS = {
     "linear_algebra": "University",
     "multivariable_calculus": "University",
     "homogeneous_constant_coefficient_first_order_ODEs": "University",
     SEPARABLE_ODE_TOPIC: "University",
+    RECTANGULAR_DOUBLE_INTEGRAL_TOPIC: "University",
+    COMPLEX_ARITHMETIC_TOPIC: "University",
+    VARIABLE_COEFFICIENT_ODE_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -31,7 +37,7 @@ BANDS = {
     "vectors_and_vector_spaces": "University",
     "systems_linear_equations": "University",
     "eigenvalues_and_eigenvectors": "University",
-    "Taylor_series": "University",
+    "quadratic_Taylor_polynomials": "University",
     "conditional_probability": "University",
     "counting_principles": "University",
     "predicate_logic": "University",
@@ -81,6 +87,12 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         return build_green_fields(rng, difficulty)
     if topic == SEPARABLE_ODE_TOPIC:
         return build_separable_fields(rng, difficulty)
+    if topic == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC:
+        return build_rectangular_double_integral_fields(rng, difficulty)
+    if topic == COMPLEX_ARITHMETIC_TOPIC:
+        return build_complex_arithmetic_fields(rng, difficulty)
+    if topic == VARIABLE_COEFFICIENT_ODE_TOPIC:
+        return build_variable_coefficient_ode_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -263,8 +275,9 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"λ1={a}; λ2={b}"
         steps=[f"det(A−λI)=({a}−λ)({b}−λ).",f"The characteristic roots are λ={a} and λ={b}."]
         exact=lambda:data["matrix"]==[[a,0],[0,b]] and (a,b)==tuple(data["eigenvalues"]) and (a-a)*(a-b)==0 and (b-a)*(b-b)==0
-    elif topic == "Taylor_series":
-        a,b,c,h=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d)
+    elif topic == "quadratic_Taylor_polynomials":
+        a=rng.choice(tuple(range(-8*d,0))+tuple(range(1,8*d+1)))
+        b,c,h=n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d)
         fh=a*h*h+b*h+c
         derivative=2*a*h+b
         data.update(coefficients=[a,b,c],center=h,value_at_center=fh,derivative_at_center=derivative,taylor_quadratic=a)
@@ -510,6 +523,12 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ArithmeticError("independent first-order ODE verification failed")
     if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
         raise ArithmeticError("independent separable ODE verification failed")
+    if topic == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC and not verify_rectangular_double_integral(fields):
+        raise ArithmeticError("independent rectangular double-integral verification failed")
+    if topic == COMPLEX_ARITHMETIC_TOPIC and not verify_complex_arithmetic(fields):
+        raise ArithmeticError("independent complex-arithmetic verification failed")
+    if topic == VARIABLE_COEFFICIENT_ODE_TOPIC and not verify_variable_coefficient_ode(fields):
+        raise ArithmeticError("independent variable-coefficient ODE verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!={k:v for k,v in fields.items() if k not in ("id","seed")}:
         raise ArithmeticError("deterministic replay failed")
@@ -523,6 +542,12 @@ def verify(problem: dict) -> bool:
         return verify_homogeneous_constant_coefficient_first_order_ode(problem)
     if isinstance(problem, dict) and problem.get("topic") == SEPARABLE_ODE_TOPIC:
         return verify_separable_problem(problem)
+    if isinstance(problem, dict) and problem.get("topic") == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC:
+        return verify_rectangular_double_integral(problem)
+    if isinstance(problem, dict) and problem.get("topic") == COMPLEX_ARITHMETIC_TOPIC:
+        return verify_complex_arithmetic(problem)
+    if isinstance(problem, dict) and problem.get("topic") == VARIABLE_COEFFICIENT_ODE_TOPIC:
+        return verify_variable_coefficient_ode(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):

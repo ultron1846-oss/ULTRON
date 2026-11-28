@@ -55,28 +55,20 @@ class UniversityExtendedIndependentValidationTests(unittest.TestCase):
                         a, b = data["coefficients"]
                         self.assertEqual(a * (x0 - x0) + b * (y0 - y0) + data["constant"], data["constant"])
                         self.assertEqual(item["answer"], str(data["constant"]))
-                    elif topic == "multiple_integrals":
-                        left, right, bottom, top = data["rectangle"]
-                        expected = (
-                            Fraction(right**2 - left**2, 2) * (top - bottom)
-                            + Fraction(top**2 - bottom**2, 2) * (right - left)
-                        )
-                        self.assertEqual(Fraction(data["integral"]), expected)
-                        self.assertEqual(Fraction(item["answer"]), expected)
-                    elif topic == "change_of_variables":
+                    elif topic == "diagonal_linear_change_of_variables_rectangles":
                         sx, sy = data["scale"]
                         self.assertEqual(data["jacobian"], abs(sx * sy))
                         self.assertEqual(data["transformed_area"], data["source_area"] * abs(sx * sy))
-                    elif topic == "line_integrals":
+                    elif topic == "constant_vector_field_segment_line_integrals":
                         a, b = data["vector_field"]
                         x0, y0 = data["start"]
                         x1, y1 = data["end"]
                         self.assertEqual(data["integral"], a * (x1 - x0) + b * (y1 - y0))
-                    elif topic == "surface_integrals":
+                    elif topic == "flat_rectangular_surface_area_integrals":
                         xlen, ylen = data["rectangle"]
                         self.assertEqual(data["surface_area"], xlen * ylen)
                         self.assertEqual(data["integral"], xlen * ylen)
-                    elif topic == "vector_calculus":
+                    elif topic == "diagonal_linear_vector_field_divergence":
                         a, b, c = data["field_coefficients"]
                         self.assertEqual(data["divergence"], a + b + c)
                     elif topic == "metric_spaces":
