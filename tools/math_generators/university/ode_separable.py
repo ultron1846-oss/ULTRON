@@ -202,6 +202,8 @@ def _verify_solution_identity(
     if not isinstance(solution, dict):
         return False
     power = x_power + 1
+    if not _is_int(solution.get("power")) or solution.get("power") != power:
+        return False
     initial_x_power = initial_x ** power
     if y_power == 0:
         if set(solution) != {"kind", "power", "constant", "coefficient"}:
