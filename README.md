@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-28 — multifield mathematics expansion in proposed PR #214, stacked on PR #213; not merged.**
+**Status snapshot: 2026-11-28 — integrated Phase 2 curriculum candidate on `phase2/integrated-math-curriculum-2026-11-28`, combining multifield and bounded vector-calculus families; not merged.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -562,3 +562,14 @@ PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f` passed:
 - Security/dependency audit: [46140599346](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599346)
 
 The Python workflow used a CPU forward/backward smoke only and did not perform an optimizer step.
+
+
+## Phase 2 vector-calculus theorem follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/vector-calculus-theorem-families-2026-11-28`, based on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+This batch adds:
+- `stokes_theorem_horizontal_rectangles`: affine field (F=(P,Q,0)), horizontal axis-aligned rectangle, upward normal, counter-clockwise boundary. Tests independently integrate each boundary edge and compare with the curl surface integral.
+- `divergence_theorem_axis_aligned_boxes`: diagonal linear field (F=(ax,by,cz)) on an axis-aligned rectangular box. Tests independently recompute six outward face fluxes and compare with the volume integral of divergence.
+
+Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemented. Candidate coverage: 213 university topics; 66 generator-available; 147 unimplemented; 213 prerequisite nodes / 401 edges; 266 combined entries; 119 generator-available; 68 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.
