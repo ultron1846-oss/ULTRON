@@ -58,6 +58,19 @@ class MathToken:
     offset: int
 
 
+class TokenLimitExceeded(ValueError):
+    """Raised when bounded tokenization would exceed its caller's token budget."""
+
+
+def _validate_max_tokens(max_tokens: int | None) -> None:
+    if max_tokens is None:
+        return
+    if isinstance(max_tokens, bool) or not isinstance(max_tokens, int):
+        raise TypeError("max_tokens must be a non-negative integer or None")
+    if max_tokens < 0:
+        raise ValueError("max_tokens must be a non-negative integer or None")
+
+
 class MathVocabulary:
     """Versioned immutable token-to-ID mapping with strict JSON validation."""
 
@@ -167,12 +180,20 @@ class MathTokenizer:
         if getattr(config, "pad_token_id", None) != self.vocabulary.token_id("<PAD>"):
             raise ValueError("model config padding token ID does not match vocabulary")
 
-    def tokenize(self, text: str) -> tuple[MathToken, ...]:
+    def tokenize(
+        self, text: str, *, max_tokens: int | None = None
+    ) -> tuple[MathToken, ...]:
+        """Tokenize losslessly, optionally stopping before a token budget is exceeded."""
         if not isinstance(text, str):
             raise TypeError("mathematical input must be a string")
+        _validate_max_tokens(max_tokens)
         result: list[MathToken] = []
         offset = 0
         while offset < len(text):
+            if max_tokens is not None and len(result) >= max_tokens:
+                raise TokenLimitExceeded(
+                    f"tokenized input exceeds max_tokens limit ({max_tokens})"
+                )
             node = self._token_trie
             cursor = offset
             match = None
@@ -198,8 +219,28 @@ class MathTokenizer:
             offset = match_end
         return tuple(result)
 
-    def encode(self, text: str, *, add_bos: bool = False, add_eos: bool = False) -> list[int]:
-        ids = [token.token_id for token in self.tokenize(text)]
+    def encode(
+        self,
+        text: str,
+        *,
+        add_bos: bool = False,
+        add_eos: bool = False,
+        max_tokens: int | None = None,
+    ) -> list[int]:
+        """Encode text, optionally bounding the total IDs including special tokens.
+
+        The lexical scan stops as soon as the budget would be exceeded, rather
+        than first allocating a complete token-object tuple and ID list.
+        """
+        _validate_max_tokens(max_tokens)
+        reserved = int(bool(add_bos)) + int(bool(add_eos))
+        if max_tokens is not None and max_tokens < reserved:
+            raise ValueError("max_tokens is smaller than the requested special-token count")
+        lexical_budget = None if max_tokens is None else max_tokens - reserved
+        ids = [
+            token.token_id
+            for token in self.tokenize(text, max_tokens=lexical_budget)
+        ]
         if add_bos:
             ids.insert(0, self.vocabulary.token_id("<BOS>"))
         if add_eos:
