@@ -636,6 +636,8 @@ def write_dataset(
                     raise ValueError("dataset row exceeds configured max_line_bytes")
                 if bytes_seen + len(row_bytes) > resource_limits.max_dataset_bytes:
                     raise ValueError("dataset exceeds configured max_dataset_bytes")
+                if bytes_seen + len(row_bytes) > resource_limits.max_temporary_bytes:
+                    raise ValueError("dataset temporary output exceeds configured max_temporary_bytes")
 
                 stream.write(row_bytes)
                 digest.update(row_bytes)
@@ -668,6 +670,8 @@ def write_dataset(
         )
         if len(manifest_bytes) > resource_limits.max_dataset_manifest_bytes:
             raise ValueError("dataset sidecar manifest exceeds configured max_dataset_manifest_bytes")
+        if bytes_seen + len(manifest_bytes) > resource_limits.max_temporary_bytes:
+            raise ValueError("dataset and sidecar temporary outputs exceed configured max_temporary_bytes")
 
         manifest_fd, manifest_temp_name = tempfile.mkstemp(
             prefix=f".{manifest_path.name}.", suffix=".tmp", dir=manifest_path.parent
