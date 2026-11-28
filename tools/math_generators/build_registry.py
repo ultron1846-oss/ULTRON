@@ -153,7 +153,7 @@ def build_combined_registry() -> dict:
         })
     return {
         "version": 2,
-        "coverage_through": "Core + G1-12 + 199-topic university mathematics curriculum; scoped IDs and explicit evidence states",
+        "coverage_through": "Core + G1-12 + 202-topic university mathematics curriculum; scoped IDs and explicit evidence states",
         "topics": topics,
     }
 

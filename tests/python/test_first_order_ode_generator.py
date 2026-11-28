@@ -24,6 +24,7 @@ def _expected_problem(seed, difficulty, rate, initial_value):
         "answer": f"y(t)={initial_value}e^({rate}t)",
         "answer_type": "expression",
         "ingredients": {
+            "topic": "differential_equations",
             "rate": rate,
             "initial_value": initial_value,
             "solution": solution,

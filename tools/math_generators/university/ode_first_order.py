@@ -32,6 +32,7 @@ def _expected_problem(seed: int, difficulty: int, rate: int, initial_value: int)
         "answer": answer,
         "answer_type": "expression",
         "ingredients": {
+            "topic": TOPIC,
             "rate": rate,
             "initial_value": initial_value,
             "solution": solution,
@@ -58,8 +59,8 @@ def verify_homogeneous_constant_coefficient_first_order_ode(problem: Any) -> boo
 
         ingredients = problem["ingredients"]
         if not isinstance(ingredients, dict) or set(ingredients) != {
-            "rate", "initial_value", "solution"
-        }:
+            "topic", "rate", "initial_value", "solution"
+        } or ingredients["topic"] != TOPIC:
             return False
         rate, initial_value = ingredients["rate"], ingredients["initial_value"]
         if not _is_int(rate) or not _is_int(initial_value):
@@ -72,9 +73,11 @@ def verify_homogeneous_constant_coefficient_first_order_ode(problem: Any) -> boo
         # For y(t)=y0*exp(k*t), d(y)/dt = (k*y0)*exp(k*t) = k*y(t),
         # and substituting t=0 gives y(0)=y0. These coefficient/exponent
         # identities are exact and do not reuse the generator's boolean check.
-        derivative_coefficient = rate * initial_value
-        right_hand_side_coefficient = rate * initial_value
-        derivative_exponent = rate
+        solution_coefficient = initial_value
+        solution_exponent = rate
+        derivative_coefficient = solution_coefficient * solution_exponent
+        right_hand_side_coefficient = rate * solution_coefficient
+        derivative_exponent = solution_exponent
         right_hand_side_exponent = rate
         initial_at_zero = initial_value * 1
         if (derivative_coefficient, derivative_exponent) != (
