@@ -30,8 +30,8 @@ class DatasetResourceLimitTests(unittest.TestCase):
             size = dataset.stat().st_size
             for limits, message in (
                 (DatasetResourceLimits(max_dataset_bytes=size - 1), "max_dataset_bytes"),
-                (DatasetResourceLimits(max_rows=10), "max_rows"),
-                (DatasetResourceLimits(max_line_bytes=32), "max_line_bytes"),
+                (DatasetResourceLimits(max_rows=10), "row limit"),
+                (DatasetResourceLimits(max_line_bytes=32), "line byte limit"),
                 (DatasetResourceLimits(max_split_manifest_bytes=10), "max_split_manifest_bytes"),
             ):
                 with self.subTest(message=message):
