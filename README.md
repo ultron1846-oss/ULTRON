@@ -11,7 +11,8 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - Repository: `ultron1846-oss/ULTRON`
 - Branch: `phase3/dataset-engineering-quality-2026-11-28`
 - PR base: `main` at `2ba3340dbc841699ad98e651c86f2e227be8cac0`
-- Code revision validated by CI: `9ac499eeacef0fe9d2b6d3c4e6340f80adb3ecb6`
+- Earlier CI-green code revision: `9ac499eeacef0fe9d2b6d3c4e6340f80adb3ecb6`
+- Latest code + regression-test revision (includes combined writer temporary-output quota): `a978baddb53d9837a84efaf08660aa6d552b7aa1`
 - Documentation/benchmark report revision before this README update: `c16ad1bca730afc08a533b5de78a0e2d4554a1f3`
 - README handoff commit: see the latest commit on the branch after this update. CI must be rechecked against that exact head before Phase 3 is accepted.
 - Review gate: no independent review or unresolved review thread was present at the last live check. PR remains open and unmerged.
@@ -19,7 +20,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 ### Phase 3 deliverables
 
 - Shared immutable `DatasetResourceLimits` used across dataset semantic verification, incremental writing, split construction/validation, indexed stores/loaders, non-authorizing preflight, benchmark and quality audit. It bounds dataset bytes, rows, lines, dataset/split manifest sizes, SQLite cache, copy/fetch/index batch sizes, index bytes and combined temporary bytes.
-- Streaming `write_dataset`: canonical row-by-row JSONL output, incremental SHA-256, bounded row/byte/line/sidecar checks, duplicate-ID and duplicate-index rejection, fsynced temporary files and fail-closed verification if the two separately atomic replacements are interrupted.
+- Streaming `write_dataset`: canonical row-by-row JSONL output, incremental SHA-256, bounded row/byte/line/sidecar checks, combined temporary JSONL-plus-sidecar disk budget, duplicate-ID and duplicate-index rejection, fsynced temporary files and fail-closed verification if the two separately atomic replacements are interrupted.
 - Disk-backed index budgets: SQLite page caps are set from configured index and remaining temporary disk budgets; split/index/quality builders translate quota exhaustion to clear errors.
 - Read-only `ultron_core.dataset_quality` tool with deterministic report hash, manifest-bound input checks, second-pass mutation detection, per-split topic/difficulty/answer-format reports, exact-answer rechecks, prompt/answer/template/ingredient/seed overlap diagnostics, dominant lexical-template reporting, and explicit unassessed categories.
 - Stress/regression additions for size boundaries, concurrent readers, stable order, missing/truncated files, duplicate IDs/split entries, interrupted snapshot/index/write replacement, corrupt-index recovery, file-descriptor cleanup, output-path hard-link aliases, deterministic reports, copied-dataset/sidecar/split integrity revalidation, tampered-copy rejection, and 12,000-row synthetic fixture benchmarking.
