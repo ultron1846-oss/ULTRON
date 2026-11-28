@@ -4,13 +4,18 @@ import { readFile } from 'node:fs/promises';
 import { evaluateExpression, solveLinearEquation, tokenize } from '../math-engine.js';
 
 test('TypeScript source declares explicit token and equation result types', async () => {
-  const [source, packageJson] = await Promise.all([
+  const [source, packageJson, packageLock] = await Promise.all([
     readFile(new URL('../src/math-engine.ts', import.meta.url), 'utf8'),
     readFile(new URL('../package.json', import.meta.url), 'utf8'),
+    readFile(new URL('../package-lock.json', import.meta.url), 'utf8'),
   ]);
   const manifest = JSON.parse(packageJson);
+  const lock = JSON.parse(packageLock);
   const scripts = manifest.scripts;
-  assert.equal(manifest.devDependencies.typescript, '5.8.3');
+  const declaredTypeScript = manifest.devDependencies?.typescript;
+  assert.match(declaredTypeScript ?? '', /^\d+\.\d+\.\d+$/);
+  assert.equal(lock.packages?.['']?.devDependencies?.typescript, declaredTypeScript);
+  assert.equal(lock.packages?.['node_modules/typescript']?.version, declaredTypeScript);
   assert.ok(scripts['build:math'].includes('tsc'));
   assert.match(scripts.test, /build:math/);
   assert.match(source, /export type LinearEquationSolution/);
