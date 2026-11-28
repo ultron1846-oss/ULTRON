@@ -2,12 +2,12 @@
 
 ## Status and scope
 
-This report records the read-only verified-dataset benchmark executed by the Python AI Core GitHub Actions job for PR #220 on implementation revision `9ac499eeacef0fe9d2b6d3c4e6340f80adb3ecb6`.
+This report records the read-only verified-dataset benchmark executed by the Python AI Core GitHub Actions job for PR #220 on implementation revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a`.
 
-- GitHub Actions run: [Python AI Core Tests #46149042002](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042002)
-- Job: `python-core`, job ID `140991331930`
+- GitHub Actions run: [Python AI Core Tests #46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135)
+- Job: `python-core`, job ID `140993841838`
 - Test command: `python -m unittest discover -s tests/python -v`
-- Result: **709 tests passed in 95.633 seconds**
+- Result: **711 tests passed in 100.380 seconds**
 - The 12,000-row input was a temporary synthetic test fixture created within CI; it is not a production corpus and is not retained as project data.
 - The benchmark itself reports `data_generated=false`, `dataset_modified=false`, `training_performed=false`, and `optimizer_steps=0`.
 
@@ -31,12 +31,12 @@ The benchmark verified the existing fixture and split manifest, built a private 
 |---|---:|
 | Verified snapshot copy size | 4,540,482 bytes |
 | SQLite index size | 6,291,456 bytes |
-| Index build time | 6.090728 seconds |
-| Sequential scan duration | 0.659112 seconds |
-| Sequential scan throughput | 18,206.30 rows/second |
-| Random-read median latency | 0.112571 ms |
-| Random-read p95 latency | 0.145643 ms |
-| Traced peak Python allocations | 33,576,795 bytes |
+| Index build time | 6.392324 seconds |
+| Sequential scan duration | 0.660702 seconds |
+| Sequential scan throughput | 18,162.50 rows/second |
+| Random-read median latency | 0.108978 ms |
+| Random-read p95 latency | 0.128690 ms |
+| Traced peak Python allocations | 33,574,865 bytes |
 
 These values are from one hosted CI run. They are observations, not stable performance guarantees or cross-system comparisons. They are not a speedup comparison against an eager loader.
 
@@ -50,9 +50,9 @@ The reported disk bytes are the private snapshot and SQLite index files at measu
 
 All workflows passed on exact PR head `9ac499eeacef0fe9d2b6d3c4e6340f80adb3ecb6`:
 
-- [Tests / Node Tests — run #46149042004](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042004): success; command `npm test`.
-- [Python AI Core Tests — run #46149042002](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042002): success; command `python -m unittest discover -s tests/python -v` (709 tests), followed by `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` (success).
-- [ULTRON Level 1 Math Tooling — run #46149042003](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042003): success; command `pytest -q`, including the workflow's 5,000 randomized cases.
+- [Tests / Node Tests — run #46149827140](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827140): success; command `npm test`.
+- [Python AI Core Tests — run #46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135): success; command `python -m unittest discover -s tests/python -v` (711 tests), followed by `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` (success).
+- [ULTRON Level 1 Math Tooling — run #46149827139](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827139): success; command `pytest -q`, including the workflow's 5,000 randomized cases.
 
 The CPU smoke is a forward/backward validation only. It does not step an optimizer or update ULTRON weights.
 
