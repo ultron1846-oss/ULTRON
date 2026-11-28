@@ -2,8 +2,8 @@
 
 **Audit date:** 2026-11-28  
 **Baseline commit:** Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1  
-**Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28 (PR #209); phase2/ode-scope-and-validator-2026-11-28 (PR #210)  
-**Status:** Two bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, and homogeneous constant-coefficient first-order ODEs. Both mathematical families have passed the required exact-head GitHub Actions checks in their respective PR branches. PR #209 and PR #210 remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
+**Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28 (PR #209); phase2/ode-scope-and-validator-2026-11-28 (PR #210); phase2/separable-first-order-ode-family-2026-11-28 (PR #212)  
+**Status:** Three bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, and a restricted separable power-law ODE family. Both mathematical families have passed the required exact-head GitHub Actions checks in their respective PR branches. PR #209, PR #210 and PR #212 remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
 
 ## 1. Coverage counts: baseline and current candidate
 
@@ -12,12 +12,12 @@ The counts below are derived from the combined committed topic registry, the per
 | State | Phase 2 baseline | Current candidate |
 |---|---:|---:|
 | Catalogued scope entries | 250 | 255 |
-| Generator available | 113 | 114 |
-| Independently validated exercise topics | 61 | 63 |
+| Generator available | 113 | 115 |
+| Independently validated exercise topics | 61 | 64 |
 | Measured model-task benchmarks | 0 | 0 |
 | Mastered topics | 0 | 0 |
 
-The baseline independent-validation count is 53 university topics plus eight core exact-math topics. The current candidate adds two independently checked families (Green's theorem and the narrowed homogeneous first-order ODE family), giving 55 university topics plus eight core topics. The school-band generators remain implemented but are not included in the independent-validation total unless a separate mathematical recomputation is recorded for each topic.
+The baseline independent-validation count is 53 university topics plus eight core exact-math topics. The current candidate adds three independently checked families (Green's theorem, homogeneous first-order ODEs, and restricted separable power-law ODEs), giving 56 university topics plus eight core topics. The school-band generators remain implemented but are not included in the independent-validation total unless a separate mathematical recomputation is recorded for each topic.
 
 The manifest requires named test methods and independent-validator descriptions. It rejects evidence paths or methods that are missing. Benchmark and mastery lists are empty: generator tests, generator throughput, synthetic CI fixtures, and random-initialized model smoke tests are not trained-model mathematical benchmarks or mastery evidence.
 
@@ -65,11 +65,11 @@ Only the Green rectangle family is implemented in this theorem group. It does no
 The former first_order_ODEs umbrella was also replaced by:
 
 - homogeneous_constant_coefficient_first_order_ODEs: generator available for y'=k y with y(0)=y0, with an independent analytic validator.
-- separable_first_order_ODEs: catalogued, no generator.
+- separable_first_order_ODEs: generator available only for y'=c*x^m*y^n with rational c, x0, y0; m=0..3 and n=0..2 subject to difficulty bounds.
 - linear_first_order_variable_coefficient_ODEs: catalogued, no generator.
 - exact_first_order_ODEs: catalogued, no generator.
 
-The existing generator is not a general ODE solver. Its supported coefficients satisfy |k|≤4d and 1≤y0≤8d for difficulty d∈{1,2,3,4,5}; these levels scale the integer magnitudes but do not add new equation structures. The validator checks the exact canonical solution y(t)=y0 exp(k t), its derivative identity, the initial value, and the complete generated problem object.
+The homogeneous generator is not a general ODE solver. Its supported coefficients satisfy |k|≤4d and 1≤y0≤8d for difficulty d∈{1,2,3,4,5}; these levels scale the integer magnitudes but do not add new equation structures. Its validator checks the exact canonical solution y(t)=y0 exp(k t), its derivative identity, the initial value, and the complete generated problem object. The separable generator supports only y'=c*x^m*y^n with rational c≠0, x0 and y0>0, m≤min(3,d−1), and n≤min(2,⌊(d−1)/2⌋). Input rational numerators have absolute value ≤2d and denominators ≤d (global caps 10 and 5); the n=2 reciprocal branch is restricted to intervals on which its denominator is nonzero. Its independent validator checks the exact derivative coefficient identity and initial-value substitution for the polynomial, exponential, and reciprocal branches. This remains a bounded subfamily, not general separable ODE support.
 
 ### Further scope review backlog
 
@@ -110,10 +110,10 @@ This batch defines Green difficulty concretely: level 1–5 bounds the maximum t
 
 ## 5. Dependency-aware topic expansion order
 
-The remaining 141 university topics without generators are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.
+The remaining 140 university topics without generators are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.
 
 1. **Calculus and vector calculus:** complete partial derivatives and gradient/directional-derivative families; bounded multiple integrals; line integrals over parameterized segments; surface integrals over explicitly parameterized patches; Green's theorem extensions only after the rectangle family; then Stokes and divergence theorem as separate workstreams.
-2. **Ordinary differential equations:** the current batch bounds the existing y'=k y generator as homogeneous constant-coefficient first-order ODEs. Remaining work includes independent generators/validators for general separable equations, variable-coefficient linear equations, exact equations, second-order constant-coefficient equations, systems, series solutions and numerical ODE schemes. A single exponential-decay example does not establish general first-order ODE coverage.
+2. **Ordinary differential equations:** the current batch bounds the existing y'=k y generator as homogeneous constant-coefficient first-order ODEs. Remaining work includes broader separable equations beyond the implemented power-law family, variable-coefficient linear equations, exact equations, second-order constant-coefficient equations, systems, series solutions and numerical ODE schemes. A single exponential-decay example does not establish general first-order ODE coverage.
 3. **PDEs and mathematical physics:** classify a narrow PDE family (for example, constant-coefficient first-order transport or selected separable heat-equation cases), with explicit domain/boundary assumptions; then separate wave, Laplace/Poisson and numerical PDE work. Keep applications and general PDE solving distinct.
 4. **Linear algebra:** exact row reduction and rank; linear maps and null/range; determinants and inverse families; eigenvalues/eigenvectors for bounded matrices; orthogonality/projections/least squares; then spectral/Jordan forms under explicit field and diagonalizability assumptions.
 5. **Abstract algebra:** groups/subgroups and cyclic groups; homomorphisms/kernels/images; cosets/Lagrange; rings/ideals; fields/extensions; then carefully bounded Galois examples. Keep structural proof validation separate from finite computational examples.
@@ -132,3 +132,16 @@ The remaining 141 university topics without generators are not one flat implemen
 - A benchmark is not mastery.
 - Mastery requires measured evaluation evidence from a compatible trained checkpoint and a separately defined acceptance policy.
 - No generated corpus, downloaded data, model training, optimizer step, remote job, deployment, or checkpoint publication occurred in this phase.
+
+
+## 7. Separable ODE subfamily added
+
+The existing separable_first_order_ODEs catalogue item now has a generator only for the bounded power-law family
+
+\[
+y'=c x^m y^n,\qquad y(x_0)=y_0,
+\]
+
+where c, x0 and y0 are exact rationals, c is nonzero and y0 is positive. Integer powers satisfy \(0\le m\le \min(3,d-1)\) and \(0\le n\le \min(2,\lfloor(d-1)/2\rfloor)\) at difficulty \(d\in\{1,\ldots,5\}\). Input rational numerator absolute values are at most \(2d\) (global maximum 10) and positive denominators at most d (global maximum 5). This gives a polynomial solution for n=0, an exponential solution for n=1, and a reciprocal solution for n=2. The reciprocal family is valid on any connected interval containing x0 where its denominator is nonzero.
+
+The validator checks, with exact rational arithmetic, the derivative coefficient and initial-value identities independently for all three solution forms, then verifies the full canonical exercise object. Tests cover 500 deterministic seeds, all three branches and all four x-powers, difficulty progression, tampering, malformed rational inputs, type and bound rejections, and the seed/difficulty limits. This does not claim support for arbitrary separable factors or general separable ODE solving.
