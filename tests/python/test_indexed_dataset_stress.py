@@ -4,14 +4,18 @@ Fixtures are temporary and synthetic. These tests do not generate a training
 corpus, instantiate ULTRON weights, or train.
 """
 import json
+import os
+import sqlite3
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 from test_dataset_split_manifest import fixture
 from ultron_core.dataset_split_manifest import prepare_dataset_split_manifest
-from ultron_core.indexed_verified_dataset import VerifiedIndexedSplitStore
+import ultron_core.indexed_verified_dataset as indexed_module
+from ultron_core.indexed_verified_dataset import IndexedDatasetResourceLimits, VerifiedIndexedSplitStore
 from tools.benchmark_verified_dataset import benchmark_indexed_dataset
 
 
@@ -135,6 +139,146 @@ class IndexedDatasetStressTests(unittest.TestCase):
                     VerifiedIndexedSplitStore(dataset, split)
             self.assertEqual(len(created_paths), 1)
             self.assertFalse(created_paths[0].exists())
+
+
+    def test_configurable_resource_limits_are_enforced_and_tunables_applied(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset, split = self._prepare(root, count=90)
+            limits = IndexedDatasetResourceLimits(
+                snapshot_copy_chunk_bytes=4096,
+                sqlite_cache_kib=1,
+                index_build_batch_rows=7,
+                iterator_fetch_rows=5,
+            )
+            with VerifiedIndexedSplitStore(dataset, split, resource_limits=limits) as store:
+                self.assertEqual(store.resource_limits, limits)
+                self.assertEqual(len(list(store.iter_records("train"))), store.split_counts["train"])
+                self.assertFalse(os.stat(store._snapshot_path).st_mode & 0o222)
+
+            cases = (
+                (IndexedDatasetResourceLimits(max_dataset_bytes=dataset.stat().st_size - 1),
+                 "max_dataset_bytes"),
+                (IndexedDatasetResourceLimits(max_rows=10), "max_rows"),
+                (IndexedDatasetResourceLimits(max_line_bytes=10), "max_line_bytes"),
+                (IndexedDatasetResourceLimits(max_split_manifest_bytes=10),
+                 "max_split_manifest_bytes"),
+            )
+            for resource_limits, message in cases:
+                with self.subTest(message=message):
+                    with self.assertRaisesRegex(ValueError, message):
+                        VerifiedIndexedSplitStore(dataset, split, resource_limits=resource_limits)
+
+            for kwargs in (
+                {"max_rows": 0},
+                {"max_line_bytes": True},
+                {"sqlite_cache_kib": 0},
+                {"iterator_fetch_rows": 4097},
+            ):
+                with self.subTest(kwargs=kwargs):
+                    with self.assertRaises((TypeError, ValueError)):
+                        IndexedDatasetResourceLimits(**kwargs)
+
+    def test_concurrent_readers_have_stable_order_and_independent_storage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=180)
+
+            def read_train(_):
+                with VerifiedIndexedSplitStore(dataset, split) as store:
+                    records = list(store.iter_records("train"))
+                    ids = [record[0] for record in records]
+                    self.assertEqual(ids, sorted(ids))
+                    self.assertEqual(len(ids), store.split_counts["train"])
+                    return records
+
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                results = list(executor.map(read_train, range(4)))
+            self.assertTrue(all(result == results[0] for result in results[1:]))
+            self.assertTrue(dataset.is_file())
+            self.assertTrue(split.is_file())
+
+    def test_missing_and_truncated_source_files_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            dataset.unlink()
+            with self.assertRaisesRegex(ValueError, "not a file"):
+                VerifiedIndexedSplitStore(dataset, split)
+
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            original = dataset.read_bytes()
+            dataset.write_bytes(original[:-7])
+            with self.assertRaises(ValueError):
+                VerifiedIndexedSplitStore(dataset, split)
+
+    def test_interrupted_index_build_rolls_back_and_removes_temporary_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            real_connect = sqlite3.connect
+            real_temporary_directory = tempfile.TemporaryDirectory
+            created_paths = []
+            state = {"record_inserts": 0}
+
+            class FaultingConnection:
+                def __init__(self, connection):
+                    self.connection = connection
+
+                def execute(self, sql, parameters=()):
+                    if sql.lstrip().upper().startswith("INSERT INTO RECORDS"):
+                        state["record_inserts"] += 1
+                        if state["record_inserts"] == 4:
+                            raise RuntimeError("injected interrupted index update")
+                    return self.connection.execute(sql, parameters)
+
+                def executemany(self, sql, parameters):
+                    return self.connection.executemany(sql, parameters)
+
+                def commit(self):
+                    return self.connection.commit()
+
+                def rollback(self):
+                    return self.connection.rollback()
+
+                def close(self):
+                    return self.connection.close()
+
+            def tracked_temporary_directory(*args, **kwargs):
+                temporary = real_temporary_directory(*args, **kwargs)
+                if kwargs.get("prefix") == "ultron-indexed-dataset-":
+                    created_paths.append(Path(temporary.name))
+                return temporary
+
+            with patch.object(
+                indexed_module.sqlite3, "connect",
+                side_effect=lambda *args, **kwargs: FaultingConnection(real_connect(*args, **kwargs)),
+            ), patch.object(
+                indexed_module.tempfile, "TemporaryDirectory",
+                side_effect=tracked_temporary_directory,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "injected interrupted"):
+                    VerifiedIndexedSplitStore(dataset, split)
+
+            self.assertEqual(state["record_inserts"], 4)
+            self.assertEqual(len(created_paths), 1)
+            self.assertFalse(created_paths[0].exists())
+
+    def test_duplicate_manifest_ids_and_manifest_hash_mismatch_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            payload = json.loads(split.read_text(encoding="utf-8"))
+            payload["split_ids"]["train"].append(payload["split_ids"]["train"][0])
+            payload["split_ids"]["train"].sort()
+            split.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                VerifiedIndexedSplitStore(dataset, split)
+
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            payload = json.loads(split.read_text(encoding="utf-8"))
+            payload["split_seed"] += 1
+            split.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                VerifiedIndexedSplitStore(dataset, split)
 
 
 if __name__ == "__main__":
