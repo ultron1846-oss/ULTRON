@@ -88,8 +88,20 @@ class DatasetQualityAuditTests(unittest.TestCase):
                 _reject_output_aliases(alias, (dataset, split, sidecar))
 
     def test_current_sample_schema_and_seed_contract_are_deterministic(self):
-        first = generate_examples(seed=1846, count=72, topics=SUPPORTED_TOPICS)
-        second = generate_examples(seed=1846, count=72, topics=SUPPORTED_TOPICS)
+        first = tuple(
+            example
+            for topic_index, topic in enumerate(SUPPORTED_TOPICS)
+            for example in generate_examples(
+                seed=1846 + topic_index, count=9, topics=(topic,)
+            )
+        )
+        second = tuple(
+            example
+            for topic_index, topic in enumerate(SUPPORTED_TOPICS)
+            for example in generate_examples(
+                seed=1846 + topic_index, count=9, topics=(topic,)
+            )
+        )
         expected_fields = {
             "example_id", "generator_version", "topic", "difficulty",
             "input_text", "target_text", "exact_answer", "seed", "index",
