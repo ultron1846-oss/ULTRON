@@ -19,7 +19,7 @@ The report is deterministic for identical verified input bytes and uses canonica
 | Duplicate row index | Exact index uniqueness enforced by semantic verifier | Hard integrity failure |
 | Exact/normalized prompt duplicate | Whitespace collapse + Unicode-preserving case-fold, exact hash | Counted and reported; selected prompt groups must not cross splits |
 | Exact normalized answer overlap | Whitespace collapse + case-fold, exact hash by split | Diagnostic only; frequent correct answers can naturally recur |
-| Generator ingredient overlap | Canonical hash of generator version, topic, seed, index and generation parameters | Any cross-split overlap is a hard warning |
+| Generator ingredient overlap | Canonical hash of generator version, topic and generation parameters; excludes dataset seed and row index | Any cross-split overlap is a hard warning |
 | Lexical template signature | Normalize prompt then replace integer/rational literals with <num> | Diagnostic only; broad templates are expected to repeat |
 | Semantic near-duplicate | No validated semantic-equivalence engine exists for all mixed-topic tasks | Explicitly not_assessed; owner review required |
 
@@ -27,7 +27,7 @@ The template signature is deliberately lexical. It is not structural algebraic n
 
 ## 3. Reference-answer and solvability checks
 
-The semantic dataset verifier checks each supported row using the exact per-topic validator and checks that target_text equals exact_answer. The quality audit re-runs the same exact reference validator and reports rows rechecked and invalid answers. Existing deterministic positive/negative tests exercise the eight currently supported topic grammars (arithmetic, rational arithmetic, linear equations, polynomial derivatives, polynomial definite integrals, 2x2 determinants, 2x2 inverses and 2x2 linear systems). Each newly added generator family must bring a separate seed/difficulty replay test and an independent mathematical invariant or exact reference calculation; it cannot inherit a quality claim merely by appearing in a registry.
+The semantic dataset verifier checks each supported row using the exact per-topic validator and checks that target_text equals exact_answer. The quality audit reports this same-validator repeatability check separately from an independent reconstruction check. The independent check is implemented separately in ultron_core/dataset_math_validation.py; it reconstructs each supported prompt and recomputes its exact answer from generation_parameters without importing the ingestion validator. It also checks topic-specific difficulty. This is independent implementation coverage, not a formal proof-kernel result. Existing deterministic positive/negative tests exercise the eight currently supported topic grammars (arithmetic, rational arithmetic, linear equations, polynomial derivatives, polynomial definite integrals, 2x2 determinants, 2x2 inverses and 2x2 linear systems). Each newly added generator family must bring a separate seed/difficulty replay test and an independent mathematical invariant or exact reference calculation; it cannot inherit a quality claim merely by appearing in a registry.
 
 This establishes agreement with the current validator implementation for the supported generator grammar; it does not prove the verifier code is formally sound, establish correctness for unsupported topics, or prove that a human understands every problem statement. Independent per-generator tests should separately recompute mathematical invariants from ingredients, and any generator not covered by those tests must not be described as independently validated.
 
@@ -41,9 +41,9 @@ The v1 audit reports pairwise train/validation/test overlaps for:
 - normalized answer hashes;
 - lexical template signatures;
 - generator-ingredient hashes;
-- dataset-generation seed values (reported as a reuse diagnostic, not an automatic leakage failure).
 
-Prompt-group split separation and ingredient overlap are integrity gates. Shared answer values and broad template signatures are diagnostic findings, not automatic leakage conclusions: independent questions can share an answer or template. Seed-use counts are reported per split and shared seed values are exposed as a diagnostic. A single dataset-wide seed appearing in every split is expected under schema v1; it is not, by itself, sample-level leakage. Repeated full ingredients are detected by canonical ingredient hashes.
+
+Prompt-group split separation and ingredient overlap are integrity gates. Shared answer values and broad template signatures are diagnostic findings, not automatic leakage conclusions: independent questions can share an answer or template. Dataset-seed use counts are reported per split. A single dataset-wide seed appearing in every split is expected under schema v1; it is not a sample-level leakage signal. Repeated mathematical ingredients are detected by canonical hashes that exclude dataset seed and row index.
 
 Evaluation records remain disjoint from training records by the manifest's selected IDs and exact prompt-group assignment. This is data-split integrity only. It does not establish an unseen-concept test, owner-curated semantic separation, or freedom from all conceptual leakage. Topic/difficulty/answer-format distributions and dominant template shares are shown per split so easy-template dominance and coverage imbalance can be reviewed explicitly.
 
@@ -55,7 +55,7 @@ The report emits, for each split:
 - topic counts and number of topics represented;
 - difficulty counts and observed difficulty levels;
 - answer-format counts (integer, rational, matrix, assignment_pair, symbolic_or_polynomial, other);
-- unique seed count and per-seed use counts;
+- unique dataset-seed count and per-split dataset-seed use counts (not a per-sample seed-balance metric);
 - highest-frequency lexical template per topic and its share.
 
 These are descriptive distributions. The current generator does not define a calibrated cross-topic difficulty scale. Counts must not be interpreted as equivalent difficulty across topics. No universal balance threshold is asserted; future acceptance thresholds must be topic-specific and justified by coverage goals.
@@ -68,7 +68,7 @@ Boundary coverage is also not currently measurable. The report therefore returns
 
 ## 7. Reproducibility evidence
 
-A report records dataset and split SHA-256, split counts, generator versions, seed distribution and a deterministic report digest. Running the audit twice against identical inputs must yield byte-equivalent JSON and the same report digest. Transferred copies must pass dataset and split verification again before audit. Reproducibility of this audit does not imply that all generators are independently mathematically validated or that the corpus is representative.
+A report records dataset and split SHA-256, split counts, generator versions, dataset-level seed metadata, independent parameter/answer recheck counts and a deterministic report digest. Running the audit twice against identical inputs must yield byte-equivalent JSON and the same report digest. Transferred copies must pass dataset and split verification again before audit. Reproducibility of this audit does not imply that all generators are independently mathematically validated or that the corpus is representative.
 
 ## 8. Production gate
 
@@ -85,3 +85,10 @@ A report may show zero invalid exact answers and zero prompt/ingredient overlap 
 9. separate explicit authorization for any corpus-generation job.
 
 This phase's output is a read-only audit tool and contract documentation, not a ready corpus.
+
+
+## Schema-v1 interpretation correction
+
+Schema v1 stores a single dataset-manifest seed repeated on every row. Its repetition across train/validation/test is therefore expected and is not a sample-level seed-overlap metric; the report now labels it dataset-level metadata only. The mathematical-ingredient fingerprint excludes both that dataset seed and the unique row index. It hashes generator version, topic and canonical generation parameters.
+
+The quality report distinguishes the same-validator repeatability scan from the independent parameter-based reconstruction scan. The former confirms the ingestion validator still accepts the row; the latter independently derives the exact prompt, target answer and difficulty from the recorded ingredients.

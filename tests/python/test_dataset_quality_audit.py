@@ -12,7 +12,7 @@ from test_dataset_split_manifest import fixture
 from ultron_core.dataset_split_manifest import prepare_dataset_split_manifest
 from ultron_core.data_generation import SUPPORTED_TOPICS, generate_examples
 import ultron_core.dataset_quality as quality_module
-from ultron_core.dataset_quality import audit_dataset_quality, _reject_output_aliases
+from ultron_core.dataset_quality import audit_dataset_quality, _reject_output_aliases, _generation_ingredients_hash
 from ultron_core.dataset_resource_limits import DatasetResourceLimits
 
 
@@ -42,6 +42,10 @@ class DatasetQualityAuditTests(unittest.TestCase):
             self.assertEqual(first["prerequisite_coverage"]["status"], "not_assessed")
             self.assertTrue(first["quality_gate_summary"]["manifest_and_split_verified"])
             self.assertTrue(first["quality_gate_summary"]["all_reference_answers_rechecked"])
+            self.assertTrue(first["quality_gate_summary"]["all_generation_parameters_and_answers_independently_checked"])
+            self.assertEqual(first["independent_generation_recheck"]["rows_reconstructed_and_verified"], 180)
+            self.assertEqual(first["independent_generation_recheck"]["invalid_generation_records"], 0)
+            self.assertEqual(first["dataset_seed_scope"]["status"], "dataset_level_seed_not_per_sample")
             self.assertTrue(first["quality_gate_summary"]["prompt_group_split_separation"])
             self.assertFalse(first["quality_gate_summary"]["production_readiness"])
             self.assertEqual(first["semantic_near_duplicates"]["status"], "not_assessed")
@@ -65,7 +69,7 @@ class DatasetQualityAuditTests(unittest.TestCase):
             for pair in first["split_pairwise_leakage_diagnostics"].values():
                 self.assertEqual(pair["normalized_prompt_groups"], 0)
                 self.assertEqual(pair["generation_ingredients_shared"], 0)
-                self.assertEqual(pair["generation_seed_values_shared"], 1)
+                self.assertNotIn("generation_seed_values_shared", pair)
 
     def test_corrupted_dataset_or_split_manifest_fails_before_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -308,6 +312,14 @@ class DatasetQualityAuditTests(unittest.TestCase):
                     split,
                     resource_limits=DatasetResourceLimits(max_temporary_bytes=8192),
                 )
+
+
+    def test_generation_ingredient_fingerprint_excludes_row_identity_fields(self):
+        row = {"generator_version": "0.5.0", "topic": "arithmetic", "seed": 31, "index": 3, "generation_parameters": {"a": 7, "operator": "+", "b": 2}}
+        same_ingredients_different_identity = dict(row, seed=99, index=400)
+        self.assertEqual(_generation_ingredients_hash(row), _generation_ingredients_hash(same_ingredients_different_identity))
+        changed_ingredients = dict(row, generation_parameters={"a": 8, "operator": "+", "b": 2})
+        self.assertNotEqual(_generation_ingredients_hash(row), _generation_ingredients_hash(changed_ingredients))
 
 
 if __name__ == "__main__":

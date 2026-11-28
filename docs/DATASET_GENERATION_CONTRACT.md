@@ -60,7 +60,7 @@ The sidecar itself is canonical sorted-key compact UTF-8 JSON followed by a newl
 
 ## 4. Deterministic seed and provenance rules
 
-generate_examples(seed, count, topics) uses a private random.Random(seed) instance. It selects topics in the exact order supplied to topics and uses that same RNG stream for topic selection and generator ingredients. Therefore output depends on all of:
+The JSONL v1 row seed is a dataset-level seed repeated on every row and required to equal the sidecar manifest seed; it is not a unique per-sample seed. generate_examples(seed, count, topics) uses a private random.Random(seed) instance. It selects topics in the exact order supplied to topics and uses that same RNG stream for topic selection and generator ingredients. Therefore output depends on all of:
 
 - generator version and implementation;
 - integer seed;
@@ -121,3 +121,10 @@ The generator accepts the shared DatasetResourceLimits policy: row count, total 
 The current v1 sidecar does not record Python implementation/version, source commit, per-generator parameter schema versions, or a signed provenance identity. The JSONL row does not carry a standalone schema version. The manifest's ID arrays remain O(N) memory. These limitations are recorded explicitly and are not silently promoted to production-ready guarantees.
 
 A future format should introduce explicit row schema metadata and generation-runtime fingerprints using a new manifest version, preserve read-only migration for v1, and independently verify that replays reproduce byte-identical output before changing the accepted generator version.
+
+
+## Independent sample reconstruction addendum
+
+The independent validator in `ultron_core/dataset_math_validation.py` reconstructs each supported prompt and recomputes its exact answer from the row's generation parameters. It also checks topic-specific difficulty and rejects unknown or malformed parameter schemas. Generation, writing, semantic verification and the read-only quality audit use this second implementation in addition to the ingestion validator. This is independent implementation coverage for the eight current schema-v1 topics, not a formal proof-kernel guarantee.
+
+The dataset-level seed and row index remain part of the canonical row identity digest. They are not mathematical ingredients. The quality auditor's ingredient fingerprint includes generator version, topic and generation parameters only, so repeated mathematical ingredients are detectable even when serialized rows have different indices.

@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from ultron_core.data_generation import (
     SUPPORTED_TOPICS,
+    _example_identity_digest,
     generate_examples,
     verify_dataset,
     write_dataset,
@@ -129,6 +130,24 @@ class StreamingDatasetWriterTests(unittest.TestCase):
 
             self.assertEqual(path.read_bytes(), original_dataset_bytes)
             self.assertEqual(manifest_path.read_bytes(), original_manifest_bytes)
+            self.assertEqual(verify_dataset(path), original_manifest)
+
+    def test_writer_rejects_parameter_tampering_even_with_recomputed_identity(self):
+        example = generate_examples(101, 1, topics=("arithmetic",))[0]
+        params = dict(example.generation_parameters)
+        params["a"] += 1
+        altered = replace(example, generation_parameters=tuple(sorted(params.items())))
+        altered = replace(altered, example_id=_example_identity_digest(altered.to_dict()))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "independent-validation.jsonl"
+            original_manifest = write_dataset(path, (example,), seed=101, topics=("arithmetic",))
+            original_bytes = path.read_bytes()
+            manifest_path = path.with_suffix(path.suffix + ".manifest.json")
+            original_sidecar = manifest_path.read_bytes()
+            with self.assertRaisesRegex(ValueError, "independent generation-parameter validation"):
+                write_dataset(path, (altered,), seed=101, topics=("arithmetic",))
+            self.assertEqual(path.read_bytes(), original_bytes)
+            self.assertEqual(manifest_path.read_bytes(), original_sidecar)
             self.assertEqual(verify_dataset(path), original_manifest)
 
     def test_math_example_rejects_duplicate_generation_parameter_names(self):

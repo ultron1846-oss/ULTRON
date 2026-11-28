@@ -16,6 +16,7 @@ import tempfile
 from typing import Iterable
 
 from .dataset_resource_limits import DatasetResourceLimits
+from .dataset_math_validation import validate_generated_math_sample
 
 GENERATOR_VERSION = "0.5.0"
 SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral", "matrix_determinant_2x2", "linear_system_2x2", "matrix_inverse_2x2")
@@ -441,8 +442,12 @@ def generate_examples(
     for index in range(count):
         topic = topics[rng.randrange(len(topics))]
         result.append(_make_one(rng, seed, index, topic))
-    if any(example.validation_status != "semantically_checked" for example in result):
-        raise ArithmeticError("generated example failed independent semantic validation")
+    if any(
+        example.validation_status != "semantically_checked"
+        or not validate_generated_math_sample(example.to_dict())
+        for example in result
+    ):
+        raise ArithmeticError("generated example failed independent generation-parameter validation")
     return tuple(result)
 
 
@@ -643,6 +648,8 @@ def write_dataset(
                 row = item.to_dict()
                 if not hmac.compare_digest(item.example_id, _example_identity_digest(row)):
                     raise ValueError("dataset example ID does not match its canonical content")
+                if not validate_generated_math_sample(row):
+                    raise ValueError("dataset example failed independent generation-parameter validation")
                 row_bytes = (
                     json.dumps(
                         row,
@@ -914,8 +921,10 @@ def verify_dataset(
                         or row["target_text"] != row["exact_answer"]
                         or not validate_example_text(row["input_text"], row["exact_answer"], row["topic"])):
                     raise ValueError("dataset row failed exact semantic validation")
+                if not validate_generated_math_sample(row):
+                    raise ValueError("dataset row failed independent generation-parameter validation")
                 expected_id = _example_identity_digest(row)
-                if not hmac.compare_digest(row["example_id"], expected_id):
+                if not hmac.compare_digest(row["example_id"], expected_id)
                     raise ValueError("dataset row example_id does not match its content")
                 counts[row["topic"]] += 1
     except OSError as exc:

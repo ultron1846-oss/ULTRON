@@ -15,6 +15,7 @@ import sqlite3
 import tempfile
 
 from .data_generation import validate_example_text
+from .dataset_math_validation import validate_generated_math_sample
 from .dataset_resource_limits import DatasetResourceLimits
 from .dataset_split_manifest import (
     _read_bound_split_payload,
@@ -47,6 +48,15 @@ def _normalized_text(value: str) -> str:
 def _template_signature(prompt: str) -> str:
     """Return a deliberately lexical template signature, not semantic equivalence."""
     return _NUMBER.sub("<num>", _normalized_text(prompt))
+
+
+def _generation_ingredients_hash(row: Mapping[str, object]) -> str:
+    """Hash mathematical ingredients, excluding dataset and row identity fields."""
+    return hashlib.sha256(_canonical_json({
+        "generator_version": row["generator_version"],
+        "topic": row["topic"],
+        "generation_parameters": row["generation_parameters"],
+    })).hexdigest()
 
 
 def _answer_format(answer: str) -> str:
@@ -117,6 +127,8 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
     unassigned_rows = 0
     rechecked_rows = 0
     invalid_reference_answers = 0
+    independently_checked_rows = 0
+    invalid_generation_records = 0
     rows_seen = 0
 
     with tempfile.TemporaryDirectory(prefix="ultron-quality-audit-") as temp_dir:
@@ -163,7 +175,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                 "CREATE TABLE prompt_groups (value_hash TEXT PRIMARY KEY, row_count INTEGER NOT NULL, "
                 "assigned_split TEXT, first_example_id TEXT NOT NULL) WITHOUT ROWID"
             )
-            for table in ("prompt_values", "answer_values", "generator_ingredients", "template_values", "seed_values"):
+            for table in ("prompt_values", "answer_values", "generator_ingredients", "template_values"):
                 connection.execute(
                     f"CREATE TABLE {table} (value_hash TEXT NOT NULL, split_name TEXT NOT NULL, "
                     "PRIMARY KEY(value_hash, split_name)) WITHOUT ROWID"
@@ -209,10 +221,6 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                             difficulty_counts[split_name][str(row["difficulty"])] += 1
                             answer_formats[split_name][_answer_format(row["target_text"])] += 1
                             seed_counts[split_name][str(row["seed"])] += 1
-                            connection.execute(
-                                "INSERT OR IGNORE INTO seed_values(value_hash, split_name) VALUES (?, ?)",
-                                (_sha256_text(str(row["seed"])), split_name),
-                            )
 
                         validation_status[str(row.get("validation_status"))] += 1
                         generator_versions[str(row.get("generator_version"))] += 1
@@ -242,6 +250,11 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                                 (prompt_hash,),
                             )
 
+                        if validate_generated_math_sample(row):
+                            independently_checked_rows += 1
+                        else:
+                            invalid_generation_records += 1
+
                         template_hash = _sha256_text(_template_signature(row["input_text"]))
                         if split_name is not None:
                             connection.execute(
@@ -259,14 +272,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                                 (f"{row['topic']}:{template_hash}", split_name),
                             )
 
-                            ingredients = {
-                                "generator_version": row["generator_version"],
-                                "topic": row["topic"],
-                                "seed": row["seed"],
-                                "index": row["index"],
-                                "generation_parameters": row["generation_parameters"],
-                            }
-                            ingredients_hash = hashlib.sha256(_canonical_json(ingredients)).hexdigest()
+                            ingredients_hash = _generation_ingredients_hash(row)
                             connection.execute(
                                 "INSERT OR IGNORE INTO generator_ingredients(value_hash, split_name) "
                                 "VALUES (?, ?)",
@@ -307,7 +313,6 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                     "answer_values_shared": _pairwise_overlap(connection, "answer_values", first, second),
                     "template_signatures_shared": _pairwise_overlap(connection, "template_values", first, second),
                     "generation_ingredients_shared": _pairwise_overlap(connection, "generator_ingredients", first, second),
-                    "generation_seed_values_shared": _pairwise_overlap(connection, "seed_values", first, second),
                 }
 
             prompt_cross_split_groups = int(connection.execute(
@@ -376,8 +381,8 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
             "topic_counts": dict(sorted(topic_counts[split_name].items())),
             "difficulty_counts": dict(sorted(difficulty_counts[split_name].items())),
             "answer_format_counts": dict(sorted(answer_formats[split_name].items())),
-            "unique_seed_count": len(seed_counts[split_name]),
-            "seed_use_counts": dict(sorted(seed_counts[split_name].items())),
+            "unique_dataset_seed_count": len(seed_counts[split_name]),
+            "dataset_seed_use_counts": dict(sorted(seed_counts[split_name].items())),
             "topic_coverage_count": len(topic_counts[split_name]),
             "difficulty_levels_present": sorted(difficulty_counts[split_name]),
             "dominant_templates_by_topic": dominant_templates,
@@ -415,7 +420,21 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
         "reference_answer_recheck": {
             "rows_rechecked": rechecked_rows,
             "invalid_reference_answers": invalid_reference_answers,
-            "method": "repository exact per-topic validate_example_text recheck after manifest verification",
+            "method": "same exact per-topic validator used by semantic ingestion; repeatability check, not independent verification",
+        },
+        "independent_generation_recheck": {
+            "rows_checked": independently_checked_rows + invalid_generation_records,
+            "rows_reconstructed_and_verified": independently_checked_rows,
+            "invalid_generation_records": invalid_generation_records,
+            "method": "separate parameter-based implementation reconstructs each prompt and independently recomputes exact answers from generation_parameters",
+        },
+        "dataset_seed_scope": {
+            "status": "dataset_level_seed_not_per_sample",
+            "interpretation": "Schema v1 requires every row seed to equal the single dataset-manifest seed. Repetition across splits is expected and is not a sample-level leakage measurement.",
+            "seed_use_counts_by_split": {
+                name: dict(sorted(seed_counts[name].items()))
+                for name in ("train", "validation", "test")
+            },
         },
         "per_split": per_split,
         "split_pairwise_leakage_diagnostics": pairwise,
@@ -442,6 +461,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
         "quality_gate_summary": {
             "manifest_and_split_verified": True,
             "all_reference_answers_rechecked": invalid_reference_answers == 0 and rechecked_rows == rows_seen,
+            "all_generation_parameters_and_answers_independently_checked": invalid_generation_records == 0 and (independently_checked_rows + invalid_generation_records) == rows_seen,
             "normalized_prompt_cross_split_groups": prompt_cross_split_groups,
             "generation_ingredient_cross_split_hashes": shared_ingredients,
             "prompt_group_split_separation": prompt_cross_split_groups == 0,
