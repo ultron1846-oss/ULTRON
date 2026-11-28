@@ -64,7 +64,7 @@ class RectangularDoubleIntegralTests(unittest.TestCase):
         )
         self.assertEqual(full, pieces)
         altered = dict(item)
-        altered["answer"] = "0"
+        altered["answer"] = item["answer"] + "; tampered"
         self.assertFalse(verify(altered))
         malformed = dict(item)
         malformed["ingredients"] = dict(item["ingredients"])
