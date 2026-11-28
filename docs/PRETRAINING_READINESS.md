@@ -364,3 +364,8 @@ PR #208's exact integrated head also passed its five workflows, including the Ph
 This documentation refresh changes README/report/audit/readiness text only; it does not alter runtime or generator code. GitHub Actions will rerun on the documentation-updated PR head. `main` remains untouched, and PR #207 is intentionally left open because merging it would trigger the separate Pages deployment gate.
 
 No ULTRON training, optimizer step, production corpus generation/download, remote training, external AI API, deployment, Supabase mutation, or model-weight publication was performed.
+
+
+## Conflict-resolution integration update — 2026-11-28
+
+PR #207 was reconciled onto current `main` `0d62a59433398d254f947ef9a9f8a5cb48b08ff3` as commit `3b4cccd18f434ccb58b5f016e22c5101fc9427bc`, followed by a README-only handoff update. The tree merge preserved Phase 3 dataset work and combined six overlapping files rather than replacing current-main versions. Node, Level 1 Math Tooling and Security/dependency workflows passed on the conflict-resolved code commit; Python AI Core was still running. The final required check is the merge gate. No production corpus generation, training, optimizer step, or remote compute was started.
