@@ -1,0 +1,3 @@
+# Optional seed-data tooling dependencies. These do not create or download a corpus.
+datasets>=3,<5
+huggingface_hub>=0.27,<2
