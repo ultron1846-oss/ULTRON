@@ -23,8 +23,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 216)
-        self.assertEqual(mapping.source_topic_count, 216)
+        self.assertEqual(mapping.mapped_topic_count, 218)
+        self.assertEqual(mapping.source_topic_count, 218)
         self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
@@ -78,6 +78,11 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("mathematical_induction", "recurrence_relations"))
         self.assertTrue(mapping.is_prerequisite("law_of_large_numbers", "central_limit_theorem"))
         self.assertTrue(mapping.is_prerequisite("Bayes_theorem", "Bayesian_statistics_intro"))
+        self.assertTrue(mapping.is_prerequisite("expectation_and_variance", "finite_discrete_distribution_expectation_variance"))
+        self.assertTrue(mapping.is_prerequisite("probability_spaces", "finite_discrete_distribution_expectation_variance"))
+        self.assertTrue(mapping.is_prerequisite("discrete_distributions", "binomial_distribution_point_probabilities"))
+        self.assertTrue(mapping.is_prerequisite("probability_spaces", "binomial_distribution_point_probabilities"))
+        self.assertTrue(mapping.is_prerequisite("counting_principles", "binomial_distribution_point_probabilities"))
 
 
     def test_ode_optimization_and_numerical_edges(self):

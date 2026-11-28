@@ -497,6 +497,20 @@
         "test": "test_500_constant_speed_transport_pde_residuals_and_initial_data",
         "validator": "Independent Fraction evaluation of u_t+c*u_x at rational points and exact substitution of the polynomial initial data at t=0."
       }
+    ],
+    "university:finite_discrete_distribution_expectation_variance": [
+      {
+        "path": "tests/python/test_probability_statistics_exact_generators.py",
+        "test": "test_500_finite_distribution_expectation_and_variance_examples",
+        "validator": "Independent exact normalization of probabilities and recomputation of E[X], E[X^2], and Var(X) from outcomes and relative weights."
+      }
+    ],
+    "university:binomial_distribution_point_probabilities": [
+      {
+        "path": "tests/python/test_probability_statistics_exact_generators.py",
+        "test": "test_500_binomial_point_probabilities_and_moments",
+        "validator": "Independent math.comb/Fraction recomputation of the point probability, mean and variance, plus exact normalization over the full finite support."
+      }
     ]
   },
   "benchmarked": [],

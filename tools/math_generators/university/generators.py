@@ -21,6 +21,8 @@ from .quadratic_potential_exact_ode import TOPIC as QUADRATIC_POTENTIAL_EXACT_OD
 from .divergence_box import TOPIC as DIVERGENCE_BOX_TOPIC, build_divergence_box_fields, verify_divergence_box
 from .ode_second_order_distinct_roots import TOPIC as SECOND_ORDER_DISTINCT_ROOTS_TOPIC, build_distinct_root_second_order_ode_fields, verify_distinct_root_second_order_ode
 from .pde_transport_polynomial import TOPIC as TRANSPORT_POLYNOMIAL_PDE_TOPIC, build_polynomial_transport_pde_fields, verify_polynomial_transport_pde
+from .finite_distribution_moments import TOPIC as FINITE_DISTRIBUTION_MOMENTS_TOPIC, build_finite_distribution_moment_fields, verify_finite_distribution_moments
+from .binomial_distribution import TOPIC as BINOMIAL_DISTRIBUTION_TOPIC, build_binomial_distribution_fields, verify_binomial_distribution
 
 BANDS = {
     "linear_algebra": "University",
@@ -35,6 +37,8 @@ BANDS = {
     QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC: "University",
     SECOND_ORDER_DISTINCT_ROOTS_TOPIC: "University",
     TRANSPORT_POLYNOMIAL_PDE_TOPIC: "University",
+    FINITE_DISTRIBUTION_MOMENTS_TOPIC: "University",
+    BINOMIAL_DISTRIBUTION_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -113,6 +117,10 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         return build_distinct_root_second_order_ode_fields(rng, difficulty)
     if topic == TRANSPORT_POLYNOMIAL_PDE_TOPIC:
         return build_polynomial_transport_pde_fields(rng, difficulty)
+    if topic == FINITE_DISTRIBUTION_MOMENTS_TOPIC:
+        return build_finite_distribution_moment_fields(rng, difficulty)
+    if topic == BINOMIAL_DISTRIBUTION_TOPIC:
+        return build_binomial_distribution_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -543,6 +551,10 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ArithmeticError("independent first-order ODE verification failed")
     if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
         raise ArithmeticError("independent separable ODE verification failed")
+    if topic == FINITE_DISTRIBUTION_MOMENTS_TOPIC and not verify_finite_distribution_moments(fields):
+        raise ArithmeticError("independent finite-distribution moment verification failed")
+    if topic == BINOMIAL_DISTRIBUTION_TOPIC and not verify_binomial_distribution(fields):
+        raise ArithmeticError("independent binomial distribution verification failed")
     if topic == SECOND_ORDER_DISTINCT_ROOTS_TOPIC and not verify_distinct_root_second_order_ode(fields):
         raise ArithmeticError("independent second-order ODE verification failed")
     if topic == TRANSPORT_POLYNOMIAL_PDE_TOPIC and not verify_polynomial_transport_pde(fields):
@@ -574,6 +586,10 @@ def verify(problem: dict) -> bool:
         return verify_separable_problem(problem)
     if isinstance(problem, dict) and problem.get("topic") == QUADRATIC_POTENTIAL_EXACT_ODE_TOPIC:
         return verify_quadratic_potential_exact_ode(problem)
+    if isinstance(problem, dict) and problem.get("topic") == FINITE_DISTRIBUTION_MOMENTS_TOPIC:
+        return verify_finite_distribution_moments(problem)
+    if isinstance(problem, dict) and problem.get("topic") == BINOMIAL_DISTRIBUTION_TOPIC:
+        return verify_binomial_distribution(problem)
     if isinstance(problem, dict) and problem.get("topic") == SECOND_ORDER_DISTINCT_ROOTS_TOPIC:
         return verify_distinct_root_second_order_ode(problem)
     if isinstance(problem, dict) and problem.get("topic") == TRANSPORT_POLYNOMIAL_PDE_TOPIC:

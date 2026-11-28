@@ -190,7 +190,7 @@ class UniversityFoundationTests(unittest.TestCase):
         import json
         payload=json.loads(registry)
         rows={x["topic"]:x for x in payload["topics"]}
-        self.assertEqual(len(rows),216)
+        self.assertEqual(len(rows),218)
         self.assertFalse(rows["Taylor_series"]["has_generator"])
         self.assertTrue(rows["quadratic_Taylor_polynomials"]["has_generator"])
         self.assertFalse(rows["multiple_integrals"]["has_generator"])
@@ -214,6 +214,10 @@ class UniversityFoundationTests(unittest.TestCase):
         self.assertFalse(rows["second_order_linear_ODEs"]["has_generator"])
         self.assertTrue(rows["constant_speed_transport_polynomial_initial_data_PDEs"]["has_generator"])
         self.assertFalse(rows["characteristics_PDE"]["has_generator"])
+        self.assertTrue(rows["finite_discrete_distribution_expectation_variance"]["has_generator"])
+        self.assertTrue(rows["binomial_distribution_point_probabilities"]["has_generator"])
+        self.assertFalse(rows["expectation_and_variance"]["has_generator"])
+        self.assertFalse(rows["discrete_distributions"]["has_generator"])
         self.assertFalse(rows["linear_first_order_variable_coefficient_ODEs"]["has_generator"])
         generator_topics = {x["generator_topic"] for x in payload["topics"] if x.get("generator_topic")}
         self.assertEqual(generator_topics, set(TOPICS))

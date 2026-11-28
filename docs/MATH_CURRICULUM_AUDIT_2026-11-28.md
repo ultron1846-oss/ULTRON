@@ -217,3 +217,13 @@ Two more explicit subfamilies are added while their broad parent rows stay unimp
 - `constant_speed_transport_polynomial_initial_data_PDEs`: the constant-speed transport equation with a degree-at-most-three polynomial initial profile. Independent exact tests evaluate the PDE residual at multiple rational points and verify the initial profile at time zero.
 
 Current candidate: **216 university topics**, **69 generator-available**, **147 without generators**, **216 prerequisite nodes / 407 edges**; **269 combined entries**, **122 generator-available**, **71 independently validated**. Trained-checkpoint benchmarks and mastered topics remain zero.
+
+
+## 14. Bounded finite-distribution and binomial probability families
+
+- `finite_discrete_distribution_expectation_variance`: exact E[X], E[X^2], and Var(X) for a three-point distribution with bounded integer support and positive relative weights.
+- `binomial_distribution_point_probabilities`: exact P(X=k), E[X], and Var(X) for a binomial law with bounded n and rational (0<p<1).
+
+Independent tests recompute all results with Fraction arithmetic, verify probability normalization, and check the binomial PMF sums to one over the complete support. The broad `expectation_and_variance` and `discrete_distributions` topics remain unimplemented.
+
+Updated candidate: **218 university topics**, **71 generator-available**, **147 without generators**, **218 prerequisite nodes / 412 edges**; **271 combined entries**, **124 generator-available**, **73 independently validated**. Model benchmarks and mastery remain zero.
