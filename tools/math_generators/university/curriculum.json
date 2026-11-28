@@ -882,7 +882,8 @@
       "topic": "separable_first_order_ODEs",
       "title": "separable first-order ODEs",
       "field": "Differential equations",
-      "status": "catalogued_not_implemented"
+      "status": "generator_available_not_mastered",
+      "generator_topic": "separable_first_order_ODEs"
     },
     {
       "topic": "linear_first_order_variable_coefficient_ODEs",
