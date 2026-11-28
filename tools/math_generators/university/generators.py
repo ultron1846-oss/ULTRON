@@ -10,11 +10,35 @@ import random
 from fractions import Fraction
 
 from .extended_generators import EXTENDED_BANDS, build as build_extended
+from .green_theorem import TOPIC as GREEN_TOPIC, build_green_fields, verify_green_problem
+from .ode_first_order import verify_homogeneous_constant_coefficient_first_order_ode
+from .ode_separable import TOPIC as SEPARABLE_ODE_TOPIC, MAX_SEED as MAX_SEPARABLE_ODE_SEED, build_separable_fields, verify_separable_problem
+from .rectangular_double_integrals import TOPIC as RECTANGULAR_DOUBLE_INTEGRAL_TOPIC, build_rectangular_double_integral_fields, verify_rectangular_double_integral
+from .complex_arithmetic import TOPIC as COMPLEX_ARITHMETIC_TOPIC, build_complex_arithmetic_fields, verify_complex_arithmetic
+from .ode_variable_coefficient import TOPIC as VARIABLE_COEFFICIENT_ODE_TOPIC, build_variable_coefficient_ode_fields, verify_variable_coefficient_ode
+from .polynomial_line_integrals import TOPIC as POLYNOMIAL_LINE_INTEGRAL_TOPIC, build_polynomial_line_integral_fields, verify_polynomial_line_integral
+from .quadratic_double_integrals import TOPIC as QUADRATIC_DOUBLE_INTEGRAL_TOPIC, build_quadratic_double_integral_fields, verify_quadratic_double_integral
+from .affine_transport_pde import TOPIC as AFFINE_TRANSPORT_PDE_TOPIC, build_affine_transport_pde_fields, verify_affine_transport_pde
+from .binomial_probability import TOPIC as BINOMIAL_PROBABILITY_TOPIC, build_binomial_probability_fields, verify_binomial_probability
+from .finite_graph import TOPIC as FINITE_GRAPH_TOPIC, build_finite_graph_fields, verify_finite_graph
+from .stokes_horizontal_rectangle import TOPIC as STOKES_RECTANGLE_TOPIC, build_stokes_horizontal_rectangle_fields, verify_stokes_horizontal_rectangle
+from .divergence_box import TOPIC as DIVERGENCE_BOX_TOPIC, build_divergence_box_fields, verify_divergence_box
 
 BANDS = {
     "linear_algebra": "University",
     "multivariable_calculus": "University",
-    "differential_equations": "University",
+    "homogeneous_constant_coefficient_first_order_ODEs": "University",
+    SEPARABLE_ODE_TOPIC: "University",
+    RECTANGULAR_DOUBLE_INTEGRAL_TOPIC: "University",
+    COMPLEX_ARITHMETIC_TOPIC: "University",
+    VARIABLE_COEFFICIENT_ODE_TOPIC: "University",
+    POLYNOMIAL_LINE_INTEGRAL_TOPIC: "University",
+    QUADRATIC_DOUBLE_INTEGRAL_TOPIC: "University",
+    AFFINE_TRANSPORT_PDE_TOPIC: "University",
+    BINOMIAL_PROBABILITY_TOPIC: "University",
+    FINITE_GRAPH_TOPIC: "University",
+    STOKES_RECTANGLE_TOPIC: "University",
+    DIVERGENCE_BOX_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -27,7 +51,7 @@ BANDS = {
     "vectors_and_vector_spaces": "University",
     "systems_linear_equations": "University",
     "eigenvalues_and_eigenvectors": "University",
-    "Taylor_series": "University",
+    "quadratic_Taylor_polynomials": "University",
     "conditional_probability": "University",
     "counting_principles": "University",
     "predicate_logic": "University",
@@ -52,6 +76,7 @@ BANDS = {
     "power_series": "University",
     "gradient_and_directional_derivatives": "University",
     "chain_rule_multivariable": "University",
+    GREEN_TOPIC: "University",
 }
 BANDS.update(EXTENDED_BANDS)
 TOPICS = tuple(BANDS)
@@ -72,6 +97,30 @@ GENERATOR_METADATA = {
 
 
 def _build(topic: str, rng: random.Random, difficulty: int):
+    if topic == GREEN_TOPIC:
+        return build_green_fields(rng, difficulty)
+    if topic == SEPARABLE_ODE_TOPIC:
+        return build_separable_fields(rng, difficulty)
+    if topic == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC:
+        return build_rectangular_double_integral_fields(rng, difficulty)
+    if topic == COMPLEX_ARITHMETIC_TOPIC:
+        return build_complex_arithmetic_fields(rng, difficulty)
+    if topic == VARIABLE_COEFFICIENT_ODE_TOPIC:
+        return build_variable_coefficient_ode_fields(rng, difficulty)
+    if topic == STOKES_RECTANGLE_TOPIC:
+        return build_stokes_horizontal_rectangle_fields(rng, difficulty)
+    if topic == DIVERGENCE_BOX_TOPIC:
+        return build_divergence_box_fields(rng, difficulty)
+    if topic == POLYNOMIAL_LINE_INTEGRAL_TOPIC:
+        return build_polynomial_line_integral_fields(rng, difficulty)
+    if topic == QUADRATIC_DOUBLE_INTEGRAL_TOPIC:
+        return build_quadratic_double_integral_fields(rng, difficulty)
+    if topic == AFFINE_TRANSPORT_PDE_TOPIC:
+        return build_affine_transport_pde_fields(rng, difficulty)
+    if topic == BINOMIAL_PROBABILITY_TOPIC:
+        return build_binomial_probability_fields(rng, difficulty)
+    if topic == FINITE_GRAPH_TOPIC:
+        return build_finite_graph_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -95,7 +144,7 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"df/dx={dx}; df/dy={dy}"
         steps=[f"∂f/∂x=2({a})x+({b})y; at point: {dx}.",f"∂f/∂y=({b})x+2({c})y; at point: {dy}."]
         exact=lambda:dx==2*a*x+b*y and dy==b*x+2*c*y
-    elif topic == "differential_equations":
+    elif topic == "homogeneous_constant_coefficient_first_order_ODEs":
         k,y0=n(-4*d,4*d),n(1,8*d)
         data.update(rate=k,initial_value=y0,solution=f"{y0}*exp({k}t)")
         problem=f"Solve y'=({k})y with initial condition y(0)={y0}."
@@ -254,8 +303,9 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"λ1={a}; λ2={b}"
         steps=[f"det(A−λI)=({a}−λ)({b}−λ).",f"The characteristic roots are λ={a} and λ={b}."]
         exact=lambda:data["matrix"]==[[a,0],[0,b]] and (a,b)==tuple(data["eigenvalues"]) and (a-a)*(a-b)==0 and (b-a)*(b-b)==0
-    elif topic == "Taylor_series":
-        a,b,c,h=n(-8*d,8*d),n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d)
+    elif topic == "quadratic_Taylor_polynomials":
+        a=rng.choice(tuple(range(-8*d,0))+tuple(range(1,8*d+1)))
+        b,c,h=n(-8*d,8*d),n(-8*d,8*d),n(-5*d,5*d)
         fh=a*h*h+b*h+c
         derivative=2*a*h+b
         data.update(coefficients=[a,b,c],center=h,value_at_center=fh,derivative_at_center=derivative,taylor_quadratic=a)
@@ -478,20 +528,49 @@ def _build(topic: str, rng: random.Random, difficulty: int):
     fields={"grade_band":BANDS[topic],"topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
             "problem":problem,"steps":steps,"answer":str(answer),"answer_type":"expression",
             "ingredients":data,"verifier":topic+"_seed_replay_exact_check"}
+    if topic == "homogeneous_constant_coefficient_first_order_ODEs":
+        fields["subtopic"] = "homogeneous constant-coefficient first-order ODEs"
+        fields["verifier"] = "independent_homogeneous_constant_coefficient_ode_analytic_check"
     return fields, exact
 
 
 def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
     if not isinstance(seed,int) or isinstance(seed,bool):
         raise TypeError("seed must be int")
-    if difficulty not in (1,2,3,4,5):
-        raise ValueError("difficulty must be 1..5")
+    if not isinstance(difficulty, int) or isinstance(difficulty, bool) or difficulty not in (1,2,3,4,5):
+        raise ValueError("difficulty must be an integer from 1 through 5")
     if topic not in BANDS:
         raise ValueError("unknown topic: "+str(topic))
+    if topic == SEPARABLE_ODE_TOPIC and not 0 <= seed <= MAX_SEPARABLE_ODE_SEED:
+        raise ValueError(f"seed must be between 0 and {MAX_SEPARABLE_ODE_SEED} for {SEPARABLE_ODE_TOPIC}")
     fields,check=_build(topic,random.Random(seed),difficulty)
     fields.update(id=f"university-{topic}-{seed}-{difficulty}",seed=seed)
     if not check():
         raise ArithmeticError("exact answer verification failed")
+    if topic == "homogeneous_constant_coefficient_first_order_ODEs" and not verify_homogeneous_constant_coefficient_first_order_ode(fields):
+        raise ArithmeticError("independent first-order ODE verification failed")
+    if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
+        raise ArithmeticError("independent separable ODE verification failed")
+    if topic == POLYNOMIAL_LINE_INTEGRAL_TOPIC and not verify_polynomial_line_integral(fields):
+        raise ArithmeticError("independent polynomial line-integral verification failed")
+    if topic == QUADRATIC_DOUBLE_INTEGRAL_TOPIC and not verify_quadratic_double_integral(fields):
+        raise ArithmeticError("independent quadratic double-integral verification failed")
+    if topic == AFFINE_TRANSPORT_PDE_TOPIC and not verify_affine_transport_pde(fields):
+        raise ArithmeticError("independent affine transport PDE verification failed")
+    if topic == BINOMIAL_PROBABILITY_TOPIC and not verify_binomial_probability(fields):
+        raise ArithmeticError("independent binomial probability verification failed")
+    if topic == FINITE_GRAPH_TOPIC and not verify_finite_graph(fields):
+        raise ArithmeticError("independent finite graph verification failed")
+    if topic == STOKES_RECTANGLE_TOPIC and not verify_stokes_horizontal_rectangle(fields):
+        raise ArithmeticError("independent Stokes theorem verification failed")
+    if topic == DIVERGENCE_BOX_TOPIC and not verify_divergence_box(fields):
+        raise ArithmeticError("independent divergence theorem verification failed")
+    if topic == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC and not verify_rectangular_double_integral(fields):
+        raise ArithmeticError("independent rectangular double-integral verification failed")
+    if topic == COMPLEX_ARITHMETIC_TOPIC and not verify_complex_arithmetic(fields):
+        raise ArithmeticError("independent complex-arithmetic verification failed")
+    if topic == VARIABLE_COEFFICIENT_ODE_TOPIC and not verify_variable_coefficient_ode(fields):
+        raise ArithmeticError("independent variable-coefficient ODE verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!={k:v for k,v in fields.items() if k not in ("id","seed")}:
         raise ArithmeticError("deterministic replay failed")
@@ -499,6 +578,32 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
 
 
 def verify(problem: dict) -> bool:
+    if isinstance(problem, dict) and problem.get("topic") == GREEN_TOPIC:
+        return verify_green_problem(problem)
+    if isinstance(problem, dict) and problem.get("topic") == "homogeneous_constant_coefficient_first_order_ODEs":
+        return verify_homogeneous_constant_coefficient_first_order_ode(problem)
+    if isinstance(problem, dict) and problem.get("topic") == SEPARABLE_ODE_TOPIC:
+        return verify_separable_problem(problem)
+    if isinstance(problem, dict) and problem.get("topic") == POLYNOMIAL_LINE_INTEGRAL_TOPIC:
+        return verify_polynomial_line_integral(problem)
+    if isinstance(problem, dict) and problem.get("topic") == QUADRATIC_DOUBLE_INTEGRAL_TOPIC:
+        return verify_quadratic_double_integral(problem)
+    if isinstance(problem, dict) and problem.get("topic") == AFFINE_TRANSPORT_PDE_TOPIC:
+        return verify_affine_transport_pde(problem)
+    if isinstance(problem, dict) and problem.get("topic") == BINOMIAL_PROBABILITY_TOPIC:
+        return verify_binomial_probability(problem)
+    if isinstance(problem, dict) and problem.get("topic") == FINITE_GRAPH_TOPIC:
+        return verify_finite_graph(problem)
+    if isinstance(problem, dict) and problem.get("topic") == STOKES_RECTANGLE_TOPIC:
+        return verify_stokes_horizontal_rectangle(problem)
+    if isinstance(problem, dict) and problem.get("topic") == DIVERGENCE_BOX_TOPIC:
+        return verify_divergence_box(problem)
+    if isinstance(problem, dict) and problem.get("topic") == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC:
+        return verify_rectangular_double_integral(problem)
+    if isinstance(problem, dict) and problem.get("topic") == COMPLEX_ARITHMETIC_TOPIC:
+        return verify_complex_arithmetic(problem)
+    if isinstance(problem, dict) and problem.get("topic") == VARIABLE_COEFFICIENT_ODE_TOPIC:
+        return verify_variable_coefficient_ode(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):

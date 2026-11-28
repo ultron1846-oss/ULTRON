@@ -9,9 +9,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "sets_and_functions",
+      "catalog_id": "university:sets_and_functions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "propositional_logic",
@@ -19,9 +23,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "propositional_logic",
+      "catalog_id": "university:propositional_logic",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "predicate_logic",
@@ -29,9 +37,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "predicate_logic",
+      "catalog_id": "university:predicate_logic",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "quantifiers",
@@ -39,9 +51,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "quantifiers",
+      "catalog_id": "university:quantifiers",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "proof_methods",
@@ -49,9 +65,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "proof_methods",
+      "catalog_id": "university:proof_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "mathematical_induction",
@@ -59,9 +79,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "mathematical_induction",
+      "catalog_id": "university:mathematical_induction",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "relations_and_equivalence",
@@ -69,9 +93,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "relations_and_equivalence",
+      "catalog_id": "university:relations_and_equivalence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "cardinality",
@@ -79,9 +107,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "cardinality",
+      "catalog_id": "university:cardinality",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "countable_and_uncountable_sets",
@@ -89,9 +121,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "countable_and_uncountable_sets",
+      "catalog_id": "university:countable_and_uncountable_sets",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "axiom_of_choice_intro",
@@ -99,9 +135,13 @@
       "field": "Foundations and logic",
       "status": "generator_available_not_mastered",
       "generator_topic": "axiom_of_choice_intro",
+      "catalog_id": "university:axiom_of_choice_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "vectors_and_vector_spaces",
@@ -109,9 +149,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "vectors_and_vector_spaces",
+      "catalog_id": "university:vectors_and_vector_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "subspaces_and_span",
@@ -119,9 +163,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "subspaces_and_span",
+      "catalog_id": "university:subspaces_and_span",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "linear_independence",
@@ -129,9 +177,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "linear_independence",
+      "catalog_id": "university:linear_independence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "basis_and_dimension",
@@ -139,9 +191,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "basis_and_dimension",
+      "catalog_id": "university:basis_and_dimension",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "linear_transformations",
@@ -149,9 +205,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "linear_transformations",
+      "catalog_id": "university:linear_transformations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "matrix_rank",
@@ -159,9 +219,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "matrix_rank",
+      "catalog_id": "university:matrix_rank",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "systems_linear_equations",
@@ -169,9 +233,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "systems_linear_equations",
+      "catalog_id": "university:systems_linear_equations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "determinants",
@@ -179,9 +247,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "linear_algebra",
+      "catalog_id": "university:determinants",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "eigenvalues_and_eigenvectors",
@@ -189,9 +261,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "eigenvalues_and_eigenvectors",
+      "catalog_id": "university:eigenvalues_and_eigenvectors",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "diagonalization",
@@ -199,9 +275,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "diagonalization",
+      "catalog_id": "university:diagonalization",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "inner_product_spaces",
@@ -209,9 +289,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "inner_product_spaces",
+      "catalog_id": "university:inner_product_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "orthogonality_and_projection",
@@ -219,9 +303,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "orthogonality_and_projection",
+      "catalog_id": "university:orthogonality_and_projection",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "least_squares",
@@ -229,9 +317,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "least_squares",
+      "catalog_id": "university:least_squares",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "spectral_theorem",
@@ -239,9 +331,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "spectral_theorem",
+      "catalog_id": "university:spectral_theorem",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Jordan_form",
@@ -249,9 +345,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "Jordan_form",
+      "catalog_id": "university:Jordan_form",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "bilinear_and_quadratic_forms",
@@ -259,9 +359,13 @@
       "field": "Linear algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "bilinear_and_quadratic_forms",
+      "catalog_id": "university:bilinear_and_quadratic_forms",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "limits_and_continuity",
@@ -269,9 +373,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "limits_and_continuity",
+      "catalog_id": "university:limits_and_continuity",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "derivative_theory",
@@ -279,9 +387,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "derivative_theory",
+      "catalog_id": "university:derivative_theory",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "mean_value_theorems",
@@ -289,19 +401,40 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "mean_value_theorems",
+      "catalog_id": "university:mean_value_theorems",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Taylor_series",
       "title": "Taylor series",
       "field": "Calculus",
-      "status": "generator_available_not_mastered",
-      "generator_topic": "Taylor_series",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:Taylor_series",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "quadratic_Taylor_polynomials",
+      "title": "quadratic Taylor polynomials",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "quadratic_Taylor_polynomials",
+      "catalog_id": "university:quadratic_Taylor_polynomials",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Riemann_integral",
@@ -309,9 +442,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "Riemann_integral",
+      "catalog_id": "university:Riemann_integral",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "improper_integrals",
@@ -319,9 +456,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "improper_integrals",
+      "catalog_id": "university:improper_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "sequences_and_series",
@@ -329,9 +470,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "sequences_and_series",
+      "catalog_id": "university:sequences_and_series",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "power_series",
@@ -339,9 +484,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "power_series",
+      "catalog_id": "university:power_series",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "multivariable_limits",
@@ -349,9 +498,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "multivariable_limits",
+      "catalog_id": "university:multivariable_limits",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "partial_derivatives",
@@ -359,9 +512,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "multivariable_calculus",
+      "catalog_id": "university:partial_derivatives",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "gradient_and_directional_derivatives",
@@ -369,9 +526,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "gradient_and_directional_derivatives",
+      "catalog_id": "university:gradient_and_directional_derivatives",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "chain_rule_multivariable",
@@ -379,68 +540,244 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "chain_rule_multivariable",
+      "catalog_id": "university:chain_rule_multivariable",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "multiple_integrals",
       "title": "multiple integrals",
       "field": "Calculus",
-      "status": "generator_available_not_mastered",
-      "generator_topic": "multiple_integrals",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:multiple_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "rectangular_linear_polynomial_double_integrals",
+      "title": "rectangular affine-polynomial double integrals",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "rectangular_linear_polynomial_double_integrals",
+      "catalog_id": "university:rectangular_linear_polynomial_double_integrals",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "rectangular_quadratic_polynomial_double_integrals",
+      "title": "quadratic-polynomial double integrals over rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "rectangular_quadratic_polynomial_double_integrals",
+      "catalog_id": "university:rectangular_quadratic_polynomial_double_integrals",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "change_of_variables",
       "title": "change of variables",
       "field": "Calculus",
-      "status": "generator_available_not_mastered",
-      "generator_topic": "change_of_variables",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:change_of_variables",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "diagonal_linear_change_of_variables_rectangles",
+      "title": "diagonal linear changes of variables on rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "diagonal_linear_change_of_variables_rectangles",
+      "catalog_id": "university:diagonal_linear_change_of_variables_rectangles",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "line_integrals",
       "title": "line integrals",
       "field": "Calculus",
-      "status": "generator_available_not_mastered",
-      "generator_topic": "line_integrals",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:line_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "constant_vector_field_segment_line_integrals",
+      "title": "constant-vector-field line integrals on segments",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "constant_vector_field_segment_line_integrals",
+      "catalog_id": "university:constant_vector_field_segment_line_integrals",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "polynomial_vector_field_segment_line_integrals",
+      "title": "polynomial vector-field line integrals on straight segments",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "polynomial_vector_field_segment_line_integrals",
+      "catalog_id": "university:polynomial_vector_field_segment_line_integrals",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "surface_integrals",
       "title": "surface integrals",
       "field": "Calculus",
-      "status": "generator_available_not_mastered",
-      "generator_topic": "surface_integrals",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:surface_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "flat_rectangular_surface_area_integrals",
+      "title": "surface integrals of one over flat rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "flat_rectangular_surface_area_integrals",
+      "catalog_id": "university:flat_rectangular_surface_area_integrals",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "vector_calculus",
       "title": "vector calculus",
       "field": "Calculus",
-      "status": "generator_available_not_mastered",
-      "generator_topic": "vector_calculus",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:vector_calculus",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "Green_stokes_divergence_theorems",
-      "title": "Green stokes divergence theorems",
+      "topic": "diagonal_linear_vector_field_divergence",
+      "title": "divergence of diagonal linear vector fields",
       "field": "Calculus",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "diagonal_linear_vector_field_divergence",
+      "catalog_id": "university:diagonal_linear_vector_field_divergence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "greens_theorem_rectangles",
+      "title": "Green's theorem for rational polynomial fields on rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "greens_theorem_rectangles",
+      "catalog_id": "university:greens_theorem_rectangles",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "stokes_theorem",
+      "title": "Stokes' theorem",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:stokes_theorem",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "stokes_theorem_horizontal_rectangles",
+      "title": "Stokes theorem for affine fields on horizontal rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "stokes_theorem_horizontal_rectangles",
+      "catalog_id": "university:stokes_theorem_horizontal_rectangles",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "divergence_theorem",
+      "title": "Divergence theorem",
+      "field": "Calculus",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:divergence_theorem",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "divergence_theorem_axis_aligned_boxes",
+      "title": "divergence theorem for diagonal linear fields on rectangular boxes",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "divergence_theorem_axis_aligned_boxes",
+      "catalog_id": "university:divergence_theorem_axis_aligned_boxes",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "metric_spaces",
@@ -448,9 +785,13 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "metric_spaces",
+      "catalog_id": "university:metric_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "convergence_of_sequences",
@@ -458,9 +799,13 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "convergence_of_sequences",
+      "catalog_id": "university:convergence_of_sequences",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Cauchy_sequences",
@@ -468,9 +813,13 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "Cauchy_sequences",
+      "catalog_id": "university:Cauchy_sequences",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "pointwise_and_uniform_convergence",
@@ -478,9 +827,13 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "pointwise_and_uniform_convergence",
+      "catalog_id": "university:pointwise_and_uniform_convergence",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "compactness",
@@ -488,9 +841,13 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "compactness",
+      "catalog_id": "university:compactness",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "connectedness",
@@ -498,9 +855,13 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "connectedness",
+      "catalog_id": "university:connectedness",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "continuity_metric_spaces",
@@ -508,18 +869,26 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "continuity_metric_spaces",
+      "catalog_id": "university:continuity_metric_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "differentiation_real_analysis",
       "title": "differentiation real analysis",
       "field": "Real analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:differentiation_real_analysis",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "measure_intro",
@@ -527,144 +896,235 @@
       "field": "Real analysis",
       "status": "generator_available_not_mastered",
       "generator_topic": "measure_intro",
+      "catalog_id": "university:measure_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Lebesgue_measure",
       "title": "Lebesgue measure",
       "field": "Real analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Lebesgue_measure",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Lebesgue_integral",
       "title": "Lebesgue integral",
       "field": "Real analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Lebesgue_integral",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Lp_spaces",
       "title": "Lp spaces",
       "field": "Real analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Lp_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "functional_sequences",
       "title": "functional sequences",
       "field": "Real analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:functional_sequences",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "complex_numbers_and_topology",
-      "title": "complex numbers and topology",
+      "topic": "complex_number_arithmetic",
+      "title": "complex-number arithmetic",
       "field": "Complex analysis",
-      "status": "catalogued_not_implemented",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "complex_number_arithmetic",
+      "catalog_id": "university:complex_number_arithmetic",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "complex_topology",
+      "title": "topology of the complex plane",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:complex_topology",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "holomorphic_functions",
       "title": "holomorphic functions",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:holomorphic_functions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Cauchy_Riemann_equations",
       "title": "Cauchy Riemann equations",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Cauchy_Riemann_equations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "contour_integrals",
       "title": "contour integrals",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:contour_integrals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Cauchy_integral_formula",
       "title": "Cauchy integral formula",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Cauchy_integral_formula",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "Taylor_and_Laurent_series",
-      "title": "Taylor and Laurent series",
+      "topic": "complex_Taylor_series",
+      "title": "complex Taylor series",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:complex_Taylor_series",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "Laurent_series",
+      "title": "Laurent series",
+      "field": "Complex analysis",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:Laurent_series",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "residues",
       "title": "residues",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:residues",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "singularities",
       "title": "singularities",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:singularities",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "conformal_maps",
       "title": "conformal maps",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:conformal_maps",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "maximum_modulus_principle",
       "title": "maximum modulus principle",
       "field": "Complex analysis",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:maximum_modulus_principle",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "groups_and_subgroups",
       "title": "groups and subgroups",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:groups_and_subgroups",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "cyclic_groups",
@@ -672,108 +1132,156 @@
       "field": "Abstract algebra",
       "status": "generator_available_not_mastered",
       "generator_topic": "abstract_algebra",
+      "catalog_id": "university:cyclic_groups",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "permutation_groups",
       "title": "permutation groups",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:permutation_groups",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "cosets_and_Lagrange_theorem",
       "title": "cosets and Lagrange theorem",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:cosets_and_Lagrange_theorem",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "normal_subgroups_and_quotients",
       "title": "normal subgroups and quotients",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:normal_subgroups_and_quotients",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "group_homomorphisms",
       "title": "group homomorphisms",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:group_homomorphisms",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "rings_and_ideals",
       "title": "rings and ideals",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:rings_and_ideals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "integral_domains",
       "title": "integral domains",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:integral_domains",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "fields_and_extensions",
       "title": "fields and extensions",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:fields_and_extensions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "polynomial_rings",
       "title": "polynomial rings",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:polynomial_rings",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "modules_intro",
       "title": "modules intro",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:modules_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Galois_theory_intro",
       "title": "Galois theory intro",
       "field": "Abstract algebra",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Galois_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "divisibility_and_gcd",
       "title": "divisibility and gcd",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:divisibility_and_gcd",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Euclidean_algorithm",
@@ -781,9 +1289,13 @@
       "field": "Number theory",
       "status": "generator_available_not_mastered",
       "generator_topic": "Euclidean_algorithm",
+      "catalog_id": "university:Euclidean_algorithm",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "congruences",
@@ -791,162 +1303,234 @@
       "field": "Number theory",
       "status": "generator_available_not_mastered",
       "generator_topic": "discrete_mathematics",
+      "catalog_id": "university:congruences",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Chinese_remainder_theorem",
       "title": "Chinese remainder theorem",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Chinese_remainder_theorem",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Fermat_and_Euler_theorems",
       "title": "Fermat and Euler theorems",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Fermat_and_Euler_theorems",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "multiplicative_order",
       "title": "multiplicative order",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:multiplicative_order",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Diophantine_equations",
       "title": "Diophantine equations",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Diophantine_equations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "quadratic_residues",
       "title": "quadratic residues",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:quadratic_residues",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "continued_fractions",
       "title": "continued fractions",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:continued_fractions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "analytic_number_theory_intro",
       "title": "analytic number theory intro",
       "field": "Number theory",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:analytic_number_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "topological_spaces",
       "title": "topological spaces",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:topological_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "open_and_closed_sets",
       "title": "open and closed sets",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:open_and_closed_sets",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "basis_for_topology",
       "title": "basis for topology",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:basis_for_topology",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "continuity_topological_spaces",
       "title": "continuity topological spaces",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:continuity_topological_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "homeomorphisms",
       "title": "homeomorphisms",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:homeomorphisms",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "compact_topological_spaces",
       "title": "compact topological spaces",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:compact_topological_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "connected_spaces",
       "title": "connected spaces",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:connected_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "product_and_quotient_topology",
       "title": "product and quotient topology",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:product_and_quotient_topology",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "fundamental_group_intro",
       "title": "fundamental group intro",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:fundamental_group_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "covering_spaces_intro",
       "title": "covering spaces intro",
       "field": "Topology",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:covering_spaces_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "counting_principles",
@@ -954,117 +1538,183 @@
       "field": "Discrete mathematics and combinatorics",
       "status": "generator_available_not_mastered",
       "generator_topic": "counting_principles",
+      "catalog_id": "university:counting_principles",
       "grade_band": "University",
       "includes_word_problems": true,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "permutations_and_combinations",
       "title": "permutations and combinations",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:permutations_and_combinations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "pigeonhole_principle",
       "title": "pigeonhole principle",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:pigeonhole_principle",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "inclusion_exclusion",
       "title": "inclusion exclusion",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:inclusion_exclusion",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "recurrence_relations",
       "title": "recurrence relations",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:recurrence_relations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "generating_functions",
       "title": "generating functions",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:generating_functions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "graph_theory_basics",
       "title": "graph theory basics",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:graph_theory_basics",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "finite_simple_graph_handshaking",
+      "title": "finite simple graph degree sequences and handshaking",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "finite_simple_graph_handshaking",
+      "catalog_id": "university:finite_simple_graph_handshaking",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "trees_and_spanning_trees",
       "title": "trees and spanning trees",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:trees_and_spanning_trees",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "planar_graphs",
       "title": "planar graphs",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:planar_graphs",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "matching_and_networks",
       "title": "matching and networks",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:matching_and_networks",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "extremal_combinatorics",
       "title": "extremal combinatorics",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:extremal_combinatorics",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "designs_and_codes_intro",
       "title": "designs and codes intro",
       "field": "Discrete mathematics and combinatorics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:designs_and_codes_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "probability_spaces",
       "title": "probability spaces",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:probability_spaces",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "conditional_probability",
@@ -1072,9 +1722,13 @@
       "field": "Probability",
       "status": "generator_available_not_mastered",
       "generator_topic": "conditional_probability",
+      "catalog_id": "university:conditional_probability",
       "grade_band": "University",
       "includes_word_problems": true,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Bayes_theorem",
@@ -1082,298 +1736,512 @@
       "field": "Probability",
       "status": "generator_available_not_mastered",
       "generator_topic": "probability_theory",
+      "catalog_id": "university:Bayes_theorem",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "random_variables",
       "title": "random variables",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:random_variables",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "discrete_distributions",
       "title": "discrete distributions",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:discrete_distributions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "binomial_distribution_exact_probabilities",
+      "title": "exact binomial distribution probabilities",
+      "field": "Probability",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "binomial_distribution_exact_probabilities",
+      "catalog_id": "university:binomial_distribution_exact_probabilities",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "continuous_distributions",
       "title": "continuous distributions",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:continuous_distributions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "expectation_and_variance",
       "title": "expectation and variance",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:expectation_and_variance",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "joint_distributions",
       "title": "joint distributions",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:joint_distributions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "law_of_large_numbers",
       "title": "law of large numbers",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:law_of_large_numbers",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "central_limit_theorem",
       "title": "central limit theorem",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:central_limit_theorem",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Markov_chains",
       "title": "Markov chains",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Markov_chains",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "martingales_intro",
       "title": "martingales intro",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:martingales_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "stochastic_processes_intro",
       "title": "stochastic processes intro",
       "field": "Probability",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:stochastic_processes_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "descriptive_statistics",
       "title": "descriptive statistics",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:descriptive_statistics",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "sampling_and_estimators",
       "title": "sampling and estimators",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:sampling_and_estimators",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "confidence_intervals",
       "title": "confidence intervals",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:confidence_intervals",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "hypothesis_testing",
       "title": "hypothesis testing",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:hypothesis_testing",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "linear_regression",
       "title": "linear regression",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:linear_regression",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "generalized_linear_models_intro",
       "title": "generalized linear models intro",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:generalized_linear_models_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "ANOVA",
       "title": "ANOVA",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:ANOVA",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Bayesian_statistics_intro",
       "title": "Bayesian statistics intro",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Bayesian_statistics_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "statistical_learning_theory_intro",
       "title": "statistical learning theory intro",
       "field": "Statistics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:statistical_learning_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
-      "topic": "first_order_ODEs",
-      "title": "first order ODEs",
+      "topic": "homogeneous_constant_coefficient_first_order_ODEs",
+      "title": "homogeneous constant-coefficient first-order ODEs",
       "field": "Differential equations",
       "status": "generator_available_not_mastered",
-      "generator_topic": "differential_equations",
+      "generator_topic": "homogeneous_constant_coefficient_first_order_ODEs",
+      "catalog_id": "university:homogeneous_constant_coefficient_first_order_ODEs",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "separable_first_order_ODEs",
+      "title": "separable first-order ODEs",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "separable_first_order_ODEs",
+      "catalog_id": "university:separable_first_order_ODEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "linear_first_order_variable_coefficient_ODEs",
+      "title": "linear first-order ODEs with variable coefficients",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:linear_first_order_variable_coefficient_ODEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "title": "homogeneous variable-coefficient linear first-order ODEs",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "catalog_id": "university:homogeneous_variable_coefficient_linear_first_order_ODEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "exact_first_order_ODEs",
+      "title": "exact first-order ODEs",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented",
+      "catalog_id": "university:exact_first_order_ODEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "second_order_linear_ODEs",
       "title": "second order linear ODEs",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:second_order_linear_ODEs",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "systems_of_ODEs",
       "title": "systems of ODEs",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:systems_of_ODEs",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "phase_portraits",
       "title": "phase portraits",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:phase_portraits",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Laplace_transform",
       "title": "Laplace transform",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Laplace_transform",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "series_solutions_ODE",
       "title": "series solutions ODE",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:series_solutions_ODE",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "boundary_value_problems",
       "title": "boundary value problems",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:boundary_value_problems",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Fourier_methods_PDE",
       "title": "Fourier methods PDE",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Fourier_methods_PDE",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "heat_equation",
       "title": "heat equation",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:heat_equation",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "wave_equation",
       "title": "wave equation",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:wave_equation",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Laplace_equation",
       "title": "Laplace equation",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Laplace_equation",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "characteristics_PDE",
       "title": "characteristics PDE",
       "field": "Differential equations",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:characteristics_PDE",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "topic": "affine_transport_first_order_PDEs",
+      "title": "affine solutions of constant-coefficient first-order transport PDEs",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "affine_transport_first_order_PDEs",
+      "catalog_id": "university:affine_transport_first_order_PDEs",
+      "grade_band": "University",
+      "includes_word_problems": false,
+      "has_generator": true,
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "convex_sets_and_functions",
       "title": "convex sets and functions",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:convex_sets_and_functions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "unconstrained_optimization",
@@ -1381,117 +2249,169 @@
       "field": "Optimization and operations research",
       "status": "generator_available_not_mastered",
       "generator_topic": "optimization",
+      "catalog_id": "university:unconstrained_optimization",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Lagrange_multipliers",
       "title": "Lagrange multipliers",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Lagrange_multipliers",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "KKT_conditions",
       "title": "KKT conditions",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:KKT_conditions",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "linear_programming",
       "title": "linear programming",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:linear_programming",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "simplex_method",
       "title": "simplex method",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:simplex_method",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "dualities",
       "title": "dualities",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:dualities",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "integer_programming_intro",
       "title": "integer programming intro",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:integer_programming_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "dynamic_programming",
       "title": "dynamic programming",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:dynamic_programming",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "network_optimization",
       "title": "network optimization",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:network_optimization",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "stochastic_optimization_intro",
       "title": "stochastic optimization intro",
       "field": "Optimization and operations research",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:stochastic_optimization_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "floating_point_error",
       "title": "floating point error",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:floating_point_error",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "conditioning_and_stability",
       "title": "conditioning and stability",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:conditioning_and_stability",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "root_finding",
       "title": "root finding",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:root_finding",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Newton_and_secant_methods",
@@ -1499,342 +2419,494 @@
       "field": "Numerical and computational mathematics",
       "status": "generator_available_not_mastered",
       "generator_topic": "numerical_methods",
+      "catalog_id": "university:Newton_and_secant_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": true
+      "has_generator": true,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "numerical_linear_algebra",
       "title": "numerical linear algebra",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:numerical_linear_algebra",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "interpolation",
       "title": "interpolation",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:interpolation",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "numerical_differentiation",
       "title": "numerical differentiation",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:numerical_differentiation",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "numerical_integration",
       "title": "numerical integration",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:numerical_integration",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "ODE_numerical_methods",
       "title": "ODE numerical methods",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:ODE_numerical_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "iterative_methods",
       "title": "iterative methods",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:iterative_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Monte_Carlo_methods",
       "title": "Monte Carlo methods",
       "field": "Numerical and computational mathematics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Monte_Carlo_methods",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Euclidean_geometry_proofs",
       "title": "Euclidean geometry proofs",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Euclidean_geometry_proofs",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "analytic_geometry",
       "title": "analytic geometry",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:analytic_geometry",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "affine_geometry",
       "title": "affine geometry",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:affine_geometry",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "projective_geometry_intro",
       "title": "projective geometry intro",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:projective_geometry_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "differential_geometry_curves",
       "title": "differential geometry curves",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:differential_geometry_curves",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "surfaces_and_curvature",
       "title": "surfaces and curvature",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:surfaces_and_curvature",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "manifolds_intro",
       "title": "manifolds intro",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:manifolds_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Riemannian_geometry_intro",
       "title": "Riemannian geometry intro",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Riemannian_geometry_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "tensor_calculus_intro",
       "title": "tensor calculus intro",
       "field": "Geometry",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:tensor_calculus_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "dimensional_analysis",
       "title": "dimensional analysis",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:dimensional_analysis",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Fourier_series_and_transforms",
       "title": "Fourier series and transforms",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Fourier_series_and_transforms",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Laplace_transforms_applications",
       "title": "Laplace transforms applications",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Laplace_transforms_applications",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "calculus_of_variations",
       "title": "calculus of variations",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:calculus_of_variations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "Hamiltonian_and_Lagrangian_mechanics",
       "title": "Hamiltonian and Lagrangian mechanics",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:Hamiltonian_and_Lagrangian_mechanics",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "mathematical_modeling",
       "title": "mathematical modeling",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:mathematical_modeling",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "fluid_dynamics_math_intro",
       "title": "fluid dynamics math intro",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:fluid_dynamics_math_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "elasticity_math_intro",
       "title": "elasticity math intro",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:elasticity_math_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "control_theory_intro",
       "title": "control theory intro",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:control_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "information_theory_intro",
       "title": "information theory intro",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:information_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "cryptography_math_foundations",
       "title": "cryptography math foundations",
       "field": "Applied mathematics and mathematical physics",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:cryptography_math_foundations",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "category_theory_intro",
       "title": "category theory intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:category_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "order_and_lattice_theory",
       "title": "order and lattice theory",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:order_and_lattice_theory",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "representation_theory_intro",
       "title": "representation theory intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:representation_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "algebraic_topology_intro",
       "title": "algebraic topology intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:algebraic_topology_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "homological_algebra_intro",
       "title": "homological algebra intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:homological_algebra_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "functional_analysis_intro",
       "title": "functional analysis intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:functional_analysis_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "operator_theory_intro",
       "title": "operator theory intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:operator_theory_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "harmonic_analysis_intro",
       "title": "harmonic analysis intro",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:harmonic_analysis_intro",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "partial_order_and_fixed_points",
       "title": "partial order and fixed points",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:partial_order_and_fixed_points",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
       "topic": "mathematical_logic_advanced",
       "title": "mathematical logic advanced",
       "field": "Advanced and interdisciplinary",
       "status": "catalogued_not_implemented",
+      "catalog_id": "university:mathematical_logic_advanced",
       "grade_band": "University",
       "includes_word_problems": false,
-      "has_generator": false
+      "has_generator": false,
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     }
   ]
 }

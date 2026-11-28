@@ -230,4 +230,71 @@ The combined validation candidate is [PR #207](https://github.com/ultron1846-oss
 
 **Training gate remains blocked.** No optimizer step on ULTRON weights, production data generation/download, calibration-data generation, Supabase mutation, deployment, external AI API call or remote job was performed. Controller step-count tests use a meta-device mock model and a mock optimizer that only increments a counter; CI smoke is forward/backward only.
 
-**Exact next engineering task:** after review of PR #207, implement a bounded exact-rational Green's theorem generator for the currently unimplemented `Green_stokes_divergence_theorems` topic, with polynomial vector fields and rational rectangular regions; independently verify line-integral and curl double-integral equality; add deterministic seed, orientation, tamper and resource-limit tests; synchronize registry/coverage while explicitly leaving Stokes/divergence marked incomplete. Test fixtures only; no corpus or training.
+**Historical next-task note:** the Green's theorem task described at this point was subsequently implemented in Phase 2 PR #209. See the dated Phase 2 addenda below for current scope and validation.
+
+
+## Phase 2 — curriculum and Green's theorem expansion (2026-11-28)
+
+The former 197-topic university curriculum has been revised to 199 topics by splitting the combined Green/Stokes/divergence umbrella into three separate theorem entries. The exact-rational Green generator is bounded to sparse polynomial vector fields of total degree at most 5 on non-degenerate axis-aligned rational rectangles. It independently checks the oriented rectangle-boundary integral against the double integral of dQ/dx − dP/dy. Clockwise traversal reverses both signs. **Stokes' theorem and the divergence theorem remain catalogued but unimplemented.**
+
+The new coverage model distinguishes catalogue presence, generator availability, independent exercise validation, measured trained-model benchmarking and mastery. The current stacked candidate counts are 255 catalogue entries overall, 115 with generators, 64 independently validated exercise topics, zero trained-model benchmarks and zero mastered topics. University coverage is 62/202 generator-available and 140/202 not implemented. These are registry evidence states, not trained-model capability. The historical 60/197 statement above is the pre-Phase-2 baseline, not the current curriculum state. See docs/MATH_CURRICULUM_AUDIT_2026-11-28.md and tools/math_generators/validation_manifest.json for scope and evidence.
+
+This is still an engineering/catalogue statement, not a model-capability claim. No ULTRON training, optimizer step, production corpus generation/download, external AI API, remote job, or deployment was performed.
+
+
+## Phase 2 follow-up — bounded first-order ODE scope (2026-11-28)
+
+The 199-topic post-Green university curriculum is now expanded to 202 by splitting the broad first_order_ODEs row into four scoped families. homogeneous_constant_coefficient_first_order_ODEs is available for y'=k y with y(0)=y0. separable_first_order_ODEs is available only for the bounded rational power-law family y'=c*x^m*y^n, with an independent exact derivative/initial-value validator. linear_first_order_variable_coefficient_ODEs and exact_first_order_ODEs remain catalogued but unimplemented. The validator checks the exact solution y(t)=y0 exp(k t), the differential identity, the initial condition, and the complete generated problem object.
+
+Current combined coverage candidate: 255 catalogue entries, 115 generator-available, 64 independently validated exercise topics, zero trained-checkpoint benchmarks and zero mastered topics. University coverage: 62/202 generator-available, 140/202 not implemented. The university prerequisite map contains 202 topics and 378 edges.
+
+This is a scope and exercise-verification improvement, not trained-model capability evidence. No ULTRON weights were trained or updated; no production corpus or remote job was created.
+
+
+The separable ODE family is restricted to c≠0, rational initial data with y0>0, integer m=0..3 and n=0..2 under difficulty-specific bounds; n=2 is valid only where the reciprocal solution denominator is nonzero. This is not general separable-equation support. No ULTRON training or optimizer step was performed.
+
+
+## Latest mathematics curriculum scope handoff — 2026-11-28
+
+**Candidate branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28` (proposed PR #213, based on PR #212 head `dc0ee7763b2a7c6e7f01e9e310a25da8975fb573`).
+
+This batch tightens implementation claims before further expansion. General catalogue rows remain unimplemented where existing templates cover only specific subfamilies. It scopes the quadratic Taylor template, affine-polynomial rectangular double integrals, diagonal linear rectangular substitutions, constant-vector-field segment integrals, flat rectangular surface integrals, and divergence of diagonal linear vector fields. It splits the former complex-number/topology and complex Taylor/Laurent compound labels. Newly added independent families cover exact rational complex arithmetic and homogeneous variable-coefficient linear first-order ODEs restricted to `y' + a*x^m*y = 0`, `m ∈ {1,2}`.
+
+Current candidate counts: **211 university topics**, **64 generator-available**, **147 catalogued but not implemented**; **264 combined entries**, **117 generator-available**, **66 independently validated**; **397 prerequisite edges**; **0 compatible trained-checkpoint benchmarks** and **0 mastered topics**. Exact-head CI passed on PR #213 head `3ad04c01bfe48bd0debf46017e9351d017c6ae4a`: Node run 46140324038, Python AI Core run 46140323910, Level 1 Math Tooling run 46140323952 (5,000 randomized cases), and Security/dependency run 46140323947. The Python workflow performed only a CPU forward/backward smoke, with no optimizer step.
+
+No model training, optimizer step, production corpus generation/download, external AI API, remote training job, Pages deployment, Supabase mutation, or model-weight publication was performed. Continue with the remaining dependency-aware topic batches and a per-topic difficulty audit; do not infer broad capability from narrow templates.
+
+
+Batch 8 exact-head CI is recorded in README.md and docs/MATH_CURRICULUM_AUDIT_2026-11-28.md. The PR remains a stacked review candidate; it has not been merged.
+
+
+## Multifield curriculum batch 9 — 2026-11-28
+
+Standalone candidate branch (now integrated by PR #217): `phase2/curriculum-multifield-batch-9-2026-11-28`, originally stacked on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+Five bounded families cover polynomial segment line integrals, quadratic rectangular double integrals, affine transport PDEs, exact binomial distributions, and finite simple-graph handshaking. Each has a dedicated independent validator and a 500-seed regression test. Topic status remains subfamily-specific; broad solver claims are not made.
+
+Standalone batch 9 metadata: **216 university topics / 69 generated / 147 incomplete**, **269 combined entries / 122 generated / 71 independently validated**, **216 prerequisite nodes / 409 edges**, **0 benchmarked**, **0 mastered**. Batch 9 standalone exact-head CI passed all four workflows. No training, optimizer step, corpus generation/download, remote job, deployment, external AI API, Supabase mutation, or weight publication was performed.
+
+
+## Phase 2 — bounded vector-calculus theorem follow-up
+
+**Standalone branch (now integrated by PR #217):** `phase2/vector-calculus-theorem-families-2026-11-28`, based on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+The batch adds `stokes_theorem_horizontal_rectangles` for affine ((P,Q,0)) fields on horizontal rectangles, and `divergence_theorem_axis_aligned_boxes` for diagonal linear fields on rectangular boxes. Both validators independently reconstruct the boundary/face integral and compare it with the curl/divergence integral. Broad Stokes and divergence theorem support remains unimplemented.
+
+Standalone follow-up coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, **68 independently validated**. Its original exact-head CI passed all four workflows; the merged combined parent head has a new validation cycle.
+
+
+## Phase 2 cumulative integration candidate — 2026-11-28
+
+**Candidate branch:** `phase2/integrated-math-curriculum-2026-11-28`. This branch consolidates the multifield batch and bounded vector-calculus follow-up on top of the curriculum scope audit. It is an integration candidate, not a merge to `main`.
+
+- University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
+- Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
+- Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
+- The integrated PR's exact-head CI is the final validation gate; prior individual batch checks passed, but that does not substitute for combined integration checks.
+
+No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.

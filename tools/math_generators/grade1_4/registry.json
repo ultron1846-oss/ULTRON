@@ -3,54 +3,104 @@
   "batch": "Batch 1 - Grades 1-4",
   "topics": [
     {
+      "catalog_id": "g1_2:counting",
       "topic": "counting",
       "grade_band": "G1-2",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:addition",
       "topic": "addition",
       "grade_band": "G1-2",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:subtraction",
       "topic": "subtraction",
       "grade_band": "G1-2",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g1_2:place_value",
       "topic": "place_value",
       "grade_band": "G1-2",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:multiplication",
       "topic": "multiplication",
       "grade_band": "G3-4",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:division",
       "topic": "division",
       "grade_band": "G3-4",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:fractions_basics",
       "topic": "fractions_basics",
       "grade_band": "G3-4",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:simple_word_problems",
       "topic": "simple_word_problems",
       "grade_band": "G3-4",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:time_and_money",
       "topic": "time_and_money",
       "grade_band": "G3-4",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g3_4:perimeter_and_area",
       "topic": "perimeter_and_area",
       "grade_band": "G3-4",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     }
   ]
 }

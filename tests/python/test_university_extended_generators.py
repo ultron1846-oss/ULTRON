@@ -5,7 +5,7 @@ from tools.math_generators.university import generate, verify
 from tools.math_generators.university.extended_generators import EXTENDED_BANDS
 
 class UniversityExtendedBatchTests(unittest.TestCase):
-    def test_twenty_topics_seed_replay_and_verification(self):
+    def test_extended_topics_seed_replay_and_verification(self):
         for topic in EXTENDED_BANDS:
             for seed in range(100):
                 item=generate(seed,1+seed%5,topic)
@@ -24,21 +24,16 @@ class UniversityExtendedBatchTests(unittest.TestCase):
             v=item["ingredients"];a,b=v["matrix"][0];c=v["matrix"][1][1];x,y=v["point"]
             self.assertEqual(v["value"],a*x*x+2*b*x*y+c*y*y)
 
-            item=generate(seed,difficulty,"multiple_integrals")
-            v=item["ingredients"];left,right,bottom,top=v["rectangle"]
-            expected=Fraction(right**2-left**2,2)*(top-bottom)+Fraction(top**2-bottom**2,2)*(right-left)
-            self.assertEqual(Fraction(item["answer"]),expected)
-
-            item=generate(seed,difficulty,"change_of_variables")
+            item=generate(seed,difficulty,"diagonal_linear_change_of_variables_rectangles")
             v=item["ingredients"];sx,sy=v["scale"]
             self.assertEqual(v["jacobian"],sx*sy)
             self.assertEqual(v["transformed_area"],v["source_area"]*sx*sy)
 
-            item=generate(seed,difficulty,"line_integrals")
+            item=generate(seed,difficulty,"constant_vector_field_segment_line_integrals")
             v=item["ingredients"];a,b=v["vector_field"];x0,y0=v["start"];x1,y1=v["end"]
             self.assertEqual(v["integral"],a*(x1-x0)+b*(y1-y0))
 
-            item=generate(seed,difficulty,"vector_calculus")
+            item=generate(seed,difficulty,"diagonal_linear_vector_field_divergence")
             self.assertEqual(item["ingredients"]["divergence"],sum(item["ingredients"]["field_coefficients"]))
 
             item=generate(seed,difficulty,"convergence_of_sequences")

@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-28 — integrated readiness documented in PR #207; not merged.**
+**Status snapshot: 2026-11-28 — Phase 2 integrated curriculum stack is merged into PR #213's feature branch; 218 university topics, 71 generator-available, 73 independently validated combined entries; fresh parent-PR validation pending; not merged to main.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -267,3 +267,323 @@ No local test commands were run because this environment could not clone the rep
 The audit report also records the second successful benchmark artifact and the browser-memory store fix. This README update itself creates a new PR head; exact-head workflows are being rechecked. Do not merge until those checks pass on the latest head and an independent review is recorded.
 
 No ULTRON training, optimizer steps, model weight updates, production corpus generation/download, external AI API call, Supabase mutation, Pages deployment or remote training job occurred.
+
+
+## Phase 2 mathematics curriculum and Green's theorem
+
+**Status:** bounded Green's theorem family implemented; curriculum audit and evidence-backed registry updated; exact-head CI passed. PR #209 remains open and unmerged pending independent review and the upstream review gates.
+
+### Repository state
+
+- Repository: ultron1846-oss/ULTRON
+- Branch: phase2/green-theorem-curriculum-batch-2026-11-28
+- Latest source commit validated: 8bed24b56430413db2bef4703265bedc7178417a
+- PR: [#209 — bounded exact-rational Green's theorem and curriculum evidence audit](https://github.com/ultron1846-oss/ULTRON/pull/209)
+- Base: audit/repository-quality-phase1-2026-11-28, head 26d0d940b8f3a62edb5a682169049a0094b6a1c1 (PR #208). PR #208 is itself stacked on PR #207. Preserve the chain; do not merge the child PR independently.
+
+### Coverage counts
+
+Counts are computed from the scope-qualified combined registry and the validation evidence manifest—not from catalogue presence alone.
+
+| State | Current candidate |
+| --- | ---: |
+| Catalogued scope entries | 255 |
+| Generator available | 114 |
+| Independently validated exercise topics | 63 |
+| Benchmarked on a compatible trained checkpoint | 0 |
+| Mastered on a compatible trained checkpoint | 0 |
+
+University curriculum: **202 topics**, **62 generator-available**, **140 catalogued but not implemented**. The former Green_stokes_divergence_theorems umbrella is split into greens_theorem_rectangles, stokes_theorem, and divergence_theorem. Only the bounded Green rectangle family has a generator. Stokes and divergence remain incomplete.
+
+The prerequisite graph covers all 202 university topics and 378 edges. The combined registry has 255 unique scoped IDs; raw linear_equations labels occur in Core, G7–8, and G8–9, but scoped ID collisions are zero.
+
+### Green's theorem contract
+
+tools/math_generators/university/green_theorem.py supports exact rational sparse polynomial vector fields P(x,y), Q(x,y) over non-degenerate axis-aligned rectangles with rational bounds.
+
+- Total degree at most 5; at most 8 terms in each polynomial; at most 12 combined terms (the conservative operation budget may reject some lower-term cases).
+- Coefficient numerator absolute value at most 1,000; denominator at most 100.
+- Rectangle-bound numerator absolute value at most 100; denominator at most 20.
+- Conservative estimated exact-operation budget at most 256.
+- Counter-clockwise boundary integration is evaluated separately over all four rectangle edges. The area side separately computes dQ/dx-dP/dy and integrates over the rectangle.
+- All arithmetic is exact Fraction; exact equality is required. Clockwise orientation reverses both signs.
+- Invalid input, unsupported expressions, duplicate monomials, zero coefficients, booleans/floats in integer fields, excessive degree/terms/budgets, malformed rationals, unsupported orientation, and degenerate/reversed rectangles are rejected.
+- verify_green_problem recomputes the integrals and reconstructs the entire expected generated object; changed answer, prompt, steps, metadata, ingredients, or extra fields fail verification.
+
+This does not support arbitrary regions, curved boundaries, non-polynomial fields, general Green-theorem automation, Stokes' theorem, or the divergence theorem.
+
+### Exact-head CI results
+
+All five required workflows passed on exact code/docs candidate head 8bed24b56430413db2bef4703265bedc7178417a on 2026-11-28.
+
+| Validation | Exact command / workflow | Result |
+| --- | --- | --- |
+| Python AI Core | python -m unittest discover -s tests/python -v | **742 tests passed** |
+| CPU model smoke | python -m ultron_core.smoke --device cpu --batch 2 --sequence 8 | Forward/backward smoke passed; **no optimizer step or training** |
+| Level 1 Math Tooling | pytest -q | **5 passed**, workflow includes 5,000 randomized cases |
+| Node/frontend tests | npm ci then npm test | **130 tests passed** |
+| Frontend/security checks | frontend workflow | Passed |
+| Python dependency audit | pip-audit -r requirements-ai.txt; pip-audit -r requirements-test.txt; pip-audit -r requirements-seed.txt | No known vulnerabilities in all three declared groups |
+
+Workflow run IDs:
+- Python AI Core: [46119241376](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241376)
+- Level 1 Math: [46119241434](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241434)
+- Node tests: [46119241419](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241419)
+- Frontend and dependency audit: [46119241429](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241429)
+
+The repository was validated by GitHub Actions; no local clone or local test execution was available in this session. The successful runs do not establish performance on full-size ULTRON or a trained checkpoint. No generator throughput benchmark or trained-model math benchmark was run for this Phase 2 batch.
+
+### Files changed in PR #209
+
+- README.md
+- docs/MATH_CURRICULUM_AUDIT_2026-11-28.md
+- docs/PRETRAINING_READINESS.md
+- docs/UNIVERSITY_PREREQUISITES.md
+- tests/python/test_grade8_12_generators.py
+- tests/python/test_greens_theorem_generator.py
+- tests/python/test_math_coverage_audit.py
+- tests/python/test_math_foundation.py
+- tests/python/test_university_math_generators.py
+- tests/python/test_university_prerequisites.py
+- tools/math_generators/build_registry.py
+- tools/math_generators/coverage_audit.py
+- tools/math_generators/grade1_4/registry.json
+- tools/math_generators/grade5_8/registry.json
+- tools/math_generators/grade8_12/registry.json
+- tools/math_generators/registry.json
+- tools/math_generators/university/curriculum.json
+- tools/math_generators/university/generators.py
+- tools/math_generators/university/green_theorem.py
+- tools/math_generators/university/prerequisites.json
+- tools/math_generators/university/registry.json
+- tools/math_generators/validation_manifest.json
+
+### Review status, remaining risks, and next task
+
+PR #209 has no independent submitted review or inline review threads, and must remain open. PR #208 and PR #207 also remain open pending their own independent reviews and exact-head checks. No merge has been performed.
+
+Remaining work:
+- 140 university topics currently have no registered generator.
+- Zero topics are benchmarked on a compatible trained model; zero are mastered.
+- Broad compound curriculum entries complex_numbers_and_topology and Taylor_and_Laurent_series need syllabus-level scope review before splitting.
+- Global difficulty progression is not defined consistently across topic families. Green now defines difficulty levels 1–5 by maximum polynomial total degree; other families need explicit per-level progression.
+- Grade-band prerequisite dependencies remain to be mapped separately.
+- homogeneous_constant_coefficient_first_order_ODEs is implemented for y'=k*y; separable_first_order_ODEs is implemented only for the bounded rational power-law family y'=c*x^m*y^n. linear_first_order_variable_coefficient_ODEs and exact_first_order_ODEs remain catalogued but unimplemented.
+
+**Next concrete task:** implement a bounded linear_first_order_variable_coefficient_ODEs family or proceed to a bounded vector-calculus integral family, each with an independent exact validator. Keep exact ODEs, second-order systems and numerical ODE schemes as distinct workstreams.
+
+
+### Phase 2 follow-up — first-order ODE scope correction
+
+- Branch: phase2/ode-scope-and-validator-2026-11-28
+- Scope: replace the broad first_order_ODEs catalog label with four bounded families. homogeneous_constant_coefficient_first_order_ODEs is implemented for y'=k y; the separable_first_order_ODEs family is now implemented only for bounded rational power-law equations y'=c*x^m*y^n. Variable-coefficient linear and exact first-order ODE families remain incomplete.
+- A new independent analytic validator checks the canonical exponential solution, derivative identity, initial value, difficulty-scaled parameter bounds, and the full generated problem object.
+- Current candidate counts: 255 combined catalogue entries; 115 generator-available; 64 independently validated; zero trained-model benchmarks; zero mastered topics. University: 202 total, 62 generator-available, 140 not implemented; prerequisite graph 202/378.
+- PR #210 exact head b0dd2e6793ba025523dbaf432a85fb3a155926ff passed all four required workflows, including 747 Python tests and Level 1's 5,000 randomized cases. The later separable-family implementation is validated separately in the PR #212 section below.
+
+No training, optimizer step, production corpus generation/download, external AI API call, remote training job, model-weight publication, Supabase mutation, or Pages deployment occurred.
+
+
+## Phase 2 ODE scope correction — exact-head validation complete
+
+**Authoritative PR:** [#210 — Narrow first-order ODE coverage and add independent analytic validation](https://github.com/ultron1846-oss/ULTRON/pull/210)  
+**Branch:** phase2/ode-scope-and-validator-2026-11-28  
+**Exact code/docs head validated before this README-only handoff commit:** d77c2148e9db43c197203c57062c2f50b5d113e3  
+**Base:** PR #209 branch at f4bd0f98a05ff72a956a02f80bfdaf20bdf92476  
+**State:** All required exact-head CI workflows passed. PR #210 remains open and unmerged because no independent review has been submitted.
+
+### Registry and curriculum counts
+
+- Combined catalogue entries: 255; unique scope-qualified IDs: 255.
+- Generator available: 115.
+- Independently validated exercise topics: 64.
+- Compatible trained-checkpoint benchmarks: 0.
+- Mastered topics: 0.
+- University curriculum: 202 topics; 62 generator-available; 140 catalogued but not implemented.
+- Prerequisite graph: 202 mapped nodes, 378 edges; graph tests verify no cycles or dangling/missing topic references.
+- Repeated raw topic label: linear_equations occurs three times across Core, G7-8 and G8-9; these are separate scope-qualified entries, not an ID collision.
+
+### ODE capability boundary
+
+The broad first_order_ODEs row has been replaced by four entries:
+- homogeneous_constant_coefficient_first_order_ODEs — implemented for y'=k*y, y(0)=y0, with an independent analytic validator.
+- separable_first_order_ODEs — implemented only for y'=c*x^m*y^n with rational c, x0 and y0; m=0..3 and n=0..2 under difficulty bounds. The n=2 branch is explicitly restricted to domains where the solution denominator is nonzero.
+- linear_first_order_variable_coefficient_ODEs — catalogued, not implemented.
+- exact_first_order_ODEs — catalogued, not implemented.
+
+The homogeneous generator is routed and emitted under the same scoped topic identifier in the generator, validator, tests, curriculum and registry. The registry builder now derives the university topic count from the curriculum rather than hard-coding it, and the test derives its expected coverage description from the registry rows.
+
+### Exact-head CI — commit d77c2148e9db43c197203c57062c2f50b5d113e3
+
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Node tests | [46121281354](https://github.com/ultron1846-oss/ULTRON/actions/runs/46121281354) | Passed |
+| Python AI Core | [46121281373](https://github.com/ultron1846-oss/ULTRON/actions/runs/46121281373) | **747 tests passed**; CPU forward/backward smoke only |
+| Level 1 Math Tooling | [46121281340](https://github.com/ultron1846-oss/ULTRON/actions/runs/46121281340) | **5 passed**; workflow includes 5,000 randomized cases |
+| Security and dependency audit | [46121281405](https://github.com/ultron1846-oss/ULTRON/actions/runs/46121281405) | Passed; npm audit found 0 vulnerabilities; pip-audit found no known vulnerabilities in declared groups |
+
+The Python run printed a PyTorch warning that NumPy was unavailable, but completed successfully. The forward/backward smoke explicitly records no optimizer step or training run. A GitHub Actions cache reservation warning also appeared after the successful test and smoke steps; the job concluded successfully. All validation was performed by GitHub Actions; no local clone/test run is claimed.
+
+### Review chain and merge gate
+
+- PR #207: open, unmerged, no independent submitted reviews or inline review threads.
+- PR #208: open, unmerged, no independent submitted reviews or inline review threads.
+- PR #209: open, unmerged, no independent submitted reviews or inline review threads.
+- PR #210: open, unmerged, no independent submitted reviews or inline review threads.
+- PR #211: closed, unmerged, superseded by PR #210 to avoid duplicate first-order ODE topic definitions.
+
+The dependency chain is #207 → #208 → #209 → #210 → #212. No PR has been merged. Independent review of the entire stack, all required exact-head checks, and review of the diffs against the current bases are still required before merging.
+
+### PR #210 files changed
+
+- README.md
+- docs/MATH_CURRICULUM_AUDIT_2026-11-28.md
+- docs/PRETRAINING_READINESS.md
+- docs/UNIVERSITY_PREREQUISITES.md
+- tests/python/test_first_order_ode_generator.py
+- tests/python/test_grade8_12_generators.py
+- tests/python/test_math_coverage_audit.py
+- tests/python/test_university_math_generators.py
+- tests/python/test_university_prerequisites.py
+- tools/math_generators/build_registry.py
+- tools/math_generators/registry.json
+- tools/math_generators/university/curriculum.json
+- tools/math_generators/university/generators.py
+- tools/math_generators/university/ode_first_order.py
+- tools/math_generators/university/prerequisites.json
+- tools/math_generators/university/registry.json
+- tools/math_generators/validation_manifest.json
+
+### Remaining mathematical backlog
+
+The university catalogue currently has 140 topics without generators. Stokes' theorem and divergence theorem remain incomplete. The compound labels complex_numbers_and_topology and Taylor_and_Laurent_series need review. Per-topic difficulty progressions remain non-comparable across families; Green's degree-based levels and ODE coefficient-magnitude levels are family-specific, not a common scale. Grade-band prerequisite dependencies are not yet mapped. No trained-checkpoint benchmark or mastery evidence exists.
+
+**Next implementation:** a bounded variable-coefficient linear first-order ODE family with an independent exact validator, or a vector-calculus double-integral family; keep exact equations and higher-order ODEs separate until implemented.
+
+No ULTRON training, optimizer step, production corpus generation/download, external AI API call, remote training job, Supabase mutation, deployment, or model-weight publication occurred.
+
+
+## Phase 2 follow-up — bounded separable first-order ODE family
+
+**Branch:** phase2/separable-first-order-ode-family-2026-11-28  
+**Base:** PR #210 exact validated head b0dd2e6793ba025523dbaf432a85fb3a155926ff  
+**PR:** [#212 — Add bounded exact separable first-order ODE family](https://github.com/ultron1846-oss/ULTRON/pull/212)  
+**Exact validated head:** 094c0bcb51e2449bebe62875dce3f5e85bb33b9f  
+**Status:** all four required exact-head GitHub Actions workflows passed; PR #212 is open and unmerged pending independent review.
+
+The separable_first_order_ODEs entry is now implemented only for the family y'=c*x^m*y^n with rational c, x0 and y0, c nonzero, y0 positive, m<=min(3,d-1), n<=min(2,floor((d-1)/2)), and difficulty d from 1 through 5. Rational input numerators are bounded by 2d (global absolute cap 10) and denominators by d (global cap 5). The n=0, n=1 and n=2 branches return polynomial, exponential and reciprocal closed forms respectively. For n=2, the returned local solution states that it is valid only where its denominator is nonzero.
+
+The independent validator checks exact derivative coefficient identities and initial-value substitution for the three forms, then checks canonical prompt, answer, steps, metadata and ingredients. Tests cover 500 deterministic seeds, all branches, m=0..3, difficulty bounds, metamorphic initial conditions, tampering, malformed rational pairs, booleans/floats, invalid exponents and seed/difficulty boundaries. The coverage audit moves to 115/255 generator-available and 64/255 independently validated; university coverage is 62/202 generator-available and 140/202 not implemented. Benchmarked=0 and mastered=0 remain unchanged; the prerequisite graph remains 202 nodes/378 edges.
+
+No general separable ODE support is claimed; variable-coefficient linear and exact first-order equations remain separate unimplemented topics. No training, optimizer step, corpus generation/download, deployment, or model-weight publication occurred.
+
+### PR #212 exact-head CI — 094c0bcb51e2449bebe62875dce3f5e85bb33b9f
+
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Node tests | [46122281193](https://github.com/ultron1846-oss/ULTRON/actions/runs/46122281193) | Passed |
+| Python AI Core | [46122281223](https://github.com/ultron1846-oss/ULTRON/actions/runs/46122281223) | **753 tests passed**; CPU forward/backward smoke only, no optimizer step |
+| Level 1 Math Tooling | [46122281237](https://github.com/ultron1846-oss/ULTRON/actions/runs/46122281237) | **5 passed**, workflow includes 5,000 randomized cases |
+| Security and dependency audit | [46122281197](https://github.com/ultron1846-oss/ULTRON/actions/runs/46122281197) | Passed; npm audit found 0 vulnerabilities; pip-audit found no known vulnerabilities in declared dependency groups |
+
+The first PR #212 Python attempt exposed a stale registry-order/status assertion (not an ODE identity failure). The university registry was regenerated in the builder's exact field order and its test was corrected; the subsequent exact-head run above passed. Python AI Core emitted a non-fatal warning that NumPy was unavailable; all 753 tests and the CPU smoke completed successfully.
+
+### PR #212 merge gate and file inventory
+
+PR #212 is open and unmerged; it has no independent submitted review or inline review thread. It is stacked on PR #210. The parent chain #207, #208, #209 and #210 is also open/unmerged and has no independent reviews. PR #211 is closed unmerged as a duplicate competing ODE definition superseded by #210.
+
+PR #212 changed: README.md; docs/MATH_CURRICULUM_AUDIT_2026-11-28.md; docs/PRETRAINING_READINESS.md; docs/UNIVERSITY_PREREQUISITES.md; tests/python/test_math_coverage_audit.py; tests/python/test_separable_first_order_ode.py; tests/python/test_university_math_generators.py; tools/math_generators/registry.json; tools/math_generators/university/curriculum.json; tools/math_generators/university/generators.py; tools/math_generators/university/ode_separable.py; tools/math_generators/university/registry.json; tools/math_generators/validation_manifest.json.
+
+
+
+## Phase 2 curriculum scope expansion — 2026-11-28
+
+**Current implementation branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28`  
+**Proposed PR:** [#213 — Split over-broad curriculum labels and add three independently checked mathematics families](https://github.com/ultron1846-oss/ULTRON/pull/213)  
+**Base:** PR #212 head `dc0ee7763b2a7c6e7f01e9e310a25da8975fb573`.  
+**Validated head:** `3ad04c01bfe48bd0debf46017e9351d017c6ae4a`. All required exact-head GitHub Actions workflows passed.
+
+### Scope corrections
+
+Broad catalogue entries remain visible but are no longer marked generator-available when the actual template supports only a narrow subfamily. This batch scopes the former Taylor, multiple-integral, change-of-variables, line-integral, surface-integral, and vector-calculus templates to explicit narrow IDs. The compound complex-number/topology and complex Taylor/Laurent entries are split. General Taylor series, multiple integrals, complex topology, complex Taylor series, Laurent series, change of variables, line integrals, surface integrals, and vector calculus remain incomplete where no general implementation exists.
+
+### New independently checked families
+
+- Exact rational complex arithmetic: addition, multiplication, conjugation, and squared modulus.
+- Exact affine-polynomial double integrals over bounded axis-aligned rectangles, with Fubini and rectangle-additivity checks.
+- Homogeneous variable-coefficient linear first-order ODEs restricted to `y' + a*x^m*y = 0`, `m ∈ {1,2}`, with an exact log-derivative and initial-value validator.
+
+The existing degree-two Taylor template is renamed `quadratic_Taylor_polynomials`; it is not reported as general Taylor-series support. Existing narrow calculus templates now have IDs naming their supported structures.
+
+### Current candidate coverage
+
+- University curriculum: **211 topics**, **64 generator-available**, **147 catalogued but not implemented**.
+- Combined registry: **264** scope-qualified entries, **117 generator-available**, **66 independently validated**.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- University prerequisite graph: **211 nodes**, **397 edges**; validator checks complete mapping, topological order, dangling references, duplicate edges, and cycles.
+
+These are registry/evidence counts, not ULTRON model capability. No training, optimizer step, production corpus generation/download, external AI API, remote training job, deployment, or model-weight publication was performed. Continue with dependency-aware bounded topic families and per-topic difficulty semantics; do not convert catalogue entries into generated/validated/mastered claims without evidence.
+
+
+### Exact-head validation — `3ad04c01bfe48bd0debf46017e9351d017c6ae4a`
+
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Node Tests | [46140324038](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140324038) | Passed |
+| Python AI Core Tests | [46140323910](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323910) | Passed; CPU forward/backward smoke only, no optimizer step |
+| ULTRON Level 1 Math Tooling | [46140323952](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323952) | Passed; workflow includes 5,000 randomized cases |
+| Security and dependency audit | [46140323947](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323947) | Passed |
+
+These runs are all attached to the exact PR #213 head above. No local test execution is claimed. No ULTRON training, optimizer update, or corpus generation was performed.
+
+
+## Phase 2 multifield expansion — batch 9
+
+**Implementation branch:** `phase2/curriculum-multifield-batch-9-2026-11-28`  
+**Proposed PR:** #214, based on PR #213's reviewed source head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`. Exact-head CI is pending for this branch.
+
+Five bounded families have been added with dedicated validators and 500-seed independent regression tests:
+
+- Polynomial vector-field line integrals along straight segments, total degree at most two, with orientation-reversal checks.
+- Quadratic-polynomial double integrals over rational rectangles, with independent Fubini-order and rectangle-additivity checks.
+- Affine solutions of constant-coefficient first-order transport PDEs, checked by partial derivatives, PDE residual, and a point condition.
+- Exact binomial probabilities, checked by PMF normalization, expected value, and variance.
+- Finite connected simple graphs, checked by independent adjacency traversal, degree recomputation, and the handshaking identity.
+
+Standalone batch 9 coverage before theorem integration: **216 university topics**, **69 generator-available**, **147 not implemented**; **269 combined entries**, **122 generator-available**, **71 independently validated**; **216 prerequisite nodes and 409 edges**. Benchmarked topics remain **0** and mastered topics remain **0**. These are generator/validation registry counts, not trained-model capability.
+
+
+### PR #213 exact-head CI reference
+
+PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f` passed:
+- Node Tests: [46140599342](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599342)
+- Python AI Core: [46140599348](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599348)
+- Level 1 Math Tooling: [46140599474](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599474)
+- Security/dependency audit: [46140599346](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599346)
+
+The Python workflow used a CPU forward/backward smoke only and did not perform an optimizer step.
+
+
+## Phase 2 vector-calculus theorem follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/vector-calculus-theorem-families-2026-11-28`, based on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+This batch adds:
+- `stokes_theorem_horizontal_rectangles`: affine field (F=(P,Q,0)), horizontal axis-aligned rectangle, upward normal, counter-clockwise boundary. Tests independently integrate each boundary edge and compare with the curl surface integral.
+- `divergence_theorem_axis_aligned_boxes`: diagonal linear field (F=(ax,by,cz)) on an axis-aligned rectangular box. Tests independently recompute six outward face fluxes and compare with the volume integral of divergence.
+
+Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemented. Candidate coverage: 213 university topics; 66 generator-available; 147 unimplemented; 213 prerequisite nodes / 401 edges; 266 combined entries; 119 generator-available; 68 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.
+
+
+## Phase 2 cumulative integration candidate — 2026-11-28
+
+**Integrated feature branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28`. PR #217 was squash-merged into this PR #213 head as `5156bbdb8af6eeeac93c1a3c885b67d3107a05fc`. The changes are integrated on the stacked feature branch, not merged to `main`.
+
+- University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
+- Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
+- Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
+- The integrated PR #217 exact-head CI passed all four workflows: Tests `46143050154`, Python AI Core `46143050258` (772 tests plus forward/backward smoke without optimizer step), Level 1 Math Tooling `46143050181` (including 5,000 randomized cases), and Security/dependency audit `46143050169`. The updated parent PR #213 head is `5156bbdb8af6eeeac93c1a3c885b67d3107a05fc`; its own fresh exact-head CI is pending.
+
+No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.

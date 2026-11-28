@@ -3,114 +3,224 @@
   "batch": "Batch 3 - Grades 8-12",
   "topics": [
     {
+      "catalog_id": "g8_9:linear_equations",
       "topic": "linear_equations",
       "grade_band": "G8-9",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:systems_of_equations",
       "topic": "systems_of_equations",
       "grade_band": "G8-10",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_10:quadratic_equations",
       "topic": "quadratic_equations",
       "grade_band": "G9-10",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_10:polynomial_operations",
       "topic": "polynomial_operations",
       "grade_band": "G9-10",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_10:polynomial_factoring",
       "topic": "polynomial_factoring",
       "grade_band": "G9-10",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:functions",
       "topic": "functions",
       "grade_band": "G8-10",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:coordinate_geometry",
       "topic": "coordinate_geometry",
       "grade_band": "G8-10",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_10:triangle_geometry",
       "topic": "triangle_geometry",
       "grade_band": "G8-10",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:trigonometry",
       "topic": "trigonometry",
       "grade_band": "G10-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_12:sequences_series",
       "topic": "sequences_series",
       "grade_band": "G9-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:logarithms",
       "topic": "logarithms",
       "grade_band": "G10-12",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g11_12:limits",
       "topic": "limits",
       "grade_band": "G11-12",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g11_12:derivatives",
       "topic": "derivatives",
       "grade_band": "G11-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g11_12:definite_integrals",
       "topic": "definite_integrals",
       "grade_band": "G11-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:matrices",
       "topic": "matrices",
       "grade_band": "G10-12",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:combinatorics",
       "topic": "combinatorics",
       "grade_band": "G10-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_12:number_theory",
       "topic": "number_theory",
       "grade_band": "G8-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:complex_numbers",
       "topic": "complex_numbers",
       "grade_band": "G10-12",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g10_12:vectors",
       "topic": "vectors",
       "grade_band": "G10-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_12:statistics",
       "topic": "statistics",
       "grade_band": "G9-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g9_12:probability",
       "topic": "probability",
       "grade_band": "G9-12",
-      "includes_word_problems": true
+      "includes_word_problems": true,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "g8_12:proof_logic",
       "topic": "proof_logic",
       "grade_band": "G8-12",
-      "includes_word_problems": false
+      "includes_word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
     }
   ]
 }

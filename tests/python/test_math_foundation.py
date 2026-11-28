@@ -239,6 +239,8 @@ class DeterministicDataGenerationTests(unittest.TestCase):
         self.assertFalse(validate_example_text("1*x + 2 = 3", "0", "linear_equations"))
 
     def test_exact_rational_arithmetic(self):
+        self.assertTrue(validate_example_text("2 + 2", "4", "arithmetic"))
+        self.assertFalse(validate_example_text("2 + 2", "5", "arithmetic"))
         self.assertTrue(validate_example_text("1/3 + 1/6", "1/2", "rational_arithmetic"))
         self.assertFalse(validate_example_text("1/3 / 0", "0", "rational_arithmetic"))
 
