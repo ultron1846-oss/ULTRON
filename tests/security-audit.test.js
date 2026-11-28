@@ -18,7 +18,17 @@ test('security and dependency workflow is read-only and audits declared dependen
   assert.match(workflow, /pip-audit -r requirements-seed\.txt/);
 });
 
-test('static security audit includes the runtime status browser module', async () => {
-  const audit = await readFile(new URL('../security-audit.mjs', import.meta.url), 'utf8');
-  assert.ok(audit.includes("'runtime-status.js'"));
+test('static security audit covers every local module imported by the browser app', async () => {
+  const [audit, app] = await Promise.all([
+    readFile(new URL('../security-audit.mjs', import.meta.url), 'utf8'),
+    readFile(new URL('../app.js', import.meta.url), 'utf8')
+  ]);
+  const pathsBlock = audit.match(/const paths = \\[([\\s\\S]*?)\\];/)?.[1];
+  assert.ok(pathsBlock, 'security audit must declare its source path list');
+  const scanned = new Set([...pathsBlock.matchAll(/'([^']+)'/g)].map(match => match[1]));
+  const imported = [...app.matchAll(/from\\s+['"]\\.\\/([^?'"]+)/g)].map(match => match[1]);
+  assert.ok(imported.length > 0, 'browser app must declare local module imports');
+  for (const path of imported) {
+    assert.ok(scanned.has(path), `browser module ${path} is missing from the static security audit`);
+  }
 });
