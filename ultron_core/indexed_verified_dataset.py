@@ -6,54 +6,21 @@ import json
 import os
 import sqlite3
 import tempfile
-from dataclasses import dataclass
 from pathlib import Path
 
 from .dataset_split_manifest import (
     _MAX_DATA,
     _MAX_LINE_BYTES,
     _MAX_ROWS,
-    _MAX_SPLIT,
     _read_bound_split_payload,
     validate_dataset_split_manifest,
     _strict_object,
 )
+from .dataset_resource_limits import DatasetResourceLimits
 
+# Backward-compatible import name used by the benchmark CLI and stress tests.
+IndexedDatasetResourceLimits = DatasetResourceLimits
 
-@dataclass(frozen=True)
-class IndexedDatasetResourceLimits:
-    """Configurable per-loader limits, bounded by repository hard ceilings.
-
-    Split-manifest IDs are still parsed as a bounded JSON object by the
-    existing manifest verifier; max_split_manifest_bytes and max_rows cap
-    that input before the indexed store is built.
-    """
-
-    max_dataset_bytes: int = _MAX_DATA
-    max_rows: int = _MAX_ROWS
-    max_line_bytes: int = _MAX_LINE_BYTES
-    max_split_manifest_bytes: int = _MAX_SPLIT
-    snapshot_copy_chunk_bytes: int = 1024 * 1024
-    sqlite_cache_kib: int = 2048
-    index_build_batch_rows: int = 1024
-    iterator_fetch_rows: int = 256
-
-    def __post_init__(self):
-        bounded = (
-            ("max_dataset_bytes", self.max_dataset_bytes, _MAX_DATA),
-            ("max_rows", self.max_rows, _MAX_ROWS),
-            ("max_line_bytes", self.max_line_bytes, _MAX_LINE_BYTES),
-            ("max_split_manifest_bytes", self.max_split_manifest_bytes, _MAX_SPLIT),
-            ("snapshot_copy_chunk_bytes", self.snapshot_copy_chunk_bytes, 8 * 1024 * 1024),
-            ("sqlite_cache_kib", self.sqlite_cache_kib, 64 * 1024),
-            ("index_build_batch_rows", self.index_build_batch_rows, 8192),
-            ("iterator_fetch_rows", self.iterator_fetch_rows, 4096),
-        )
-        for name, value, maximum in bounded:
-            if isinstance(value, bool) or not isinstance(value, int):
-                raise TypeError(f"{name} must be an integer")
-            if not 1 <= value <= maximum:
-                raise ValueError(f"{name} must be in [1, {maximum}]")
 
 
 class VerifiedIndexedSplitStore:
@@ -69,9 +36,9 @@ class VerifiedIndexedSplitStore:
         self.dataset_path = Path(dataset_path)
         self.split_manifest_path = Path(split_manifest_path)
         if resource_limits is None:
-            resource_limits = IndexedDatasetResourceLimits()
-        if not isinstance(resource_limits, IndexedDatasetResourceLimits):
-            raise TypeError("resource_limits must be IndexedDatasetResourceLimits")
+            resource_limits = DatasetResourceLimits()
+        if not isinstance(resource_limits, DatasetResourceLimits):
+            raise TypeError("resource_limits must be DatasetResourceLimits")
         self.resource_limits = resource_limits
         self._temporary = tempfile.TemporaryDirectory(prefix="ultron-indexed-dataset-")
         self._closed = False
@@ -82,9 +49,15 @@ class VerifiedIndexedSplitStore:
         try:
             self._check_input_file_limits()
             verified = validate_dataset_split_manifest(
-                self.dataset_path, self.split_manifest_path
+                self.dataset_path, self.split_manifest_path,
+                resource_limits=self.resource_limits,
             )
-            payload = _read_bound_split_payload(self.split_manifest_path, verified)
+            # Re-check after semantic validation in case an input was replaced
+            # or grew between the initial stat and parser open.
+            self._check_input_file_limits()
+            payload = _read_bound_split_payload(
+                self.split_manifest_path, verified, resource_limits=self.resource_limits
+            )
             self.dataset_manifest_sha256 = verified.dataset_sha256
             self.split_manifest_sha256 = verified.split_manifest_sha256
             self.split_counts = dict(verified.split_counts)
@@ -110,6 +83,18 @@ class VerifiedIndexedSplitStore:
         except OSError as exc:
             raise ValueError("dataset or split manifest is missing or inaccessible") from exc
 
+    def _check_disk_usage(self):
+        """Enforce configured index and combined temporary-disk ceilings."""
+        try:
+            snapshot_bytes = self._snapshot_path.stat().st_size if self._snapshot_path.exists() else 0
+            index_bytes = self._index_path.stat().st_size if self._index_path.exists() else 0
+        except OSError as exc:
+            raise ValueError("temporary dataset storage could not be inspected") from exc
+        if index_bytes > self.resource_limits.max_index_bytes:
+            raise ValueError("SQLite index exceeds configured max_index_bytes")
+        if snapshot_bytes + index_bytes > self.resource_limits.max_temporary_bytes:
+            raise ValueError("dataset snapshot and index exceed configured max_temporary_bytes")
+
     def _copy_verified_snapshot(self):
         digest = hashlib.sha256()
         bytes_seen = 0
@@ -134,6 +119,7 @@ class VerifiedIndexedSplitStore:
             self._snapshot_path.chmod(0o400)
         except OSError as exc:
             raise ValueError("verified dataset snapshot could not be made read-only") from exc
+        self._check_disk_usage()
 
     def _build_index(self, split_ids, verified):
         connection = sqlite3.connect(self._index_path)
@@ -159,6 +145,7 @@ class VerifiedIndexedSplitStore:
                     ((example_id, split_name) for example_id in ids),
                 )
             connection.commit()
+            self._check_disk_usage()
 
             digest = hashlib.sha256()
             bytes_seen = 0
@@ -248,6 +235,7 @@ class VerifiedIndexedSplitStore:
             connection.execute("DROP TABLE records")
             connection.execute("DROP TABLE selected_ids")
             connection.commit()
+            self._check_disk_usage()
         except Exception:
             connection.rollback()
             raise
