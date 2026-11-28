@@ -116,7 +116,7 @@ class DatasetQualityAuditTests(unittest.TestCase):
         self.assertEqual({row["topic"] for row in first_rows}, set(SUPPORTED_TOPICS))
         for row in first_rows:
             self.assertEqual(set(row), expected_fields)
-            self.assertEqual(row["seed"], 1846)
+            self.assertEqual(row["seed"], 1846 + SUPPORTED_TOPICS.index(row["topic"]))
             self.assertEqual(row["validation_status"], "semantically_checked")
             self.assertEqual(
                 row["example_id"],
