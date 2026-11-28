@@ -2,8 +2,8 @@
 
 **Audit date:** 2026-11-28  
 **Baseline commit:** Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1  
-**Implementation branch:** phase2/green-theorem-curriculum-batch-2026-11-28  
-**Status:** Green's theorem rectangle family implemented in this branch; registry, mathematical tests, and exact-head CI require review/validation. No training or dataset generation is authorized by this phase.
+**Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28; phase2/linear-ode-scope-batch-2026-11-28  
+**Status:** bounded Green's theorem and linear constant-coefficient first-order ODE families implemented; curriculum scope/evidence registry expanded; exact-head CI pending on the ODE child branch. No training or dataset generation is authorized by this phase.
 
 ## 1. Coverage counts: baseline and current candidate
 
@@ -11,19 +11,19 @@ The counts below are derived from the combined committed topic registry, the per
 
 | State | Phase 2 baseline | Current candidate |
 |---|---:|---:|
-| Catalogued scope entries | 250 | 252 |
+| Catalogued scope entries | 250 | 253 |
 | Generator available | 113 | 114 |
-| Independently validated exercise topics | 61 | 62 |
+| Independently validated exercise topics | 61 | 63 |
 | Measured model-task benchmarks | 0 | 0 |
 | Mastered topics | 0 | 0 |
 
-The baseline independent-validation count is 53 university topics plus eight core exact-math topics. The current candidate adds one independently checked Green's theorem family, giving 54 university topics plus eight core topics. The school-band generators remain implemented but are not included in the independent-validation total unless a separate mathematical recomputation is recorded for each topic.
+The baseline independent-validation count is 53 university topics plus eight core exact-math topics. The current candidate adds one independently checked Green's theorem family and one independently checked linear constant-coefficient first-order ODE family, giving 55 university topics plus eight core topics. The school-band generators remain implemented but are not included in the independent-validation total unless a separate mathematical recomputation is recorded for each topic.
 
 The manifest requires named test methods and independent-validator descriptions. It rejects evidence paths or methods that are missing. Benchmark and mastery lists are empty: generator tests, generator throughput, synthetic CI fixtures, and random-initialized model smoke tests are not trained-model mathematical benchmarks or mastery evidence.
 
 ## 2. University curriculum and prerequisite graph
 
-The university curriculum now contains **199 unique topic IDs across 17 fields**. The earlier 197-topic count represented one umbrella record for three distinct theorem families; replacing it with three records increases the catalogue by two.
+The university curriculum now contains **200 unique topic IDs across 17 fields**. The earlier 197-topic count represented one umbrella record for three distinct theorem families; replacing it with three records increases the catalogue by two.
 
 | Field | Topics |
 |---|---:|
@@ -38,17 +38,17 @@ The university curriculum now contains **199 unique topic IDs across 17 fields**
 | Discrete mathematics and combinatorics | 12 |
 | Probability | 13 |
 | Statistics | 9 |
-| Differential equations | 12 |
+| Differential equations | 13 |
 | Optimization and operations research | 11 |
 | Numerical and computational mathematics | 11 |
 | Geometry | 9 |
 | Applied mathematics and mathematical physics | 11 |
 | Advanced and interdisciplinary | 10 |
-| **Total** | **199** |
+| **Total** | **200** |
 
-The prerequisite mapping covers all 199 topics and has 372 directed edges. The current graph validator is responsible for duplicate IDs, missing mappings, dangling edges, duplicate/self edges, cycles, and prerequisite-first topological ordering. The original graph had 366 edges; the split replaces three edges to the umbrella with nine edges across the three bounded theorem topics.
+The prerequisite mapping covers all 200 topics and has 373 directed edges. The current graph validator is responsible for duplicate IDs, missing mappings, dangling edges, duplicate/self edges, cycles, and prerequisite-first topological ordering. The original graph had 366 edges; the split replaces three edges to the umbrella with nine edges across the three bounded theorem topics.
 
-The combined registry now assigns scope-qualified catalog_id values so identically named exercises in different bands do not collide. The raw identifier linear_equations occurs in Core, G7-8, and G8-9; these are separate catalogue entries, not one topic. There are 252 unique scope-qualified IDs and 250 distinct raw topic strings.
+The combined registry now assigns scope-qualified catalog_id values so identically named exercises in different bands do not collide. The raw identifier linear_equations occurs in Core, G7-8, and G8-9; these are separate catalogue entries, not one topic. There are 253 unique scope-qualified IDs and 251 distinct raw topic strings.
 
 ## 3. Topic-scope findings
 
@@ -101,10 +101,10 @@ This batch defines Green difficulty concretely: level 1–5 bounds the maximum t
 
 ## 5. Dependency-aware topic expansion order
 
-The remaining 138 university topics are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.
+The remaining 139 university topics are not one flat implementation batch. Each family below must have its own bounded problem schema, deterministic generator, separately implemented validator, explicit difficulty semantics, invalid-input behavior, and tests before its status changes.
 
 1. **Calculus and vector calculus:** complete partial derivatives and gradient/directional-derivative families; bounded multiple integrals; line integrals over parameterized segments; surface integrals over explicitly parameterized patches; Green's theorem extensions only after the rectangle family; then Stokes and divergence theorem as separate workstreams.
-2. **Ordinary differential equations:** The current first_order_ODEs curriculum entry is too broad for its implementation: its linked differential_equations generator currently produces only homogeneous constant-coefficient problems of the form y'=ky with y(0)=y0. The next scope-correction batch should rename/split that capability into a bounded homogeneous constant-coefficient family, add independent analytic verification, and leave separable non-homogeneous equations, exact equations, general second-order constant-coefficient equations, systems, series solutions and numerical ODE schemes as distinct incomplete or subsequent families until independently implemented. A single exponential-decay example does not establish general first-order ODE coverage.
+2. **Ordinary differential equations:** the broad first_order_ODEs topic is catalogued but not implemented. The bounded linear_constant_coefficient_first_order_ODEs family supports rational y'=a*y+b with y(0)=y0; it has exact affine and exponential-affine solution branches and an independent symbolic identity/initial-condition validator. Separable variable-coefficient equations, exact equations, general second-order equations, systems, series solutions and numerical ODE schemes remain incomplete.
 3. **PDEs and mathematical physics:** classify a narrow PDE family (for example, constant-coefficient first-order transport or selected separable heat-equation cases), with explicit domain/boundary assumptions; then separate wave, Laplace/Poisson and numerical PDE work. Keep applications and general PDE solving distinct.
 4. **Linear algebra:** exact row reduction and rank; linear maps and null/range; determinants and inverse families; eigenvalues/eigenvectors for bounded matrices; orthogonality/projections/least squares; then spectral/Jordan forms under explicit field and diagonalizability assumptions.
 5. **Abstract algebra:** groups/subgroups and cyclic groups; homomorphisms/kernels/images; cosets/Lagrange; rings/ideals; fields/extensions; then carefully bounded Galois examples. Keep structural proof validation separate from finite computational examples.
@@ -123,3 +123,10 @@ The remaining 138 university topics are not one flat implementation batch. Each 
 - A benchmark is not mastery.
 - Mastery requires measured evaluation evidence from a compatible trained checkpoint and a separately defined acceptance policy.
 - No generated corpus, downloaded data, model training, optimizer step, remote job, deployment, or checkpoint publication occurred in this phase.
+
+
+## 8. ODE scope-correction batch
+
+The broad first_order_ODEs catalogue entry is deliberately marked catalogued_not_implemented; it is not a single implemented generator family. The new linear_constant_coefficient_first_order_ODEs topic is a bounded subfamily with exact rational coefficients in \(y'=a y+b\), initial condition \(y(0)=y_0\), and a closed-form affine/exponential-affine solution. Its independent validator checks the symbolic coefficient identity for the differential equation and the initial condition, without seeded replay.
+
+The input contract caps input numerators at 10 in absolute value, denominators at 5, and the difficulty-specific numerator/denominator envelope at \(2d\)/\(d\) for levels 1–5. Seeds are integers from 0 through \(2^{31}-1\). Derived rational solution coefficients are bounded before parsing. The a=0 and a≠0 solution branches, homogeneous subcase b=0, inhomogeneous cases, deterministic replay, tampering, malformed rational inputs and limits are covered by tests. This expands the differential-equations field to 13 topics; the prerequisite graph has 200 nodes and 373 directed edges.
