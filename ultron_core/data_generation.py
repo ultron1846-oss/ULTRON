@@ -400,12 +400,21 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
     )
 
 
-def generate_examples(seed: int, count: int,
-                      topics: Iterable[str] = SUPPORTED_TOPICS) -> tuple[MathExample, ...]:
+def generate_examples(
+    seed: int,
+    count: int,
+    topics: Iterable[str] = SUPPORTED_TOPICS,
+    *,
+    resource_limits: DatasetResourceLimits | None = None,
+) -> tuple[MathExample, ...]:
     if isinstance(seed, bool) or not isinstance(seed, int):
         raise TypeError("seed must be an integer")
-    if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= _MAX_EXAMPLES:
-        raise ValueError(f"count must be between 1 and {_MAX_EXAMPLES}")
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
+    maximum_count = min(_MAX_EXAMPLES, resource_limits.max_rows)
+    if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= maximum_count:
+        raise ValueError(f"count must be between 1 and {maximum_count}")
     topics = tuple(topics)
     if not topics or any(topic not in SUPPORTED_TOPICS for topic in topics):
         raise ValueError("topics must be a non-empty subset of supported topics")
