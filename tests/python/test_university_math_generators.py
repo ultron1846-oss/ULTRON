@@ -190,7 +190,7 @@ class UniversityFoundationTests(unittest.TestCase):
         import json
         payload=json.loads(registry)
         rows={x["topic"]:x for x in payload["topics"]}
-        self.assertEqual(len(rows),216)
+        self.assertEqual(len(rows),218)
         self.assertTrue(rows["polynomial_vector_field_segment_line_integrals"]["has_generator"])
         self.assertTrue(rows["rectangular_quadratic_polynomial_double_integrals"]["has_generator"])
         self.assertTrue(rows["affine_transport_first_order_PDEs"]["has_generator"])
@@ -228,6 +228,8 @@ class UniversityFoundationTests(unittest.TestCase):
         self.assertEqual(rows["linear_first_order_variable_coefficient_ODEs"]["status"], "catalogued_not_implemented")
         self.assertEqual(rows["exact_first_order_ODEs"]["status"], "catalogued_not_implemented")
         self.assertTrue(rows["greens_theorem_rectangles"]["has_generator"])
+        self.assertTrue(rows["stokes_theorem_horizontal_rectangles"]["has_generator"])
+        self.assertTrue(rows["divergence_theorem_axis_aligned_boxes"]["has_generator"])
         self.assertEqual(rows["greens_theorem_rectangles"]["status"], "generator_available_not_mastered")
         self.assertFalse(rows["stokes_theorem"]["has_generator"])
         self.assertEqual(rows["stokes_theorem"]["status"], "catalogued_not_implemented")
