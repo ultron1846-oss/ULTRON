@@ -271,17 +271,105 @@ No ULTRON training, optimizer steps, model weight updates, production corpus gen
 
 ## Phase 2 mathematics curriculum and Green's theorem
 
-**Status:** implementation submitted on a dedicated branch; CI and independent review pending. No merge or training is authorized by this phase.
+**Status:** bounded Green's theorem family implemented; curriculum audit and evidence-backed registry updated; exact-head CI passed. PR #209 remains open and unmerged pending independent review and the upstream review gates.
 
+### Repository state
+
+- Repository: ultron1846-oss/ULTRON
 - Branch: phase2/green-theorem-curriculum-batch-2026-11-28
-- Base: Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1 on audit/repository-quality-phase1-2026-11-28 (PR #208).
-- Scope: split the broad Green/Stokes/divergence catalogue entry; implement only exact-rational Green's theorem for polynomial P(x,y), Q(x,y) over non-degenerate axis-aligned rational rectangles; add independent boundary and curl-area computations, clockwise sign handling, resource bounds and tests.
-- Current university catalogue: 199 topics, 61 generator-available and 138 without generators. Stokes' theorem and divergence theorem remain incomplete.
-- Current combined registry: 252 scope-qualified entries, 114 generator-available, 62 with documented independent exercise validation, zero trained-model benchmarked, zero mastered.
-- Evidence manifest: tools/math_generators/validation_manifest.json. Coverage report and prioritized dependency backlog: docs/MATH_CURRICULUM_AUDIT_2026-11-28.md.
-- Prerequisite map: 199 mapped topics and 372 edges; duplicate raw linear_equations labels are distinguished by scope-qualified catalogue IDs.
-- Phase 2 PR: [#209 — bounded exact-rational Green's theorem and curriculum evidence audit](https://github.com/ultron1846-oss/ULTRON/pull/209).
-- Latest implementation commit before this README follow-up: 3282aed47d41116513c86c8e40d9aa0db0647e32. Branch-head workflows are being rerun after the latest code fixes; the first full Python run had 2 failures which were corrected in subsequent commits (full verifier binding and raw-vs-scoped ID collision accounting).
-- Exact latest-head validation is still pending. Do not merge until all required checks pass on the latest head, the code is independently reviewed, and blocking review comments are resolved. PR #209 is stacked on #208, which in turn is stacked on #207; these integration/review gates must be preserved.
+- Latest source commit validated: 8bed24b56430413db2bef4703265bedc7178417a
+- PR: [#209 — bounded exact-rational Green's theorem and curriculum evidence audit](https://github.com/ultron1846-oss/ULTRON/pull/209)
+- Base: audit/repository-quality-phase1-2026-11-28, head 26d0d940b8f3a62edb5a682169049a0094b6a1c1 (PR #208). PR #208 is itself stacked on PR #207. Preserve the chain; do not merge the child PR independently.
 
-No corpus generation/download, model training, optimizer step, remote job, checkpoint publication, Supabase mutation or Pages deployment occurred. Generator availability and independent exercise checks do not establish trained-model mathematical competence or mastery.
+### Coverage counts
+
+Counts are computed from the scope-qualified combined registry and the validation evidence manifest—not from catalogue presence alone.
+
+| State | Current candidate |
+| --- | ---: |
+| Catalogued scope entries | 252 |
+| Generator available | 114 |
+| Independently validated exercise topics | 62 |
+| Benchmarked on a compatible trained checkpoint | 0 |
+| Mastered on a compatible trained checkpoint | 0 |
+
+University curriculum: **199 topics**, **61 generator-available**, **138 catalogued but not implemented**. The former Green_stokes_divergence_theorems umbrella is split into greens_theorem_rectangles, stokes_theorem, and divergence_theorem. Only the bounded Green rectangle family has a generator. Stokes and divergence remain incomplete.
+
+The prerequisite graph covers all 199 university topics and 372 edges. The combined registry has 252 unique scoped IDs; raw linear_equations labels occur in Core, G7–8, and G8–9, but scoped ID collisions are zero.
+
+### Green's theorem contract
+
+tools/math_generators/university/green_theorem.py supports exact rational sparse polynomial vector fields P(x,y), Q(x,y) over non-degenerate axis-aligned rectangles with rational bounds.
+
+- Total degree at most 5; at most 8 terms in each polynomial; at most 12 combined terms (the conservative operation budget may reject some lower-term cases).
+- Coefficient numerator absolute value at most 1,000; denominator at most 100.
+- Rectangle-bound numerator absolute value at most 100; denominator at most 20.
+- Conservative estimated exact-operation budget at most 256.
+- Counter-clockwise boundary integration is evaluated separately over all four rectangle edges. The area side separately computes dQ/dx-dP/dy and integrates over the rectangle.
+- All arithmetic is exact Fraction; exact equality is required. Clockwise orientation reverses both signs.
+- Invalid input, unsupported expressions, duplicate monomials, zero coefficients, booleans/floats in integer fields, excessive degree/terms/budgets, malformed rationals, unsupported orientation, and degenerate/reversed rectangles are rejected.
+- verify_green_problem recomputes the integrals and reconstructs the entire expected generated object; changed answer, prompt, steps, metadata, ingredients, or extra fields fail verification.
+
+This does not support arbitrary regions, curved boundaries, non-polynomial fields, general Green-theorem automation, Stokes' theorem, or the divergence theorem.
+
+### Exact-head CI results
+
+All five required workflows passed on exact code/docs candidate head 8bed24b56430413db2bef4703265bedc7178417a on 2026-11-28.
+
+| Validation | Exact command / workflow | Result |
+| --- | --- | --- |
+| Python AI Core | python -m unittest discover -s tests/python -v | **742 tests passed** |
+| CPU model smoke | python -m ultron_core.smoke --device cpu --batch 2 --sequence 8 | Forward/backward smoke passed; **no optimizer step or training** |
+| Level 1 Math Tooling | pytest -q | **5 passed**, workflow includes 5,000 randomized cases |
+| Node/frontend tests | npm ci then npm test | **130 tests passed** |
+| Frontend/security checks | frontend workflow | Passed |
+| Python dependency audit | pip-audit -r requirements-ai.txt; pip-audit -r requirements-test.txt; pip-audit -r requirements-seed.txt | No known vulnerabilities in all three declared groups |
+
+Workflow run IDs:
+- Python AI Core: [46119241376](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241376)
+- Level 1 Math: [46119241434](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241434)
+- Node tests: [46119241419](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241419)
+- Frontend and dependency audit: [46119241429](https://github.com/ultron1846-oss/ULTRON/actions/runs/46119241429)
+
+The repository was validated by GitHub Actions; no local clone or local test execution was available in this session. The successful runs do not establish performance on full-size ULTRON or a trained checkpoint. No generator throughput benchmark or trained-model math benchmark was run for this Phase 2 batch.
+
+### Files changed in PR #209
+
+- README.md
+- docs/MATH_CURRICULUM_AUDIT_2026-11-28.md
+- docs/PRETRAINING_READINESS.md
+- docs/UNIVERSITY_PREREQUISITES.md
+- tests/python/test_grade8_12_generators.py
+- tests/python/test_greens_theorem_generator.py
+- tests/python/test_math_coverage_audit.py
+- tests/python/test_math_foundation.py
+- tests/python/test_university_math_generators.py
+- tests/python/test_university_prerequisites.py
+- tools/math_generators/build_registry.py
+- tools/math_generators/coverage_audit.py
+- tools/math_generators/grade1_4/registry.json
+- tools/math_generators/grade5_8/registry.json
+- tools/math_generators/grade8_12/registry.json
+- tools/math_generators/registry.json
+- tools/math_generators/university/curriculum.json
+- tools/math_generators/university/generators.py
+- tools/math_generators/university/green_theorem.py
+- tools/math_generators/university/prerequisites.json
+- tools/math_generators/university/registry.json
+- tools/math_generators/validation_manifest.json
+
+### Review status, remaining risks, and next task
+
+PR #209 has no independent submitted review or inline review threads, and must remain open. PR #208 and PR #207 also remain open pending their own independent reviews and exact-head checks. No merge has been performed.
+
+Remaining work:
+- 138 university topics still have no registered generator.
+- Zero topics are benchmarked on a compatible trained model; zero are mastered.
+- Broad compound curriculum entries complex_numbers_and_topology and Taylor_and_Laurent_series need syllabus-level scope review before splitting.
+- Global difficulty progression is not defined consistently across topic families. Green now defines difficulty levels 1–5 by maximum polynomial total degree; other families need explicit per-level progression.
+- Grade-band prerequisite dependencies remain to be mapped separately.
+- Existing first_order_ODEs is broader than its current generator, which only generates homogeneous constant-coefficient equations y'=ky with an initial value. This is the next focused scope-correction and independent-validator task; do not claim general first-order ODE support.
+
+**Next concrete task:** define and register a narrow homogeneous constant-coefficient first-order ODE family, independently verify its analytic solution (including initial condition and edge cases), split/generalize the curriculum label without overstating support, and add deterministic/tamper/boundary tests. Keep separable non-homogeneous and exact first-order equations marked incomplete until independently implemented.
+
+No training, optimizer step, production corpus generation/download, external AI API call, remote training job, model-weight publication, Supabase mutation, or Pages deployment occurred.
