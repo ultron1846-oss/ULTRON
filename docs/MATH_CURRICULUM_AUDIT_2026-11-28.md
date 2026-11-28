@@ -3,7 +3,7 @@
 **Audit date:** 2026-11-28  
 **Baseline commit:** Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1  
 **Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28 (PR #209); phase2/ode-scope-and-validator-2026-11-28 (PR #210); phase2/separable-first-order-ode-family-2026-11-28 (PR #212)  
-**Status:** Three bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, and a restricted separable power-law ODE family. Green's theorem and homogeneous ODE batches passed exact-head GitHub Actions checks. The separable ODE batch is under exact-head validation in PR #212. All Phase 2 PRs remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
+**Status:** Three bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, and a restricted separable power-law ODE family. All three bounded families passed exact-head GitHub Actions checks: Green's theorem in PR #209, homogeneous first-order ODEs in PR #210, and the restricted separable power-law family in PR #212 (exact head 094c0bcb51e2449bebe62875dce3f5e85bb33b9f). All Phase 2 PRs remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
 
 ## 1. Coverage counts: baseline and current candidate
 
@@ -145,3 +145,19 @@ y'=c x^m y^n,\qquad y(x_0)=y_0,
 where c, x0 and y0 are exact rationals, c is nonzero and y0 is positive. Integer powers satisfy \(0\le m\le \min(3,d-1)\) and \(0\le n\le \min(2,\lfloor(d-1)/2\rfloor)\) at difficulty \(d\in\{1,\ldots,5\}\). Input rational numerator absolute values are at most \(2d\) (global maximum 10) and positive denominators at most d (global maximum 5). This gives a polynomial solution for n=0, an exponential solution for n=1, and a reciprocal solution for n=2. The reciprocal family is valid on any connected interval containing x0 where its denominator is nonzero.
 
 The validator checks, with exact rational arithmetic, the derivative coefficient and initial-value identities independently for all three solution forms, then verifies the full canonical exercise object. Tests cover 500 deterministic seeds, all three branches and all four x-powers, difficulty progression, tampering, malformed rational inputs, type and bound rejections, and the seed/difficulty limits. This does not claim support for arbitrary separable factors or general separable ODE solving.
+
+
+## 8. Exact-head validation for the separable ODE batch
+
+PR #212 exact validated head: 094c0bcb51e2449bebe62875dce3f5e85bb33b9f.
+
+| Workflow | Run ID | Result |
+|---|---:|---|
+| Node tests | 46122281193 | Passed |
+| Python AI Core | 46122281223 | 753 tests passed; CPU forward/backward smoke only, no optimizer step |
+| Level 1 Math Tooling | 46122281237 | 5 passed; workflow includes 5,000 randomized cases |
+| Security/dependency audit | 46122281197 | Passed; npm audit 0 vulnerabilities; pip-audit no known vulnerabilities |
+
+The first Python run on the initial PR #212 head failed because the committed university registry did not match builder output ordering and one test still expected the separable topic to be unimplemented. Those two registry/test issues were fixed. The final exact-head run above is green. The NumPy-unavailable PyTorch warning was non-fatal. No local test execution is claimed; validation was performed by GitHub Actions.
+
+PR #212 is open, unmerged and has no independent submitted review or inline review threads. It is stacked on PR #210, which is stacked on #209 → #208 → #207. Do not merge this child ahead of any parent. No training or optimizer step occurred.
