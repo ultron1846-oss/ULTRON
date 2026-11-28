@@ -163,6 +163,8 @@ class IndexedDatasetStressTests(unittest.TestCase):
                 (IndexedDatasetResourceLimits(max_line_bytes=10), "max_line_bytes"),
                 (IndexedDatasetResourceLimits(max_split_manifest_bytes=10),
                  "max_split_manifest_bytes"),
+                (IndexedDatasetResourceLimits(max_index_bytes=1), "SQLite index"),
+                (IndexedDatasetResourceLimits(max_temporary_bytes=1), "max_temporary_bytes"),
             )
             for resource_limits, message in cases:
                 with self.subTest(message=message):
@@ -268,7 +270,11 @@ class IndexedDatasetStressTests(unittest.TestCase):
             payload = json.loads(split.read_text(encoding="utf-8"))
             payload["split_ids"]["train"].append(payload["split_ids"]["train"][0])
             payload["split_ids"]["train"].sort()
-            split.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8")
+            unsigned = {key: value for key, value in payload.items() if key != "sha256"}
+            payload["sha256"] = __import__("hashlib").sha256(
+                json.dumps(unsigned, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+            ).hexdigest()
+            split.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
             with self.assertRaises(ValueError):
                 VerifiedIndexedSplitStore(dataset, split)
 
