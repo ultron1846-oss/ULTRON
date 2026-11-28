@@ -26,7 +26,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 
 ### Measured CI fixture benchmark
 
-The corrected implementation revision ran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135), job `140991331930`.
+The corrected implementation revision ran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135), job `140993841838`.
 
 | Metric | Result |
 |---|---:|
@@ -45,13 +45,13 @@ These are single-run synthetic-fixture CI measurements, not a production corpus 
 
 ### Validation on the exact code revision
 
-All three workflows passed on code revision `9ac499eeacef0fe9d2b6d3c4e6340f80adb3ecb6`:
+All three workflows passed on exact code + test revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a`:
 
 - [Node Tests #46149827140](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827140): `npm test` — passed.
-- [Python AI Core #46149042002](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042002): `python -m unittest discover -s tests/python -v` — 711 tests passed in 100.380 seconds; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
+- [Python AI Core #46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135): `python -m unittest discover -s tests/python -v` — 711 tests passed in 100.380 seconds; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
 - [Level 1 Math Tooling #46149827139](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827139): `pytest -q` — passed, including the workflow's 5,000 randomized cases.
 
-The CPU smoke performs forward/backward validation only; it does not step an optimizer or update ULTRON model weights. This exact code revision passed; the later documentation/README commits still require final exact-head CI verification.
+The CPU smoke performs forward/backward validation only; it does not step an optimizer or update ULTRON model weights. This code + test revision passed; the subsequent documentation-only handoff commit has its own final-head CI run.
 
 ### Exact PR file inventory (19 files including this handoff)
 

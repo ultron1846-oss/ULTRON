@@ -65,7 +65,7 @@ The 12,000-row test and fixture benchmarks are correctness/stress evidence only.
 
 ## Phase 3 measured 12,000-row synthetic fixture — 2026-11-28
 
-The corrected implementation revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a` emitted a measured benchmark summary from Python AI Core CI run [#46149042002](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042002), job `140991331930`. Conditions: GitHub-hosted Ubuntu 26.04.1, Python 3.11.18, SQLite 3.46.1; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
+The corrected implementation revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a` emitted a measured benchmark summary from Python AI Core CI run [#46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135), job `140993841838`. Conditions: GitHub-hosted Ubuntu 26.04.1, Python 3.11.18, SQLite 3.46.1; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
 
 | Metric | Result |
 |---|---:|
