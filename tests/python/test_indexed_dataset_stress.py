@@ -164,6 +164,8 @@ class IndexedDatasetStressTests(unittest.TestCase):
                 (IndexedDatasetResourceLimits(max_line_bytes=10), "line byte limit"),
                 (IndexedDatasetResourceLimits(max_split_manifest_bytes=10),
                  "max_split_manifest_bytes"),
+                (IndexedDatasetResourceLimits(max_dataset_manifest_bytes=10),
+                 "max_dataset_manifest_bytes"),
                 (IndexedDatasetResourceLimits(max_index_bytes=4096), "SQLite index"),
                 (IndexedDatasetResourceLimits(max_temporary_bytes=1), "max_temporary_bytes"),
             )
