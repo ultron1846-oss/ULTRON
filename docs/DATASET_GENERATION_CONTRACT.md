@@ -56,7 +56,7 @@ The dataset sidecar manifest is schema v1 and contains exactly:
 - topic_counts
 - sha256 (complete JSONL digest)
 
-The sidecar itself is canonical sorted-key compact UTF-8 JSON followed by a newline. Dataset content and sidecar are written using separate temporary files, fsync, and os.replace. They are **not a single atomic two-file transaction**: interruption between replacements can leave a mismatched pair, which must fail closed during verification. Never treat the pair as valid unless the verifier accepts both.
+The sidecar itself is canonical sorted-key compact UTF-8 JSON followed by a newline. Dataset content and sidecar are written using separate temporary files, fsync, and os.replace. They are **not a single atomic two-file transaction**: interruption between replacements can leave a mismatched pair, which must fail closed during verification. Never treat the pair as valid unless the verifier accepts both. During staging, max_temporary_bytes is enforced against the combined JSONL and sidecar temporary-output size; the pair is rejected before either destination is replaced if that combined budget is exceeded.
 
 ## 4. Deterministic seed and provenance rules
 

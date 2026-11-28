@@ -76,6 +76,35 @@ class StreamingDatasetWriterTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "max_manifest_bytes|byte limit"):
                 verify_dataset(path, max_manifest_bytes=10)
 
+
+    def test_combined_temporary_budget_includes_manifest_before_replacement(self):
+        examples = self._examples()
+        topics = ("arithmetic", "rational_arithmetic", "linear_equations")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "combined-budget.jsonl"
+            write_dataset(path, examples, seed=101, topics=topics)
+            original_dataset = path.read_bytes()
+            manifest_path = path.with_suffix(path.suffix + ".manifest.json")
+            original_manifest = manifest_path.read_bytes()
+
+            # The staged JSONL fits exactly; adding its sidecar must exceed the cap.
+            with self.assertRaisesRegex(
+                ValueError, "dataset and sidecar temporary outputs exceed configured max_temporary_bytes"
+            ):
+                write_dataset(
+                    path,
+                    iter(examples),
+                    seed=101,
+                    topics=topics,
+                    resource_limits=DatasetResourceLimits(
+                        max_temporary_bytes=len(original_dataset)
+                    ),
+                )
+
+            self.assertEqual(path.read_bytes(), original_dataset)
+            self.assertEqual(manifest_path.read_bytes(), original_manifest)
+            self.assertEqual(list(Path(directory).glob(".*.tmp")), [])
+
     def test_writer_rejects_duplicate_ids_indices_and_unknown_topic_sequence(self):
         examples = self._examples()
         topics = ("arithmetic", "rational_arithmetic", "linear_equations")
