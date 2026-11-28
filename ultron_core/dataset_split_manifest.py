@@ -66,6 +66,7 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
         max_bytes=resource_limits.max_dataset_bytes,
         max_rows=resource_limits.max_rows,
         max_line_bytes=resource_limits.max_line_bytes,
+        max_manifest_bytes=resource_limits.max_dataset_manifest_bytes,
     )
     digest_expected = manifest.get("sha256")
     if not _valid_hash(digest_expected):
