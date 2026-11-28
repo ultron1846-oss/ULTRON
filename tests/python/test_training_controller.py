@@ -392,6 +392,7 @@ class BoundedTrainingControllerTests(unittest.TestCase):
             with self.subTest(batch=batch):
                 report = dict(self.report)
                 report["gradient_accumulation_steps"] = 1
+                report["sequence_length"] = 4
                 result = run_training_steps(
                     self.model,
                     [batch],
