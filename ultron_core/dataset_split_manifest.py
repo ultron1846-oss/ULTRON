@@ -146,7 +146,7 @@ def _derive_split_ids(dataset_path, seed, val, test, *, resource_limits=None):
                 resource_limits.max_temporary_bytes,
             )
             if index_budget < page_size:
-                raise ValueError("split-index temporary budget cannot hold one SQLite page")
+                raise ValueError("split-index budget cannot hold one SQLite page within configured max_index_bytes/max_temporary_bytes")
             connection.execute(f"PRAGMA max_page_count={index_budget // page_size}")
             connection.execute(
                 "CREATE TABLE prompt_groups (prompt TEXT PRIMARY KEY, example_id TEXT NOT NULL) WITHOUT ROWID"
@@ -188,6 +188,14 @@ def _derive_split_ids(dataset_path, seed, val, test, *, resource_limits=None):
             if any(not result[name] for name in result):
                 raise ValueError("split parameters produced an empty split")
             return manifest, {name: sorted(ids) for name, ids in result.items()}
+        except sqlite3.OperationalError as exc:
+            connection.rollback()
+            message = str(exc).lower()
+            if "full" in message or "maximum page count" in message:
+                raise ValueError(
+                    "split SQLite index exceeded configured max_index_bytes or max_temporary_bytes"
+                ) from exc
+            raise
         finally:
             connection.close()
 
