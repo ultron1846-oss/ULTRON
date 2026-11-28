@@ -23,8 +23,8 @@ class UniversityPrerequisiteTests(unittest.TestCase):
             if item["field"] in data["coverage_fields"]
         }
         self.assertEqual(set(mapping.prerequisites), expected)
-        self.assertEqual(mapping.mapped_topic_count, 216)
-        self.assertEqual(mapping.source_topic_count, 216)
+        self.assertEqual(mapping.mapped_topic_count, 218)
+        self.assertEqual(mapping.source_topic_count, 218)
         self.assertEqual(mapping.source_topic_count - mapping.mapped_topic_count, 0)
 
     def test_prerequisite_edges_are_ordered_and_queryable(self):
@@ -43,6 +43,10 @@ class UniversityPrerequisiteTests(unittest.TestCase):
         self.assertTrue(mapping.is_prerequisite("greens_theorem_rectangles", "stokes_theorem"))
         self.assertTrue(mapping.is_prerequisite("vector_calculus", "greens_theorem_rectangles"))
         self.assertTrue(mapping.is_prerequisite("surface_integrals", "divergence_theorem"))
+        self.assertTrue(mapping.is_prerequisite("stokes_theorem", "stokes_theorem_horizontal_rectangles"))
+        self.assertTrue(mapping.is_prerequisite("greens_theorem_rectangles", "stokes_theorem_horizontal_rectangles"))
+        self.assertTrue(mapping.is_prerequisite("divergence_theorem", "divergence_theorem_axis_aligned_boxes"))
+        self.assertTrue(mapping.is_prerequisite("diagonal_linear_vector_field_divergence", "divergence_theorem_axis_aligned_boxes"))
         self.assertNotIn("Green_stokes_divergence_theorems", mapping.prerequisites)
         self.assertTrue(mapping.is_prerequisite("power_series", "Taylor_series"))
         self.assertTrue(mapping.is_prerequisite("derivative_theory", "Taylor_series"))
