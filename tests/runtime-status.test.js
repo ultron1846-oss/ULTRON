@@ -7,7 +7,7 @@ import {
   formatStatusAge
 } from '../runtime-status.js';
 
-const payload = (checkedAt = '2026-11-28T03:00:00.000Z') => ({
+const payload = (checkedAt = new Date().toISOString()) => ({
   ok: true,
   control_plane: 'online',
   model_status: 'untrained',
