@@ -9,7 +9,7 @@ import torch
 from ultron_core.checkpoint import save_checkpoint
 from ultron_core.config import NeuroSparseConfig
 from ultron_core.inference import ULTRONInferenceEngine, load_inference_engine
-from ultron_core.math_tokenizer import MathTokenizer
+from ultron_core.math_tokenizer import MathTokenizer, TokenLimitExceeded
 from ultron_core.model import NeuroSparseModel
 
 
