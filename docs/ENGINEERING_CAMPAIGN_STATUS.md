@@ -16,9 +16,9 @@ This file tracks the 14-stage campaign from `Pasted markdown(2).md`. Statuses di
 | 7. Evaluation and mathematical tools | In progress | Exact arithmetic, symbolic/equation tools, benchmark and evaluation modules exist. Remaining: unify repeatable reports, coverage/error categories, independent benchmark review and frozen transfer benchmark provenance. |
 | 8. Inference engine | In progress | Model-only evaluation and checkpoint compatibility components exist. Remaining: verify a public inference interface end-to-end with a verified checkpoint; no trained checkpoint exists yet. |
 | 9. Compression toolkit | Implemented; validation pending | Compression/quantization/low-rank pipeline and artifact metadata exist. Remaining: run permitted non-training round-trip/corruption tests and report size/error; quality claims require a trained checkpoint and evaluation. |
-| 10. Website and training-control frontend | Automated contract implemented; manual iPad acceptance pending | GitHub Pages build/deploy, account-free UI, local RAM preference, responsive/accessibility contracts are tested. Actual iPad Safari acceptance remains owner-only. |
-| 11. Website/backend protocol and resource safeguards | In progress | Runtime config schema and read-only training status exist; no job execution or pairing controls. RAM slider is a local requested preference, not an enforced process-memory limit. Status freshness, offline/disconnect and resource enforcement remain. |
-| 12. Security, CI and release quality | In progress | CI workflows, security contracts and database privilege hardening exist. Remaining: consolidated dependency/license/permissions/serialization/network review and clean-branch reproducibility. |
+| 10. Website and training-control frontend | Automated website/runtime improvements in Prompt 5 branch; manual iPad acceptance pending | Account-free UI, 900px tablet navigation, safe areas/touch/reduced motion, strict provider manifest validation, requested GiB preference and status freshness/offline tests. Actual iPad Safari acceptance remains owner-only. |
+| 11. Website/backend protocol and resource safeguards | Public status improved; runtime resource enforcement pending | Generic status freshness/stale/offline states and mocked tests added; no public job execution or pairing controls. GiB slider is still a local requested preference, not an enforced process-memory limit. |
+| 12. Security, CI and release quality | Focused audit and automated checks added; owner hardening pending | npm/pip audits, static frontend scan, Dependabot and focused security report added. Remaining: full transitive license inventory, full-SHA action pinning, owner Supabase leaked-password/table/function tasks and secret-scanning settings verification. |
 | 13. Full-system validation | Pending | Requires all permitted subsystem tests, non-training smoke tests, frontend build, resource checks and independent readiness review. |
 | 14. Final readiness report | Pending | Must record main commit, PRs, CI, model/data/tokenizer/training/checkpoint/evaluation/compression/inference/frontend/resource status, limitations and blockers. |
 
@@ -33,3 +33,8 @@ This file tracks the 14-stage campaign from `Pasted markdown(2).md`. Statuses di
 ## Authorization boundary
 
 Do not generate/download the full training corpus, train ULTRON weights, perform optimizer steps, run long training, launch remote compute, or incur cost without separate explicit authorization. Small deterministic unit fixtures and non-training validation are permitted. No pretrained model, weights, external AI API, or external generated training corpus may be used.
+
+
+## Prompt 5 implementation note — 2026-11-28
+
+The website/runtime/security batch is in branch website-runtime-security-batch-6-2026-11-28, pending PR review and exact-head CI. It adds a shared status freshness/offline monitor with mocked tests, strict non-executable provider manifest validation, an iPad-width navigation breakpoint, clearer requested-resource semantics, removal of the remote font import, npm/pip dependency checks, Dependabot and a heuristic static source audit. The frontend remains account-free and does not dispatch jobs. Actual iPad Safari validation and Supabase cleanup/configuration remain owner-only. No Supabase mutation, training, optimizer step, AI API use, or remote job occurred.
