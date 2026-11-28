@@ -231,7 +231,8 @@ For transfer between sessions, copy the current checkpoint, `.sha256`, and `.met
 - [x] Extend responsive navigation to 900px tablet widths, preserve safe-area/touch/reduced-motion support, and remove the external web-font request.
 - [x] Add npm lockfile, pinned CI test dependencies, npm/pip audit workflows, Dependabot, .gitignore and focused static frontend security checks.
 - [x] Add focused security documentation and owner findings.
-- [ ] Run exact-head CI and obtain PR review.
+- [x] Run exact-head CI on PR #206 code/test revision `7a787e96c49e2a44bc30979779e449c823c219d2`: Node Tests passed (127 tests); Python AI Core passed (681 tests and CPU forward/backward smoke with no optimizer step); Level 1 Math Tooling passed (5/5, including 5,000 randomized cases); Security and dependency audit passed (npm audit, static source scan, and pip-audit for runtime, test and optional seed dependency groups; no known vulnerabilities found).
+- [ ] Obtain independent PR review before merge.
 - [ ] Owner: complete actual iPad Safari portrait/landscape and network offline/reconnect acceptance.
 - [ ] Owner: decide whether to upgrade the Free Supabase organization to Pro+ for leaked-password protection.
 - [ ] Owner: review the three RLS-enabled, policy-less retired pairing/device tables and decide on safe cleanup after dependency/backup checks.
