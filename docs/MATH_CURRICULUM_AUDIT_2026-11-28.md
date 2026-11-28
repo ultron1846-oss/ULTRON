@@ -3,7 +3,7 @@
 **Audit date:** 2026-11-28  
 **Baseline commit:** Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1  
 **Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28 (PR #209); phase2/ode-scope-and-validator-2026-11-28 (PR #210); phase2/separable-first-order-ode-family-2026-11-28 (PR #212)  
-**Status:** Three bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, and a restricted separable power-law ODE family. Both mathematical families have passed the required exact-head GitHub Actions checks in their respective PR branches. PR #209, PR #210 and PR #212 remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
+**Status:** Three bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, homogeneous constant-coefficient first-order ODEs, and a restricted separable power-law ODE family. Green's theorem and homogeneous ODE batches passed exact-head GitHub Actions checks. The separable ODE batch is under exact-head validation in PR #212. All Phase 2 PRs remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
 
 ## 1. Coverage counts: baseline and current candidate
 
