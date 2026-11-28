@@ -60,8 +60,12 @@ class StreamingDatasetWriterTests(unittest.TestCase):
                 DatasetResourceLimits(max_dataset_bytes=10),
                 DatasetResourceLimits(max_line_bytes=10),
                 DatasetResourceLimits(max_dataset_manifest_bytes=10),
+                DatasetResourceLimits(max_temporary_bytes=1),
             )
-            expected = ("max_rows", "max_dataset_bytes", "max_line_bytes", "max_dataset_manifest_bytes")
+            expected = (
+                "max_rows", "max_dataset_bytes", "max_line_bytes",
+                "max_dataset_manifest_bytes", "max_temporary_bytes",
+            )
             for policy, message in zip(policies, expected):
                 with self.subTest(message=message):
                     with self.assertRaisesRegex(ValueError, message):
