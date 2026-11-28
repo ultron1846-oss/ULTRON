@@ -64,7 +64,7 @@ The public status function is deployed with verify_jwt=false, but its public pub
 | Browser build | TypeScript 5.8.3, exact version in package.json and package-lock.json; npm audit workflow | Locked; TypeScript package metadata identifies Apache-2.0. |
 | Python runtime | torch>=2.2,<3.0 in requirements-ai.txt and pyproject.toml | Range-based, not a full hash lock. Wheel selection depends on target runtime. Audited by pip-audit in CI. |
 | Python tests | pytest==9.2.0, sympy==1.14.0 in requirements-test.txt | Exact CI pins; audited by pip-audit. |
-| Optional seed tooling | datasets>=3,<5, huggingface_hub>=0.27,<2 | Explicit optional requirements; audited by pip-audit. No seed data is downloaded by the security workflow. |
+| Optional seed tooling | datasets>=5.0.1,<6, fsspec>=2026.6.0,<2027, huggingface_hub>=0.27,<2 | Minimums include fixes for PYSEC-2026-3716 and PYSEC-2026-4217 found on the first audit run; re-audited by pip-audit. No seed data is downloaded by the security workflow. |
 
 A top-level project LICENSE file was not found during this review. The transitive Python dependency license inventory has not been generated or reviewed in full. The project owner must choose the project’s distribution license and complete a transitive license/SBOM review before making a release or distribution claim.
 
