@@ -1,3 +1,4 @@
+import hashlib
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -7,7 +8,7 @@ import torch
 
 from ultron_core.checkpoint import save_checkpoint
 from ultron_core.config import NeuroSparseConfig
-from ultron_core.inference import load_inference_engine
+from ultron_core.inference import ULTRONInferenceEngine, load_inference_engine
 from ultron_core.math_tokenizer import MathTokenizer
 from ultron_core.model import NeuroSparseModel
 
@@ -128,6 +129,54 @@ class InferencePipelineTests(unittest.TestCase):
             save_checkpoint(checkpoint, model, bad_config, step=0)
             with self.assertRaisesRegex(ValueError, "vocabulary size does not match"):
                 load_inference_engine(checkpoint, tokenizer=MathTokenizer())
+
+    def test_checkpoint_tokenizer_version_mismatch_is_rejected(self):
+        config = tiny_config()
+        model = NeuroSparseModel(config).eval()
+        with tempfile.TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "wrong-tokenizer-version.pt"
+            save_checkpoint(checkpoint, model, config, step=0)
+            payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+            payload["config"]["tokenizer_version"] = 2
+            torch.save(payload, checkpoint)
+            digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+            Path(str(checkpoint) + ".sha256").write_text(
+                digest + "  " + checkpoint.name + "\\n", encoding="utf-8"
+            )
+            Path(str(checkpoint) + ".metadata.json").unlink()
+            with self.assertRaisesRegex(ValueError, "configuration is invalid"):
+                load_inference_engine(checkpoint, tokenizer=MathTokenizer())
+
+    def test_inference_failure_restores_mode_and_resets_runtime_memory(self):
+        tokenizer = MathTokenizer()
+        config = tiny_config()
+
+        class NonFiniteModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.config = config
+                self.anchor = torch.nn.Parameter(torch.zeros(()))
+                self.reset_calls = 0
+
+            def reset_memory(self):
+                self.reset_calls += 1
+
+            def forward(self, input_ids):
+                logits = torch.zeros(
+                    (1, input_ids.shape[1], len(tokenizer.vocabulary)),
+                    device=input_ids.device,
+                )
+                logits[0, -1, 1] = float("nan")
+                return {"logits": logits}
+
+        model = NonFiniteModel().train()
+        engine = ULTRONInferenceEngine(model, tokenizer)
+        with self.assertRaisesRegex(ValueError, "non-finite"):
+            engine.generate("4+4=", max_new_tokens=2)
+        self.assertTrue(model.training)
+        self.assertEqual(model.reset_calls, 2)
+        engine.close()
+        self.assertEqual(model.reset_calls, 3)
 
 
 if __name__ == "__main__":
