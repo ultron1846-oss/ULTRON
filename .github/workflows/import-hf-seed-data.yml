@@ -30,7 +30,7 @@ jobs:
       - name: Download and curate approved seed datasets
         run: python -m tools.hf_seed_data.importer --confirm-download --output-dir data/hf_seed
       - name: Upload curated seed-data artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ultron-hf-seed-data
           path: data/hf_seed/
