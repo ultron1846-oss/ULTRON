@@ -2,8 +2,8 @@
 
 **Audit date:** 2026-11-28  
 **Baseline commit:** Phase 1 candidate head 26d0d940b8f3a62edb5a682169049a0094b6a1c1  
-**Implementation branch:** phase2/green-theorem-curriculum-batch-2026-11-28  
-**Status:** Two bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, and homogeneous constant-coefficient first-order ODEs. The latter is under validation in the current branch. No training or dataset generation is authorized by this phase.
+**Implementation branches:** phase2/green-theorem-curriculum-batch-2026-11-28 (PR #209); phase2/ode-scope-and-validator-2026-11-28 (PR #210)  
+**Status:** Two bounded families are implemented in stacked Phase 2 batches: exact-rational Green's theorem on rectangles, and homogeneous constant-coefficient first-order ODEs. Both mathematical families have passed the required exact-head GitHub Actions checks in their respective PR branches. PR #209 and PR #210 remain unmerged pending independent review. No training or dataset generation is authorized by this phase.
 
 ## 1. Coverage counts: baseline and current candidate
 
