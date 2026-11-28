@@ -370,7 +370,7 @@ Remaining work:
 - Grade-band prerequisite dependencies remain to be mapped separately.
 - Only homogeneous_constant_coefficient_first_order_ODEs is implemented in the first-order ODE family. separable_first_order_ODEs, linear_first_order_variable_coefficient_ODEs and exact_first_order_ODEs remain catalogued but unimplemented.
 
-**Next concrete task:** implement a bounded separable_first_order_ODEs family with an exact independent validator and explicit domain/nonzero-denominator constraints. Then implement variable-coefficient linear and exact first-order ODEs separately, followed by bounded second-order linear ODE cases and ODE systems. Keep numerical ODE schemes distinct and require convergence/error assumptions.
+**Next concrete task:** implement a bounded linear_first_order_variable_coefficient_ODEs family or proceed to a bounded vector-calculus integral family, each with an independent exact validator. Keep exact ODEs, second-order systems and numerical ODE schemes as distinct workstreams.
 
 
 ### Phase 2 follow-up — first-order ODE scope correction
@@ -395,11 +395,11 @@ No training, optimizer step, production corpus generation/download, external AI 
 ### Registry and curriculum counts
 
 - Combined catalogue entries: 255; unique scope-qualified IDs: 255.
-- Generator available: 114.
-- Independently validated exercise topics: 63.
+- Generator available: 115.
+- Independently validated exercise topics: 64.
 - Compatible trained-checkpoint benchmarks: 0.
 - Mastered topics: 0.
-- University curriculum: 202 topics; 61 generator-available; 141 catalogued but not implemented.
+- University curriculum: 202 topics; 62 generator-available; 140 catalogued but not implemented.
 - Prerequisite graph: 202 mapped nodes, 378 edges; graph tests verify no cycles or dangling/missing topic references.
 - Repeated raw topic label: linear_equations occurs three times across Core, G7-8 and G8-9; these are separate scope-qualified entries, not an ID collision.
 
@@ -407,7 +407,7 @@ No training, optimizer step, production corpus generation/download, external AI 
 
 The broad first_order_ODEs row has been replaced by four entries:
 - homogeneous_constant_coefficient_first_order_ODEs — implemented for y'=k*y, y(0)=y0, with an independent analytic validator.
-- separable_first_order_ODEs — catalogued, not implemented.
+- separable_first_order_ODEs — implemented only for y'=c*x^m*y^n with rational c, x0 and y0; m=0..3 and n=0..2 under difficulty bounds. The n=2 branch is explicitly restricted to domains where the solution denominator is nonzero.
 - linear_first_order_variable_coefficient_ODEs — catalogued, not implemented.
 - exact_first_order_ODEs — catalogued, not implemented.
 
@@ -456,8 +456,21 @@ The dependency chain is #207 → #208 → #209 → #210. No PR has been merged. 
 
 ### Remaining mathematical backlog
 
-The university catalogue still has 141 topics without generators. Stokes' theorem and divergence theorem remain incomplete. The compound labels complex_numbers_and_topology and Taylor_and_Laurent_series need review. Per-topic difficulty progressions remain non-comparable across families; Green's degree-based levels and ODE coefficient-magnitude levels are family-specific, not a common scale. Grade-band prerequisite dependencies are not yet mapped. No trained-checkpoint benchmark or mastery evidence exists.
+The university catalogue currently has 140 topics without generators. Stokes' theorem and divergence theorem remain incomplete. The compound labels complex_numbers_and_topology and Taylor_and_Laurent_series need review. Per-topic difficulty progressions remain non-comparable across families; Green's degree-based levels and ODE coefficient-magnitude levels are family-specific, not a common scale. Grade-band prerequisite dependencies are not yet mapped. No trained-checkpoint benchmark or mastery evidence exists.
 
 **Next implementation:** bounded separable first-order ODE exercises with explicit domain restrictions, nonzero factors/denominators, exact antiderivative families, independent derivative verification, deterministic and metamorphic tests. Then proceed to variable-coefficient linear/exact equations separately and vector calculus / multiple integrals in prerequisite order.
 
 No ULTRON training, optimizer step, production corpus generation/download, external AI API call, remote training job, Supabase mutation, deployment, or model-weight publication occurred.
+
+
+## Phase 2 follow-up — bounded separable first-order ODE family
+
+**Branch:** phase2/separable-first-order-ode-family-2026-11-28  
+**Base:** PR #210 exact validated head b0dd2e6793ba025523dbaf432a85fb3a155926ff  
+**Status:** implementation, independent validator, regression tests, registry and evidence changes are committed on this child branch; PR and exact-head CI are pending.
+
+The separable_first_order_ODEs entry is now implemented only for the family y'=c*x^m*y^n with rational c, x0 and y0, c nonzero, y0 positive, m<=min(3,d-1), n<=min(2,floor((d-1)/2)), and difficulty d from 1 through 5. Rational input numerators are bounded by 2d (global absolute cap 10) and denominators by d (global cap 5). The n=0, n=1 and n=2 branches return polynomial, exponential and reciprocal closed forms respectively. For n=2, the returned local solution states that it is valid only where its denominator is nonzero.
+
+The independent validator checks exact derivative coefficient identities and initial-value substitution for the three forms, then checks canonical prompt, answer, steps, metadata and ingredients. Tests cover 500 deterministic seeds, all branches, m=0..3, difficulty bounds, metamorphic initial conditions, tampering, malformed rational pairs, booleans/floats, invalid exponents and seed/difficulty boundaries. The coverage audit moves to 115/255 generator-available and 64/255 independently validated; university coverage is 62/202 generator-available and 140/202 not implemented. Benchmarked=0 and mastered=0 remain unchanged; the prerequisite graph remains 202 nodes/378 edges.
+
+No general separable ODE support is claimed; variable-coefficient linear and exact first-order equations remain separate unimplemented topics. No training, optimizer step, corpus generation/download, deployment, or model-weight publication occurred.
