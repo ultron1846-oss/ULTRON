@@ -38,10 +38,12 @@ def benchmark_indexed_dataset(
     if tracing_started_here:
         tracemalloc.start()
         tracing_baseline_bytes = 0
+        tracing_peak_available = True
     else:
-        # Isolate this run from any tracing that the caller started earlier.
+        # tracemalloc has one process-global peak. Do not reset a caller's peak:
+        # report the measurement as unavailable rather than corrupting its state.
         tracing_baseline_bytes, _ = tracemalloc.get_traced_memory()
-        tracemalloc.reset_peak()
+        tracing_peak_available = False
     store = None
     try:
         build_start = time.perf_counter()
@@ -89,10 +91,13 @@ def benchmark_indexed_dataset(
             if random_latencies_ms
             else None
         )
-        _, peak_absolute_python_bytes = tracemalloc.get_traced_memory()
-        peak_python_bytes = max(
-            0, peak_absolute_python_bytes - tracing_baseline_bytes
-        )
+        if tracing_peak_available:
+            _, peak_absolute_python_bytes = tracemalloc.get_traced_memory()
+            peak_python_bytes = max(
+                0, peak_absolute_python_bytes - tracing_baseline_bytes
+            )
+        else:
+            peak_python_bytes = None
         snapshot_bytes = store._snapshot_path.stat().st_size
         sqlite_bytes = store._index_path.stat().st_size
         return {
@@ -121,10 +126,10 @@ def benchmark_indexed_dataset(
             "tracemalloc_baseline_python_bytes": tracing_baseline_bytes,
             "tracemalloc_peak_python_bytes": peak_python_bytes,
             "memory_measurement_scope": (
-                "incremental Python allocation peak above the tracing baseline; " 
-                "tracemalloc excludes native SQLite "
-                "allocations, PyTorch tensors, process RSS, and device memory. Not a "
-                "complete memory or speedup comparison against the eager loader."
+                "Python allocation peak above baseline when this benchmark owns the "
+                "tracemalloc session; if tracing was already active, peak is null because "
+                "the process-global tracer peak is left untouched. Tracemalloc excludes "
+                "native SQLite allocations, PyTorch tensors, process RSS, and device memory."
             ),
             "data_generated": False,
             "dataset_modified": False,
