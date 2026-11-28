@@ -20,5 +20,5 @@ test('security and dependency workflow is read-only and audits declared dependen
 
 test('static security audit includes the runtime status browser module', async () => {
   const audit = await readFile(new URL('../security-audit.mjs', import.meta.url), 'utf8');
-  assert.match(audit, /'runtime-status\\.js'/);
+  assert.ok(audit.includes("'runtime-status.js'"));
 });
