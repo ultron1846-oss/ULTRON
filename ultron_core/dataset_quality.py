@@ -144,7 +144,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                 "CREATE TABLE prompt_groups (value_hash TEXT PRIMARY KEY, row_count INTEGER NOT NULL, "
                 "assigned_split TEXT, first_example_id TEXT NOT NULL) WITHOUT ROWID"
             )
-            for table in ("prompt_values", "answer_values", "generator_ingredients", "template_values"):
+            for table in ("prompt_values", "answer_values", "generator_ingredients", "template_values", "seed_values"):
                 connection.execute(
                     f"CREATE TABLE {table} (value_hash TEXT NOT NULL, split_name TEXT NOT NULL, "
                     "PRIMARY KEY(value_hash, split_name)) WITHOUT ROWID"
@@ -190,6 +190,10 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                             difficulty_counts[split_name][str(row["difficulty"])] += 1
                             answer_formats[split_name][_answer_format(row["target_text"])] += 1
                             seed_counts[split_name][str(row["seed"])] += 1
+                            connection.execute(
+                                "INSERT OR IGNORE INTO seed_values(value_hash, split_name) VALUES (?, ?)",
+                                (_sha256_text(str(row["seed"])), split_name),
+                            )
 
                         validation_status[str(row.get("validation_status"))] += 1
                         generator_versions[str(row.get("generator_version"))] += 1
@@ -278,6 +282,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                     "answer_values_shared": _pairwise_overlap(connection, "answer_values", first, second),
                     "template_signatures_shared": _pairwise_overlap(connection, "template_values", first, second),
                     "generation_ingredients_shared": _pairwise_overlap(connection, "generator_ingredients", first, second),
+                    "generation_seed_values_shared": _pairwise_overlap(connection, "seed_values", first, second),
                 }
 
             prompt_cross_split_groups = int(connection.execute(
@@ -339,6 +344,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
             "difficulty_counts": dict(sorted(difficulty_counts[split_name].items())),
             "answer_format_counts": dict(sorted(answer_formats[split_name].items())),
             "unique_seed_count": len(seed_counts[split_name]),
+            "seed_use_counts": dict(sorted(seed_counts[split_name].items())),
             "topic_coverage_count": len(topic_counts[split_name]),
             "difficulty_levels_present": sorted(difficulty_counts[split_name]),
             "dominant_templates_by_topic": dominant_templates,
@@ -390,6 +396,10 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
             "status": "not_assessed",
             "reason": "No defensible semantic-equivalence method is implemented for the full mixed-topic corpus.",
             "owner_review_required": True,
+        },
+        "prerequisite_coverage": {
+            "status": "not_assessed",
+            "reason": "Sample schema v1 has no prerequisite identifiers or curriculum prerequisite links; topic counts are not a prerequisite-coverage measurement.",
         },
         "boundary_sample_coverage": {
             "status": "not_annotated_in_schema_v1",
