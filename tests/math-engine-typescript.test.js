@@ -13,16 +13,16 @@ test('TypeScript source declares explicit token and equation result types', asyn
   const lock = JSON.parse(packageLock);
   const scripts = manifest.scripts;
   const declaredTypeScript = manifest.devDependencies?.typescript;
-  assert.match(declaredTypeScript ?? '', /^\\d+\\.\\d+\\.\\d+$/);
+  assert.match(declaredTypeScript ?? '', /^\d+\.\d+\.\d+$/);
   assert.equal(lock.packages?.['']?.devDependencies?.typescript, declaredTypeScript);
   assert.equal(lock.packages?.['node_modules/typescript']?.version, declaredTypeScript);
   assert.ok(scripts['build:math'].includes('tsc'));
   assert.match(scripts.test, /build:math/);
   assert.match(source, /export type LinearEquationSolution/);
-  assert.match(source, /export function tokenize\\(source: string\\): string\\[\\]/);
-  assert.match(source, /export function evaluateExpression\\(source: string\\): number/);
-  assert.match(source, /export function solveLinearEquation\\(source: string\\): LinearEquationSolution/);
-  assert.doesNotMatch(source, /:\\s*any\\b/);
+  assert.match(source, /export function tokenize\(source: string\): string\[\]/);
+  assert.match(source, /export function evaluateExpression\(source: string\): number/);
+  assert.match(source, /export function solveLinearEquation\(source: string\): LinearEquationSolution/);
+  assert.doesNotMatch(source, /:\s*any\b/);
 });
 
 test('compiled browser math engine preserves expression and equation behavior', () => {
