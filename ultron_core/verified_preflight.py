@@ -11,6 +11,7 @@ from .data_state import validate_training_data_state
 from .math_tokenizer import MathTokenizer, MathVocabulary
 from .preflight import preflight_verified_indexed_dataset
 from .runtime_config import RuntimeConfig
+from .dataset_resource_limits import DatasetResourceLimits
 from .verified_dataset import (
     build_verified_split_loaders,
     close_verified_split_loaders,
@@ -46,6 +47,7 @@ def build_verified_training_preflight(
     model_config: NeuroSparseConfig | None = None,
     sampler_seed: int = 0,
     tokenizer: MathTokenizer | None = None,
+    resource_limits: DatasetResourceLimits | None = None,
 ) -> VerifiedTrainingPreflight:
     """Verify an existing dataset and stream its token checks from disk.
 
@@ -78,6 +80,7 @@ def build_verified_training_preflight(
         seed=sampler_seed,
         max_sequence_length=runtime_config.sequence_length,
         tokenizer=active_tokenizer,
+        resource_limits=resource_limits,
     )
     try:
         store = loaders["train"].dataset._store

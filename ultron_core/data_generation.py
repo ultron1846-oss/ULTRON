@@ -15,6 +15,9 @@ import re
 import tempfile
 from typing import Iterable
 
+from .dataset_resource_limits import DatasetResourceLimits
+from .dataset_math_validation import validate_generated_math_sample
+
 GENERATOR_VERSION = "0.5.0"
 SUPPORTED_TOPICS = ("arithmetic", "rational_arithmetic", "linear_equations", "polynomial_derivative", "polynomial_definite_integral", "matrix_determinant_2x2", "linear_system_2x2", "matrix_inverse_2x2")
 _MAX_EXAMPLES = 100_000
@@ -60,6 +63,8 @@ class MathExample:
             for item in self.generation_parameters
         ):
             raise TypeError("generation_parameters must be an immutable tuple of string/value pairs")
+        if len({item[0] for item in self.generation_parameters}) != len(self.generation_parameters):
+            raise ValueError("generation_parameters keys must be unique")
         if self.validation_status not in ("semantically_checked", "rejected"):
             raise ValueError("unsupported validation status")
 
@@ -72,6 +77,23 @@ class MathExample:
         """Adapt this legacy core record to the shared Problem schema."""
         from ultron_core.problem import Problem
         return Problem.from_core(self)
+
+
+def _example_identity_digest(row: dict) -> str:
+    """Hash the canonical identity fields shared by generation, writing and verification."""
+    identity_payload = {
+        "generator_version": row["generator_version"],
+        "seed": row["seed"],
+        "index": row["index"],
+        "topic": row["topic"],
+        "input_text": row["input_text"],
+        "target_text": row["target_text"],
+        "generation_parameters": row["generation_parameters"],
+    }
+    canonical = json.dumps(
+        identity_payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _parse_integer_polynomial(text: str) -> dict[int, int]:
@@ -386,8 +408,7 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
         "topic": topic, "input_text": prompt, "target_text": answer_text,
         "generation_parameters": params,
     }
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    identifier = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    identifier = _example_identity_digest(payload)
     return MathExample(
         example_id=identifier, generator_version=GENERATOR_VERSION, topic=topic,
         difficulty=difficulty, input_text=prompt, target_text=answer_text,
@@ -398,12 +419,21 @@ def _make_one(rng: random.Random, seed: int, index: int, topic: str) -> MathExam
     )
 
 
-def generate_examples(seed: int, count: int,
-                      topics: Iterable[str] = SUPPORTED_TOPICS) -> tuple[MathExample, ...]:
+def generate_examples(
+    seed: int,
+    count: int,
+    topics: Iterable[str] = SUPPORTED_TOPICS,
+    *,
+    resource_limits: DatasetResourceLimits | None = None,
+) -> tuple[MathExample, ...]:
     if isinstance(seed, bool) or not isinstance(seed, int):
         raise TypeError("seed must be an integer")
-    if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= _MAX_EXAMPLES:
-        raise ValueError(f"count must be between 1 and {_MAX_EXAMPLES}")
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
+    maximum_count = min(_MAX_EXAMPLES, resource_limits.max_rows)
+    if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= maximum_count:
+        raise ValueError(f"count must be between 1 and {maximum_count}")
     topics = tuple(topics)
     if not topics or any(topic not in SUPPORTED_TOPICS for topic in topics):
         raise ValueError("topics must be a non-empty subset of supported topics")
@@ -412,8 +442,12 @@ def generate_examples(seed: int, count: int,
     for index in range(count):
         topic = topics[rng.randrange(len(topics))]
         result.append(_make_one(rng, seed, index, topic))
-    if any(example.validation_status != "semantically_checked" for example in result):
-        raise ArithmeticError("generated example failed independent semantic validation")
+    if any(
+        example.validation_status != "semantically_checked"
+        or not validate_generated_math_sample(example.to_dict())
+        for example in result
+    ):
+        raise ArithmeticError("generated example failed independent generation-parameter validation")
     return tuple(result)
 
 
@@ -550,55 +584,141 @@ def split_examples(
         raise ValueError("split seed/fractions produced an empty split; increase unique prompt count")
     return {name: tuple(values) for name, values in result.items()}
 
-def write_dataset(path: str | Path, examples: Iterable[MathExample],
-                  *, seed: int, topics: Iterable[str]) -> dict:
-    """Write deterministic JSONL and a deterministic SHA-256 manifest atomically."""
-    examples = tuple(examples)
-    if not examples or any(not isinstance(item, MathExample) for item in examples):
-        raise ValueError("dataset must contain at least one MathExample")
+def write_dataset(
+    path: str | Path,
+    examples: Iterable[MathExample],
+    *,
+    seed: int,
+    topics: Iterable[str],
+    resource_limits: DatasetResourceLimits | None = None,
+) -> dict:
+    """Stream a validated JSONL dataset and sidecar under explicit byte/row caps.
+
+    The data file and sidecar are each fsynced and atomically replaced, but the
+    pair is not a multi-file transaction. A mismatched pair always fails later
+    verification. Rows and the encoded full dataset are never accumulated.
+    """
     if isinstance(seed, bool) or not isinstance(seed, int):
         raise TypeError("dataset seed must be an integer")
     topics = tuple(topics)
-    if not topics or any(topic not in SUPPORTED_TOPICS for topic in topics):
-        raise ValueError("dataset topics must be a non-empty supported-topic sequence")
-    if len({item.example_id for item in examples}) != len(examples):
-        raise ValueError("dataset contains duplicate example IDs")
-    for item in examples:
-        if item.seed != seed or item.topic not in topics:
-            raise ValueError("example seed/topic does not match dataset manifest configuration")
-        if item.validation_status != "semantically_checked" or not validate_example_text(
-            item.input_text, item.target_text, item.topic
-        ) or item.exact_answer != item.target_text:
-            raise ValueError("dataset contains an example that failed exact semantic validation")
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    rows = "".join(json.dumps(item.to_dict(), sort_keys=True, ensure_ascii=False,
-                              separators=(",", ":")) + "\n" for item in examples)
-    encoded = rows.encode("utf-8")
-    digest = hashlib.sha256(encoded).hexdigest()
-    counts = dict(sorted(Counter(item.topic for item in examples).items()))
-    manifest = {
-        "schema_version": 1, "generator_version": GENERATOR_VERSION,
-        "seed": seed, "topics": list(topics), "example_count": len(examples),
-        "topic_counts": counts, "sha256": digest,
-    }
-    manifest_text = json.dumps(manifest, sort_keys=True, ensure_ascii=False,
-                               separators=(",", ":")) + "\n"
-    for output, content in (
-        (target, encoded),
-        (target.with_suffix(target.suffix + ".manifest.json"), manifest_text.encode("utf-8")),
+    if (
+        not topics
+        or any(topic not in SUPPORTED_TOPICS for topic in topics)
+        or len(set(topics)) != len(topics)
     ):
-        fd, temporary_name = tempfile.mkstemp(prefix=f".{output.name}.", dir=output.parent)
-        try:
-            with os.fdopen(fd, "wb") as stream:
-                stream.write(content)
-                stream.flush()
-                os.fsync(stream.fileno())
-            os.replace(temporary_name, output)
-        finally:
-            if os.path.exists(temporary_name):
-                os.unlink(temporary_name)
-    return manifest
+        raise ValueError("dataset topics must be a non-empty unique supported-topic sequence")
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
+
+    target = Path(path)
+    manifest_path = target.with_suffix(target.suffix + ".manifest.json")
+    if target.resolve() == manifest_path.resolve():
+        raise ValueError("dataset path and sidecar path must be distinct")
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    dataset_fd, dataset_temp_name = tempfile.mkstemp(
+        prefix=f".{target.name}.", suffix=".tmp", dir=target.parent
+    )
+    manifest_temp_name = None
+    identifiers: set[str] = set()
+    indexes: set[int] = set()
+    topic_counts: Counter[str] = Counter()
+    digest = hashlib.sha256()
+    examples_seen = 0
+    bytes_seen = 0
+    try:
+        with os.fdopen(dataset_fd, "wb") as stream:
+            for item in examples:
+                if examples_seen >= resource_limits.max_rows:
+                    raise ValueError("dataset exceeds configured max_rows")
+                if not isinstance(item, MathExample):
+                    raise TypeError("dataset rows must be MathExample instances")
+                if item.example_id in identifiers:
+                    raise ValueError("dataset contains duplicate example IDs")
+                if item.index in indexes:
+                    raise ValueError("dataset contains duplicate example indices")
+                if item.seed != seed or item.topic not in topics:
+                    raise ValueError("example seed/topic does not match dataset manifest configuration")
+                if item.validation_status != "semantically_checked" or not validate_example_text(
+                    item.input_text, item.target_text, item.topic
+                ) or item.exact_answer != item.target_text:
+                    raise ValueError("dataset contains an example that failed exact semantic validation")
+
+                row = item.to_dict()
+                if not hmac.compare_digest(item.example_id, _example_identity_digest(row)):
+                    raise ValueError("dataset example ID does not match its canonical content")
+                if not validate_generated_math_sample(row):
+                    raise ValueError("dataset example failed independent generation-parameter validation")
+                row_bytes = (
+                    json.dumps(
+                        row,
+                        sort_keys=True,
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                        allow_nan=False,
+                    ).encode("utf-8")
+                    + b"\n"
+                )
+                if len(row_bytes) > resource_limits.max_line_bytes:
+                    raise ValueError("dataset row exceeds configured max_line_bytes")
+                if bytes_seen + len(row_bytes) > resource_limits.max_dataset_bytes:
+                    raise ValueError("dataset exceeds configured max_dataset_bytes")
+                if bytes_seen + len(row_bytes) > resource_limits.max_temporary_bytes:
+                    raise ValueError("dataset temporary output exceeds configured max_temporary_bytes")
+
+                stream.write(row_bytes)
+                digest.update(row_bytes)
+                bytes_seen += len(row_bytes)
+                examples_seen += 1
+                identifiers.add(item.example_id)
+                indexes.add(item.index)
+                topic_counts[item.topic] += 1
+
+            if examples_seen == 0:
+                raise ValueError("dataset must contain at least one MathExample")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        manifest = {
+            "schema_version": 1,
+            "generator_version": GENERATOR_VERSION,
+            "seed": seed,
+            "topics": list(topics),
+            "example_count": examples_seen,
+            "topic_counts": dict(sorted(topic_counts.items())),
+            "sha256": digest.hexdigest(),
+        }
+        manifest_bytes = (
+            json.dumps(
+                manifest, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+            + b"\n"
+        )
+        if len(manifest_bytes) > resource_limits.max_dataset_manifest_bytes:
+            raise ValueError("dataset sidecar manifest exceeds configured max_dataset_manifest_bytes")
+        if bytes_seen + len(manifest_bytes) > resource_limits.max_temporary_bytes:
+            raise ValueError("dataset and sidecar temporary outputs exceed configured max_temporary_bytes")
+
+        manifest_fd, manifest_temp_name = tempfile.mkstemp(
+            prefix=f".{manifest_path.name}.", suffix=".tmp", dir=manifest_path.parent
+        )
+        with os.fdopen(manifest_fd, "wb") as stream:
+            stream.write(manifest_bytes)
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        os.replace(dataset_temp_name, target)
+        dataset_temp_name = None
+        os.replace(manifest_temp_name, manifest_path)
+        manifest_temp_name = None
+        return manifest
+    finally:
+        if dataset_temp_name is not None and os.path.exists(dataset_temp_name):
+            os.unlink(dataset_temp_name)
+        if manifest_temp_name is not None and os.path.exists(manifest_temp_name):
+            os.unlink(manifest_temp_name)
 
 
 _MAX_DATASET_BYTES = 1024 * 1024 * 1024
@@ -626,6 +746,7 @@ def verify_dataset(
     max_bytes: int = _MAX_DATASET_BYTES,
     max_rows: int = _MAX_DATASET_ROWS,
     max_line_bytes: int = _MAX_DATASET_LINE_BYTES,
+    max_manifest_bytes: int = _MAX_DATASET_MANIFEST_BYTES,
 ) -> dict:
     """Verify a dataset incrementally with strict byte, row, and line bounds.
 
@@ -637,6 +758,7 @@ def verify_dataset(
         ("max_bytes", max_bytes, _MAX_DATASET_BYTES),
         ("max_rows", max_rows, _MAX_DATASET_ROWS),
         ("max_line_bytes", max_line_bytes, _MAX_DATASET_LINE_BYTES),
+        ("max_manifest_bytes", max_manifest_bytes, _MAX_DATASET_MANIFEST_BYTES),
     ):
         if isinstance(value, bool) or not isinstance(value, int):
             raise TypeError(f"{name} must be an integer")
@@ -647,11 +769,11 @@ def verify_dataset(
     manifest_path = target.with_suffix(target.suffix + ".manifest.json")
     try:
         with manifest_path.open("rb") as manifest_stream:
-            manifest_bytes = manifest_stream.read(_MAX_DATASET_MANIFEST_BYTES + 1)
+            manifest_bytes = manifest_stream.read(max_manifest_bytes + 1)
     except OSError as exc:
         raise ValueError("dataset or manifest is missing or malformed") from exc
-    if len(manifest_bytes) > _MAX_DATASET_MANIFEST_BYTES:
-        raise ValueError("dataset manifest exceeds byte limit")
+    if len(manifest_bytes) > max_manifest_bytes:
+        raise ValueError(f"dataset manifest exceeds byte limit ({max_manifest_bytes} bytes)")
     try:
         manifest = json.loads(
             manifest_bytes.decode("utf-8"),
@@ -799,15 +921,9 @@ def verify_dataset(
                         or row["target_text"] != row["exact_answer"]
                         or not validate_example_text(row["input_text"], row["exact_answer"], row["topic"])):
                     raise ValueError("dataset row failed exact semantic validation")
-                identity_payload = {
-                    "generator_version": row["generator_version"], "seed": row["seed"],
-                    "index": row["index"], "topic": row["topic"],
-                    "input_text": row["input_text"], "target_text": row["target_text"],
-                    "generation_parameters": params,
-                }
-                canonical = json.dumps(identity_payload, sort_keys=True, separators=(",", ":"),
-                                        ensure_ascii=False)
-                expected_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+                if not validate_generated_math_sample(row):
+                    raise ValueError("dataset row failed independent generation-parameter validation")
+                expected_id = _example_identity_digest(row)
                 if not hmac.compare_digest(row["example_id"], expected_id):
                     raise ValueError("dataset row example_id does not match its content")
                 counts[row["topic"]] += 1

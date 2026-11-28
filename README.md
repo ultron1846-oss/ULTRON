@@ -1,8 +1,92 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-27**
+**Status snapshot: 2026-11-28**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
+
+## Current engineering handoff — 2026-11-28: Phase 3 dataset engineering
+
+**Phase status:** implementation submitted for review in [PR #220 — Bound dataset generation, indexing and quality audits](https://github.com/ultron1846-oss/ULTRON/pull/220). This is a branch candidate, not yet merged or owner-accepted.
+
+- Repository: `ultron1846-oss/ULTRON`
+- Branch: `phase3/dataset-engineering-quality-2026-11-28`
+- PR base: `main` at `2ba3340dbc841699ad98e651c86f2e227be8cac0`
+- Latest implementation + regression-test revision: `17a59284459f503adc4002b70af8d538c043c14d`
+- The current benchmark and regression evidence below were emitted by CI on this exact revision. The benchmark report and this README are being refreshed in a documentation-only follow-up.
+- Review gate: no independent review has been submitted and no unresolved inline threads were present at the latest live check. PR remains open and unmerged.
+
+### Phase 3 deliverables
+
+- Shared immutable `DatasetResourceLimits` used across dataset semantic verification, incremental writing, split construction/validation, indexed stores/loaders, non-authorizing preflight, benchmark and quality audit. It bounds dataset bytes, rows, lines, dataset/split manifest sizes, SQLite cache, copy/fetch/index batch sizes, index bytes and combined temporary bytes.
+- Streaming `write_dataset`: canonical row-by-row JSONL output, incremental SHA-256, bounded row/byte/line/sidecar checks, combined temporary JSONL-plus-sidecar disk budget, duplicate-ID and duplicate-index rejection, fsynced temporary files and fail-closed verification if the two separately atomic replacements are interrupted. It verifies each sample's content-derived ID before either output is replaced and rejects ambiguous duplicate generation-parameter keys.
+- Disk-backed index budgets: SQLite page caps are set from configured index and remaining temporary disk budgets; split/index/quality builders translate quota exhaustion to clear errors.
+- Read-only `ultron_core.dataset_quality` tool with deterministic report hash, manifest-bound input checks, second-pass mutation detection, per-split topic/difficulty/answer-format reports, repeated mathematical-ingredient detection, and explicit dataset-level seed metadata. Ingredient fingerprints exclude row index and the repeated dataset seed. A separate parameter-based checker reconstructs prompts, exact answers and topic difficulty for all eight schema-v1 generator topics; the report distinguishes this from repeat-running the ingestion validator. Semantic near-duplicates, prerequisite coverage and boundary/adversarial coverage remain explicitly unassessed. Its disposable SQLite main/temp schemas disable journaling before writes and use separate page caps, preventing rollback-journal growth from escaping temporary-disk accounting.
+- Stress/regression additions for size boundaries, concurrent readers, stable order, missing/truncated files, duplicate IDs/split entries, interrupted snapshot/index/write replacement, corrupt-index recovery, file-descriptor cleanup, output-path hard-link aliases, deterministic reports, copied-dataset/sidecar/split integrity revalidation, tampered-copy rejection, and 12,000-row synthetic fixture benchmarking.
+- Generation and quality contracts document schema v1, canonical serialization, seed/provenance limitations, split assignment, retention, transfer validation, duplicate classes and the production gate.
+
+### Measured CI fixture benchmark
+
+The latest implementation reran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46154661483](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661483), job `141008547123`, on exact implementation + regression-test revision `17a59284459f503adc4002b70af8d538c043c14d`.
+
+| Metric | Result |
+|---|---:|
+| Runner | GitHub-hosted Ubuntu 26.04.1 |
+| Python / SQLite | 3.11.18 / 3.46.1 |
+| Rows scanned / selected | 12,000 / 12,000 |
+| Index build | 4.812796 s |
+| Sequential scan | 0.500137 s |
+| Sequential throughput | 23,993.42 rows/s |
+| Random reads | 64 seeded samples |
+| Random-read median / p95 | 0.075542 ms / 0.088531 ms |
+| Snapshot / SQLite index | 4,540,482 / 6,291,456 bytes |
+| Peak traced Python allocations | 33,575,004 bytes |
+
+These are single-run synthetic-fixture CI measurements, not a production corpus benchmark, comparative speedup, or total RAM result. `tracemalloc` excludes native SQLite allocations, PyTorch tensors, process RSS, OS page cache, and device memory. Full details are in [docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md](docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md).
+
+### Validation on the exact code revision
+
+All three workflows passed on exact implementation + regression-test revision `17a59284459f503adc4002b70af8d538c043c14d`:
+
+- [Node Tests #46154661494](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661494): `npm test` — passed.
+- [Python AI Core #46154661483](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661483): `python -m unittest discover -s tests/python -v` — **722 tests passed in 67.686 seconds**; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
+- [Level 1 Math Tooling #46154661437](https://github.com/ultron1846-oss/ULTRON/actions/runs/46154661437): `pytest -q` — passed, including the workflow's 5,000 randomized cases.
+
+The added regression coverage independently reconstructs all eight supported sample topics, rejects generation-parameter/prompt/answer/difficulty tampering, accepts valid arithmetic fixture values outside the sampler's ordinary range, proves the writer rejects parameter tampering even if the row identity is recomputed, and verifies ingredient hashes ignore row identity fields. The CPU smoke performs forward/backward validation only; it does not step an optimizer or update ULTRON model weights. The 12,000-row benchmark was emitted in the Python AI Core run above.
+
+### Exact PR file inventory (21 files including this handoff)
+
+- `README.md`
+- `docs/DATASET_GENERATION_CONTRACT.md`
+- `docs/DATASET_LOADER_BENCHMARK.md`
+- `docs/DATASET_QUALITY_PROTOCOL.md`
+- `docs/PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md`
+- `tests/python/test_dataset_math_validation.py`
+- `tests/python/test_dataset_quality_audit.py`
+- `tests/python/test_dataset_resource_limits.py`
+- `tests/python/test_indexed_dataset_stress.py`
+- `tests/python/test_streaming_dataset_writer.py`
+- `tests/python/test_streaming_semantic_dataset.py`
+- `tests/python/test_verified_dataset.py`
+- `tools/benchmark_verified_dataset.py`
+- `ultron_core/data_generation.py`
+- `ultron_core/dataset_math_validation.py`
+- `ultron_core/dataset_quality.py`
+- `ultron_core/dataset_resource_limits.py`
+- `ultron_core/dataset_split_manifest.py`
+- `ultron_core/indexed_verified_dataset.py`
+- `ultron_core/verified_dataset.py`
+- `ultron_core/verified_preflight.py`
+
+### Remaining limitations and next task
+
+- Split-manifest ID arrays and writer duplicate-detection sets remain bounded but O(N) Python memory. This phase does not claim constant-memory manifest parsing.
+- JSONL row schema v1 has no standalone row-schema field, source-commit/runtime fingerprint, per-generator parameter-schema version or signed provenance identity. The independent parameter-based checker covers the eight current schema-v1 topics but is a separate implementation, not a formally verified proof kernel.
+- Prerequisite coverage is `not_assessed` because the sample schema has no prerequisite identifiers or graph binding; topic coverage is not a substitute.
+- Boundary/adversarial coverage is `not_annotated_in_schema_v1`; semantic/structural near-duplicate detection is `not_assessed` because no defensible mixed-topic method is implemented.
+- No production dataset was supplied. Production RSS/native SQLite/device memory, owner-device behavior, transfer/copy acceptance and hosted free-tier quotas remain unmeasured.
+- Next: obtain an independent review; PR #220 must remain open until the latest exact-head CI is green and review blockers are resolved. Then, after an owner supplies an existing dataset and approved environment, run the benchmark and read-only quality audit against that dataset. Do not generate a production corpus without separate explicit authorization.
+
+**Training boundary:** no production corpus generation/download, real ULTRON training, optimizer step, remote training job, checkpoint publishing or model-weight publishing occurred in Phase 3.
 
 ## Implemented
 

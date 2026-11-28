@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import hashlib, json, math, os, re, sqlite3, tempfile
 from pathlib import Path
 from .data_generation import verify_dataset
+from .dataset_resource_limits import DatasetResourceLimits
 
 _METHOD="prompt_group_hash_v1"
 _SHA=re.compile(r"[0-9a-f]{64}")
@@ -43,7 +44,7 @@ def _validate_parameters(seed,val,test):
         if not math.isfinite(value) or not 0.0<value<1.0: raise ValueError(f"{name} must be in (0, 1)")
     if val+test>=1.0: raise ValueError("validation_fraction + test_fraction must be less than 1")
 
-def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callback=None):
+def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callback=None, resource_limits=None):
     """Verify the dataset and retain only the row data needed by the caller.
 
     The semantic verifier remains authoritative. This second bounded pass binds
@@ -51,13 +52,22 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
     Split validation retains only (example_id, input_text); row loaders may
     request full records, optionally filtered to one verified split.
     """
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(f"dataset file not found: {path}")
     before = path.stat()
-    if before.st_size > _MAX_DATA:
-        raise ValueError("dataset exceeds the 1 GiB preflight limit")
-    manifest = verify_dataset(path)
+    if before.st_size > resource_limits.max_dataset_bytes:
+        raise ValueError("dataset exceeds configured max_dataset_bytes")
+    manifest = verify_dataset(
+        path,
+        max_bytes=resource_limits.max_dataset_bytes,
+        max_rows=resource_limits.max_rows,
+        max_line_bytes=resource_limits.max_line_bytes,
+        max_manifest_bytes=resource_limits.max_dataset_manifest_bytes,
+    )
     digest_expected = manifest.get("sha256")
     if not _valid_hash(digest_expected):
         raise ValueError("verified dataset SHA-256 is invalid")
@@ -70,17 +80,17 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
     try:
         with path.open("rb") as stream:
             while True:
-                line = stream.readline(_MAX_LINE_BYTES + 1)
+                line = stream.readline(resource_limits.max_line_bytes + 1)
                 if not line:
                     break
                 rows_seen += 1
-                if rows_seen > _MAX_ROWS or rows_seen > manifest["example_count"]:
+                if rows_seen > resource_limits.max_rows or rows_seen > manifest["example_count"]:
                     raise ValueError("dataset row count exceeds verified manifest or preflight limit")
-                if len(line) > _MAX_LINE_BYTES:
-                    raise ValueError("dataset JSONL row exceeds the 8 MiB line limit")
+                if len(line) > resource_limits.max_line_bytes:
+                    raise ValueError("dataset JSONL row exceeds configured max_line_bytes")
                 bytes_seen += len(line)
-                if bytes_seen > _MAX_DATA:
-                    raise ValueError("dataset exceeds the 1 GiB preflight limit")
+                if bytes_seen > resource_limits.max_dataset_bytes:
+                    raise ValueError("dataset exceeds configured max_dataset_bytes")
                 digest.update(line)
                 if not line.endswith(b"\n"):
                     raise ValueError("dataset JSONL must end with a newline")
@@ -117,16 +127,39 @@ def _read_dataset(path, *, selected_ids=None, include_full_rows=False, row_callb
         raise ValueError("split manifest references missing dataset rows")
     return manifest, rows
 
-def _derive_split_ids(dataset_path, seed, val, test):
+def _derive_split_ids(dataset_path, seed, val, test, *, resource_limits=None):
     """Build prompt-group split metadata using a bounded disk-backed index."""
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
     with tempfile.TemporaryDirectory(prefix="ultron-split-index-") as temp_dir:
         db_path = Path(temp_dir) / "prompt-groups.sqlite3"
         connection = sqlite3.connect(db_path)
         try:
             connection.execute("PRAGMA temp_store=FILE")
-            connection.execute("PRAGMA cache_size=-2048")
+            main_cache_kib = max(1, resource_limits.sqlite_cache_kib // 2)
+            temp_cache_kib = max(1, resource_limits.sqlite_cache_kib - main_cache_kib)
+            connection.execute(f"PRAGMA main.cache_size=-{main_cache_kib}")
+            connection.execute(f"PRAGMA temp.cache_size=-{temp_cache_kib}")
             connection.execute("PRAGMA journal_mode=OFF")
             connection.execute("PRAGMA synchronous=OFF")
+            main_page_size = int(connection.execute("PRAGMA main.page_size").fetchone()[0])
+            temp_page_size = int(connection.execute("PRAGMA temp.page_size").fetchone()[0])
+            main_index_budget = min(
+                resource_limits.max_index_bytes,
+                resource_limits.max_temporary_bytes // 2,
+            )
+            temp_database_budget = resource_limits.max_temporary_bytes - main_index_budget
+            if main_index_budget < main_page_size or temp_database_budget < temp_page_size:
+                raise ValueError(
+                    "split-index budget exceeds configured max_index_bytes or max_temporary_bytes (insufficient SQLite main/temp page budget)"
+                )
+            connection.execute(
+                f"PRAGMA main.max_page_count={main_index_budget // main_page_size}"
+            )
+            connection.execute(
+                f"PRAGMA temp.max_page_count={temp_database_budget // temp_page_size}"
+            )
             connection.execute(
                 "CREATE TABLE prompt_groups (prompt TEXT PRIMARY KEY, example_id TEXT NOT NULL) WITHOUT ROWID"
             )
@@ -140,8 +173,19 @@ def _derive_split_ids(dataset_path, seed, val, test):
                     (prompt, row["example_id"]),
                 )
 
-            manifest, _ = _read_dataset(dataset_path, row_callback=retain_prompt)
+            manifest, _ = _read_dataset(
+                dataset_path, row_callback=retain_prompt, resource_limits=resource_limits
+            )
             connection.commit()
+            index_bytes = db_path.stat().st_size
+            temp_bytes = (
+                int(connection.execute("PRAGMA temp.page_count").fetchone()[0])
+                * int(connection.execute("PRAGMA temp.page_size").fetchone()[0])
+            )
+            if index_bytes > resource_limits.max_index_bytes:
+                raise ValueError("split index exceeds configured max_index_bytes")
+            if index_bytes + temp_bytes > resource_limits.max_temporary_bytes:
+                raise ValueError("split SQLite main/temp storage exceeds configured max_temporary_bytes")
             unique_prompts = connection.execute(
                 "SELECT COUNT(*) FROM prompt_groups"
             ).fetchone()[0]
@@ -162,25 +206,45 @@ def _derive_split_ids(dataset_path, seed, val, test):
             if any(not result[name] for name in result):
                 raise ValueError("split parameters produced an empty split")
             return manifest, {name: sorted(ids) for name, ids in result.items()}
+        except sqlite3.OperationalError as exc:
+            connection.rollback()
+            message = str(exc).lower()
+            if "full" in message or "maximum page count" in message:
+                raise ValueError(
+                    "split SQLite index exceeded configured max_index_bytes or max_temporary_bytes"
+                ) from exc
+            raise
         finally:
             connection.close()
 
 
-def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,validation_fraction=0.1,test_fraction=0.1):
+def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,validation_fraction=0.1,test_fraction=0.1,resource_limits=None):
     """Verify an existing dataset and atomically write split-ID metadata only."""
     _validate_parameters(split_seed,validation_fraction,test_fraction)
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
     dataset=Path(dataset_path).resolve(); output=Path(output_path).resolve()
-    if output in (dataset,dataset.with_suffix(dataset.suffix+".manifest.json")):
+    protected_inputs = (
+        dataset,
+        dataset.with_suffix(dataset.suffix + ".manifest.json"),
+    )
+    if output in protected_inputs or (
+        output.exists()
+        and any(input_path.exists() and os.path.samefile(output, input_path)
+                for input_path in protected_inputs)
+    ):
         raise ValueError("split manifest output must not overwrite dataset or sidecar")
     manifest, split_ids = _derive_split_ids(
-        dataset, split_seed, validation_fraction, test_fraction
+        dataset, split_seed, validation_fraction, test_fraction,
+        resource_limits=resource_limits,
     )
     payload={"schema_version":1,"split_method":_METHOD,"dataset_sha256":manifest["sha256"],
              "split_seed":split_seed,"validation_fraction":float(validation_fraction),
              "test_fraction":float(test_fraction),"split_ids":split_ids}
     payload["sha256"]=hashlib.sha256(_canonical(payload)).hexdigest()
     encoded=_canonical(payload)+b"\n"
-    if len(encoded)>_MAX_SPLIT: raise ValueError("split manifest exceeds 32 MiB")
+    if len(encoded)>resource_limits.max_split_manifest_bytes: raise ValueError("split manifest exceeds configured max_split_manifest_bytes")
     output.parent.mkdir(parents=True,exist_ok=True)
     fd,name=tempfile.mkstemp(prefix=f".{output.name}.",suffix=".tmp",dir=output.parent)
     try:
@@ -189,19 +253,22 @@ def prepare_dataset_split_manifest(dataset_path,output_path,*,split_seed=0,valid
         os.replace(name,output)
     finally:
         if os.path.exists(name): os.unlink(name)
-    return validate_dataset_split_manifest(dataset,output)
+    return validate_dataset_split_manifest(dataset,output,resource_limits=resource_limits)
 
-def validate_dataset_split_manifest(dataset_path,split_manifest_path):
+def validate_dataset_split_manifest(dataset_path,split_manifest_path,*,resource_limits=None):
     """Validate dataset bytes, canonical split digest, exact membership, and prompt-disjointness."""
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
     path=Path(split_manifest_path)
     if not path.is_file(): raise FileNotFoundError(f"split manifest not found: {path}")
     try:
         with path.open("rb") as stream:
-            raw = stream.read(_MAX_SPLIT + 1)
+            raw = stream.read(resource_limits.max_split_manifest_bytes + 1)
     except OSError as exc:
         raise ValueError("split manifest could not be read safely") from exc
-    if len(raw) > _MAX_SPLIT:
-        raise ValueError("split manifest exceeds 32 MiB")
+    if len(raw) > resource_limits.max_split_manifest_bytes:
+        raise ValueError("split manifest exceeds configured max_split_manifest_bytes")
     try: payload=json.loads(raw.decode("utf-8"),object_pairs_hook=_strict_object)
     except (UnicodeDecodeError,json.JSONDecodeError,ValueError) as exc:
         raise ValueError("split manifest malformed or contains duplicate keys") from exc
@@ -220,7 +287,9 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     for name,ids in split_ids.items():
         if not isinstance(ids,list) or any(not _valid_hash(item) for item in ids): raise ValueError(f"{name} IDs invalid")
         if ids!=sorted(ids) or len(ids)!=len(set(ids)): raise ValueError(f"{name} IDs must be sorted and unique")
-    manifest, expected = _derive_split_ids(dataset_path, seed, val, test)
+    manifest, expected = _derive_split_ids(
+        dataset_path, seed, val, test, resource_limits=resource_limits
+    )
     if payload["dataset_sha256"]!=manifest["sha256"]: raise ValueError("split manifest belongs to another dataset")
     if split_ids!=expected: raise ValueError("split membership differs from deterministic prompt-group assignment")
     all_ids=[item for ids in split_ids.values() for item in ids]
@@ -228,18 +297,21 @@ def validate_dataset_split_manifest(dataset_path,split_manifest_path):
     return VerifiedSplitManifest(manifest["sha256"],saved,seed,{k:len(v) for k,v in split_ids.items()},len(all_ids),manifest["example_count"])
 
 
-def _read_bound_split_payload(split_manifest_path, verified):
+def _read_bound_split_payload(split_manifest_path, verified, *, resource_limits=None):
     """Read the exact split-manifest snapshot already validated by digest."""
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
     path = Path(split_manifest_path)
     try:
         if not path.is_file():
             raise FileNotFoundError(f"split manifest not found: {path}")
         with path.open("rb") as stream:
-            raw = stream.read(_MAX_SPLIT + 1)
+            raw = stream.read(resource_limits.max_split_manifest_bytes + 1)
     except OSError as exc:
         raise ValueError("split manifest could not be re-read safely") from exc
-    if len(raw) > _MAX_SPLIT:
-        raise ValueError("split manifest exceeds 32 MiB")
+    if len(raw) > resource_limits.max_split_manifest_bytes:
+        raise ValueError("split manifest exceeds configured max_split_manifest_bytes")
     try:
         payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_strict_object)
     except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
@@ -259,15 +331,21 @@ def _read_bound_split_payload(split_manifest_path, verified):
     return payload
 
 
-def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name):
+def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name, resource_limits=None):
     """Return full records for one split only, bound to verified digests."""
     if split_name not in ("train", "validation", "test"):
         raise ValueError("split_name must be train, validation, or test")
-    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
-    payload = _read_bound_split_payload(split_manifest_path, verified)
+    resource_limits = resource_limits or DatasetResourceLimits()
+    verified = validate_dataset_split_manifest(
+        dataset_path, split_manifest_path, resource_limits=resource_limits
+    )
+    payload = _read_bound_split_payload(
+        split_manifest_path, verified, resource_limits=resource_limits
+    )
     wanted = set(payload["split_ids"][split_name])
     dataset_manifest, selected = _read_dataset(
-        dataset_path, selected_ids=wanted, include_full_rows=True
+        dataset_path, selected_ids=wanted, include_full_rows=True,
+        resource_limits=resource_limits,
     )
     if dataset_manifest["sha256"] != verified.dataset_sha256:
         raise ValueError("dataset changed between split validation and row loading")
@@ -275,15 +353,20 @@ def load_verified_split_rows(dataset_path, split_manifest_path, *, split_name):
     return verified, tuple(selected)
 
 
-def load_verified_split_rows_by_split(dataset_path, split_manifest_path):
+def load_verified_split_rows_by_split(dataset_path, split_manifest_path, *, resource_limits=None):
     """Load all verified split records from one consistent dataset snapshot.
 
     Validation retains only example IDs and normalized prompt text. The second
     pass retains full row objects only for split IDs and groups them directly,
     avoiding an additional full-dataset ID-to-row dictionary.
     """
-    verified = validate_dataset_split_manifest(dataset_path, split_manifest_path)
-    payload = _read_bound_split_payload(split_manifest_path, verified)
+    resource_limits = resource_limits or DatasetResourceLimits()
+    verified = validate_dataset_split_manifest(
+        dataset_path, split_manifest_path, resource_limits=resource_limits
+    )
+    payload = _read_bound_split_payload(
+        split_manifest_path, verified, resource_limits=resource_limits
+    )
     split_ids = payload["split_ids"]
     split_for_id = {}
     for split_name in ("train", "validation", "test"):
@@ -296,7 +379,8 @@ def load_verified_split_rows_by_split(dataset_path, split_manifest_path):
             split_for_id[example_id] = split_name
 
     dataset_manifest, rows = _read_dataset(
-        dataset_path, selected_ids=split_for_id, include_full_rows=True
+        dataset_path, selected_ids=split_for_id, include_full_rows=True,
+        resource_limits=resource_limits,
     )
     if dataset_manifest["sha256"] != verified.dataset_sha256:
         raise ValueError("dataset changed between split validation and row loading")

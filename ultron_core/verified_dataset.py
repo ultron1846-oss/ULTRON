@@ -15,6 +15,7 @@ from .dataset_split_manifest import (
 from .math_tokenizer import MathTokenizer, MathVocabulary
 from .resumable_sampler import ResumableRandomSampler
 from .indexed_verified_dataset import VerifiedIndexedSplitStore
+from .dataset_resource_limits import DatasetResourceLimits
 
 _SPLITS = ("train", "validation", "test")
 
@@ -305,10 +306,13 @@ def build_verified_split_loaders(
     seed: int,
     max_sequence_length: int = 2048,
     tokenizer: MathTokenizer | None = None,
+    resource_limits: DatasetResourceLimits | None = None,
 ) -> dict[str, DataLoader]:
     """Verify/load the corpus once and construct train/validation/test loaders."""
     _validate_loader_settings(batch_size, seed)
-    store = VerifiedIndexedSplitStore(dataset_path, split_manifest_path)
+    store = VerifiedIndexedSplitStore(
+        dataset_path, split_manifest_path, resource_limits=resource_limits
+    )
     try:
         shared_tokenizer = tokenizer or MathTokenizer(MathVocabulary.default())
         loaders = {}
@@ -355,6 +359,7 @@ def build_verified_split_loader(
     max_sequence_length: int = 2048,
     tokenizer: MathTokenizer | None = None,
     shuffle: bool | None = None,
+    resource_limits: DatasetResourceLimits | None = None,
 ) -> DataLoader:
     """Construct one verified split loader without creating a model or training."""
     if split_name not in _SPLITS:
@@ -366,7 +371,9 @@ def build_verified_split_loader(
     if split_name != "train" and shuffle:
         raise ValueError("validation/test loaders must not shuffle")
     _validate_loader_settings(batch_size, seed)
-    store = VerifiedIndexedSplitStore(dataset_path, split_manifest_path)
+    store = VerifiedIndexedSplitStore(
+        dataset_path, split_manifest_path, resource_limits=resource_limits
+    )
     try:
         dataset = IndexedVerifiedMathDataset(
             store,
