@@ -1,12 +1,12 @@
 # Phase 2 — Mathematics curriculum and generator expansion
 
 **Date:** 2026-11-28  
-**Status:** Integrated implementation candidate; combined GitHub Actions validation pending.  
+**Status:** Integrated into PR #213's feature branch via PR #217; parent PR #213's fresh exact-head validation pending.  
 **Repository:** `ultron1846-oss/ULTRON`
 
 ## Executive summary
 
-Phase 2 has added several independently validated, bounded mathematics exercise families and corrected curriculum labels so that a narrow template is not presented as a general solver. The integrated candidate is on `phase2/integrated-math-curriculum-2026-11-28`.
+Phase 2 has added several independently validated, bounded mathematics exercise families and corrected curriculum labels so that a narrow template is not presented as a general solver. The integrated result is on `phase2/curriculum-scope-expansion-batch-8-2026-11-28` after PR #217 was squash-merged as `5156bbdb8af6eeeac93c1a3c885b67d3107a05fc`.
 
 University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
 
@@ -61,7 +61,7 @@ The university prerequisite map covers every curriculum node. The audit validate
 
 - The independent validation manifest has 73 curriculum-family entries.
 - The independent families include deterministic seeded regression tests, independent exact recomputation, tampering/malformed-input checks, and boundary tests.
-- The combined PR must pass Node, Python AI Core, Level 1 Math Tooling, and security/dependency workflows on its exact head before this integration candidate is considered validated.
+- PR #217's exact head passed Node/Tests `46143050154`, Python AI Core `46143050258` (772 tests and CPU forward/backward smoke only; no optimizer step), Level 1 Math Tooling `46143050181` (including 5,000 randomized cases), and Security/dependency `46143050169`. The updated parent PR #213 head must also pass a fresh exact-head run before the stacked batch is merged further.
 - No compatible trained-checkpoint benchmark exists. No topic is marked mastered.
 - Generator/test coverage is evidence about deterministic software exercises, not evidence that ULTRON has learned or can solve these topics.
 
@@ -70,7 +70,7 @@ The university prerequisite map covers every curriculum node. The audit validate
 - Implementing the remaining 147 university catalogue topics.
 - Expanding the already implemented families beyond their explicitly documented mathematical domains.
 - Extending prerequisite maps to grade-band catalogues.
-- Running frozen benchmarks against a compatible trained checkpoint and recording model performance. This remains impossible to claim before authorized training and checkpoint production.
+- Running frozen benchmarks against a compatible trained checkpoint and recording model performance. This remains impossible to claim before separate training authorization and compatible checkpoint production.
 - Actual device acceptance and all owner-side runtime/security checks in the pretraining readiness document.
 
 ## Safety boundary
