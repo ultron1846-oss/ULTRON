@@ -20,7 +20,7 @@ from .checkpoint import (
 )
 from .compress import load_compressed_model_artifact
 from .config import NeuroSparseConfig
-from .math_tokenizer import MathTokenizer
+from .math_tokenizer import MathTokenizer, TokenLimitExceeded
 from .model import NeuroSparseModel
 
 
@@ -173,7 +173,16 @@ class ULTRONInferenceEngine:
         ):
             raise ValueError("max_new_tokens must be an integer in [1, 256]")
 
-        encoded = self.tokenizer.encode(prompt, add_bos=True)
+        try:
+            encoded = self.tokenizer.encode(
+                prompt,
+                add_bos=True,
+                max_tokens=self._config.max_sequence_length - 1,
+            )
+        except TokenLimitExceeded as exc:
+            raise ValueError(
+                "prompt exceeds max_sequence_length and leaves no room for generation"
+            ) from exc
         if not isinstance(encoded, Sequence) or isinstance(encoded, (str, bytes)) or not encoded:
             raise ValueError("tokenizer returned an empty or invalid token sequence")
         if any(
