@@ -141,6 +141,23 @@ The website/runtime contracts pass mocked and static tests. The 2–10 GiB slide
 
 **No training, optimizer step on ULTRON weights, production corpus generation/download, Supabase mutation, production deployment, external AI API call or remote training execution was performed. Do not start training without separate explicit authorization.**
 
+### Code audit follow-up — 2026-11-28
+
+A targeted review of the integrated PR #207 code found and addressed three issues/improvements:
+
+- **Tokenizer performance:** replaced a full vocabulary scan at every input offset with a trie-based longest-match lexer. The test compares token IDs, values and source offsets against the prior reference-scanner behavior over deterministic mixed-token inputs.
+- **Profiler accuracy:** training throughput metrics now count only causal next-token targets that the loss actually scores. Padding targets and positions whose predictor/target pair is masked are excluded. Added padded/unpadded and malformed-mask regression tests.
+- **Security scan coverage:** added `runtime-status.js`, `preferences.js` and `word-problems.js` to the frontend static scan. A new guard checks that every local module imported by `app.js` appears in the audited-source list. This remains a focused heuristic scan, not a security certification.
+
+**Validation on code revision `50b3e03705943a047640ca70faacce7ef4dae172`:**
+
+- Node Tests [run 46109015334](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109015334): **128 passed, 0 failed**.
+- Python AI Core [run 46109015315](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109015315): **725 tests passed**; CPU forward/backward smoke explicitly reports no optimizer step or training run.
+- Level 1 Math Tooling [run 46109015308](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109015308): **5 passed**, including the workflow's 5,000 randomized cases.
+- Security/dependency audit [run 46109015366](https://github.com/ultron1846-oss/ULTRON/actions/runs/46109015366): passed; npm audit reported **0 vulnerabilities**, and pip-audit reported no known vulnerabilities in each declared dependency group.
+
+These validations ran on GitHub-hosted Linux CI. They do not constitute target-device profiling, a trained-model evaluation, or a full independent security audit. PR #207 remains open and unmerged pending independent review. No ULTRON weight update, optimizer step, corpus generation/download, external AI API call or remote training job was run.
+
 ### Exact next engineering task
 
 After independent review of PR #207, implement a bounded exact-rational **Green's theorem** generator tranche for the existing `Green_stokes_divergence_theorems` university catalog entry. Use polynomial vector fields over axis-aligned rational rectangles; independently verify the counter-clockwise boundary line integral against the double integral of the curl; add deterministic, tamper, orientation and resource-bound tests; update the registry and coverage audit without claiming Stokes/divergence coverage. Use fixtures only—no production corpus, training, optimizer step or remote compute.
