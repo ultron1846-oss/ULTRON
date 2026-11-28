@@ -90,3 +90,15 @@ The connected project was inspected read-only on 2026-11-28:
 - Review GitHub secret scanning/push protection and consider pinning GitHub Actions to full commit SHAs.
 
 No training job, optimizer step, corpus generation, Supabase mutation, production deployment, or external AI API call was performed for this review.
+
+
+## Automated validation evidence — PR #206 (2026-11-28)
+
+Exact tested branch head: `7a787e96c49e2a44bc30979779e449c823c219d2`.
+
+- Node Tests run `46105870615`: passed, 127 tests, 0 failures.
+- Python AI Core run `46105870624`: passed, 681 tests; CPU forward/backward smoke passed and explicitly performed no optimizer step or training run.
+- Level 1 Math Tooling run `46105870635`: passed, 5/5 tests including 5,000 randomized cases.
+- Security and dependency audit run `46105870639`: passed. npm install lock validation, npm audit, focused static frontend source scan, and pip-audit against `requirements-ai.txt`, `requirements-test.txt`, and `requirements-seed.txt` all passed. pip-audit reported no known vulnerabilities in those declared dependency sets after the seed dependency minimums were raised to address `PYSEC-2026-3716` (`datasets`) and `PYSEC-2026-4217` (`fsspec`).
+
+These checks establish the software behavior and audited dependency versions on this commit. They do not establish the absence of unknown vulnerabilities, a complete transitive license inventory, protection against secrets in Git history, security certification, real-device iPad behavior, or owner-side Supabase hardening. PR #206 remains unmerged pending independent review.
