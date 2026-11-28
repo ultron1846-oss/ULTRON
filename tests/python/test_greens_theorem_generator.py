@@ -141,7 +141,7 @@ class GreenTheoremGeneratorTests(unittest.TestCase):
     def test_tampered_answers_and_ingredients_are_rejected(self):
         item = generate(71, 4, "greens_theorem_rectangles")
         altered_answer = dict(item)
-        altered_answer["answer"] = "boundary=0; area=0"
+        altered_answer["answer"] = "tampered answer"
         self.assertFalse(verify(altered_answer))
         altered_ingredients = dict(item)
         altered_ingredients["ingredients"] = dict(item["ingredients"])
