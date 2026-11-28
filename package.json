@@ -6,7 +6,7 @@
   "scripts": {
     "build:math": "tsc --strict --target ES2022 --module ES2022 --skipLibCheck --outDir . --rootDir src src/math-engine.ts",
     "test": "npm run build:math && node --test",
-    "security:audit": "node scripts/security-audit.mjs"
+    "security:audit": "node security-audit.mjs"
   },
   "devDependencies": {
     "typescript": "5.8.3"
