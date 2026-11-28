@@ -122,3 +122,16 @@ PR #201 was squash-merged as `15bac227ca4335a3b8cd3f43c63601830b495956`. It adds
 
 
 **Dataset memory boundary:** The indexed loader bounds snapshot copying and record iteration, but it is not constant-memory: split-manifest ID arrays are parsed in Python memory up to the 100,000-row preflight cap. The benchmark's `tracemalloc` measurement excludes native SQLite allocations and process RSS/device memory. A production dataset benchmark remains owner-dependent.
+
+
+## Prompt 5 — website/runtime integration and security review (2026-11-28)
+
+Implementation is on branch website-runtime-security-batch-6-2026-11-28; the PR and exact-head checks are pending.
+
+- Adds shared generic-status freshness handling: 60-second polling while the Training/Backend page is active, stale/offline/unavailable states, last-success timestamp and age, offline/reconnect handling, and stop-on-navigation/hidden-tab cleanup. Status calls use mocked tests; no job action is sent.
+- Adds strict provider-directory schema validation; execution-enabled providers, invalid HTTPS URLs, duplicate IDs, unknown fields and malformed values fail closed.
+- Expands the collapsible navigation breakpoint to 900px for iPad-width tablet portrait, removes the external Google Fonts fetch, preserves safe-area/reduced-motion/touch-target rules, and makes the RAM preference explicitly a requested workload memory budget in GiB only.
+- Adds a pinned TypeScript lockfile, pinned Python test requirements, npm and pip security/dependency audits, Dependabot updates, a focused static frontend security scan and a .gitignore for local secret/config/model artifacts.
+- Adds docs/SECURITY.md with the live Supabase findings and owner actions. The leaked-password protection setting remains disabled on the current Free plan; three retired device/pairing tables have RLS enabled but no policies; the retired device-control function still returns HTTP 410 and has a stale CORS origin; and the deployed owner-only diagnostic route references a workflow not present in the repository.
+
+No actual iPad device validation was performed; Safari acceptance remains an owner test. No Supabase setting/table/function was changed, no secret value was read or exposed, no AI API was called, and no training/optimizer step/remote job/corpus generation occurred. See docs/SECURITY.md and docs/IPAD_FRONTEND_ACCEPTANCE.md.
