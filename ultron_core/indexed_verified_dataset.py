@@ -6,16 +6,54 @@ import json
 import os
 import sqlite3
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 from .dataset_split_manifest import (
     _MAX_DATA,
     _MAX_LINE_BYTES,
     _MAX_ROWS,
+    _MAX_SPLIT,
     _read_bound_split_payload,
     validate_dataset_split_manifest,
     _strict_object,
 )
+
+
+@dataclass(frozen=True)
+class IndexedDatasetResourceLimits:
+    """Configurable per-loader limits, bounded by repository hard ceilings.
+
+    Split-manifest IDs are still parsed as a bounded JSON object by the
+    existing manifest verifier; max_split_manifest_bytes and max_rows cap
+    that input before the indexed store is built.
+    """
+
+    max_dataset_bytes: int = _MAX_DATA
+    max_rows: int = _MAX_ROWS
+    max_line_bytes: int = _MAX_LINE_BYTES
+    max_split_manifest_bytes: int = _MAX_SPLIT
+    snapshot_copy_chunk_bytes: int = 1024 * 1024
+    sqlite_cache_kib: int = 2048
+    index_build_batch_rows: int = 1024
+    iterator_fetch_rows: int = 256
+
+    def __post_init__(self):
+        bounded = (
+            ("max_dataset_bytes", self.max_dataset_bytes, _MAX_DATA),
+            ("max_rows", self.max_rows, _MAX_ROWS),
+            ("max_line_bytes", self.max_line_bytes, _MAX_LINE_BYTES),
+            ("max_split_manifest_bytes", self.max_split_manifest_bytes, _MAX_SPLIT),
+            ("snapshot_copy_chunk_bytes", self.snapshot_copy_chunk_bytes, 8 * 1024 * 1024),
+            ("sqlite_cache_kib", self.sqlite_cache_kib, 64 * 1024),
+            ("index_build_batch_rows", self.index_build_batch_rows, 8192),
+            ("iterator_fetch_rows", self.iterator_fetch_rows, 4096),
+        )
+        for name, value, maximum in bounded:
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(f"{name} must be an integer")
+            if not 1 <= value <= maximum:
+                raise ValueError(f"{name} must be in [1, {maximum}]")
 
 
 class VerifiedIndexedSplitStore:
@@ -27,9 +65,14 @@ class VerifiedIndexedSplitStore:
     decoded only when requested. The snapshot is removed by close().
     """
 
-    def __init__(self, dataset_path, split_manifest_path):
+    def __init__(self, dataset_path, split_manifest_path, *, resource_limits=None):
         self.dataset_path = Path(dataset_path)
         self.split_manifest_path = Path(split_manifest_path)
+        if resource_limits is None:
+            resource_limits = IndexedDatasetResourceLimits()
+        if not isinstance(resource_limits, IndexedDatasetResourceLimits):
+            raise TypeError("resource_limits must be IndexedDatasetResourceLimits")
+        self.resource_limits = resource_limits
         self._temporary = tempfile.TemporaryDirectory(prefix="ultron-indexed-dataset-")
         self._closed = False
         self._connection = None
@@ -37,6 +80,7 @@ class VerifiedIndexedSplitStore:
         self._index_path = Path(self._temporary.name) / "records.sqlite3"
 
         try:
+            self._check_input_file_limits()
             verified = validate_dataset_split_manifest(
                 self.dataset_path, self.split_manifest_path
             )
@@ -52,18 +96,32 @@ class VerifiedIndexedSplitStore:
             self.close()
             raise
 
+    def _check_input_file_limits(self):
+        """Reject oversized inputs before JSON parsing or snapshot copying."""
+        try:
+            if not self.dataset_path.is_file():
+                raise ValueError("dataset path is not a file")
+            if not self.split_manifest_path.is_file():
+                raise ValueError("split manifest path is not a file")
+            if self.dataset_path.stat().st_size > self.resource_limits.max_dataset_bytes:
+                raise ValueError("dataset exceeds configured max_dataset_bytes")
+            if self.split_manifest_path.stat().st_size > self.resource_limits.max_split_manifest_bytes:
+                raise ValueError("split manifest exceeds configured max_split_manifest_bytes")
+        except OSError as exc:
+            raise ValueError("dataset or split manifest is missing or inaccessible") from exc
+
     def _copy_verified_snapshot(self):
         digest = hashlib.sha256()
         bytes_seen = 0
         try:
             with self.dataset_path.open("rb") as source, self._snapshot_path.open("xb") as target:
                 while True:
-                    chunk = source.read(1024 * 1024)
+                    chunk = source.read(self.resource_limits.snapshot_copy_chunk_bytes)
                     if not chunk:
                         break
                     bytes_seen += len(chunk)
-                    if bytes_seen > _MAX_DATA:
-                        raise ValueError("dataset exceeds the 1 GiB preflight limit")
+                    if bytes_seen > self.resource_limits.max_dataset_bytes:
+                        raise ValueError("dataset exceeds configured max_dataset_bytes")
                     digest.update(chunk)
                     target.write(chunk)
                 target.flush()
@@ -82,7 +140,7 @@ class VerifiedIndexedSplitStore:
         self._connection = connection
         try:
             connection.execute("PRAGMA temp_store=FILE")
-            connection.execute("PRAGMA cache_size=-2048")
+            connection.execute(f"PRAGMA cache_size=-{self.resource_limits.sqlite_cache_kib}")
             connection.execute("PRAGMA journal_mode=OFF")
             connection.execute("PRAGMA synchronous=OFF")
             connection.execute(
@@ -109,17 +167,17 @@ class VerifiedIndexedSplitStore:
             offset = 0
             with self._snapshot_path.open("rb") as stream:
                 while True:
-                    line = stream.readline(_MAX_LINE_BYTES + 1)
+                    line = stream.readline(self.resource_limits.max_line_bytes + 1)
                     if not line:
                         break
                     rows_seen += 1
-                    if rows_seen > _MAX_ROWS or rows_seen > verified.dataset_example_count:
-                        raise ValueError("dataset row count exceeds verified manifest or preflight limit")
-                    if len(line) > _MAX_LINE_BYTES:
-                        raise ValueError("dataset JSONL row exceeds the 8 MiB line limit")
+                    if rows_seen > self.resource_limits.max_rows or rows_seen > verified.dataset_example_count:
+                        raise ValueError("dataset row count exceeds configured max_rows or verified manifest")
+                    if len(line) > self.resource_limits.max_line_bytes:
+                        raise ValueError("dataset JSONL row exceeds configured max_line_bytes")
                     bytes_seen += len(line)
-                    if bytes_seen > _MAX_DATA:
-                        raise ValueError("dataset exceeds the 1 GiB preflight limit")
+                    if bytes_seen > self.resource_limits.max_dataset_bytes:
+                        raise ValueError("dataset exceeds configured max_dataset_bytes")
                     if not line.endswith(b"\n"):
                         raise ValueError("dataset JSONL must end with a newline")
                     digest.update(line)
@@ -173,7 +231,7 @@ class VerifiedIndexedSplitStore:
                 )
                 seq = 0
                 while True:
-                    batch = cursor.fetchmany(1024)
+                    batch = cursor.fetchmany(self.resource_limits.index_build_batch_rows)
                     if not batch:
                         break
                     connection.executemany(
@@ -207,7 +265,7 @@ class VerifiedIndexedSplitStore:
         try:
             with self._snapshot_path.open("rb") as stream:
                 while True:
-                    batch = cursor.fetchmany(256)
+                    batch = cursor.fetchmany(self.resource_limits.iterator_fetch_rows)
                     if not batch:
                         break
                     for example_id, offset, length, row_digest in batch:
