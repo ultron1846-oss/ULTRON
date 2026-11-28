@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-28 — integrated Phase 2 candidate on `phase2/integrated-math-curriculum-2026-11-28`; 218 university topics, 71 bounded generators, combined validation pending; not merged.**
+**Status snapshot: 2026-11-28 — Phase 2 integrated curriculum stack is merged into PR #213's feature branch; 218 university topics, 71 generator-available, 73 independently validated combined entries; fresh parent-PR validation pending; not merged to main.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -550,7 +550,7 @@ Five bounded families have been added with dedicated validators and 500-seed ind
 - Exact binomial probabilities, checked by PMF normalization, expected value, and variance.
 - Finite connected simple graphs, checked by independent adjacency traversal, degree recomputation, and the handshaking identity.
 
-Current candidate coverage: **216 university topics**, **69 generator-available**, **147 not implemented**; **269 combined entries**, **122 generator-available**, **71 independently validated**; **216 prerequisite nodes and 409 edges**. Benchmarked topics remain **0** and mastered topics remain **0**. These are generator/validation registry counts, not trained-model capability.
+Standalone batch 9 coverage before theorem integration: **216 university topics**, **69 generator-available**, **147 not implemented**; **269 combined entries**, **122 generator-available**, **71 independently validated**; **216 prerequisite nodes and 409 edges**. Benchmarked topics remain **0** and mastered topics remain **0**. These are generator/validation registry counts, not trained-model capability.
 
 
 ### PR #213 exact-head CI reference
@@ -577,13 +577,13 @@ Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemen
 
 ## Phase 2 cumulative integration candidate — 2026-11-28
 
-**Candidate branch:** `phase2/integrated-math-curriculum-2026-11-28`. This branch consolidates the multifield batch and bounded vector-calculus follow-up on top of the curriculum scope audit. It is an integration candidate, not a merge to `main`.
+**Integrated feature branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28`. PR #217 was squash-merged into this PR #213 head as `5156bbdb8af6eeeac93c1a3c885b67d3107a05fc`. The changes are integrated on the stacked feature branch, not merged to `main`.
 
 - University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
 - Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
 - Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
 - Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
 - Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
-- The integrated PR's exact-head CI is the final validation gate; prior individual batch checks passed, but that does not substitute for combined integration checks.
+- The integrated PR #217 exact-head CI passed all four workflows: Tests `46143050154`, Python AI Core `46143050258` (772 tests plus forward/backward smoke without optimizer step), Level 1 Math Tooling `46143050181` (including 5,000 randomized cases), and Security/dependency audit `46143050169`. The updated parent PR #213 head is `5156bbdb8af6eeeac93c1a3c885b67d3107a05fc`; its own fresh exact-head CI is pending.
 
 No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.
