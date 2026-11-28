@@ -38,7 +38,7 @@ JSON object parsing rejects duplicate keys and non-standard constants. Unknown a
 
 ## 3. Canonical serialization and identity
 
-The current writer serializes each row as UTF-8 JSON with sorted keys, compact separators, and ensure_ascii=false, followed by exactly one newline byte. The dataset SHA-256 covers the complete concatenated JSONL byte stream, including those newline bytes.
+The current writer accepts an iterable and serializes one row at a time as UTF-8 JSON with sorted keys, compact separators, and ensure_ascii=false, followed by exactly one newline byte. It does not retain a full encoded dataset string. The dataset SHA-256 covers the complete concatenated JSONL byte stream, including those newline bytes. Duplicate IDs and row indices are rejected while streaming.
 
 The row identity digest covers this canonical payload:
 
@@ -115,6 +115,8 @@ Split IDs are represented as JSON arrays today. The parser enforces a 32 MiB def
 - Failed or interrupted pair writes must be quarantined/rebuilt; never repair a digest by silently accepting unknown bytes.
 
 ## 8. Current gaps
+
+The generator accepts the shared DatasetResourceLimits policy: row count, total JSONL bytes, row-line bytes and sidecar manifest bytes are enforced on write; the same limits can be applied during read. It still keeps bounded in-memory sets of IDs and indices (maximum 100,000 by default), so writer metadata is O(N), not constant-memory. The generator returns a tuple and is itself bounded by the configured row cap.
 
 The current v1 sidecar does not record Python implementation/version, source commit, per-generator parameter schema versions, or a signed provenance identity. The JSONL row does not carry a standalone schema version. The manifest's ID arrays remain O(N) memory. These limitations are recorded explicitly and are not silently promoted to production-ready guarantees.
 
