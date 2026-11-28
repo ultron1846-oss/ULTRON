@@ -253,6 +253,14 @@ class VerifiedIndexedSplitStore:
             connection.execute("DROP TABLE selected_ids")
             connection.commit()
             self._check_disk_usage()
+        except sqlite3.OperationalError as exc:
+            connection.rollback()
+            message = str(exc).lower()
+            if "full" in message or "maximum page count" in message:
+                raise ValueError(
+                    "SQLite index exceeded configured max_index_bytes or max_temporary_bytes"
+                ) from exc
+            raise
         except Exception:
             connection.rollback()
             raise
