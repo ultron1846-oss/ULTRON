@@ -92,11 +92,18 @@ export class RuntimeStatusMonitor {
         this.statusTimestamp = serverTimestamp !== null && serverTimestamp <= receivedAt + 30_000
           ? serverTimestamp
           : receivedAt;
-        this.error = null;
-        this.state = 'online';
+        if (this.online) {
+          this.error = null;
+          this.state = 'online';
+        } else {
+          this.error = 'This device is offline. The last successful response is retained as stale.';
+          this.state = 'stale';
+        }
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Runtime status request failed.';
-        this.state = this.data ? 'stale' : 'unavailable';
+        this.error = this.online
+          ? (error instanceof Error ? error.message : 'Runtime status request failed.')
+          : 'This device is offline. No status request was sent.';
+        this.state = this.data ? 'stale' : (this.online ? 'unavailable' : 'offline');
       } finally {
         this.inFlight = null;
       }
