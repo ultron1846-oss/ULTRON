@@ -11,11 +11,12 @@ from fractions import Fraction
 
 from .extended_generators import EXTENDED_BANDS, build as build_extended
 from .green_theorem import TOPIC as GREEN_TOPIC, build_green_fields, verify_green_problem
+from .linear_first_order_ode import TOPIC as LINEAR_ODE_TOPIC, MAX_SEED as MAX_ODE_SEED, build_linear_ode_fields, verify_linear_ode_problem
 
 BANDS = {
     "linear_algebra": "University",
     "multivariable_calculus": "University",
-    "differential_equations": "University",
+    LINEAR_ODE_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -76,6 +77,8 @@ GENERATOR_METADATA = {
 def _build(topic: str, rng: random.Random, difficulty: int):
     if topic == GREEN_TOPIC:
         return build_green_fields(rng, difficulty)
+    if topic == LINEAR_ODE_TOPIC:
+        return build_linear_ode_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -99,13 +102,6 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         answer=f"df/dx={dx}; df/dy={dy}"
         steps=[f"∂f/∂x=2({a})x+({b})y; at point: {dx}.",f"∂f/∂y=({b})x+2({c})y; at point: {dy}."]
         exact=lambda:dx==2*a*x+b*y and dy==b*x+2*c*y
-    elif topic == "differential_equations":
-        k,y0=n(-4*d,4*d),n(1,8*d)
-        data.update(rate=k,initial_value=y0,solution=f"{y0}*exp({k}t)")
-        problem=f"Solve y'=({k})y with initial condition y(0)={y0}."
-        answer=f"y(t)={y0}e^({k}t)"
-        steps=["Separate variables: dy/y=k dt.",f"Integrate: ln|y|=kt+C.",f"Apply y(0)={y0}: y(t)={y0}e^({k}t)."]
-        exact=lambda:y0>0 and data["solution"]==f"{y0}*exp({k}t)"
     elif topic == "Euclidean_algorithm":
         # Extended Euclidean algorithm with exact Bezout coefficients.
         a, b = n(1, 100 * d), n(1, 100 * d)
@@ -492,6 +488,8 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ValueError("difficulty must be an integer from 1 through 5")
     if topic not in BANDS:
         raise ValueError("unknown topic: "+str(topic))
+    if topic == LINEAR_ODE_TOPIC and not 0 <= seed <= MAX_ODE_SEED:
+        raise ValueError(f"seed must be between 0 and {MAX_ODE_SEED} for {LINEAR_ODE_TOPIC}")
     fields,check=_build(topic,random.Random(seed),difficulty)
     fields.update(id=f"university-{topic}-{seed}-{difficulty}",seed=seed)
     if not check():
@@ -505,6 +503,8 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
 def verify(problem: dict) -> bool:
     if isinstance(problem, dict) and problem.get("topic") == GREEN_TOPIC:
         return verify_green_problem(problem)
+    if isinstance(problem, dict) and problem.get("topic") == LINEAR_ODE_TOPIC:
+        return verify_linear_ode_problem(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):
