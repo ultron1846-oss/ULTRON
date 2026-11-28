@@ -360,6 +360,27 @@ class IndexedDatasetStressTests(unittest.TestCase):
             dataset, split = self._prepare(Path(directory), count=12000)
             manifest_bytes = split.stat().st_size
             self.assertGreater(manifest_bytes, 500_000)
+            report = benchmark_indexed_dataset(
+                dataset,
+                split,
+                random_access_samples=64,
+                seed=20261128,
+            )
+            self.assertEqual(report["dataset_example_count"], 12000)
+            self.assertEqual(report["sequential_scan"]["rows_scanned"], 12000)
+            self.assertGreater(report["sequential_scan"]["rows_per_second"], 0)
+            self.assertEqual(report["random_access"]["samples"], 64)
+            self.assertGreaterEqual(report["random_access"]["median_latency_ms"], 0)
+            self.assertGreaterEqual(report["random_access"]["p95_latency_ms"], 0)
+            self.assertGreater(report["snapshot_bytes"], 0)
+            self.assertGreater(report["sqlite_index_bytes"], 0)
+            self.assertGreater(report["tracemalloc_peak_python_bytes"], 0)
+            self.assertIn("native SQLite", report["memory_measurement_scope"])
+            self.assertFalse(report["data_generated"])
+            self.assertFalse(report["dataset_modified"])
+            self.assertFalse(report["training_performed"])
+            self.assertEqual(report["optimizer_steps"], 0)
+
             with VerifiedIndexedSplitStore(dataset, split) as store:
                 self.assertEqual(sum(store.split_counts.values()), 12000)
                 first_pass = {
