@@ -555,3 +555,14 @@ Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemen
 Adds `quadratic_potential_exact_first_order_ODEs` for exact equations derived from `Phi(x,y)=a*x^2+b*x*y+c*y^2`, with bounded rational coefficients and rational initial point. The answer is an implicit potential level set. Independent tests recompute both gradient components and both cross-partials using exact central differences, verify the initial-value constant, and reject tampering. The broad `exact_first_order_ODEs` topic remains catalogued but unimplemented.
 
 Candidate counts: 214 university topics; 67 generator-available; 147 unimplemented; 214 prerequisite nodes / 403 edges; 267 combined entries; 120 generator-available; 69 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.
+
+
+## Phase 2 second-order ODE and transport PDE follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/second-order-ode-pde-transport-2026-11-28`.
+
+Adds:
+- `distinct_real_root_second_order_linear_homogeneous_ODEs`: constant-coefficient homogeneous second-order ODEs with distinct rational real characteristic roots and rational initial conditions.
+- `constant_speed_transport_polynomial_initial_data_PDEs`: (u_t+c u_x=0) with nonzero rational constant speed and polynomial initial data of degree at most three.
+
+The broad `second_order_linear_ODEs` and `characteristics_PDE` topics remain catalogued but unimplemented. Tests independently recompute characteristic identities, initial conditions, PDE residuals, and initial data. Candidate counts: 216 university topics; 69 generator-available; 147 unimplemented; 216 prerequisite nodes / 407 edges; 269 combined entries; 122 generator-available; 71 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head CI is pending.

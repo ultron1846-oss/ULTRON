@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
   "source_commit": "dc0ee7763b2a7c6e7f01e9e310a25da8975fb573",
-  "source_topic_count": 214,
-  "mapped_topic_count": 214,
+  "source_topic_count": 216,
+  "mapped_topic_count": 216,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -23,7 +23,7 @@
     "Applied mathematics and mathematical physics",
     "Advanced and interdisciplinary"
   ],
-  "scope_note": "Curated prerequisite edges for all 214 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
+  "scope_note": "Curated prerequisite edges for all 216 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -552,6 +552,10 @@
       "linear_first_order_variable_coefficient_ODEs",
       "derivative_theory"
     ],
+    "distinct_real_root_second_order_linear_homogeneous_ODEs": [
+      "second_order_linear_ODEs",
+      "homogeneous_constant_coefficient_first_order_ODEs"
+    ],
     "systems_of_ODEs": [
       "linear_first_order_variable_coefficient_ODEs",
       "linear_transformations"
@@ -590,6 +594,10 @@
     "characteristics_PDE": [
       "partial_derivatives",
       "separable_first_order_ODEs"
+    ],
+    "constant_speed_transport_polynomial_initial_data_PDEs": [
+      "characteristics_PDE",
+      "partial_derivatives"
     ],
     "convex_sets_and_functions": [
       "vectors_and_vector_spaces",

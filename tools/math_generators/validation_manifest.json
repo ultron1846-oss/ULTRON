@@ -483,6 +483,20 @@
         "test": "test_500_seeded_exactness_gradient_and_initial_value_checks",
         "validator": "Independent Fraction central-difference recomputation of the quadratic potential gradient and both cross-partials, plus initial-point level-set substitution."
       }
+    ],
+    "university:distinct_real_root_second_order_linear_homogeneous_ODEs": [
+      {
+        "path": "tests/python/test_second_order_ode_and_transport_pde.py",
+        "test": "test_500_distinct_real_root_second_order_odes",
+        "validator": "Exact rational reconstruction of the characteristic polynomial roots and both initial-condition equations for the two exponential solution coefficients."
+      }
+    ],
+    "university:constant_speed_transport_polynomial_initial_data_PDEs": [
+      {
+        "path": "tests/python/test_second_order_ode_and_transport_pde.py",
+        "test": "test_500_constant_speed_transport_pde_residuals_and_initial_data",
+        "validator": "Independent Fraction evaluation of u_t+c*u_x at rational points and exact substitution of the polynomial initial data at t=0."
+      }
     ]
   },
   "benchmarked": [],
