@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source_curriculum": "tools/math_generators/university/curriculum.json",
   "source_commit": "dc0ee7763b2a7c6e7f01e9e310a25da8975fb573",
-  "source_topic_count": 211,
-  "mapped_topic_count": 211,
+  "source_topic_count": 213,
+  "mapped_topic_count": 213,
   "coverage_fields": [
     "Foundations and logic",
     "Linear algebra",
@@ -23,7 +23,7 @@
     "Applied mathematics and mathematical physics",
     "Advanced and interdisciplinary"
   ],
-  "scope_note": "Curated prerequisite edges for all 211 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
+  "scope_note": "Curated prerequisite edges for all 213 topics in the current university curriculum catalog. These are a reviewed starting sequence, not a universal course order or mastery claim.",
   "prerequisites": {
     "sets_and_functions": [],
     "propositional_logic": [
@@ -817,10 +817,18 @@
       "surface_integrals",
       "vector_calculus"
     ],
+    "stokes_theorem_horizontal_rectangles": [
+      "stokes_theorem",
+      "greens_theorem_rectangles"
+    ],
     "divergence_theorem": [
       "vector_calculus",
       "multiple_integrals",
       "surface_integrals"
+    ],
+    "divergence_theorem_axis_aligned_boxes": [
+      "divergence_theorem",
+      "diagonal_linear_vector_field_divergence"
     ],
     "homogeneous_constant_coefficient_first_order_ODEs": [
       "derivative_theory",

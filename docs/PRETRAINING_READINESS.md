@@ -266,3 +266,12 @@ No model training, optimizer step, production corpus generation/download, extern
 
 
 Batch 8 exact-head CI is recorded in README.md and docs/MATH_CURRICULUM_AUDIT_2026-11-28.md. The PR remains a stacked review candidate; it has not been merged.
+
+
+## Phase 2 — bounded vector-calculus theorem follow-up
+
+**Candidate branch:** `phase2/vector-calculus-theorem-families-2026-11-28`, based on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+The batch adds `stokes_theorem_horizontal_rectangles` for affine ((P,Q,0)) fields on horizontal rectangles, and `divergence_theorem_axis_aligned_boxes` for diagonal linear fields on rectangular boxes. Both validators independently reconstruct the boundary/face integral and compare it with the curl/divergence integral. Broad Stokes and divergence theorem support remains unimplemented.
+
+Candidate coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, **68 independently validated**. Benchmarks and mastery remain zero. Exact-head CI is pending.

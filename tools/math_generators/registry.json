@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "coverage_through": "Core + G1-12 + 211-topic university mathematics curriculum; scoped IDs and explicit evidence states",
+  "coverage_through": "Core + G1-12 + 213-topic university mathematics curriculum; scoped IDs and explicit evidence states",
   "topics": [
     {
       "catalog_id": "core:arithmetic",
@@ -1051,12 +1051,32 @@
       "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:stokes_theorem_horizontal_rectangles",
+      "topic": "stokes_theorem_horizontal_rectangles",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
       "catalog_id": "university:divergence_theorem",
       "topic": "divergence_theorem",
       "grade_band": "University",
       "word_problems": false,
       "status": "catalogued_not_implemented",
       "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:divergence_theorem_axis_aligned_boxes",
+      "topic": "divergence_theorem_axis_aligned_boxes",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },

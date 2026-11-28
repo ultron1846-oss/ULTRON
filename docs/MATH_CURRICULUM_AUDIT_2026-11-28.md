@@ -190,3 +190,14 @@ PR #213 (`phase2/curriculum-scope-expansion-batch-8-2026-11-28`) exact validated
 | Security and dependency audit | 46140323947 | Passed |
 
 The dedicated affine double-integral validator evidence points to the Fubini/additivity regression test in `tests/python/test_rectangular_double_integral_generator.py`. No training, optimizer step, production corpus generation, or remote job occurred.
+
+
+## 11. Bounded Stokes and divergence theorem families
+
+The latest follow-up adds two separately identified theorem exercises while preserving the broad theorem rows as incomplete:
+
+- `stokes_theorem_horizontal_rectangles`: affine fields (F=(P,Q,0)) on horizontal axis-aligned rectangles, with upward surface orientation and counter-clockwise boundary traversal. The independent validator recomputes all four boundary-edge integrals and the curl surface integral.
+- `divergence_theorem_axis_aligned_boxes`: diagonal linear fields (F=(ax,by,cz)) on axis-aligned boxes. The independent validator recomputes six oriented face fluxes and the volume integral of (
+ablacdot F).
+
+Current candidate coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, and **68 independently validated**. Trained-checkpoint benchmarks and mastered topics remain zero. These additions do not imply general Stokes or divergence theorem support.

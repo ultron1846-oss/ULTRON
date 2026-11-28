@@ -16,6 +16,8 @@ from .ode_separable import TOPIC as SEPARABLE_ODE_TOPIC, MAX_SEED as MAX_SEPARAB
 from .rectangular_double_integrals import TOPIC as RECTANGULAR_DOUBLE_INTEGRAL_TOPIC, build_rectangular_double_integral_fields, verify_rectangular_double_integral
 from .complex_arithmetic import TOPIC as COMPLEX_ARITHMETIC_TOPIC, build_complex_arithmetic_fields, verify_complex_arithmetic
 from .ode_variable_coefficient import TOPIC as VARIABLE_COEFFICIENT_ODE_TOPIC, build_variable_coefficient_ode_fields, verify_variable_coefficient_ode
+from .stokes_horizontal_rectangle import TOPIC as STOKES_RECTANGLE_TOPIC, build_stokes_horizontal_rectangle_fields, verify_stokes_horizontal_rectangle
+from .divergence_box import TOPIC as DIVERGENCE_BOX_TOPIC, build_divergence_box_fields, verify_divergence_box
 
 BANDS = {
     "linear_algebra": "University",
@@ -25,6 +27,8 @@ BANDS = {
     RECTANGULAR_DOUBLE_INTEGRAL_TOPIC: "University",
     COMPLEX_ARITHMETIC_TOPIC: "University",
     VARIABLE_COEFFICIENT_ODE_TOPIC: "University",
+    STOKES_RECTANGLE_TOPIC: "University",
+    DIVERGENCE_BOX_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -93,6 +97,10 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         return build_complex_arithmetic_fields(rng, difficulty)
     if topic == VARIABLE_COEFFICIENT_ODE_TOPIC:
         return build_variable_coefficient_ode_fields(rng, difficulty)
+    if topic == STOKES_RECTANGLE_TOPIC:
+        return build_stokes_horizontal_rectangle_fields(rng, difficulty)
+    if topic == DIVERGENCE_BOX_TOPIC:
+        return build_divergence_box_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -523,6 +531,10 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ArithmeticError("independent first-order ODE verification failed")
     if topic == SEPARABLE_ODE_TOPIC and not verify_separable_problem(fields):
         raise ArithmeticError("independent separable ODE verification failed")
+    if topic == STOKES_RECTANGLE_TOPIC and not verify_stokes_horizontal_rectangle(fields):
+        raise ArithmeticError("independent Stokes theorem verification failed")
+    if topic == DIVERGENCE_BOX_TOPIC and not verify_divergence_box(fields):
+        raise ArithmeticError("independent divergence theorem verification failed")
     if topic == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC and not verify_rectangular_double_integral(fields):
         raise ArithmeticError("independent rectangular double-integral verification failed")
     if topic == COMPLEX_ARITHMETIC_TOPIC and not verify_complex_arithmetic(fields):
@@ -542,6 +554,10 @@ def verify(problem: dict) -> bool:
         return verify_homogeneous_constant_coefficient_first_order_ode(problem)
     if isinstance(problem, dict) and problem.get("topic") == SEPARABLE_ODE_TOPIC:
         return verify_separable_problem(problem)
+    if isinstance(problem, dict) and problem.get("topic") == STOKES_RECTANGLE_TOPIC:
+        return verify_stokes_horizontal_rectangle(problem)
+    if isinstance(problem, dict) and problem.get("topic") == DIVERGENCE_BOX_TOPIC:
+        return verify_divergence_box(problem)
     if isinstance(problem, dict) and problem.get("topic") == RECTANGULAR_DOUBLE_INTEGRAL_TOPIC:
         return verify_rectangular_double_integral(problem)
     if isinstance(problem, dict) and problem.get("topic") == COMPLEX_ARITHMETIC_TOPIC:

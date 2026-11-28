@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 211,
+  "topic_count": 213,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -354,10 +354,24 @@
       "status": "catalogued_not_implemented"
     },
     {
+      "topic": "stokes_theorem_horizontal_rectangles",
+      "title": "Stokes theorem for affine fields on horizontal rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "stokes_theorem_horizontal_rectangles"
+    },
+    {
       "topic": "divergence_theorem",
       "title": "Divergence theorem",
       "field": "Calculus",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "divergence_theorem_axis_aligned_boxes",
+      "title": "divergence theorem for diagonal linear fields on rectangular boxes",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "divergence_theorem_axis_aligned_boxes"
     },
     {
       "topic": "metric_spaces",

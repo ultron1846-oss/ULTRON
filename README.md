@@ -535,3 +535,14 @@ These are registry/evidence counts, not ULTRON model capability. No training, op
 | Security and dependency audit | [46140323947](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323947) | Passed |
 
 These runs are all attached to the exact PR #213 head above. No local test execution is claimed. No ULTRON training, optimizer update, or corpus generation was performed.
+
+
+## Phase 2 vector-calculus theorem follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/vector-calculus-theorem-families-2026-11-28`, based on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+This batch adds:
+- `stokes_theorem_horizontal_rectangles`: affine field (F=(P,Q,0)), horizontal axis-aligned rectangle, upward normal, counter-clockwise boundary. Tests independently integrate each boundary edge and compare with the curl surface integral.
+- `divergence_theorem_axis_aligned_boxes`: diagonal linear field (F=(ax,by,cz)) on an axis-aligned rectangular box. Tests independently recompute six outward face fluxes and compare with the volume integral of divergence.
+
+Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemented. Candidate coverage: 213 university topics; 66 generator-available; 147 unimplemented; 213 prerequisite nodes / 401 edges; 266 combined entries; 119 generator-available; 68 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.
