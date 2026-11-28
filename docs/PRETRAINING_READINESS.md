@@ -220,3 +220,25 @@ A checkpoint generation currently consists of three files: the serialized checkp
 For transfer between sessions, copy the current checkpoint, `.sha256`, and `.metadata.json` together and preserve their basename; include the corresponding `.bak` files only when backup recovery is also required. The metadata sidecar is advisory and is not a substitute for the payload integrity check performed by `load_checkpoint`. Storage capacity must accommodate at least the current checkpoint plus one prior checkpoint generation and temporary-write/transfer overhead. Actual free-tier disk quotas, upload limits, and cross-session persistence are owner/runtime-specific and remain unverified.
 
 - [x] Merge PR #196 read-only indexed dataset benchmark as `faa4b8ea31415598355afa36414092482b1a8e00`; exact-head CI and post-merge Node, Python AI Core, Level 1, and Pages build/deploy passed. The synthetic fixture is not a production memory benchmark; owner-supplied production dataset measurements remain pending.
+
+
+## Prompt 3 — training recovery and evaluation audit (2026-11-27)
+
+Implementation is submitted in [PR #204](https://github.com/ultron1846-oss/ULTRON/pull/204); exact-head CI passed, and review/merge is pending. Detailed findings are in [TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md](TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md), with the frozen benchmark contract in [FROZEN_EVALUATION_PROTOCOL.md](FROZEN_EVALUATION_PROTOCOL.md).
+
+### Work area 5 — recovery
+- Added a clean-process test that verifies Python and Torch CPU RNG continuation, model-state fingerprint, dataset-bound sampler cursor, and remaining permutation tail using a small initialized model and synthetic dataset. It creates no optimizer and performs no optimizer step.
+- Added failed RNG-restore rollback coverage for model, optimizer, scheduler, Python RNG and Torch RNG.
+- Extended interrupted-manifest-write recovery coverage to assert temporary checkpoint/manifest files are cleaned up.
+- Existing source/tests cover checkpoint bundle transfer, SHA-256 verification, one-generation backup fallback, data-cursor and sampler hash binding, cursor rollback after cancellation/incomplete accumulation, and controller cleanup in a `finally` block.
+- CUDA RNG replay and actual cross-cloud/iPad transfer remain unverified. Multi-file checkpoint replacement is not one atomic transaction; only one verified backup generation is retained.
+
+### Work area 6 — evaluation
+- Added a bounded deterministic in-memory suite for all eight supported exact generator topics, capped at 100 examples per topic; no corpus is written and no model is invoked.
+- Added an immutable-fingerprint-style train/validation/final-evaluation manifest binding IDs, normalized prompt hashes, generation ingredients, reference-answer hashes, concept registry, category labels and benchmark revision.
+- The final evaluation split is checked against both train and validation. IDs, normalized prompts and generation ingredients must remain disjoint.
+- Added opt-in absolute/relative tolerance for scalar numeric topics. Exact correctness and tolerance-accepted answers are reported separately.
+- Added detailed answer-level classes for abstention, malformed output, domain-invalid output, mathematically incorrect answer, exact correct answer and tolerance-accepted answer.
+- The independent reference path revalidates generated answers, but this is not proof-kernel verification. It does not score derivations or identify the actual cause of a reasoning failure.
+
+**Readiness gate:** PR #204 exact-head CI passed: Python AI Core run `46015892965` (696 tests and CPU smoke), Node Tests run `46015892752`, and Level 1 Math Tooling run `46015892856` (5/5). PR review/merge remains pending. They do not establish model performance. An owner-curated final benchmark, semantic near-duplicate review, CUDA RNG test, real runtime checkpoint transfer, and a valid trained checkpoint remain unavailable. No ULTRON training or optimizer step was performed.

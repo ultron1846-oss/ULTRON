@@ -44,3 +44,10 @@ Before a model-quality evaluation:
 - Transfer categories are curator-supplied; the validator checks their locally verifiable properties but does not infer them.
 - The core taxonomy covers only the current eight exact-synthetic topics. Extend concept/prerequisite coverage across curriculum generators before claiming broad concept transfer.
 - No corpus download/import, data augmentation, optimizer step, training, or remote execution is performed by this protocol.
+
+
+## Three-way frozen evaluation manifest v2
+
+The current train/test validator remains useful for checking individual transfer claims. For final release, use [FROZEN_EVALUATION_PROTOCOL.md](FROZEN_EVALUATION_PROTOCOL.md) and `ultron_core.frozen_evaluation.build_frozen_evaluation_manifest` to freeze **train**, **validation**, and **evaluation** together. The three-way builder rejects shared example IDs, case-folded whitespace-normalized prompt hashes, and generator-ingredient hashes across all splits. It requires a category for every final evaluation ID and checks unseen-concept claims against the union of train and validation.
+
+The manifest fingerprints exact reference-answer hashes, generator metadata, source/benchmark revision, concept annotations and concept-registry digest, but does not include raw prompt or answer text. `verify_frozen_evaluation_manifest` rebuilds the fingerprint from the supplied source collections. This is a split-integrity check, not semantic near-duplicate detection; human/independent review of paraphrases and curator-supplied category labels remains mandatory. The builder creates metadata only and does not generate or write a corpus.
