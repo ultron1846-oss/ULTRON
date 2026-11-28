@@ -37,6 +37,11 @@ def benchmark_indexed_dataset(
     tracing_started_here = not tracemalloc.is_tracing()
     if tracing_started_here:
         tracemalloc.start()
+        tracing_baseline_bytes = 0
+    else:
+        # Isolate this run from any tracing that the caller started earlier.
+        tracing_baseline_bytes, _ = tracemalloc.get_traced_memory()
+        tracemalloc.reset_peak()
     store = None
     try:
         build_start = time.perf_counter()
@@ -84,7 +89,10 @@ def benchmark_indexed_dataset(
             if random_latencies_ms
             else None
         )
-        _, peak_python_bytes = tracemalloc.get_traced_memory()
+        _, peak_absolute_python_bytes = tracemalloc.get_traced_memory()
+        peak_python_bytes = max(
+            0, peak_absolute_python_bytes - tracing_baseline_bytes
+        )
         snapshot_bytes = store._snapshot_path.stat().st_size
         sqlite_bytes = store._index_path.stat().st_size
         return {
@@ -110,9 +118,11 @@ def benchmark_indexed_dataset(
                 "median_latency_ms": median_ms,
                 "p95_latency_ms": p95_ms,
             },
+            "tracemalloc_baseline_python_bytes": tracing_baseline_bytes,
             "tracemalloc_peak_python_bytes": peak_python_bytes,
             "memory_measurement_scope": (
-                "Python allocations traced by tracemalloc only; excludes native SQLite "
+                "incremental Python allocation peak above the tracing baseline; " 
+                "tracemalloc excludes native SQLite "
                 "allocations, PyTorch tensors, process RSS, and device memory. Not a "
                 "complete memory or speedup comparison against the eager loader."
             ),
