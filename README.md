@@ -12,7 +12,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 - Branch: `phase3/dataset-engineering-quality-2026-11-28`
 - PR base: `main` at `2ba3340dbc841699ad98e651c86f2e227be8cac0`
 - Latest code + regression-test revision (includes streamed-writer disk budget, destination-copy integrity, and separate SQLite main/temp page caps): `612d0defb2cee05ba6cfffac5f090a222079e0d6`
-- Benchmark report refresh revision: see the latest branch commit; the recorded measurements below are from code/test revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a`.
+- Benchmark report revision: see the latest branch commit; the recorded measurements below are from code/test revision `612d0defb2cee05ba6cfffac5f090a222079e0d6`.
 - Review gate: no independent review or unresolved review thread was present at the last live check. PR remains open and unmerged.
 
 ### Phase 3 deliverables
@@ -26,7 +26,7 @@ ULTRON is an independent mathematics-learning and reasoning project. Its determi
 
 ### Measured CI fixture benchmark
 
-The corrected implementation revision ran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46149827135](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149827135), job `140993841838`.
+The SQLite main/temp page-bounded implementation ran the benchmark on a 12,000-row synthetic fixture in [Python AI Core run #46150789066](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789066), job `140996769630`.
 
 | Metric | Result |
 |---|---:|
@@ -45,7 +45,7 @@ These are single-run synthetic-fixture CI measurements, not a production corpus 
 
 ### Validation on the exact code revision
 
-All three workflows passed on exact code + test revision `d17f1c38bfca0d07c7de8ed46237af4130597b8a`:
+All three workflows passed on exact code + test revision `612d0defb2cee05ba6cfffac5f090a222079e0d6`:
 
 - [Node Tests #46150789071](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789071): `npm test` — passed.
 - [Python AI Core #46150789066](https://github.com/ultron1846-oss/ULTRON/actions/runs/46150789066): `python -m unittest discover -s tests/python -v` — 713 tests passed in 55.977 seconds; `python -m ultron_core.smoke --device cpu --batch 2 --sequence 8` — passed.
