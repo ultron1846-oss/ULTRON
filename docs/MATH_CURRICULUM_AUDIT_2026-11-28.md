@@ -213,3 +213,17 @@ The latest follow-up adds two separately identified theorem exercises while pres
 - `divergence_theorem_axis_aligned_boxes`: diagonal linear fields (F=(ax,by,cz)) on axis-aligned boxes. The independent validator recomputes six oriented face fluxes and the volume integral of `div F`.
 
 Current candidate coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, and **68 independently validated**. Trained-checkpoint benchmarks and mastered topics remain zero. These additions do not imply general Stokes or divergence theorem support.
+
+
+## Phase 2 cumulative integration candidate — 2026-11-28
+
+**Candidate branch:** `phase2/integrated-math-curriculum-2026-11-28`. This branch consolidates the multifield batch and bounded vector-calculus follow-up on top of the curriculum scope audit. It is an integration candidate, not a merge to `main`.
+
+- University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
+- Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
+- Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
+- The integrated PR's exact-head CI is the final validation gate; prior individual batch checks passed, but that does not substitute for combined integration checks.
+
+No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.
