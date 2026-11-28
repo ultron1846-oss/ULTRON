@@ -46,6 +46,10 @@ export function validateProviderDirectory(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new TypeError('Provider directory must be an object.');
   }
+  const rootKeys = ['schema_version', 'purpose', 'providers'];
+  if (Object.keys(value).length !== rootKeys.length || rootKeys.some(key => !Object.hasOwn(value, key))) {
+    throw new TypeError('Provider directory root does not match schema version 1.');
+  }
   if (value.schema_version !== 1) throw new TypeError('Unsupported provider directory schema version.');
   if (typeof value.purpose !== 'string' || value.purpose.length > 300) {
     throw new TypeError('Provider directory purpose is invalid.');
