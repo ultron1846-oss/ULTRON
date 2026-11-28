@@ -252,6 +252,6 @@ test('resource slider is identified as a requested GiB preference and never a gu
   assert.match(app, /Requested workload memory budget/);
   assert.match(app, /aria-valuetext/);
   assert.match(app, /does not reserve physical RAM/);
-  assert.match(app, /does not allocate device RAM/);
+  assert.match(app, /does not reserve physical RAM/);
   assert.doesNotMatch(app, /guaranteed physical memory limit/);
 });
