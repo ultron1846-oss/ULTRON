@@ -361,6 +361,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
     report = {
         "schema_version": 1,
         "report_type": "ultron_dataset_quality_audit",
+        "resource_limits": dict(vars(resource_limits)),
         "dataset_manifest_sha256": verified.dataset_sha256,
         "split_manifest_sha256": verified.split_manifest_sha256,
         "source_dataset_example_count": verified.dataset_example_count,
@@ -422,12 +423,31 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", required=True, type=Path)
     parser.add_argument("--split-manifest", required=True, type=Path)
+    defaults = DatasetResourceLimits()
+    parser.add_argument("--max-dataset-bytes", type=int, default=defaults.max_dataset_bytes)
+    parser.add_argument("--max-rows", type=int, default=defaults.max_rows)
+    parser.add_argument("--max-line-bytes", type=int, default=defaults.max_line_bytes)
+    parser.add_argument("--max-split-manifest-bytes", type=int, default=defaults.max_split_manifest_bytes)
+    parser.add_argument("--max-index-bytes", type=int, default=defaults.max_index_bytes)
+    parser.add_argument("--max-temporary-bytes", type=int, default=defaults.max_temporary_bytes)
+    parser.add_argument("--sqlite-cache-kib", type=int, default=defaults.sqlite_cache_kib)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.output:
         sidecar = args.dataset.with_suffix(args.dataset.suffix + ".manifest.json")
         _reject_output_aliases(args.output, (args.dataset, args.split_manifest, sidecar))
-    report = audit_dataset_quality(args.dataset, args.split_manifest)
+    resource_limits = DatasetResourceLimits(
+        max_dataset_bytes=args.max_dataset_bytes,
+        max_rows=args.max_rows,
+        max_line_bytes=args.max_line_bytes,
+        max_split_manifest_bytes=args.max_split_manifest_bytes,
+        max_index_bytes=args.max_index_bytes,
+        max_temporary_bytes=args.max_temporary_bytes,
+        sqlite_cache_kib=args.sqlite_cache_kib,
+    )
+    report = audit_dataset_quality(
+        args.dataset, args.split_manifest, resource_limits=resource_limits
+    )
     rendered = json.dumps(report, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
     if args.output:
         destination = args.output.expanduser()
