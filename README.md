@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-28 — curriculum-scope expansion in PR #213, stacked on PR #212; not merged.**
+**Status snapshot: 2026-11-28 — integrated Phase 2 candidate on `phase2/integrated-math-curriculum-2026-11-28`; 218 university topics, 71 bounded generators, combined validation pending; not merged.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -535,3 +535,55 @@ These are registry/evidence counts, not ULTRON model capability. No training, op
 | Security and dependency audit | [46140323947](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323947) | Passed |
 
 These runs are all attached to the exact PR #213 head above. No local test execution is claimed. No ULTRON training, optimizer update, or corpus generation was performed.
+
+
+## Phase 2 multifield expansion — batch 9
+
+**Implementation branch:** `phase2/curriculum-multifield-batch-9-2026-11-28`  
+**Proposed PR:** #214, based on PR #213's reviewed source head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`. Exact-head CI is pending for this branch.
+
+Five bounded families have been added with dedicated validators and 500-seed independent regression tests:
+
+- Polynomial vector-field line integrals along straight segments, total degree at most two, with orientation-reversal checks.
+- Quadratic-polynomial double integrals over rational rectangles, with independent Fubini-order and rectangle-additivity checks.
+- Affine solutions of constant-coefficient first-order transport PDEs, checked by partial derivatives, PDE residual, and a point condition.
+- Exact binomial probabilities, checked by PMF normalization, expected value, and variance.
+- Finite connected simple graphs, checked by independent adjacency traversal, degree recomputation, and the handshaking identity.
+
+Current candidate coverage: **216 university topics**, **69 generator-available**, **147 not implemented**; **269 combined entries**, **122 generator-available**, **71 independently validated**; **216 prerequisite nodes and 409 edges**. Benchmarked topics remain **0** and mastered topics remain **0**. These are generator/validation registry counts, not trained-model capability.
+
+
+### PR #213 exact-head CI reference
+
+PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f` passed:
+- Node Tests: [46140599342](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599342)
+- Python AI Core: [46140599348](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599348)
+- Level 1 Math Tooling: [46140599474](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599474)
+- Security/dependency audit: [46140599346](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599346)
+
+The Python workflow used a CPU forward/backward smoke only and did not perform an optimizer step.
+
+
+## Phase 2 vector-calculus theorem follow-up — 2026-11-28
+
+**Candidate branch:** `phase2/vector-calculus-theorem-families-2026-11-28`, based on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+This batch adds:
+- `stokes_theorem_horizontal_rectangles`: affine field (F=(P,Q,0)), horizontal axis-aligned rectangle, upward normal, counter-clockwise boundary. Tests independently integrate each boundary edge and compare with the curl surface integral.
+- `divergence_theorem_axis_aligned_boxes`: diagonal linear field (F=(ax,by,cz)) on an axis-aligned rectangular box. Tests independently recompute six outward face fluxes and compare with the volume integral of divergence.
+
+Broad `stokes_theorem` and `divergence_theorem` remain catalogued but unimplemented. Candidate coverage: 213 university topics; 66 generator-available; 147 unimplemented; 213 prerequisite nodes / 401 edges; 266 combined entries; 119 generator-available; 68 independently validated; zero trained-checkpoint benchmarks; zero mastered topics. Exact-head validation is pending.
+
+
+## Phase 2 cumulative integration candidate — 2026-11-28
+
+**Candidate branch:** `phase2/integrated-math-curriculum-2026-11-28`. This branch consolidates the multifield batch and bounded vector-calculus follow-up on top of the curriculum scope audit. It is an integration candidate, not a merge to `main`.
+
+- University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
+- Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
+- Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
+- The integrated PR's exact-head CI is the final validation gate; prior individual batch checks passed, but that does not substitute for combined integration checks.
+
+No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.

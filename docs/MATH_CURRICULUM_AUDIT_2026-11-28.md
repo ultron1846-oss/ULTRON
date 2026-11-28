@@ -23,30 +23,30 @@ The manifest requires named test methods and independent-validator descriptions.
 
 ## 2. University curriculum and prerequisite graph
 
-The university curriculum now contains **211 unique topic IDs across 17 fields**. The original 197-topic count was first increased to 199 by splitting the Green/Stokes/divergence umbrella into three; the ODE split increased it to 202. The current batch raises it to 211 by separating over-broad Taylor, integral, vector-calculus, and complex-analysis scopes and adding one bounded variable-coefficient ODE family.
+The university curriculum now contains **216 unique topic IDs across 17 fields**. The original 197-topic count was first increased to 199 by splitting the Green/Stokes/divergence umbrella into three; the ODE split increased it to 202. The current batch raises it to 211 by separating over-broad Taylor, integral, vector-calculus, and complex-analysis scopes and adding one bounded variable-coefficient ODE family.
 
 | Field | Topics |
 |---|---:|
 | Foundations and logic | 10 |
 | Linear algebra | 16 |
-| Calculus | 26 |
+| Calculus | 28 |
 | Real analysis | 13 |
 | Complex analysis | 12 |
 | Abstract algebra | 12 |
 | Number theory | 10 |
 | Topology | 10 |
-| Discrete mathematics and combinatorics | 12 |
-| Probability | 13 |
+| Discrete mathematics and combinatorics | 13 |
+| Probability | 14 |
 | Statistics | 9 |
-| Differential equations | 16 |
+| Differential equations | 17 |
 | Optimization and operations research | 11 |
 | Numerical and computational mathematics | 11 |
 | Geometry | 9 |
 | Applied mathematics and mathematical physics | 11 |
 | Advanced and interdisciplinary | 10 |
-| **Total** | **211** |
+| **Total** | **216** |
 
-The prerequisite mapping covers all 211 topics and has 397 directed edges. The graph validator checks duplicate IDs, missing mappings, dangling edges, duplicate/self edges, cycles, and prerequisite-first ordering. The Green/Stokes/divergence split increased the previous 366-edge graph to 372; the ODE split adds six more edges (two on the replacement homogeneous family and two each for three unimplemented sibling families).
+The prerequisite mapping covers all 216 topics and has 409 directed edges. The graph validator checks duplicate IDs, missing mappings, dangling edges, duplicate/self edges, cycles, and prerequisite-first ordering. The Green/Stokes/divergence split increased the previous 366-edge graph to 372; the ODE split adds six more edges (two on the replacement homogeneous family and two each for three unimplemented sibling families).
 
 The combined registry now assigns scope-qualified catalog_id values so identically named exercises in different bands do not collide. The raw identifier linear_equations occurs in Core, G7-8, and G8-9; these are separate catalogue entries, not one topic. There are 255 unique scope-qualified IDs and 253 distinct raw topic strings.
 
@@ -190,3 +190,40 @@ PR #213 (`phase2/curriculum-scope-expansion-batch-8-2026-11-28`) exact validated
 | Security and dependency audit | 46140323947 | Passed |
 
 The dedicated affine double-integral validator evidence points to the Fubini/additivity regression test in `tests/python/test_rectangular_double_integral_generator.py`. No training, optimizer step, production corpus generation, or remote job occurred.
+
+
+## 11. Multifield curriculum expansion — batch 9
+
+The next stack adds five bounded topics, with prerequisite edges and evidence metadata:
+
+- `polynomial_vector_field_segment_line_integrals`: polynomial vector fields of total degree at most two integrated along straight segments; orientation reversal is tested.
+- `rectangular_quadratic_polynomial_double_integrals`: exact quadratic polynomial integration over rational rectangles, checked in both Fubini orders and under rectangle splitting.
+- `affine_transport_first_order_PDEs`: affine solutions of (a u_x+b u_y=0), with nonzero rational transport coefficients, exact residual and initial-point validation. This is not a general first-order PDE solver.
+- `binomial_distribution_exact_probabilities`: exact bounded binomial PMFs, with normalization, mean, and variance identities.
+- `finite_simple_graph_handshaking`: bounded connected simple graphs, with independent connectivity/degree recomputation and the handshaking lemma.
+
+The resulting candidate has 216 university topics, 69 generator-available, 147 incomplete; 269 combined entries, 122 generated, 71 independently validated; and 409 prerequisite edges. Zero topics are benchmarked or mastered. No model training or optimizer update was performed. Exact-head CI for the batch 9 PR will be recorded after it runs.
+
+
+## 12. Bounded Stokes and divergence theorem families
+
+The latest follow-up adds two separately identified theorem exercises while preserving the broad theorem rows as incomplete:
+
+- `stokes_theorem_horizontal_rectangles`: affine fields (F=(P,Q,0)) on horizontal axis-aligned rectangles, with upward surface orientation and counter-clockwise boundary traversal. The independent validator recomputes all four boundary-edge integrals and the curl surface integral.
+- `divergence_theorem_axis_aligned_boxes`: diagonal linear fields (F=(ax,by,cz)) on axis-aligned boxes. The independent validator recomputes six oriented face fluxes and the volume integral of `div F`.
+
+Current candidate coverage: **213 university topics**, **66 generator-available**, **147 not implemented**, **213 prerequisite nodes and 401 edges**; **266 combined entries**, **119 generator-available**, and **68 independently validated**. Trained-checkpoint benchmarks and mastered topics remain zero. These additions do not imply general Stokes or divergence theorem support.
+
+
+## Phase 2 cumulative integration candidate — 2026-11-28
+
+**Candidate branch:** `phase2/integrated-math-curriculum-2026-11-28`. This branch consolidates the multifield batch and bounded vector-calculus follow-up on top of the curriculum scope audit. It is an integration candidate, not a merge to `main`.
+
+- University curriculum: **218 topics**, **71 generator-available**, **147 catalogued without a generator** (32.6% generator availability).
+- Combined registry: **271 scope-qualified entries**, **124 generator-available**, **73 independently validated**.
+- Prerequisite graph: **218 nodes / 413 directed edges**; all curriculum topics mapped, and graph acyclicity, edge validity, and duplicate checks are required by the audit.
+- Trained-checkpoint benchmarks: **0**. Mastered topics: **0**.
+- Broad parent topics remain incomplete where only a bounded subfamily exists. Each bounded family has its own scope-specific topic identifier.
+- The integrated PR's exact-head CI is the final validation gate; prior individual batch checks passed, but that does not substitute for combined integration checks.
+
+No model training, optimizer step on ULTRON weights, production corpus generation/download, remote training, external AI API, Pages deployment, Supabase mutation, or weight publication was performed.
