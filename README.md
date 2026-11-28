@@ -1,6 +1,6 @@
 # ULTRON — Mathematics Intelligence Workspace
 
-**Status snapshot: 2026-11-28 — curriculum-scope expansion in PR #213, stacked on PR #212; not merged.**
+**Status snapshot: 2026-11-28 — multifield mathematics expansion in proposed PR #214, stacked on PR #213; not merged.**
 
 ULTRON is an independent mathematics-learning and reasoning project. Its deterministic tools, generators, and model architecture are development infrastructure—not evidence of a trained general-purpose mathematics model.
 
@@ -535,3 +535,30 @@ These are registry/evidence counts, not ULTRON model capability. No training, op
 | Security and dependency audit | [46140323947](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323947) | Passed |
 
 These runs are all attached to the exact PR #213 head above. No local test execution is claimed. No ULTRON training, optimizer update, or corpus generation was performed.
+
+
+## Phase 2 multifield expansion — batch 9
+
+**Implementation branch:** `phase2/curriculum-multifield-batch-9-2026-11-28`  
+**Proposed PR:** #214, based on PR #213's reviewed source head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`. Exact-head CI is pending for this branch.
+
+Five bounded families have been added with dedicated validators and 500-seed independent regression tests:
+
+- Polynomial vector-field line integrals along straight segments, total degree at most two, with orientation-reversal checks.
+- Quadratic-polynomial double integrals over rational rectangles, with independent Fubini-order and rectangle-additivity checks.
+- Affine solutions of constant-coefficient first-order transport PDEs, checked by partial derivatives, PDE residual, and a point condition.
+- Exact binomial probabilities, checked by PMF normalization, expected value, and variance.
+- Finite connected simple graphs, checked by independent adjacency traversal, degree recomputation, and the handshaking identity.
+
+Current candidate coverage: **216 university topics**, **69 generator-available**, **147 not implemented**; **269 combined entries**, **122 generator-available**, **71 independently validated**; **216 prerequisite nodes and 409 edges**. Benchmarked topics remain **0** and mastered topics remain **0**. These are generator/validation registry counts, not trained-model capability.
+
+
+### PR #213 exact-head CI reference
+
+PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f` passed:
+- Node Tests: [46140599342](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599342)
+- Python AI Core: [46140599348](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599348)
+- Level 1 Math Tooling: [46140599474](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599474)
+- Security/dependency audit: [46140599346](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140599346)
+
+The Python workflow used a CPU forward/backward smoke only and did not perform an optimizer step.

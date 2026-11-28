@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "coverage_through": "Core + G1-12 + 211-topic university mathematics curriculum; scoped IDs and explicit evidence states",
+  "coverage_through": "Core + G1-12 + 216-topic university mathematics curriculum; scoped IDs and explicit evidence states",
   "topics": [
     {
       "catalog_id": "core:arithmetic",
@@ -951,6 +951,16 @@
       "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:rectangular_quadratic_polynomial_double_integrals",
+      "topic": "rectangular_quadratic_polynomial_double_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
       "catalog_id": "university:change_of_variables",
       "topic": "change_of_variables",
       "grade_band": "University",
@@ -983,6 +993,16 @@
     {
       "catalog_id": "university:constant_vector_field_segment_line_integrals",
       "topic": "constant_vector_field_segment_line_integrals",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:polynomial_vector_field_segment_line_integrals",
+      "topic": "polynomial_vector_field_segment_line_integrals",
       "grade_band": "University",
       "word_problems": false,
       "status": "generator_available_not_mastered",
@@ -1701,6 +1721,16 @@
       "mastery_status": "not_mastered"
     },
     {
+      "catalog_id": "university:finite_simple_graph_handshaking",
+      "topic": "finite_simple_graph_handshaking",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
       "catalog_id": "university:trees_and_spanning_trees",
       "topic": "trees_and_spanning_trees",
       "grade_band": "University",
@@ -1797,6 +1827,16 @@
       "word_problems": false,
       "status": "catalogued_not_implemented",
       "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:binomial_distribution_exact_probabilities",
+      "topic": "binomial_distribution_exact_probabilities",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },
@@ -2127,6 +2167,16 @@
       "word_problems": false,
       "status": "catalogued_not_implemented",
       "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:affine_transport_first_order_PDEs",
+      "topic": "affine_transport_first_order_PDEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"
     },

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 211,
+  "topic_count": 216,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -289,6 +289,13 @@
       "generator_topic": "rectangular_linear_polynomial_double_integrals"
     },
     {
+      "topic": "rectangular_quadratic_polynomial_double_integrals",
+      "title": "quadratic-polynomial double integrals over rectangles",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "rectangular_quadratic_polynomial_double_integrals"
+    },
+    {
       "topic": "change_of_variables",
       "title": "change of variables",
       "field": "Calculus",
@@ -313,6 +320,13 @@
       "field": "Calculus",
       "status": "generator_available_not_mastered",
       "generator_topic": "constant_vector_field_segment_line_integrals"
+    },
+    {
+      "topic": "polynomial_vector_field_segment_line_integrals",
+      "title": "polynomial vector-field line integrals on straight segments",
+      "field": "Calculus",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "polynomial_vector_field_segment_line_integrals"
     },
     {
       "topic": "surface_integrals",
@@ -757,6 +771,13 @@
       "status": "catalogued_not_implemented"
     },
     {
+      "topic": "finite_simple_graph_handshaking",
+      "title": "finite simple graph degree sequences and handshaking",
+      "field": "Discrete mathematics and combinatorics",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "finite_simple_graph_handshaking"
+    },
+    {
       "topic": "trees_and_spanning_trees",
       "title": "trees and spanning trees",
       "field": "Discrete mathematics and combinatorics",
@@ -817,6 +838,13 @@
       "title": "discrete distributions",
       "field": "Probability",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "binomial_distribution_exact_probabilities",
+      "title": "exact binomial distribution probabilities",
+      "field": "Probability",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "binomial_distribution_exact_probabilities"
     },
     {
       "topic": "continuous_distributions",
@@ -1018,6 +1046,13 @@
       "title": "characteristics PDE",
       "field": "Differential equations",
       "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "affine_transport_first_order_PDEs",
+      "title": "affine solutions of constant-coefficient first-order transport PDEs",
+      "field": "Differential equations",
+      "status": "generator_available_not_mastered",
+      "generator_topic": "affine_transport_first_order_PDEs"
     },
     {
       "topic": "convex_sets_and_functions",

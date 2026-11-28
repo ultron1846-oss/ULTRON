@@ -190,7 +190,12 @@ class UniversityFoundationTests(unittest.TestCase):
         import json
         payload=json.loads(registry)
         rows={x["topic"]:x for x in payload["topics"]}
-        self.assertEqual(len(rows),211)
+        self.assertEqual(len(rows),216)
+        self.assertTrue(rows["polynomial_vector_field_segment_line_integrals"]["has_generator"])
+        self.assertTrue(rows["rectangular_quadratic_polynomial_double_integrals"]["has_generator"])
+        self.assertTrue(rows["affine_transport_first_order_PDEs"]["has_generator"])
+        self.assertTrue(rows["binomial_distribution_exact_probabilities"]["has_generator"])
+        self.assertTrue(rows["finite_simple_graph_handshaking"]["has_generator"])
         self.assertFalse(rows["Taylor_series"]["has_generator"])
         self.assertTrue(rows["quadratic_Taylor_polynomials"]["has_generator"])
         self.assertFalse(rows["multiple_integrals"]["has_generator"])

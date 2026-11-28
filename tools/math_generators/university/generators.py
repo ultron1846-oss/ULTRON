@@ -16,6 +16,11 @@ from .ode_separable import TOPIC as SEPARABLE_ODE_TOPIC, MAX_SEED as MAX_SEPARAB
 from .rectangular_double_integrals import TOPIC as RECTANGULAR_DOUBLE_INTEGRAL_TOPIC, build_rectangular_double_integral_fields, verify_rectangular_double_integral
 from .complex_arithmetic import TOPIC as COMPLEX_ARITHMETIC_TOPIC, build_complex_arithmetic_fields, verify_complex_arithmetic
 from .ode_variable_coefficient import TOPIC as VARIABLE_COEFFICIENT_ODE_TOPIC, build_variable_coefficient_ode_fields, verify_variable_coefficient_ode
+from .polynomial_line_integrals import TOPIC as POLYNOMIAL_LINE_INTEGRAL_TOPIC, build_polynomial_line_integral_fields, verify_polynomial_line_integral
+from .quadratic_double_integrals import TOPIC as QUADRATIC_DOUBLE_INTEGRAL_TOPIC, build_quadratic_double_integral_fields, verify_quadratic_double_integral
+from .affine_transport_pde import TOPIC as AFFINE_TRANSPORT_PDE_TOPIC, build_affine_transport_pde_fields, verify_affine_transport_pde
+from .binomial_probability import TOPIC as BINOMIAL_PROBABILITY_TOPIC, build_binomial_probability_fields, verify_binomial_probability
+from .finite_graph import TOPIC as FINITE_GRAPH_TOPIC, build_finite_graph_fields, verify_finite_graph
 
 BANDS = {
     "linear_algebra": "University",
@@ -25,6 +30,11 @@ BANDS = {
     RECTANGULAR_DOUBLE_INTEGRAL_TOPIC: "University",
     COMPLEX_ARITHMETIC_TOPIC: "University",
     VARIABLE_COEFFICIENT_ODE_TOPIC: "University",
+    POLYNOMIAL_LINE_INTEGRAL_TOPIC: "University",
+    QUADRATIC_DOUBLE_INTEGRAL_TOPIC: "University",
+    AFFINE_TRANSPORT_PDE_TOPIC: "University",
+    BINOMIAL_PROBABILITY_TOPIC: "University",
+    FINITE_GRAPH_TOPIC: "University",
     "discrete_mathematics": "University",
     "abstract_algebra": "University",
     "optimization": "University",
@@ -93,6 +103,16 @@ def _build(topic: str, rng: random.Random, difficulty: int):
         return build_complex_arithmetic_fields(rng, difficulty)
     if topic == VARIABLE_COEFFICIENT_ODE_TOPIC:
         return build_variable_coefficient_ode_fields(rng, difficulty)
+    if topic == POLYNOMIAL_LINE_INTEGRAL_TOPIC:
+        return build_polynomial_line_integral_fields(rng, difficulty)
+    if topic == QUADRATIC_DOUBLE_INTEGRAL_TOPIC:
+        return build_quadratic_double_integral_fields(rng, difficulty)
+    if topic == AFFINE_TRANSPORT_PDE_TOPIC:
+        return build_affine_transport_pde_fields(rng, difficulty)
+    if topic == BINOMIAL_PROBABILITY_TOPIC:
+        return build_binomial_probability_fields(rng, difficulty)
+    if topic == FINITE_GRAPH_TOPIC:
+        return build_finite_graph_fields(rng, difficulty)
     if topic in EXTENDED_BANDS:
         return build_extended(topic, rng, difficulty)
     n = lambda lo, hi: rng.randint(lo, hi)
@@ -529,6 +549,16 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
         raise ArithmeticError("independent complex-arithmetic verification failed")
     if topic == VARIABLE_COEFFICIENT_ODE_TOPIC and not verify_variable_coefficient_ode(fields):
         raise ArithmeticError("independent variable-coefficient ODE verification failed")
+    if topic == POLYNOMIAL_LINE_INTEGRAL_TOPIC and not verify_polynomial_line_integral(fields):
+        raise ArithmeticError("independent polynomial line-integral verification failed")
+    if topic == QUADRATIC_DOUBLE_INTEGRAL_TOPIC and not verify_quadratic_double_integral(fields):
+        raise ArithmeticError("independent quadratic double-integral verification failed")
+    if topic == AFFINE_TRANSPORT_PDE_TOPIC and not verify_affine_transport_pde(fields):
+        raise ArithmeticError("independent affine transport PDE verification failed")
+    if topic == BINOMIAL_PROBABILITY_TOPIC and not verify_binomial_probability(fields):
+        raise ArithmeticError("independent binomial probability verification failed")
+    if topic == FINITE_GRAPH_TOPIC and not verify_finite_graph(fields):
+        raise ArithmeticError("independent finite graph verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!={k:v for k,v in fields.items() if k not in ("id","seed")}:
         raise ArithmeticError("deterministic replay failed")
@@ -548,6 +578,16 @@ def verify(problem: dict) -> bool:
         return verify_complex_arithmetic(problem)
     if isinstance(problem, dict) and problem.get("topic") == VARIABLE_COEFFICIENT_ODE_TOPIC:
         return verify_variable_coefficient_ode(problem)
+    if isinstance(problem, dict) and problem.get("topic") == POLYNOMIAL_LINE_INTEGRAL_TOPIC:
+        return verify_polynomial_line_integral(problem)
+    if isinstance(problem, dict) and problem.get("topic") == QUADRATIC_DOUBLE_INTEGRAL_TOPIC:
+        return verify_quadratic_double_integral(problem)
+    if isinstance(problem, dict) and problem.get("topic") == AFFINE_TRANSPORT_PDE_TOPIC:
+        return verify_affine_transport_pde(problem)
+    if isinstance(problem, dict) and problem.get("topic") == BINOMIAL_PROBABILITY_TOPIC:
+        return verify_binomial_probability(problem)
+    if isinstance(problem, dict) and problem.get("topic") == FINITE_GRAPH_TOPIC:
+        return verify_finite_graph(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):

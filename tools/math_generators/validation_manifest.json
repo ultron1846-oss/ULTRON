@@ -462,6 +462,41 @@
         "test": "test_500_seeded_log_derivative_and_initial_value",
         "validator": "Independent exact check that the exponent derivative gives y'/y=-a*x^m and the exponent vanishes at the initial point."
       }
+    ],
+    "university:polynomial_vector_field_segment_line_integrals": [
+      {
+        "path": "tests/python/test_polynomial_segment_line_integral.py",
+        "test": "test_500_seeded_exact_integrals_and_orientation_reversal",
+        "validator": "Independent exact parameterization and polynomial expansion; reverse orientation negates the line integral."
+      }
+    ],
+    "university:rectangular_quadratic_polynomial_double_integrals": [
+      {
+        "path": "tests/python/test_quadratic_double_integral_generator.py",
+        "test": "test_500_seeded_exact_fubini_recomputation",
+        "validator": "Independent exact power-antiderivative integration in both Fubini orders; rectangle additivity test."
+      }
+    ],
+    "university:affine_transport_first_order_PDEs": [
+      {
+        "path": "tests/python/test_affine_transport_pde.py",
+        "test": "test_500_seeded_pde_residual_and_initial_condition",
+        "validator": "Independent partial derivative recomputation, exact PDE residual a*u_x+b*u_y=0, and initial-value substitution."
+      }
+    ],
+    "university:binomial_distribution_exact_probabilities": [
+      {
+        "path": "tests/python/test_binomial_probability_generator.py",
+        "test": "test_500_seeded_pmf_normalization_mean_and_variance",
+        "validator": "Independent exact binomial PMF recomputation, normalization, expectation, and variance identities."
+      }
+    ],
+    "university:finite_simple_graph_handshaking": [
+      {
+        "path": "tests/python/test_finite_simple_graph_generator.py",
+        "test": "test_500_seeded_graphs_handshaking_and_connectivity",
+        "validator": "Independent graph adjacency traversal and degree recomputation; simple connected graph invariants and handshaking lemma."
+      }
     ]
   },
   "benchmarked": [],

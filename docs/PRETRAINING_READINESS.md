@@ -266,3 +266,12 @@ No model training, optimizer step, production corpus generation/download, extern
 
 
 Batch 8 exact-head CI is recorded in README.md and docs/MATH_CURRICULUM_AUDIT_2026-11-28.md. The PR remains a stacked review candidate; it has not been merged.
+
+
+## Multifield curriculum batch 9 — 2026-11-28
+
+Candidate branch: `phase2/curriculum-multifield-batch-9-2026-11-28`, stacked on PR #213 head `efcadcacd459f7a2049d2247ac1dfbf91dcf187f`.
+
+Five bounded families cover polynomial segment line integrals, quadratic rectangular double integrals, affine transport PDEs, exact binomial distributions, and finite simple-graph handshaking. Each has a dedicated independent validator and a 500-seed regression test. Topic status remains subfamily-specific; broad solver claims are not made.
+
+Current candidate metadata: **216 university topics / 69 generated / 147 incomplete**, **269 combined entries / 122 generated / 71 independently validated**, **216 prerequisite nodes / 409 edges**, **0 benchmarked**, **0 mastered**. PR #213 exact-head CI passed all four workflows (see README). Batch 9 CI is pending. No training, optimizer step, corpus generation/download, remote job, deployment, external AI API, Supabase mutation, or weight publication was performed.
