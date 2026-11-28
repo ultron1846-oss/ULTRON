@@ -193,3 +193,33 @@ call external AI APIs, or run cloud/remote training. New compression
 regressions use fixed-seed small CPU models. The foundation model count
 implementation and configuration are unchanged. No website, Supabase,
 authentication, or GitHub Pages files are part of this change.
+
+
+## Reconstructing a compressed deployment artifact
+
+`load_compressed_model_artifact(path, parent_model, parent_checkpoint_id=...)`
+validates the immutable artifact, verifies the supplied parent checkpoint identifier,
+replays its ordered transformation recipe on a copy of the parent model, checks the
+resulting configuration, and strictly loads the integrity-checked compressed state.
+The supplied parent model is never modified.
+
+The artifact stores layer paths for optional quantization sensitivity inputs, not
+the calibration tensors themselves. Those tensors affect sensitivity reporting,
+not the quantized weights, so they are not needed for reconstruction. This loader
+does not claim quality, speed, or memory improvements; the caller must supply the
+correct parent checkpoint and validate the deployment artifact in its target
+runtime.
+
+
+## Artifact validation, size accounting, and inference integration
+
+The Prompt 4 validation adds:
+- Artifact loader errors for unreadable/truncated files and explicit rejection of unsupported format versions. Existing SHA-256 state verification rejects tensor tampering.
+- Round-trip tests that replay the recorded recipe, strictly restore the compressed state, and compare every tensor plus deterministic forward outputs.
+- Pipeline size accounting: logical bytes summed from state-dict tensors before/after transformations, the actual serialized artifact file size, tensor compression ratio, tensor-size reduction fraction, and artifact-file-to-source-tensor ratio. The report labels these measurements explicitly; they are not RSS, device-memory, storage-quota, or speed measurements.
+- Numerical checks for maximum absolute and relative L2 forward-output error on fixed initialized test inputs. These are reproducible smoke measurements only.
+- `load_compressed_inference_engine` loads the parent checkpoint through the verified checkpoint loader, replays and restores the deployment artifact, and exposes it through the same bounded inference API.
+
+An `ultron.compressed-model` artifact is not itself a training checkpoint and must not be passed directly to `load_checkpoint`. Supply its verified parent checkpoint and the artifact's expected `parent_checkpoint_id` to the compressed inference entry point. The parent is copied and remains unchanged.
+
+All validation in this campaign uses small initialized test models. Low-rank/quantization error measured on random weights does not establish preservation of learned distributions, mathematical accuracy, reasoning, proofs, or generalization. Simulated int8 remains dequantized floating-point storage, not a packed-int8 deployment runtime. No model-quality, actual memory-savings, or latency claims are made.
