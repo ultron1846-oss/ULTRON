@@ -47,8 +47,8 @@ class VerifiedDatasetTests(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    data,split,_=self.setup_data(Path(d))
    original=split_module.verify_dataset
-   def verify_then_mutate(path):
-    manifest=original(path)
+   def verify_then_mutate(path, **kwargs):
+    manifest=original(path, **kwargs)
     raw=Path(path).read_bytes()
     raw=raw.replace(b"temporary unit-test fixture",b"Temporary unit-test fixture",1)
     Path(path).write_bytes(raw)
