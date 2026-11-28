@@ -61,3 +61,21 @@ The candidate regression set adds:
 - deterministic quality-report replay, answer rechecking and dataset mutation detection during the audit read pass.
 
 The 12,000-row test and fixture benchmarks are correctness/stress evidence only. No measured numbers are presented as production RSS, native SQLite memory, device-memory behavior or free-tier service capacity. The actual quality report and benchmark must be run against an owner-supplied, already-existing dataset before any production performance or distribution claim is made.
+
+
+## Phase 3 measured 12,000-row synthetic fixture — 2026-11-28
+
+The corrected implementation revision `9ac499eeacef0fe9d2b6d3c4e6340f80adb3ecb6` emitted a measured benchmark summary from Python AI Core CI run [#46149042002](https://github.com/ultron1846-oss/ULTRON/actions/runs/46149042002), job `140991331930`. Conditions: GitHub-hosted Ubuntu 26.04.1, Python 3.11.18, SQLite 3.46.1; 12,000 synthetic fixture rows, all 12,000 selected, 64 seeded random reads.
+
+| Metric | Result |
+|---|---:|
+| Snapshot bytes | 4,540,482 |
+| SQLite index bytes | 6,291,456 |
+| Index build | 6.090728 s |
+| Sequential scan | 0.659112 s |
+| Sequential throughput | 18,206.30 rows/s |
+| Random-read median | 0.112571 ms |
+| Random-read p95 | 0.145643 ms |
+| Python tracemalloc peak | 33,576,795 bytes |
+
+The benchmark did not modify its input, generate data itself, train, or step an optimizer. The temporary test fixture was synthetic and was created only inside CI. The `tracemalloc` measurement excludes native SQLite allocations, PyTorch tensors, process RSS, operating-system page cache and device memory. This is not a complete RAM measurement or an eager-loader speedup comparison. See [the full Phase 3 benchmark report](PHASE3_DATASET_BENCHMARK_REPORT_2026-11-28.md) for validation commands, runner conditions and limitations.
