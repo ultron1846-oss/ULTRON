@@ -21,11 +21,11 @@ The report is deterministic for identical verified input bytes and uses canonica
 | Lexical template signature | Normalize prompt then replace integer/rational literals with <num> | Diagnostic only; broad templates are expected to repeat |
 | Semantic near-duplicate | No validated semantic-equivalence engine exists for all mixed-topic tasks | Explicitly not_assessed; owner review required |
 
-The template signature is deliberately lexical. It is not structural algebraic normalization, symbolic equivalence, or semantic similarity. The audit must not label lexical collisions as semantic duplicates.
+The template signature is deliberately lexical. It is not structural algebraic normalization, symbolic equivalence, or semantic similarity. No defensible whole-corpus structural or semantic near-duplicate method is currently implemented, so those classes are explicitly unassessed rather than approximated by the lexical signature. The audit must not label lexical collisions as semantic duplicates.
 
 ## 3. Reference-answer and solvability checks
 
-The semantic dataset verifier checks each supported row using the exact per-topic validator and checks that target_text equals exact_answer. The quality audit re-runs the same exact reference validator and reports rows rechecked and invalid answers.
+The semantic dataset verifier checks each supported row using the exact per-topic validator and checks that target_text equals exact_answer. The quality audit re-runs the same exact reference validator and reports rows rechecked and invalid answers. Existing deterministic positive/negative tests exercise the eight currently supported topic grammars (arithmetic, rational arithmetic, linear equations, polynomial derivatives, polynomial definite integrals, 2x2 determinants, 2x2 inverses and 2x2 linear systems). Each newly added generator family must bring a separate seed/difficulty replay test and an independent mathematical invariant or exact reference calculation; it cannot inherit a quality claim merely by appearing in a registry.
 
 This establishes agreement with the current validator implementation for the supported generator grammar; it does not prove the verifier code is formally sound, establish correctness for unsupported topics, or prove that a human understands every problem statement. Independent per-generator tests should separately recompute mathematical invariants from ingredients, and any generator not covered by those tests must not be described as independently validated.
 
@@ -38,7 +38,8 @@ The v1 audit reports pairwise train/validation/test overlaps for:
 - normalized prompt hashes;
 - normalized answer hashes;
 - lexical template signatures;
-- generator-ingredient hashes.
+- generator-ingredient hashes;
+- dataset-generation seed values (reported as a reuse diagnostic, not an automatic leakage failure).
 
 Prompt-group split separation and ingredient overlap are integrity gates. Shared answer values and broad template signatures are diagnostic findings, not automatic leakage conclusions: independent questions can share an answer or template. Seed-use counts are reported per split and shared seed values are exposed as a diagnostic. A single dataset-wide seed appearing in every split is expected under schema v1; it is not, by itself, sample-level leakage. Repeated full ingredients are detected by canonical ingredient hashes.
 
@@ -52,7 +53,7 @@ The report emits, for each split:
 - topic counts and number of topics represented;
 - difficulty counts and observed difficulty levels;
 - answer-format counts (integer, rational, matrix, assignment_pair, symbolic_or_polynomial, other);
-- unique seed count;
+- unique seed count and per-seed use counts;
 - highest-frequency lexical template per topic and its share.
 
 These are descriptive distributions. The current generator does not define a calibrated cross-topic difficulty scale. Counts must not be interpreted as equivalent difficulty across topics. No universal balance threshold is asserted; future acceptance thresholds must be topic-specific and justified by coverage goals.
@@ -61,7 +62,7 @@ These are descriptive distributions. The current generator does not define a cal
 
 The current JSONL v1 row schema has no prerequisite identifiers, explicit boundary/adversarial-case annotation, or per-case validation class. Prerequisite coverage is therefore reported as `not_assessed`; topic counts are not used as a substitute for prerequisite coverage. To assess it, a future schema must bind topic IDs to the versioned curriculum prerequisite graph and report both direct-node coverage and prerequisite-closure coverage by split.
 
-Boundary coverage is also not currently measurable: The report therefore returns not_annotated_in_schema_v1 and a count of zero rather than infer boundary coverage from extreme numeric values. A future version should record the generator family, named boundary category, parameter constraints and expected validator behavior, then independently test valid boundary and rejected out-of-domain cases.
+Boundary coverage is also not currently measurable. The report therefore returns not_annotated_in_schema_v1 and a count of zero rather than infer boundary coverage from extreme numeric values. A future version should record the generator family, named boundary category, parameter constraints and expected validator behavior, then independently test valid boundary and rejected out-of-domain cases.
 
 ## 7. Reproducibility evidence
 
