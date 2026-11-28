@@ -59,3 +59,8 @@ The test controller's optimizer-step assertions use a mock model with meta-devic
 **Exact next engineering task:** implement an independently validated, bounded exact-rational Green's theorem generator tranche for the missing `Green_stokes_divergence_theorems` topic; validate counter-clockwise line integral against curl double integral over rational rectangles; add deterministic/tamper/orientation/resource-bound tests and synchronize the registry. Do not claim Stokes or divergence coverage. No production corpus, optimizer step, training or remote compute.
 
 Training remains a separate phase and is not authorized.
+
+
+## Conflict-resolution integration update — 2026-11-28
+
+PR #207 was reconciled against current `main` commit `0d62a59433398d254f947ef9a9f8a5cb48b08ff3`. The updated integration commit before this documentation refresh was `3b4cccd18f434ccb58b5f016e22c5101fc9427bc`; 127 changed paths were carried forward, and six overlapping files were merged using the PR base, current main, and PR head. Phase 3 dataset work from #220 and checkpoint/evaluation work from #204 remain in the parent tree. Fresh exact-head checks: Node Tests passed; Level 1 Math Tooling passed; Security/dependency audit passed; Python AI Core was still running at the last check. Merge is gated on the final Python result. No ULTRON training or optimizer step was performed.
