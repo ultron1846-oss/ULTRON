@@ -15,8 +15,8 @@ import sqlite3
 import tempfile
 
 from .data_generation import validate_example_text
+from .dataset_resource_limits import DatasetResourceLimits
 from .dataset_split_manifest import (
-    _MAX_LINE_BYTES,
     _read_bound_split_payload,
     _strict_object,
     validate_dataset_split_manifest,
@@ -85,14 +85,25 @@ def _reject_output_aliases(output_path: Path, input_paths: tuple[Path, ...]) -> 
                 raise ValueError("quality report output must not overwrite an input or dataset sidecar")
 
 
-def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
+def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=None) -> dict:
     """Audit an existing dataset and frozen split manifest without modifying either."""
+    resource_limits = resource_limits or DatasetResourceLimits()
+    if not isinstance(resource_limits, DatasetResourceLimits):
+        raise TypeError("resource_limits must be DatasetResourceLimits")
     dataset = Path(dataset_path).expanduser()
     split_path = Path(split_manifest_path).expanduser()
     dataset_sidecar = dataset.with_suffix(dataset.suffix + ".manifest.json")
 
-    verified = validate_dataset_split_manifest(dataset, split_path)
-    split_payload = _read_bound_split_payload(split_path, verified)
+    verified = validate_dataset_split_manifest(
+        dataset, split_path, resource_limits=resource_limits
+    )
+    split_payload = _read_bound_split_payload(
+        split_path, verified, resource_limits=resource_limits
+    )
+    try:
+        before = dataset.stat()
+    except OSError as exc:
+        raise ValueError("dataset is missing or inaccessible before quality audit") from exc
 
     topic_counts = {name: Counter() for name in ("train", "validation", "test")}
     difficulty_counts = {name: Counter() for name in ("train", "validation", "test")}
@@ -113,7 +124,15 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
         connection = sqlite3.connect(db_path)
         try:
             connection.execute("PRAGMA temp_store=FILE")
-            connection.execute("PRAGMA cache_size=-1024")
+            connection.execute(f"PRAGMA cache_size=-{resource_limits.sqlite_cache_kib}")
+            page_size = int(connection.execute("PRAGMA page_size").fetchone()[0])
+            index_budget = min(
+                resource_limits.max_index_bytes,
+                resource_limits.max_temporary_bytes,
+            )
+            if index_budget < page_size:
+                raise ValueError("quality-index temporary budget cannot hold one SQLite page")
+            connection.execute(f"PRAGMA max_page_count={index_budget // page_size}")
             connection.execute("CREATE TABLE selected_ids (example_id TEXT PRIMARY KEY, split_name TEXT NOT NULL) WITHOUT ROWID")
             for split_name in ("train", "validation", "test"):
                 connection.executemany(
@@ -131,15 +150,23 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
                     "PRIMARY KEY(value_hash, split_name)) WITHOUT ROWID"
                 )
 
+            digest = hashlib.sha256()
+            bytes_seen = 0
             try:
                 with dataset.open("rb") as stream:
                     while True:
-                        line = stream.readline(_MAX_LINE_BYTES + 1)
+                        line = stream.readline(resource_limits.max_line_bytes + 1)
                         if not line:
                             break
                         rows_seen += 1
-                        if len(line) > _MAX_LINE_BYTES or not line.endswith(b"\n"):
-                            raise ValueError("dataset row exceeds the verified line boundary")
+                        if rows_seen > resource_limits.max_rows:
+                            raise ValueError("dataset exceeds configured max_rows during quality audit")
+                        if len(line) > resource_limits.max_line_bytes or not line.endswith(b"\n"):
+                            raise ValueError("dataset row exceeds configured max_line_bytes during quality audit")
+                        bytes_seen += len(line)
+                        if bytes_seen > resource_limits.max_dataset_bytes:
+                            raise ValueError("dataset exceeds configured max_dataset_bytes during quality audit")
+                        digest.update(line)
                         try:
                             row = json.loads(
                                 line[:-1].decode("utf-8"), object_pairs_hook=_strict_object
@@ -226,8 +253,22 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
                 raise ValueError("dataset could not be read during quality audit") from exc
 
             connection.commit()
+            try:
+                after = dataset.stat()
+            except OSError as exc:
+                raise ValueError("dataset changed during quality audit") from exc
+            if (
+                bytes_seen != before.st_size
+                or after.st_size != before.st_size
+                or after.st_mtime_ns != before.st_mtime_ns
+                or digest.hexdigest() != verified.dataset_sha256
+            ):
+                raise ValueError("dataset changed during quality audit")
             if rows_seen != verified.dataset_example_count:
                 raise ValueError("dataset row count changed during quality audit")
+            index_bytes = db_path.stat().st_size
+            if index_bytes > resource_limits.max_index_bytes or index_bytes > resource_limits.max_temporary_bytes:
+                raise ValueError("quality index exceeds configured disk budget")
 
             pair_names = (("train", "validation"), ("train", "test"), ("validation", "test"))
             pairwise = {}
