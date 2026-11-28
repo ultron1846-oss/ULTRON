@@ -139,6 +139,14 @@ def _derive_split_ids(dataset_path, seed, val, test, *, resource_limits=None):
             connection.execute(f"PRAGMA cache_size=-{resource_limits.sqlite_cache_kib}")
             connection.execute("PRAGMA journal_mode=OFF")
             connection.execute("PRAGMA synchronous=OFF")
+            page_size = int(connection.execute("PRAGMA page_size").fetchone()[0])
+            index_budget = min(
+                resource_limits.max_index_bytes,
+                resource_limits.max_temporary_bytes,
+            )
+            if index_budget < page_size:
+                raise ValueError("split-index temporary budget cannot hold one SQLite page")
+            connection.execute(f"PRAGMA max_page_count={index_budget // page_size}")
             connection.execute(
                 "CREATE TABLE prompt_groups (prompt TEXT PRIMARY KEY, example_id TEXT NOT NULL) WITHOUT ROWID"
             )
@@ -156,6 +164,9 @@ def _derive_split_ids(dataset_path, seed, val, test, *, resource_limits=None):
                 dataset_path, row_callback=retain_prompt, resource_limits=resource_limits
             )
             connection.commit()
+            index_bytes = db_path.stat().st_size
+            if index_bytes > resource_limits.max_index_bytes or index_bytes > resource_limits.max_temporary_bytes:
+                raise ValueError("split index exceeds configured disk budget")
             unique_prompts = connection.execute(
                 "SELECT COUNT(*) FROM prompt_groups"
             ).fetchone()[0]
