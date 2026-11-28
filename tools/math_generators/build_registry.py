@@ -151,9 +151,10 @@ def build_combined_registry() -> dict:
             "benchmark_status": row["benchmark_status"],
             "mastery_status": row["mastery_status"],
         })
+    university_topic_count = len(_university_curriculum())
     return {
         "version": 2,
-        "coverage_through": "Core + G1-12 + 199-topic university mathematics curriculum; scoped IDs and explicit evidence states",
+        "coverage_through": f"Core + G1-12 + {university_topic_count}-topic university mathematics curriculum; scoped IDs and explicit evidence states",
         "topics": topics,
     }
 

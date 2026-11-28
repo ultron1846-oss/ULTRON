@@ -12,9 +12,11 @@ EXTENDED_BANDS = {
     "proof_methods":"University", "countable_and_uncountable_sets":"University",
     "axiom_of_choice_intro":"University", "spectral_theorem":"University",
     "Jordan_form":"University", "bilinear_and_quadratic_forms":"University",
-    "multivariable_limits":"University", "multiple_integrals":"University",
-    "change_of_variables":"University", "line_integrals":"University",
-    "surface_integrals":"University", "vector_calculus":"University",
+    "multivariable_limits":"University",
+    "diagonal_linear_change_of_variables_rectangles":"University",
+    "constant_vector_field_segment_line_integrals":"University",
+    "flat_rectangular_surface_area_integrals":"University",
+    "diagonal_linear_vector_field_divergence":"University",
     "metric_spaces":"University", "convergence_of_sequences":"University",
     "Cauchy_sequences":"University", "pointwise_and_uniform_convergence":"University",
     "compactness":"University", "connectedness":"University",
@@ -73,32 +75,25 @@ def build(topic: str, rng: random.Random, difficulty: int):
         problem=f"Evaluate lim (x,y)→({x0},{y0}) of {a}(x−{x0})+{b}(y−{y0})+({L})."
         answer=str(L);steps=["Both coordinate differences approach zero.","The remaining constant is the limit."]
         check=lambda:L==data["constant"]
-    elif topic=="multiple_integrals":
-        a,b,c,e=[n(-5*d,5*d) for _ in range(4)];left,right=sorted((a,b));bottom,top=sorted((c,e))
-        result=Fraction(right*right-left*left,2)*(top-bottom)+Fraction(top*top-bottom*bottom,2)*(right-left)
-        data.update(rectangle=[left,right,bottom,top],integral=str(result))
-        problem=f"Evaluate ∬_R (x+y) dA over [{left},{right}]×[{bottom},{top}]."
-        answer=str(result);steps=["Integrate x over the horizontal interval and y over the vertical interval.","Add the two exact contributions."]
-        check=lambda:result==Fraction(right*right-left*left,2)*(top-bottom)+Fraction(top*top-bottom*bottom,2)*(right-left)
-    elif topic=="change_of_variables":
+    elif topic=="diagonal_linear_change_of_variables_rectangles":
         sx,sy=n(1,8*d),n(1,8*d);xlen,ylen=n(1,8*d),n(1,8*d);jac=sx*sy;area=xlen*ylen*jac
         data.update(scale=[sx,sy],source_area=xlen*ylen,jacobian=jac,transformed_area=area)
         problem=f"Under u={sx}x, v={sy}y, find |∂(u,v)/∂(x,y)| and the transformed area of a rectangle of area {xlen*ylen}."
         answer=f"Jacobian={jac}; area={area}";steps=[f"J=det([[{sx},0],[0,{sy}]])={jac}.",f"Transformed area={xlen*ylen}×{jac}={area}."]
         check=lambda:jac==sx*sy and area==xlen*ylen*jac
-    elif topic=="line_integrals":
+    elif topic=="constant_vector_field_segment_line_integrals":
         a,b,x0,y0,x1,y1=[n(-8*d,8*d) for _ in range(6)];value=a*(x1-x0)+b*(y1-y0)
         data.update(vector_field=[a,b],start=[x0,y0],end=[x1,y1],integral=value)
         problem=f"Compute ∫_C F·dr for constant F=({a},{b}) along the segment from ({x0},{y0}) to ({x1},{y1})."
         answer=str(value);steps=[f"For a constant field, the integral is F·(r₁−r₀).",f"{a}({x1-x0})+{b}({y1-y0})={value}."]
         check=lambda:value==a*(x1-x0)+b*(y1-y0)
-    elif topic=="surface_integrals":
+    elif topic=="flat_rectangular_surface_area_integrals":
         xlen,ylen=n(1,10*d),n(1,10*d);area=xlen*ylen
         data.update(rectangle=[xlen,ylen],surface_area=area,integral=area)
         problem=f"Find ∬_S 1 dS over a flat rectangle with side lengths {xlen} and {ylen}."
         answer=str(area);steps=[f"The surface integral of 1 equals the surface area.",f"Area={xlen}×{ylen}={area}."]
         check=lambda:area==xlen*ylen
-    elif topic=="vector_calculus":
+    elif topic=="diagonal_linear_vector_field_divergence":
         a,b,c=[n(-10*d,10*d) for _ in range(3)];div=a+b+c
         data.update(field_coefficients=[a,b,c],divergence=div)
         problem=f"Find div F for F(x,y,z)=({a}x,{b}y,{c}z)."
