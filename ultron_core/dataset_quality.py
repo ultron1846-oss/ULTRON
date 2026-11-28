@@ -103,7 +103,6 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
     generator_versions = Counter()
     prompt_duplicate_rows = 0
     prompt_duplicate_groups = 0
-    prompt_cross_split_groups = 0
     unassigned_rows = 0
     rechecked_rows = 0
     invalid_reference_answers = 0
@@ -126,7 +125,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
                 "CREATE TABLE prompt_groups (value_hash TEXT PRIMARY KEY, row_count INTEGER NOT NULL, "
                 "assigned_split TEXT, first_example_id TEXT NOT NULL) WITHOUT ROWID"
             )
-            for table in ("answer_values", "generator_ingredients", "template_values"):
+            for table in ("prompt_values", "answer_values", "generator_ingredients", "template_values"):
                 connection.execute(
                     f"CREATE TABLE {table} (value_hash TEXT NOT NULL, split_name TEXT NOT NULL, "
                     "PRIMARY KEY(value_hash, split_name)) WITHOUT ROWID"
@@ -188,25 +187,22 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
                             prompt_duplicate_rows += 1
                             if prior_prompt[0] == 1:
                                 prompt_duplicate_groups += 1
-                            if (
-                                split_name is not None
-                                and prior_prompt[1] is not None
-                                and split_name != prior_prompt[1]
-                            ):
-                                prompt_cross_split_groups += 1
                             connection.execute(
                                 "UPDATE prompt_groups SET row_count = row_count + 1 WHERE value_hash = ?",
                                 (prompt_hash,),
                             )
 
-                        normalized_answer = _normalized_text(row["target_text"])
-                        connection.execute(
-                            "INSERT OR IGNORE INTO answer_values(value_hash, split_name) VALUES (?, ?)",
-                            (_sha256_text(normalized_answer), split_name or "unassigned"),
-                        )
-
                         template_hash = _sha256_text(_template_signature(row["input_text"]))
                         if split_name is not None:
+                            connection.execute(
+                                "INSERT OR IGNORE INTO prompt_values(value_hash, split_name) VALUES (?, ?)",
+                                (prompt_hash, split_name),
+                            )
+                            normalized_answer = _normalized_text(row["target_text"])
+                            connection.execute(
+                                "INSERT OR IGNORE INTO answer_values(value_hash, split_name) VALUES (?, ?)",
+                                (_sha256_text(normalized_answer), split_name),
+                            )
                             template_counts[split_name][(row["topic"], template_hash)] += 1
                             connection.execute(
                                 "INSERT OR IGNORE INTO template_values(value_hash, split_name) VALUES (?, ?)",
@@ -237,12 +233,16 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
             pairwise = {}
             for first, second in pair_names:
                 pairwise[f"{first}_vs_{second}"] = {
-                    "normalized_prompt_groups": prompt_cross_split_groups,
+                    "normalized_prompt_groups": _pairwise_overlap(connection, "prompt_values", first, second),
                     "answer_values_shared": _pairwise_overlap(connection, "answer_values", first, second),
                     "template_signatures_shared": _pairwise_overlap(connection, "template_values", first, second),
                     "generation_ingredients_shared": _pairwise_overlap(connection, "generator_ingredients", first, second),
                 }
 
+            prompt_cross_split_groups = int(connection.execute(
+                "SELECT COUNT(*) FROM (SELECT value_hash FROM prompt_values "
+                "GROUP BY value_hash HAVING COUNT(DISTINCT split_name) > 1)"
+            ).fetchone()[0])
             shared_answer_values = int(connection.execute(
                 "SELECT COUNT(*) FROM (SELECT value_hash FROM answer_values "
                 "GROUP BY value_hash HAVING COUNT(DISTINCT split_name) > 1)"
@@ -298,9 +298,8 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
             "difficulty_counts": dict(sorted(difficulty_counts[split_name].items())),
             "answer_format_counts": dict(sorted(answer_formats[split_name].items())),
             "unique_seed_count": len(seed_counts[split_name]),
-            "difficulty_topic_coverage_count": sum(
-                1 for _topic, _count in topic_counts[split_name].items()
-            ),
+            "topic_coverage_count": len(topic_counts[split_name]),
+            "difficulty_levels_present": sorted(difficulty_counts[split_name]),
             "dominant_templates_by_topic": dominant_templates,
         }
 
@@ -360,6 +359,7 @@ def audit_dataset_quality(dataset_path, split_manifest_path) -> dict:
             "all_reference_answers_rechecked": invalid_reference_answers == 0 and rechecked_rows == rows_seen,
             "normalized_prompt_cross_split_groups": prompt_cross_split_groups,
             "generation_ingredient_cross_split_hashes": shared_ingredients,
+            "prompt_group_split_separation": prompt_cross_split_groups == 0,
             "production_readiness": False,
             "reason": "A deterministic audit report is not owner-curated semantic review or a production corpus acceptance.",
         },
