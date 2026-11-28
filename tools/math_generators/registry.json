@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "coverage_through": "Core + G1-12 + 199-topic university mathematics curriculum; scoped IDs and explicit evidence states",
+  "coverage_through": "Core + G1-12 + 202-topic university mathematics curriculum; scoped IDs and explicit evidence states",
   "topics": [
     {
       "catalog_id": "core:arithmetic",
@@ -1891,11 +1891,41 @@
       "mastery_status": "not_mastered"
     },
     {
-      "catalog_id": "university:first_order_ODEs",
-      "topic": "first_order_ODEs",
+      "catalog_id": "university:homogeneous_constant_coefficient_first_order_ODEs",
+      "topic": "homogeneous_constant_coefficient_first_order_ODEs",
       "grade_band": "University",
       "word_problems": false,
       "status": "generator_available_not_mastered",
+      "independent_validation_status": "independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:separable_first_order_ODEs",
+      "topic": "separable_first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:linear_first_order_variable_coefficient_ODEs",
+      "topic": "linear_first_order_variable_coefficient_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
+      "independent_validation_status": "not_independently_validated",
+      "benchmark_status": "not_benchmarked",
+      "mastery_status": "not_mastered"
+    },
+    {
+      "catalog_id": "university:exact_first_order_ODEs",
+      "topic": "exact_first_order_ODEs",
+      "grade_band": "University",
+      "word_problems": false,
+      "status": "catalogued_not_implemented",
       "independent_validation_status": "not_independently_validated",
       "benchmark_status": "not_benchmarked",
       "mastery_status": "not_mastered"

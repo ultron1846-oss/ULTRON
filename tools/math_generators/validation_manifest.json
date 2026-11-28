@@ -434,6 +434,13 @@
         "test": "test_bayes_posterior_matches_count_definition",
         "validator": "Independent count-based posterior recomputation"
       }
+    ],
+    "university:homogeneous_constant_coefficient_first_order_ODEs": [
+      {
+        "path": "tests/python/test_first_order_ode_generator.py",
+        "test": "test_seeded_generation_is_deterministic_and_analytically_valid",
+        "validator": "Independent analytic derivative identity d(y0*exp(k*t))/dt = k*y(t), exact initial-value evaluation at t=0, and full canonical problem reconstruction."
+      }
     ]
   },
   "benchmarked": [],

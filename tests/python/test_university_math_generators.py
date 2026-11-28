@@ -190,12 +190,20 @@ class UniversityFoundationTests(unittest.TestCase):
         import json
         payload=json.loads(registry)
         rows={x["topic"]:x for x in payload["topics"]}
-        self.assertEqual(len(rows),199)
+        self.assertEqual(len(rows),202)
         generator_topics = {x["generator_topic"] for x in payload["topics"] if x.get("generator_topic")}
         self.assertEqual(generator_topics, set(TOPICS))
         mapped = [x for x in payload["topics"] if x.get("generator_topic")]
         self.assertEqual(len(mapped), len(TOPICS))
         self.assertTrue(all(x["has_generator"] for x in mapped))
+        self.assertTrue(rows["homogeneous_constant_coefficient_first_order_ODEs"]["has_generator"])
+        self.assertEqual(rows["homogeneous_constant_coefficient_first_order_ODEs"]["status"], "generator_available_not_mastered")
+        self.assertFalse(rows["separable_first_order_ODEs"]["has_generator"])
+        self.assertFalse(rows["linear_first_order_variable_coefficient_ODEs"]["has_generator"])
+        self.assertFalse(rows["exact_first_order_ODEs"]["has_generator"])
+        self.assertEqual(rows["separable_first_order_ODEs"]["status"], "catalogued_not_implemented")
+        self.assertEqual(rows["linear_first_order_variable_coefficient_ODEs"]["status"], "catalogued_not_implemented")
+        self.assertEqual(rows["exact_first_order_ODEs"]["status"], "catalogued_not_implemented")
         self.assertTrue(rows["greens_theorem_rectangles"]["has_generator"])
         self.assertEqual(rows["greens_theorem_rectangles"]["status"], "generator_available_not_mastered")
         self.assertFalse(rows["stokes_theorem"]["has_generator"])

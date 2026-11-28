@@ -11,6 +11,7 @@ from fractions import Fraction
 
 from .extended_generators import EXTENDED_BANDS, build as build_extended
 from .green_theorem import TOPIC as GREEN_TOPIC, build_green_fields, verify_green_problem
+from .ode_first_order import verify_homogeneous_constant_coefficient_first_order_ode
 
 BANDS = {
     "linear_algebra": "University",
@@ -482,6 +483,9 @@ def _build(topic: str, rng: random.Random, difficulty: int):
     fields={"grade_band":BANDS[topic],"topic":topic,"subtopic":topic.replace("_"," "),"difficulty":d,
             "problem":problem,"steps":steps,"answer":str(answer),"answer_type":"expression",
             "ingredients":data,"verifier":topic+"_seed_replay_exact_check"}
+    if topic == "differential_equations":
+        fields["subtopic"] = "homogeneous constant-coefficient first-order ODEs"
+        fields["verifier"] = "independent_homogeneous_constant_coefficient_ode_analytic_check"
     return fields, exact
 
 
@@ -496,6 +500,8 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
     fields.update(id=f"university-{topic}-{seed}-{difficulty}",seed=seed)
     if not check():
         raise ArithmeticError("exact answer verification failed")
+    if topic == "differential_equations" and not verify_homogeneous_constant_coefficient_first_order_ode(fields):
+        raise ArithmeticError("independent first-order ODE verification failed")
     replay,_=_build(topic,random.Random(seed),difficulty)
     if replay!={k:v for k,v in fields.items() if k not in ("id","seed")}:
         raise ArithmeticError("deterministic replay failed")
@@ -505,6 +511,8 @@ def generate(seed: int, difficulty: int=1, topic: str="linear_algebra") -> dict:
 def verify(problem: dict) -> bool:
     if isinstance(problem, dict) and problem.get("topic") == GREEN_TOPIC:
         return verify_green_problem(problem)
+    if isinstance(problem, dict) and problem.get("topic") == "differential_equations":
+        return verify_homogeneous_constant_coefficient_first_order_ode(problem)
     try:
         return generate(problem["seed"],problem["difficulty"],problem["topic"])==problem
     except (KeyError,TypeError,ValueError,ArithmeticError,ZeroDivisionError):

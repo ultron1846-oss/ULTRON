@@ -230,7 +230,7 @@ The combined validation candidate is [PR #207](https://github.com/ultron1846-oss
 
 **Training gate remains blocked.** No optimizer step on ULTRON weights, production data generation/download, calibration-data generation, Supabase mutation, deployment, external AI API call or remote job was performed. Controller step-count tests use a meta-device mock model and a mock optimizer that only increments a counter; CI smoke is forward/backward only.
 
-**Exact next engineering task:** after review of PR #207, implement a bounded exact-rational Green's theorem generator for the currently unimplemented `Green_stokes_divergence_theorems` topic, with polynomial vector fields and rational rectangular regions; independently verify line-integral and curl double-integral equality; add deterministic seed, orientation, tamper and resource-limit tests; synchronize registry/coverage while explicitly leaving Stokes/divergence marked incomplete. Test fixtures only; no corpus or training.
+**Historical next-task note:** the Green's theorem task described at this point was subsequently implemented in Phase 2 PR #209. See the dated Phase 2 addenda below for current scope and validation.
 
 
 ## Phase 2 — curriculum and Green's theorem expansion (2026-11-28)
@@ -240,3 +240,12 @@ The former 197-topic university curriculum has been revised to 199 topics by spl
 The new coverage model distinguishes catalogue presence, generator availability, independent exercise validation, measured trained-model benchmarking and mastery. The live candidate counts are 252 catalogue entries overall, 114 with generators, 62 independently validated exercise topics, zero trained-model benchmarks and zero mastered topics. University coverage is 61/199 generator-available and 138/199 not implemented. The historical 60/197 statement above is the pre-Phase-2 baseline, not the current curriculum state. See docs/MATH_CURRICULUM_AUDIT_2026-11-28.md and tools/math_generators/validation_manifest.json for scope and evidence.
 
 This is still an engineering/catalogue statement, not a model-capability claim. No ULTRON training, optimizer step, production corpus generation/download, external AI API, remote job, or deployment was performed.
+
+
+## Phase 2 follow-up — bounded first-order ODE scope (2026-11-28)
+
+The 199-topic post-Green university curriculum is now expanded to 202 by splitting the broad first_order_ODEs row into four scoped families. Only homogeneous_constant_coefficient_first_order_ODEs is generator-available, and only for y'=k y with y(0)=y0. The separable_first_order_ODEs, linear_first_order_variable_coefficient_ODEs, and exact_first_order_ODEs entries remain catalogued but unimplemented. The validator checks the exact solution y(t)=y0 exp(k t), the differential identity, the initial condition, and the complete generated problem object.
+
+Current combined coverage candidate: 255 catalogue entries, 114 generator-available, 63 independently validated exercise topics, zero trained-checkpoint benchmarks and zero mastered topics. University coverage: 61/202 generator-available, 141/202 not implemented. The university prerequisite map contains 202 topics and 378 edges.
+
+This is a scope and exercise-verification improvement, not trained-model capability evidence. No ULTRON weights were trained or updated; no production corpus or remote job was created.

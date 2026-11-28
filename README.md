@@ -287,15 +287,15 @@ Counts are computed from the scope-qualified combined registry and the validatio
 
 | State | Current candidate |
 | --- | ---: |
-| Catalogued scope entries | 252 |
+| Catalogued scope entries | 255 |
 | Generator available | 114 |
-| Independently validated exercise topics | 62 |
+| Independently validated exercise topics | 63 |
 | Benchmarked on a compatible trained checkpoint | 0 |
 | Mastered on a compatible trained checkpoint | 0 |
 
-University curriculum: **199 topics**, **61 generator-available**, **138 catalogued but not implemented**. The former Green_stokes_divergence_theorems umbrella is split into greens_theorem_rectangles, stokes_theorem, and divergence_theorem. Only the bounded Green rectangle family has a generator. Stokes and divergence remain incomplete.
+University curriculum: **202 topics**, **61 generator-available**, **141 catalogued but not implemented**. The former Green_stokes_divergence_theorems umbrella is split into greens_theorem_rectangles, stokes_theorem, and divergence_theorem. Only the bounded Green rectangle family has a generator. Stokes and divergence remain incomplete.
 
-The prerequisite graph covers all 199 university topics and 372 edges. The combined registry has 252 unique scoped IDs; raw linear_equations labels occur in Core, G7–8, and G8–9, but scoped ID collisions are zero.
+The prerequisite graph covers all 202 university topics and 378 edges. The combined registry has 255 unique scoped IDs; raw linear_equations labels occur in Core, G7–8, and G8–9, but scoped ID collisions are zero.
 
 ### Green's theorem contract
 
@@ -370,6 +370,15 @@ Remaining work:
 - Grade-band prerequisite dependencies remain to be mapped separately.
 - Existing first_order_ODEs is broader than its current generator, which only generates homogeneous constant-coefficient equations y'=ky with an initial value. This is the next focused scope-correction and independent-validator task; do not claim general first-order ODE support.
 
-**Next concrete task:** define and register a narrow homogeneous constant-coefficient first-order ODE family, independently verify its analytic solution (including initial condition and edge cases), split/generalize the curriculum label without overstating support, and add deterministic/tamper/boundary tests. Keep separable non-homogeneous and exact first-order equations marked incomplete until independently implemented.
+**Next concrete task:** implement one additional bounded ODE family, beginning with separable first-order equations, using an independent exact validator and deterministic/tamper/boundary/invariant tests. Keep variable-coefficient linear and exact equations separate until implemented.
+
+
+### Phase 2 follow-up — first-order ODE scope correction
+
+- Branch: phase2/ode-scope-and-validator-2026-11-28
+- Scope: replace the broad first_order_ODEs catalog label with four bounded families. Only homogeneous_constant_coefficient_first_order_ODEs is implemented (y'=k y, y(0)=y0). Separable, variable-coefficient linear, and exact first-order ODE families remain incomplete.
+- A new independent analytic validator checks the canonical exponential solution, derivative identity, initial value, difficulty-scaled parameter bounds, and the full generated problem object.
+- Candidate counts after the split: 255 combined catalogue entries; 114 generator-available; 63 independently validated; zero trained-model benchmarks; zero mastered topics. University: 202 total, 61 generator-available, 141 not implemented; prerequisite graph 202/378.
+- Tests and latest-head CI are still pending for this follow-up branch. Do not interpret this entry as validated until the exact branch head passes all required checks.
 
 No training, optimizer step, production corpus generation/download, external AI API call, remote training job, model-weight publication, Supabase mutation, or Pages deployment occurred.

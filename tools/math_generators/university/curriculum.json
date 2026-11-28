@@ -1,7 +1,7 @@
 {
   "version": 1,
   "scope": "Broad undergraduate mathematics curriculum map; not an exhaustive list of every university course or specialty.",
-  "topic_count": 199,
+  "topic_count": 202,
   "topics": [
     {
       "topic": "sets_and_functions",
@@ -872,11 +872,29 @@
       "status": "catalogued_not_implemented"
     },
     {
-      "topic": "first_order_ODEs",
-      "title": "first order ODEs",
+      "topic": "homogeneous_constant_coefficient_first_order_ODEs",
+      "title": "homogeneous constant-coefficient first-order ODEs",
       "field": "Differential equations",
       "status": "generator_available_not_mastered",
       "generator_topic": "differential_equations"
+    },
+    {
+      "topic": "separable_first_order_ODEs",
+      "title": "separable first-order ODEs",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "linear_first_order_variable_coefficient_ODEs",
+      "title": "linear first-order ODEs with variable coefficients",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
+    },
+    {
+      "topic": "exact_first_order_ODEs",
+      "title": "exact first-order ODEs",
+      "field": "Differential equations",
+      "status": "catalogued_not_implemented"
     },
     {
       "topic": "second_order_linear_ODEs",
