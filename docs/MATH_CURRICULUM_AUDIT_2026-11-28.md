@@ -176,3 +176,17 @@ The generator audit found that several available templates were materially narro
 The new complex arithmetic and variable-coefficient ODE families have independent exact validators. The double-integral tests independently recompute both Fubini integration orders and rectangle additivity across fixed seeds. The current candidate has 211 university topics, 64 generator-available topics, 147 not implemented, 397 prerequisite edges, 264 combined catalogue entries, 117 generators, and 66 independently validated exercise topics. Benchmarks and mastery remain zero. These counts are generated from registry metadata and evidence; they do not measure trained-model ability.
 
 No training, optimizer step, production corpus generation/download, remote execution, deployment, or model-weight publication was performed in this batch.
+
+
+## 10. Batch 8 exact-head validation
+
+PR #213 (`phase2/curriculum-scope-expansion-batch-8-2026-11-28`) exact validated head: `3ad04c01bfe48bd0debf46017e9351d017c6ae4a`.
+
+| Workflow | Run ID | Result |
+|---|---:|---|
+| Node Tests | 46140324038 | Passed |
+| Python AI Core Tests | 46140323910 | Passed; CPU forward/backward smoke only, no optimizer step |
+| ULTRON Level 1 Math Tooling | 46140323952 | Passed; 5,000 randomized cases |
+| Security and dependency audit | 46140323947 | Passed |
+
+The dedicated affine double-integral validator evidence points to the Fubini/additivity regression test in `tests/python/test_rectangular_double_integral_generator.py`. No training, optimizer step, production corpus generation, or remote job occurred.

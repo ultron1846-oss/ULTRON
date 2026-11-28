@@ -501,7 +501,7 @@ PR #212 changed: README.md; docs/MATH_CURRICULUM_AUDIT_2026-11-28.md; docs/PRETR
 **Current implementation branch:** `phase2/curriculum-scope-expansion-batch-8-2026-11-28`  
 **Proposed PR:** [#213 — Split over-broad curriculum labels and add three independently checked mathematics families](https://github.com/ultron1846-oss/ULTRON/pull/213)  
 **Base:** PR #212 head `dc0ee7763b2a7c6e7f01e9e310a25da8975fb573`.  
-**Validation:** exact-head GitHub Actions runs will be recorded here after the branch is pushed.
+**Validated head:** `3ad04c01bfe48bd0debf46017e9351d017c6ae4a`. All required exact-head GitHub Actions workflows passed.
 
 ### Scope corrections
 
@@ -523,3 +523,15 @@ The existing degree-two Taylor template is renamed `quadratic_Taylor_polynomials
 - University prerequisite graph: **211 nodes**, **397 edges**; validator checks complete mapping, topological order, dangling references, duplicate edges, and cycles.
 
 These are registry/evidence counts, not ULTRON model capability. No training, optimizer step, production corpus generation/download, external AI API, remote training job, deployment, or model-weight publication was performed. Continue with dependency-aware bounded topic families and per-topic difficulty semantics; do not convert catalogue entries into generated/validated/mastered claims without evidence.
+
+
+### Exact-head validation — `3ad04c01bfe48bd0debf46017e9351d017c6ae4a`
+
+| Workflow | Run ID | Result |
+| --- | ---: | --- |
+| Node Tests | [46140324038](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140324038) | Passed |
+| Python AI Core Tests | [46140323910](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323910) | Passed; CPU forward/backward smoke only, no optimizer step |
+| ULTRON Level 1 Math Tooling | [46140323952](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323952) | Passed; workflow includes 5,000 randomized cases |
+| Security and dependency audit | [46140323947](https://github.com/ultron1846-oss/ULTRON/actions/runs/46140323947) | Passed |
+
+These runs are all attached to the exact PR #213 head above. No local test execution is claimed. No ULTRON training, optimizer update, or corpus generation was performed.
