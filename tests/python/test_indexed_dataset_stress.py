@@ -155,6 +155,16 @@ class IndexedDatasetStressTests(unittest.TestCase):
             with VerifiedIndexedSplitStore(dataset, split, resource_limits=limits) as store:
                 self.assertEqual(store.resource_limits, limits)
                 self.assertEqual(len(list(store.iter_records("train"))), store.split_counts["train"])
+                snapshot_bytes = store._snapshot_path.stat().st_size
+                main_page_size = int(store._connection.execute("PRAGMA main.page_size").fetchone()[0])
+                temp_page_size = int(store._connection.execute("PRAGMA temp.page_size").fetchone()[0])
+                main_page_cap = int(store._connection.execute("PRAGMA main.max_page_count").fetchone()[0])
+                temp_page_cap = int(store._connection.execute("PRAGMA temp.max_page_count").fetchone()[0])
+                self.assertLessEqual(main_page_cap * main_page_size, limits.max_index_bytes)
+                self.assertLessEqual(
+                    snapshot_bytes + main_page_cap * main_page_size + temp_page_cap * temp_page_size,
+                    limits.max_temporary_bytes,
+                )
                 self.assertFalse(os.stat(store._snapshot_path).st_mode & 0o222)
 
             cases = (

@@ -230,6 +230,16 @@ class DatasetQualityAuditTests(unittest.TestCase):
                 audit_dataset_quality(copied_dataset, copied_split)
 
 
+    def test_quality_audit_enforces_sqlite_temp_schema_disk_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            with self.assertRaisesRegex(ValueError, "max_temporary_bytes"):
+                audit_dataset_quality(
+                    dataset,
+                    split,
+                    resource_limits=DatasetResourceLimits(max_temporary_bytes=8192),
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

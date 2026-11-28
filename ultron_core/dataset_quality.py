@@ -124,15 +124,27 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
         connection = sqlite3.connect(db_path)
         try:
             connection.execute("PRAGMA temp_store=FILE")
-            connection.execute(f"PRAGMA cache_size=-{resource_limits.sqlite_cache_kib}")
-            page_size = int(connection.execute("PRAGMA page_size").fetchone()[0])
-            index_budget = min(
+            main_cache_kib = max(1, resource_limits.sqlite_cache_kib // 2)
+            temp_cache_kib = max(1, resource_limits.sqlite_cache_kib - main_cache_kib)
+            connection.execute(f"PRAGMA main.cache_size=-{main_cache_kib}")
+            connection.execute(f"PRAGMA temp.cache_size=-{temp_cache_kib}")
+            main_page_size = int(connection.execute("PRAGMA main.page_size").fetchone()[0])
+            temp_page_size = int(connection.execute("PRAGMA temp.page_size").fetchone()[0])
+            main_index_budget = min(
                 resource_limits.max_index_bytes,
-                resource_limits.max_temporary_bytes,
+                resource_limits.max_temporary_bytes // 2,
             )
-            if index_budget < page_size:
-                raise ValueError("quality-index temporary budget cannot hold one SQLite page")
-            connection.execute(f"PRAGMA max_page_count={index_budget // page_size}")
+            temp_database_budget = resource_limits.max_temporary_bytes - main_index_budget
+            if main_index_budget < main_page_size or temp_database_budget < temp_page_size:
+                raise ValueError(
+                    "quality audit budget exceeds configured max_index_bytes or max_temporary_bytes (insufficient SQLite main/temp page budget)"
+                )
+            connection.execute(
+                f"PRAGMA main.max_page_count={main_index_budget // main_page_size}"
+            )
+            connection.execute(
+                f"PRAGMA temp.max_page_count={temp_database_budget // temp_page_size}"
+            )
             connection.execute("CREATE TABLE selected_ids (example_id TEXT PRIMARY KEY, split_name TEXT NOT NULL) WITHOUT ROWID")
             for split_name in ("train", "validation", "test"):
                 connection.executemany(
@@ -271,8 +283,14 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
             if rows_seen != verified.dataset_example_count:
                 raise ValueError("dataset row count changed during quality audit")
             index_bytes = db_path.stat().st_size
-            if index_bytes > resource_limits.max_index_bytes or index_bytes > resource_limits.max_temporary_bytes:
-                raise ValueError("quality index exceeds configured disk budget")
+            temp_bytes = (
+                int(connection.execute("PRAGMA temp.page_count").fetchone()[0])
+                * int(connection.execute("PRAGMA temp.page_size").fetchone()[0])
+            )
+            if index_bytes > resource_limits.max_index_bytes:
+                raise ValueError("quality index exceeds configured max_index_bytes")
+            if index_bytes + temp_bytes > resource_limits.max_temporary_bytes:
+                raise ValueError("quality SQLite main/temp storage exceeds configured max_temporary_bytes")
 
             pair_names = (("train", "validation"), ("train", "test"), ("validation", "test"))
             pairwise = {}
@@ -308,6 +326,14 @@ def audit_dataset_quality(dataset_path, split_manifest_path, *, resource_limits=
                 prompt_duplicate_rows,
                 int(connection.execute("SELECT COALESCE(SUM(row_count - 1), 0) FROM prompt_groups").fetchone()[0]),
             )
+        except sqlite3.OperationalError as exc:
+            connection.rollback()
+            message = str(exc).lower()
+            if "full" in message or "maximum page count" in message:
+                raise ValueError(
+                    "quality audit SQLite storage exceeded configured max_index_bytes or max_temporary_bytes"
+                ) from exc
+            raise
         finally:
             connection.close()
 

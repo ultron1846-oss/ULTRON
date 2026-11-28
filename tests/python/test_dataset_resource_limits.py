@@ -141,6 +141,17 @@ class DatasetResourceLimitTests(unittest.TestCase):
             self.assertEqual(sidecar.read_bytes(), sidecar_bytes)
 
 
+    def test_split_builder_enforces_sqlite_temp_schema_disk_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, _split = self._prepare(Path(directory))
+            with self.assertRaisesRegex(ValueError, "max_temporary_bytes"):
+                prepare_dataset_split_manifest(
+                    dataset,
+                    Path(directory) / "too-small-temp.splits.json",
+                    split_seed=43,
+                    resource_limits=DatasetResourceLimits(max_temporary_bytes=8192),
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

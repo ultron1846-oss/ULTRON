@@ -95,13 +95,19 @@ class VerifiedIndexedSplitStore:
         try:
             snapshot_bytes = self._snapshot_path.stat().st_size if self._snapshot_path.exists() else 0
             index_bytes = self._index_path.stat().st_size if self._index_path.exists() else 0
-            temporary_bytes = sum(
+            other_bytes = sum(
                 entry.stat().st_size
                 for entry in Path(self._temporary.name).rglob("*")
-                if entry.is_file()
+                if entry.is_file() and entry not in (self._snapshot_path, self._index_path)
             )
-        except OSError as exc:
-            raise ValueError("temporary dataset storage could not be inspected") from exc
+            temp_schema_bytes = 0
+            if self._connection is not None:
+                temp_pages = int(self._connection.execute("PRAGMA temp.page_count").fetchone()[0])
+                temp_page_size = int(self._connection.execute("PRAGMA temp.page_size").fetchone()[0])
+                temp_schema_bytes = temp_pages * temp_page_size
+            temporary_bytes = snapshot_bytes + index_bytes + other_bytes + temp_schema_bytes
+        except (OSError, sqlite3.Error) as exc:
+            raise ValueError("temporary dataset and SQLite temp storage could not be inspected") from exc
         if index_bytes > self.resource_limits.max_index_bytes:
             raise ValueError("SQLite index exceeds configured max_index_bytes")
         if temporary_bytes > self.resource_limits.max_temporary_bytes:
@@ -140,19 +146,31 @@ class VerifiedIndexedSplitStore:
         self._connection = connection
         try:
             connection.execute("PRAGMA temp_store=FILE")
-            connection.execute(f"PRAGMA cache_size=-{self.resource_limits.sqlite_cache_kib}")
+            main_cache_kib = max(1, self.resource_limits.sqlite_cache_kib // 2)
+            temp_cache_kib = max(1, self.resource_limits.sqlite_cache_kib - main_cache_kib)
+            connection.execute(f"PRAGMA main.cache_size=-{main_cache_kib}")
+            connection.execute(f"PRAGMA temp.cache_size=-{temp_cache_kib}")
             connection.execute("PRAGMA journal_mode=OFF")
             connection.execute("PRAGMA synchronous=OFF")
-            page_size = int(connection.execute("PRAGMA page_size").fetchone()[0])
+            main_page_size = int(connection.execute("PRAGMA main.page_size").fetchone()[0])
+            temp_page_size = int(connection.execute("PRAGMA temp.page_size").fetchone()[0])
             snapshot_bytes = self._snapshot_path.stat().st_size
-            available_index_bytes = min(
+            available_temporary_bytes = self.resource_limits.max_temporary_bytes - snapshot_bytes
+            main_index_budget = min(
                 self.resource_limits.max_index_bytes,
-                self.resource_limits.max_temporary_bytes - snapshot_bytes,
+                available_temporary_bytes // 2,
             )
-            if available_index_bytes < page_size:
-                raise ValueError("configured temporary-disk budget cannot hold one SQLite index page")
-            maximum_pages = available_index_bytes // page_size
-            connection.execute(f"PRAGMA max_page_count={maximum_pages}")
+            temp_database_budget = available_temporary_bytes - main_index_budget
+            if main_index_budget < main_page_size or temp_database_budget < temp_page_size:
+                raise ValueError(
+                    "configured max_temporary_bytes cannot hold the verified snapshot and bounded SQLite main/temp pages"
+                )
+            connection.execute(
+                f"PRAGMA main.max_page_count={main_index_budget // main_page_size}"
+            )
+            connection.execute(
+                f"PRAGMA temp.max_page_count={temp_database_budget // temp_page_size}"
+            )
             connection.execute(
                 "CREATE TABLE selected_ids (example_id TEXT PRIMARY KEY, split_name TEXT NOT NULL) WITHOUT ROWID"
             )
