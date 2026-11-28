@@ -4,7 +4,9 @@ import { evaluateExpression, solveLinearEquation } from './math-engine.js?v=2026
 import { parseWordProblem } from './word-problems.js?v=20261125-1';
 import { createGraphSvg } from './graph-tool.js?v=20261125-2';
 import { executeMathToolCommand, mathToolHelp } from './math-tools.js?v=20261125-1';
-import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261124-3';
+import { supabaseBackendAudit, fetchSupabasePublicStatus } from './supabase-integration.js?v=20261128-1';
+import { RuntimeStatusMonitor, formatStatusAge } from './runtime-status.js?v=20261128-1';
+import { validateProviderDirectory } from './provider-directory.js?v=20261128-1';
 import { getMemorySummary, listExperiences, listRecords, clearMemory, exportMemory, importMemory, saveExperience } from './memory-store.js?v=20261124-5';
 
 const pageNames = { overview:'Overview', learning:'Mathematics topics', agent:'Math Agent', memory:'Memory vault', servers:'Servers & Colab', training:'Training control', backend:'Supabase backend', settings:'Settings' };
@@ -22,6 +24,113 @@ const topics = [
 ];
 const content=document.querySelector('#page-content');
 const nav=document.querySelector('#navigation');
+
+let statusPollingActive = false;
+let statusEventsBound = false;
+const runtimeStatusMonitor = new RuntimeStatusMonitor({
+  fetchStatus: fetchSupabasePublicStatus,
+  onChange: updatePublicStatusUI
+});
+
+function formatSuccessfulStatus(snapshot) {
+  if (snapshot.lastSuccessAt === null) return 'No successful status response received yet.';
+  const stamp = new Date(snapshot.statusTimestamp ?? snapshot.lastSuccessAt);
+  const formatted = Number.isNaN(stamp.getTime()) ? 'unknown time' : stamp.toLocaleString();
+  return 'Last successful response: ' + formatted + ' · ' + formatStatusAge(snapshot.ageMs) + '.';
+}
+
+function updatePublicStatusUI(snapshot = runtimeStatusMonitor.getSnapshot()) {
+  const labels = {
+    idle: 'NOT CHECKED',
+    checking: 'CHECKING',
+    refreshing: 'REFRESHING',
+    online: 'ONLINE',
+    stale: 'STALE',
+    offline: 'OFFLINE',
+    unavailable: 'UNAVAILABLE'
+  };
+  const stateLabel = labels[snapshot.state] || 'UNKNOWN';
+  const data = snapshot.data;
+
+  const trainingControl = document.querySelector('#training-control-plane');
+  const trainingModel = document.querySelector('#training-model-status');
+  const trainingEnabled = document.querySelector('#training-enabled-status');
+  const trainingRemote = document.querySelector('#training-remote-status');
+  const trainingChecked = document.querySelector('#training-status-checked');
+  const trainingFeedback = document.querySelector('#training-status-feedback');
+  if (trainingControl) {
+    trainingControl.textContent = stateLabel;
+    trainingModel.textContent = data ? String(data.model_status || 'unknown').toUpperCase() : 'UNKNOWN';
+    trainingEnabled.textContent = data ? (data.training_enabled ? 'ENABLED' : 'DISABLED') : 'UNKNOWN';
+    trainingRemote.textContent = data ? (data.remote_execution_enabled ? 'ENABLED' : 'DISABLED') : 'UNKNOWN';
+    if (trainingChecked) trainingChecked.textContent = formatSuccessfulStatus(snapshot);
+    if (trainingFeedback) {
+      trainingFeedback.textContent = snapshot.error || (
+        snapshot.state === 'stale'
+          ? 'Showing the last verified response. Refresh to retry; it may no longer reflect live service state.'
+          : snapshot.state === 'offline'
+            ? 'Device is offline. No status request was sent.'
+            : data
+              ? 'Generic service status verified. No job action was attempted.'
+              : 'Waiting for the generic service status response.'
+      );
+    }
+  }
+
+  const backendStatus = document.querySelector('#supabase-status');
+  const backendDetail = document.querySelector('#supabase-status-detail');
+  const backendChecked = document.querySelector('#supabase-status-checked');
+  if (backendStatus) {
+    backendStatus.textContent = stateLabel;
+    backendDetail.textContent = snapshot.error || (
+      snapshot.state === 'stale'
+        ? 'The latest request failed. The last verified response is retained and marked stale.'
+        : data
+          ? 'Control plane: ' + data.control_plane + ' · Model: ' + (data.model_status || 'unknown') + ' · Training disabled · Remote execution disabled.'
+          : snapshot.state === 'offline'
+            ? 'This device is offline. No request was sent.'
+            : 'Requesting generic service status only.'
+    );
+    if (backendChecked) backendChecked.textContent = formatSuccessfulStatus(snapshot);
+  }
+
+  const busy = snapshot.state === 'checking' || snapshot.state === 'refreshing';
+  for (const id of ['training-status-refresh', 'supabase-refresh']) {
+    const button = document.querySelector('#' + id);
+    if (button) button.disabled = busy;
+  }
+}
+
+function requestPublicStatus() {
+  return runtimeStatusMonitor.refresh({
+    online: typeof navigator === 'undefined' || navigator.onLine !== false
+  });
+}
+
+function startPublicStatusPolling() {
+  statusPollingActive = true;
+  if (!statusEventsBound) {
+    window.addEventListener('online', () => {
+      if (statusPollingActive) void runtimeStatusMonitor.setOnline(true);
+    });
+    window.addEventListener('offline', () => {
+      if (statusPollingActive) runtimeStatusMonitor.setOnline(false);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!statusPollingActive) return;
+      if (document.hidden) runtimeStatusMonitor.stop();
+      else runtimeStatusMonitor.start();
+    });
+    statusEventsBound = true;
+  }
+  runtimeStatusMonitor.start();
+}
+
+function stopPublicStatusPolling() {
+  statusPollingActive = false;
+  runtimeStatusMonitor.stop();
+}
+
 const safeGet=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
 const safeSet=(key,value)=>{try{localStorage.setItem(key,value);return true;}catch{return false;}};
 const applyContrastPreference=()=>{const enabled=safeGet('ultron-soft-contrast','0')==='1';document.body.classList.toggle('soft-contrast',enabled);document.querySelector('#theme-toggle')?.setAttribute('aria-pressed',String(enabled));};
@@ -29,6 +138,7 @@ const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const card=(body,cls='')=>`<article class="panel ${cls}">${body}</article>`;
 const heading=(eyebrow,title,subtitle,action='')=>`<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${subtitle}</p></div>${action}</div>`;
 function navigate(page){
+ stopPublicStatusPolling();
  const key=pageNames[page]?page:'overview';
  try{
   const markup=render(key);
@@ -210,62 +320,6 @@ function answerAgent(){
  }
  addChat('assistant','I’ll act as a tutor, not an answer key. Tell me what you have tried or which step is confusing, and I’ll give a hint, check your work, or explain the next step without revealing the final answer immediately. Unsupported requests are not guessed.','GUIDED LEARNING · TRY FIRST');
 }
-async function loadTrainingStatus(){
- const control=document.querySelector('#training-control-plane');
- const model=document.querySelector('#training-model-status');
- const enabled=document.querySelector('#training-enabled-status');
- const remote=document.querySelector('#training-remote-status');
- const checked=document.querySelector('#training-status-checked');
- const feedback=document.querySelector('#training-status-feedback');
- const refresh=document.querySelector('#training-status-refresh');
- if(!control||!model||!enabled||!remote)return;
- if(refresh)refresh.disabled=true;
- control.textContent='CHECKING';model.textContent='CHECKING';enabled.textContent='CHECKING';remote.textContent='CHECKING';
- if(checked)checked.textContent='Last checked: in progress';
- if(feedback)feedback.textContent='Requesting generic public status only…';
- try{
-  const result=await fetchSupabasePublicStatus();
-  control.textContent=result.control_plane==='online'?'ONLINE':'UNAVAILABLE';
-  model.textContent=String(result.model_status||'unknown').toUpperCase();
-  enabled.textContent=result.training_enabled===true?'ENABLED':'DISABLED';
-  remote.textContent=result.remote_execution_enabled===true?'ENABLED':'DISABLED';
-  if(checked){
-   const stamp=result.checked_at?new Date(result.checked_at):new Date();
-   checked.textContent='Last checked: '+(Number.isNaN(stamp.getTime())?'just now':stamp.toLocaleString());
-  }
-  if(feedback)feedback.textContent='Public status received. This page exposes no job controls or owner-specific history.';
- }catch(error){
-  control.textContent='UNAVAILABLE';model.textContent='UNKNOWN';enabled.textContent='UNKNOWN';remote.textContent='UNKNOWN';
-  if(checked)checked.textContent='Last checked: '+new Date().toLocaleString();
-  if(feedback)feedback.textContent=error?.message||'Could not retrieve public status. No job action was attempted.';
- }finally{if(refresh)refresh.disabled=false;}
-}
-async function loadSupabaseStatus(){
- const status=document.querySelector('#supabase-status');
- const detail=document.querySelector('#supabase-status-detail');
- const checked=document.querySelector('#supabase-status-checked');
- const refresh=document.querySelector('#supabase-refresh');
- if(!status||!detail)return;
- if(refresh)refresh.disabled=true;
- status.textContent='CHECKING';
- detail.textContent='Requesting generic read-only service state…';
- if(checked)checked.textContent='Last checked: in progress';
- try{
-  const result=await fetchSupabasePublicStatus();
-  status.textContent='ONLINE';
-  detail.textContent=`Control plane: online · Model: ${result.model_status||'unknown'} · Training: disabled · Remote execution: disabled.`;
-  if(checked){
-   const stamp=result.checked_at?new Date(result.checked_at):new Date();
-   checked.textContent='Last checked: '+(Number.isNaN(stamp.getTime())?'just now':stamp.toLocaleString());
-  }
- }catch(error){
-  status.textContent='UNAVAILABLE';
-  detail.textContent=error?.message||'The public status endpoint could not be reached.';
-  if(checked)checked.textContent='Last checked: '+new Date().toLocaleString();
- }finally{
-  if(refresh)refresh.disabled=false;
- }
-}
 function bindLearning(){
  const detail=document.querySelector('#topic-detail');
  content.querySelectorAll('[data-topic-index]').forEach(button=>button.addEventListener('click',()=>{
@@ -305,8 +359,8 @@ async function loadServers(){
  try{
   const response=await fetch('./servers.json',{cache:'no-store'});
   if(!response.ok)throw new Error(`Could not load servers.json (HTTP ${response.status})`);
-  const data=await response.json();const entries=Array.isArray(data)?data:data.providers;
-  if(!Array.isArray(entries))throw new Error('Provider directory format is invalid.');
+  const data=validateProviderDirectory(await response.json());
+  const entries=data.providers;
   alert.textContent='Provider directory loaded. Availability and terms still require direct verification.';
   list.innerHTML=entries.length?entries.map((item,i)=>{const url=typeof item.url==='string'&&/^https:\/\//i.test(item.url)?item.url:'';const label=String(item.status||'NOT VERIFIED');return `<div class="server-row"><span class="server-number">${i+1}</span><div><b>${esc(item.name||'Unnamed provider')}</b><p>${esc(item.description||item.capabilities||'No capability description supplied.')}</p><p>${esc(item.role||'Informational directory entry')}</p>${url?`<a class="server-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Official provider site ↗</a>`:''}</div><span class="tag planned">${esc(label)}</span></div>`;}).join(''):'<div class="empty-state"><span>—</span><b>No providers listed</b><p>The directory contains no providers.</p></div>';
  }catch(error){alert.textContent=`Provider directory unavailable: ${error.message}. Provider terms metadata unavailable; verify current terms directly before using a provider.`;list.innerHTML='<div class="empty-state"><span>!</span><b>Provider directory unavailable</b><p>Check the deployed servers.json path and refresh. No provider is assumed available.</p></div>';}
@@ -323,8 +377,8 @@ function bind(page){
   content.querySelectorAll('[data-topic-command]').forEach(button=>button.addEventListener('click',()=>{const input=document.querySelector('#agent-input');input.value=button.dataset.topicCommand;answerAgent();}));
  }
  if(page==='servers'){document.querySelector('#servers-refresh').addEventListener('click',loadServers);loadServers();}
- if(page==='training'){document.querySelector('#training-status-refresh').addEventListener('click',loadTrainingStatus);loadTrainingStatus();}
- if(page==='backend'){document.querySelector('#supabase-refresh').addEventListener('click',loadSupabaseStatus);loadSupabaseStatus();}
+ if(page==='training'){document.querySelector('#training-status-refresh').addEventListener('click',requestPublicStatus);startPublicStatusPolling();}
+ if(page==='backend'){document.querySelector('#supabase-refresh').addEventListener('click',requestPublicStatus);startPublicStatusPolling();}
  if(page==='settings'){
   const slider=document.querySelector('#memory-slider');
   slider.addEventListener('input',()=>{document.querySelector('#memory-value').textContent=slider.value+' GB';safeSet('ultron-memory-level',slider.value);});
