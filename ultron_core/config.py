@@ -2,14 +2,14 @@ from dataclasses import asdict, dataclass, replace
 import math
 from typing import Any
 
-from .math_tokenizer import TOKENIZER_VERSION
+from .math_tokenizer import TOKENIZER_VERSION, VOCAB_SIZE
 
 MIN_FOUNDATION_TRAINABLE_PARAMETERS = 60_000_000
 
 
 @dataclass(frozen=True)
 class NeuroSparseConfig:
-    vocab_size: int = 256
+    vocab_size: int = VOCAB_SIZE
     tokenizer_version: int = TOKENIZER_VERSION
     hidden_size: int = 128
     num_layers: int = 2

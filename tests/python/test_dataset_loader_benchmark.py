@@ -1,5 +1,6 @@
 """Tests for the read-only indexed dataset benchmark on tiny fixtures."""
 import tempfile
+import tracemalloc
 import unittest
 from pathlib import Path
 
@@ -39,6 +40,32 @@ class IndexedDatasetBenchmarkTests(unittest.TestCase):
             self.assertEqual(first["random_access"]["sampled_indices"], second["random_access"]["sampled_indices"])
             self.assertTrue(dataset.is_file())
 
+
+    def test_preexisting_tracemalloc_activity_does_not_pollute_benchmark_peak(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset = root / "fixture.jsonl"
+            split = root / "fixture.splits.json"
+            fixture(dataset, 90, True)
+            prepare_dataset_split_manifest(dataset, split, split_seed=4)
+
+            tracemalloc.start()
+            unrelated = bytearray(16 * 1024 * 1024)
+            try:
+                _, peak_before = tracemalloc.get_traced_memory()
+                report = benchmark_indexed_dataset(
+                    dataset, split, random_access_samples=3, seed=7
+                )
+                _, peak_after = tracemalloc.get_traced_memory()
+                self.assertGreater(
+                    report["tracemalloc_baseline_python_bytes"],
+                    len(unrelated),
+                )
+                self.assertIsNone(report["tracemalloc_peak_python_bytes"])
+                self.assertGreaterEqual(peak_after, peak_before)
+                self.assertTrue(unrelated)
+            finally:
+                tracemalloc.stop()
 
     def test_output_path_cannot_overwrite_dataset_or_manifest(self):
         with tempfile.TemporaryDirectory() as directory:

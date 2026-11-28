@@ -8,7 +8,7 @@ from typing import Iterable, Mapping
 from .config import (MIN_FOUNDATION_TRAINABLE_PARAMETERS, NeuroSparseConfig,
                      count_parameters, count_total_parameters)
 from .data_generation import MathExample, validate_example_text
-from .math_tokenizer import MathVocabulary
+from .math_tokenizer import MathTokenizer, MathVocabulary
 
 _REQUIRED_SPLITS = ("train", "validation", "test")
 
@@ -34,6 +34,8 @@ def preflight_training_plan(config, splits, *, batch_size=1, sequence_length=256
     vocab = MathVocabulary.default()
     if config.vocab_size != len(vocab):
         raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
+    tokenizer = MathTokenizer(vocab)
+    tokenizer.assert_compatible_config(config)
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
     if parameter_count < MIN_FOUNDATION_TRAINABLE_PARAMETERS:
@@ -137,9 +139,9 @@ def preflight_verified_indexed_dataset(
     gradient_accumulation_steps = kwargs["gradient_accumulation_steps"]
     vocab = MathVocabulary.default()
     if config.vocab_size != len(vocab):
-        raise ValueError(
-            f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}"
-        )
+        raise ValueError(f"config vocab_size={config.vocab_size} does not match canonical tokenizer size={len(vocab)}")
+    tokenizer = MathTokenizer(vocab)
+    tokenizer.assert_compatible_config(config)
     parameter_count = count_parameters(config)
     total_parameter_count = count_total_parameters(config)
     if parameter_count < MIN_FOUNDATION_TRAINABLE_PARAMETERS:

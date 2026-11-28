@@ -369,6 +369,68 @@ class BoundedTrainingControllerTests(unittest.TestCase):
         self.assertEqual(result["steps_completed"], 1)
         self.assertFalse(self.model.activation_checkpointing)
 
+
+    def test_performance_token_count_matches_loss_mask_for_padding(self):
+        settings = TrainingSettings(
+            max_steps=1,
+            gradient_accumulation_steps=1,
+            max_seconds=60,
+            profile_performance=True,
+        )
+        cases = (
+            (
+                {"input_ids": torch.tensor([[0, 0, 5, 6]], dtype=torch.long),
+                 "attention_mask": torch.tensor([[False, False, True, True]])},
+                1,
+            ),
+            (
+                {"input_ids": torch.tensor([[1, 2, 0, 0]], dtype=torch.long)},
+                1,
+            ),
+        )
+        for batch, expected_tokens in cases:
+            with self.subTest(batch=batch):
+                report = dict(self.report)
+                report["gradient_accumulation_steps"] = 1
+                report["sequence_length"] = 4
+                result = run_training_steps(
+                    self.model,
+                    [batch],
+                    self.optimizer,
+                    report,
+                    settings=settings,
+                    training_authorized=True,
+                )
+                self.assertEqual(result["performance"]["target_tokens"], expected_tokens)
+                self.assertEqual(result["steps_completed"], 1)
+
+    def test_performance_profiler_rejects_non_boolean_or_misaligned_mask(self):
+        settings = TrainingSettings(
+            max_steps=1,
+            gradient_accumulation_steps=1,
+            max_seconds=60,
+            profile_performance=True,
+        )
+        report = dict(self.report)
+        report["gradient_accumulation_steps"] = 1
+        malformed = (
+            {"input_ids": torch.tensor([[1, 2, 3]], dtype=torch.long),
+             "attention_mask": torch.ones((1, 3), dtype=torch.long)},
+            {"input_ids": torch.tensor([[1, 2, 3]], dtype=torch.long),
+             "attention_mask": torch.ones((1, 2), dtype=torch.bool)},
+        )
+        for batch in malformed:
+            with self.subTest(mask=batch["attention_mask"]):
+                with self.assertRaisesRegex(ValueError, "attention_mask must be boolean"):
+                    run_training_steps(
+                        self.model,
+                        [batch],
+                        self.optimizer,
+                        report,
+                        settings=settings,
+                        training_authorized=True,
+                    )
+
     def test_opt_in_performance_metrics_report_tokens_and_cpu_timing(self):
         settings = TrainingSettings(max_steps=1, gradient_accumulation_steps=2,
             max_seconds=60, profile_performance=True)

@@ -38,3 +38,29 @@ Do not generate/download the full training corpus, train ULTRON weights, perform
 ## Prompt 3 — training recovery and evaluation (2026-11-27)
 
 Implementation is submitted in PR #204. Exact-head Python AI Core (696 tests plus CPU smoke), Node Tests and Level 1 Math Tooling (5/5) all passed (runs `46015892965`, `46015892752`, and `46015892856`). PR review/merge remains pending. The detailed audit and limitations are in `docs/TRAINING_RECOVERY_EVALUATION_AUDIT_2026-11-27.md`. No ULTRON training or optimizer step is performed.
+
+
+## Prompt 6 — full-system validation and handoff (2026-11-28)
+
+**Integrated candidate:** [PR #207](https://github.com/ultron1846-oss/ULTRON/pull/207), based on `2ba3340dbc841699ad98e651c86f2e227be8cac0`. Exact code/test revision `bfb48af944c9dfba8e387d9c39f9a1b39a31145f` passed the full current CI matrix: Node 127/127 (run 46107031153), Python AI Core 722 tests (run 46107031165), Level 1 5/5 plus 5,000 randomized cases (run 46107031224), and security/dependency audit (run 46107031196). The Python CPU smoke was forward/backward only and explicitly did not perform an optimizer step. A second documentation-only pass also passed on the handoff revision: Node 127/127 (run 46107500105), Python 722 (46107500109), Level 1 5 plus 5,000 randomized cases (46107500160), and security/dependency audit (46107500169). No executable source or test files changed between passes.
+
+| Prompt 6 area | Status | Notes |
+|---|---|---|
+| Dataset/preflight fixtures | Verified | Manifest, indexed dataset, split, tokenizer and preflight tests passed; no production corpus was built. |
+| Tokenizer/model/checkpoint integration | Implemented but not fully verified | Combined contract/recovery suite passed on fixtures; full foundation hardware execution not tested. |
+| Inference/compression | Implemented but not fully verified | Small initialized checkpoint and artifact paths tested; no trained model or real performance metrics. |
+| Website/runtime/security contracts | Implemented but not fully verified | Mock/static protocol and dependency checks pass; actual deployment and device acceptance are not demonstrated. |
+| 60M foundation execution | Incomplete | Formula: 63,400,451 total / 61,826,048 trainable. No full instantiation or target-device profiling. |
+| Curriculum and evaluation readiness | Incomplete | 60/197 university catalog topics have generators; no trained checkpoint or frozen final score. |
+| iPad, provider quotas/persistence, Supabase, license/secrets | Blocked by owner action | See the full readiness report for the exact checklist. |
+
+The test controller's optimizer-step assertions use a mock model with meta-device parameters and a counter-only mock optimizer. The CI CPU smoke explicitly says no optimizer step or training run. The seed-data workflow is manual and requires both a confirmation input and the `ULTRON_SEED_IMPORT_ENABLED` repository variable; it was not dispatched.
+
+**Exact next engineering task:** implement an independently validated, bounded exact-rational Green's theorem generator tranche for the missing `Green_stokes_divergence_theorems` topic; validate counter-clockwise line integral against curl double integral over rational rectangles; add deterministic/tamper/orientation/resource-bound tests and synchronize the registry. Do not claim Stokes or divergence coverage. No production corpus, optimizer step, training or remote compute.
+
+Training remains a separate phase and is not authorized.
+
+
+## Conflict-resolution integration update — 2026-11-28
+
+PR #207 was reconciled against current `main` commit `0d62a59433398d254f947ef9a9f8a5cb48b08ff3`. The updated integration commit before this documentation refresh was `3b4cccd18f434ccb58b5f016e22c5101fc9427bc`; 127 changed paths were carried forward, and six overlapping files were merged using the PR base, current main, and PR head. Phase 3 dataset work from #220 and checkpoint/evaluation work from #204 remain in the parent tree. Fresh exact-head checks: Node Tests passed; Level 1 Math Tooling passed; Security/dependency audit passed; Python AI Core was still running at the last check. Merge is gated on the final Python result. No ULTRON training or optimizer step was performed.

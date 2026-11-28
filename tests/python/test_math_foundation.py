@@ -239,6 +239,8 @@ class DeterministicDataGenerationTests(unittest.TestCase):
         self.assertFalse(validate_example_text("1*x + 2 = 3", "0", "linear_equations"))
 
     def test_exact_rational_arithmetic(self):
+        self.assertTrue(validate_example_text("2 + 2", "4", "arithmetic"))
+        self.assertFalse(validate_example_text("2 + 2", "5", "arithmetic"))
         self.assertTrue(validate_example_text("1/3 + 1/6", "1/2", "rational_arithmetic"))
         self.assertFalse(validate_example_text("1/3 / 0", "0", "rational_arithmetic"))
 
@@ -435,6 +437,12 @@ class TrainingPreflightTests(unittest.TestCase):
         wrong_vocab["vocab_size"] += 1
         with self.assertRaisesRegex(ValueError, "does not match canonical tokenizer"):
             preflight_training_plan(NeuroSparseConfig(**wrong_vocab), self.splits)
+
+    def test_preflight_rejects_noncanonical_pad_token_id(self):
+        wrong_pad = self.config.to_dict()
+        wrong_pad["pad_token_id"] = 1
+        with self.assertRaisesRegex(ValueError, "padding token ID"):
+            preflight_training_plan(NeuroSparseConfig(**wrong_pad), self.splits)
 
     def test_preflight_rejects_prompt_overlap_across_splits(self):
         invalid = dict(self.splits)

@@ -10,26 +10,26 @@ export const supabaseBackendAudit = Object.freeze({
   region: 'ap-south-1',
   currentWebsiteRepository: 'ultron1846-oss/ULTRON',
   projectStatusAtInspection: 'ACTIVE_HEALTHY',
-  inspectedOn: '2026-11-24',
+  inspectedOn: '2026-11-28',
   services: [
     {
       name: 'device-control',
       state: 'retired',
       label: 'RETIRED · HTTP 410',
-      detail: 'The function remains deployed but its current handler rejects every request with HTTP 410. It cannot pair devices, issue credentials or accept heartbeats.'
+      detail: 'The function remains deployed (reported ACTIVE) but its current handler rejects every request with HTTP 410. It cannot pair devices, issue credentials or accept heartbeats. Its CORS allow-origin still points at the retired shayaanfarsheed-cmd Pages domain, not the current ultron1846-oss Pages site.'
     },
     {
       name: 'training-control',
       state: 'protected',
       label: 'PUBLIC STATUS · OWNER ACTIONS',
-      detail: 'The public_status action returns generic service-state flags only. Health, status, start and stop actions remain owner-session gated and require a verified owner session inside the function.'
+      detail: 'Deployed version 8 reports verify_jwt=false. The website uses only public_status, which returns generic service flags. Other health/status/start/stop actions manually verify a signed-in owner session inside the function; the website exposes none of them. The referenced cpu-diagnostic.yml workflow is absent from the current repository, so the legacy owner-only diagnostic launch route needs owner review.'
     }
   ],
   blockers: [
     'The public website has no login and therefore cannot access owner-linked memory, checkpoint or training records. Those tables remain protected by row-level security.',
     'The public status endpoint is read-only. It does not return owner IDs, records, run metadata, provider credentials or secrets.',
     'Provider discovery is informational only. The website does not submit provider jobs or launch remote workloads; actual model training remains disabled.',
-    'The Supabase security advisor reports three retired device/pairing tables with RLS enabled but no policies, plus disabled leaked-password protection. These are separate backend-hardening items and were not changed by this frontend integration.'
+    'Live Supabase security advisor check on 2026-11-28: public.ultron_devices, public.ultron_pairing_challenges and public.ultron_pairing_rate_limits have RLS enabled but no policies (INFO). Leaked-password protection is disabled (WARN); the linked Supabase password-security documentation says this feature is available on Pro and above, while this project organisation is currently Free. These owner/backend items were not changed by this frontend integration.'
   ]
 });
 

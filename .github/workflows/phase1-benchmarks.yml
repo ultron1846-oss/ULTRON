@@ -1,0 +1,38 @@
+name: ULTRON Phase 1 performance benchmarks
+
+on:
+  pull_request:
+    branches:
+      - full-system-readiness-batch-7-2026-11-28
+
+permissions:
+  contents: read
+
+jobs:
+  phase1-benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install CPU PyTorch
+        run: python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch>=2.2,<3.0'
+      - name: Install pinned test dependencies
+        run: python -m pip install -r requirements-test.txt
+      - name: Run Phase 1 microbenchmarks
+        run: python -m tools.benchmark_phase1 --output artifacts/phase1-benchmark.json
+      - name: Upload benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ultron-phase1-benchmark
+          path: artifacts/phase1-benchmark.json
+          if-no-files-found: error
+          retention-days: 14
