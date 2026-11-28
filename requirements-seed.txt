@@ -2,4 +2,4 @@
 # for PYSEC-2026-3716 (datasets) and PYSEC-2026-4217 (fsspec).
 datasets>=5.0.1,<6
 fsspec>=2026.6.0,<2027
-huggingface_hub>=0.27,<2
+huggingface_hub>=0.27,<3
