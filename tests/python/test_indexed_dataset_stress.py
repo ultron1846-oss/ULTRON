@@ -8,6 +8,7 @@ import os
 import sqlite3
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
+from unittest import skipUnless
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -285,6 +286,88 @@ class IndexedDatasetStressTests(unittest.TestCase):
             split.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
                 VerifiedIndexedSplitStore(dataset, split)
+
+
+    def test_interrupted_snapshot_copy_cleans_partial_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            created_paths = []
+            real_temporary_directory = tempfile.TemporaryDirectory
+
+            def tracked_temporary_directory(*args, **kwargs):
+                temporary = real_temporary_directory(*args, **kwargs)
+                if kwargs.get("prefix") == "ultron-indexed-dataset-":
+                    created_paths.append(Path(temporary.name))
+                return temporary
+
+            def write_partial_then_fail(store):
+                store._snapshot_path.write_bytes(b"partial verified snapshot")
+                raise OSError("injected snapshot-copy interruption")
+
+            with patch.object(
+                indexed_module.tempfile, "TemporaryDirectory",
+                side_effect=tracked_temporary_directory,
+            ), patch.object(
+                VerifiedIndexedSplitStore, "_copy_verified_snapshot",
+                write_partial_then_fail,
+            ):
+                with self.assertRaisesRegex(OSError, "injected snapshot-copy interruption"):
+                    VerifiedIndexedSplitStore(dataset, split)
+
+            self.assertEqual(len(created_paths), 1)
+            self.assertFalse(created_paths[0].exists())
+
+    def test_corrupted_ephemeral_index_is_recovered_by_fresh_rebuild(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=180)
+            with VerifiedIndexedSplitStore(dataset, split) as store:
+                expected = store.get_record("train", 0)
+                index_path = store._index_path
+                with index_path.open("r+b") as index_file:
+                    index_file.seek(0)
+                    index_file.write(b"CORRUPTED")
+                    index_file.flush()
+                    os.fsync(index_file.fileno())
+                with self.assertRaises(sqlite3.DatabaseError):
+                    store.get_record("train", 0)
+
+            with VerifiedIndexedSplitStore(dataset, split) as rebuilt:
+                self.assertEqual(rebuilt.get_record("train", 0), expected)
+                self.assertEqual(len(list(rebuilt.iter_records("train"))), rebuilt.split_counts["train"])
+
+    @skipUnless(Path("/proc/self/fd").is_dir(), "file descriptor accounting requires /proc/self/fd")
+    def test_repeated_store_lifecycle_does_not_leak_file_descriptors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=90)
+            baseline = len(list(Path("/proc/self/fd").iterdir()))
+            for _ in range(8):
+                store = VerifiedIndexedSplitStore(dataset, split)
+                list(store.iter_records("train"))
+                store.close()
+            after = len(list(Path("/proc/self/fd").iterdir()))
+            self.assertLessEqual(after, baseline + 1)
+
+    def test_large_manifest_and_record_count_are_bounded_and_deterministic(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dataset, split = self._prepare(Path(directory), count=12000)
+            manifest_bytes = split.stat().st_size
+            self.assertGreater(manifest_bytes, 500_000)
+            with VerifiedIndexedSplitStore(dataset, split) as store:
+                self.assertEqual(sum(store.split_counts.values()), 12000)
+                first_pass = [
+                    example_id
+                    for split_name in ("train", "validation", "test")
+                    for example_id, _prompt, _answer in store.iter_records(split_name)
+                ]
+                second_pass = [
+                    example_id
+                    for split_name in ("train", "validation", "test")
+                    for example_id, _prompt, _answer in store.iter_records(split_name)
+                ]
+                self.assertEqual(first_pass, second_pass)
+                self.assertEqual(first_pass, sorted(first_pass))
+                self.assertGreater(store._index_path.stat().st_size, 0)
+
 
 
 if __name__ == "__main__":
